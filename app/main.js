@@ -1,6 +1,7 @@
 var app = require('app');  // Module to control application life.
 var BrowserWindow = require('browser-window');  // Module to create native browser window.
 var spawn = require('child_process').spawn;
+var io = require('socket.io-client')('http://localhost:3000');
 
 // Report crashes to our server.
 require('crash-reporter').start();
@@ -8,6 +9,12 @@ require('crash-reporter').start();
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is GCed.
 var mainWindow = null;
+
+io.on('connection', function(socket) {
+  socket.on('files', function(files) {
+    console.log('files:', files);
+  })
+})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function() {
@@ -38,7 +45,7 @@ app.on('ready', function() {
     mainWindow = null;
   });
 
-  var child = spawn('command', ['atom']);
+  // var child = spawn('command', ['atom']);
 
 
 
