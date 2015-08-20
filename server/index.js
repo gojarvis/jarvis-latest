@@ -27,6 +27,14 @@ io.on('connection', function (socket) {
     console.log('file opened:', file)
   })
 
+  socket.on('file closed', function(file) {
+    console.log('file closed:', file)
+  })
+
+  socket.on('file saved', function(file) {
+    console.log('file saved:', file)
+  });
+
   socket.on('disconnect', function() {
     console.log('disconnected')
     numUsers--;
