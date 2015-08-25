@@ -20,6 +20,9 @@ app.use(express.static(__dirname + '/public'));
 var numUsers = 0;
 var connections = imm.Set();
 var files = imm.Set();
+var fileToOpen = 'server/package.json';
+
+var cwd = '';
 
 io.on('connection', function (socket) {
   var newConn = {
@@ -34,6 +37,17 @@ io.on('connection', function (socket) {
 
   socket.on('files', function(files) {
     console.log('files:', files);
+  });
+
+  socket.on('set cwd', function(cwd) {
+    console.log('new cwd:', cwd);
+    cwd = cwd;
+  });
+
+  socket.on('give context', function() {
+    socket.emit('context', {
+      files: [cwd + fileToOpen]
+    });
   });
 
   socket.on('file opened', function(file) {
