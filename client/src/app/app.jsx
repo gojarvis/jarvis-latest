@@ -3,8 +3,10 @@
   let ReactDOM = require('react-dom');
   let injectTapEventPlugin = require('react-tap-event-plugin');
   let Main = require('./components/main.jsx'); // Our custom react component
-  let io = require('socket.io-client')
 
+  // let Face = require('./components/face.jsx'); // Our custom react component
+  let io = require('socket.io-client')
+  //
   let socket = io.connect('localhost:3000', {reconnect: true});
 
 

@@ -25,13 +25,21 @@
     "webpack-dev-server": "^1.10.1"
   },
   "dependencies": {
+    "chance": "^0.8.0",
+    "faker": "^3.0.1",
     "material-ui": "^0.13.0",
     "react": "^0.14.0",
-    "react-dom":"^0.14.0",
-    "react-tap-event-plugin": "^0.2.1",    
     "react-addons-create-fragment": "^0.14.0",
     "react-addons-pure-render-mixin": "^0.14.0",
     "react-addons-transition-group": "^0.14.0",
-    "react-addons-update": "^0.14.0"
+    "react-addons-update": "^0.14.0",
+    "react-dom": "^0.14.0",
+    "react-motion": "^0.3.1",
+    "react-mousetrap": "0.0.6",
+    "react-redux": "^4.0.1",
+    "react-tap-event-plugin": "^0.2.1",
+    "redux": "^3.0.5",
+    "redux-thunk": "^1.0.2",
+    "sentencer": "^0.1.4"
   }
 }
