@@ -302,7 +302,7 @@ const Main = React.createClass({
           <div style={{margin: "10px", textAlign: "center", fontSize: "15px"}}>{this.state.convResult}</div>
           <TextField
             style={{margin: "10px", textAlign: "center", width: "90%"}}
-            hintText="Teach me"
+            hintText="Teach me a response"
             value={this.state.input}
             onKeyDown={this.handleKeyDownIn}
             onChange={this.handleChangeIn}

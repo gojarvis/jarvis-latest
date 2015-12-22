@@ -18,6 +18,21 @@ class WitController {
       self.socket.emit('stopped');
     });
 
+    self.socket.on('chrome', function(msg){
+      console.log('chrome');
+      console.log(msg);
+    });
+
+    self.socket.on('chrome-created', function(msg){
+      console.log('chrome-created');
+      console.log(msg);
+    });
+
+    self.socket.on('chrome-highlighted', function(msg){
+      console.log('chrome-highlighted');
+      console.log(msg);
+    });
+
 
     self.socket.on('record', function(){
       self.socket.emit('recording');
