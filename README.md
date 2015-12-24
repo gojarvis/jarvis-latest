@@ -8,4 +8,4 @@
 6. Start the plugin dev-gulp (which I think is just `gulp` maybe? ¯\_(ツ)_/¯
 7. Profit.
 
-[Wit.ai Console][https://wit.ai/roieki/sherpa-demo/settings]
+Wit.ai Console - https://wit.ai/roieki/sherpa-demo/settings
