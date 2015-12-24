@@ -51,7 +51,8 @@ const Main = React.createClass({
       convResult: '',
       recording: false,
       topic: '',
-      related: []
+      related: [],
+      heart: '<#'
     };
   },
 
@@ -158,6 +159,16 @@ const Main = React.createClass({
   clickHandler() {
     socket.emit('record');
   },
+
+  handleHeartbeat(hb){
+    if (hb.heartbeat % 2 === 0){
+      this.setState({heart: "<3"})
+    }
+    else{
+      this.setState({heart: "<|"})
+    }
+  },
+
   attachEvents(socket){
     let self = this;
     socket.on('result', function(result){
@@ -196,6 +207,10 @@ const Main = React.createClass({
 
     socket.on('exec-done', function(res){
       console.log(res);
+    });
+
+    socket.on('heartbeat', function(hb){
+      self.handleHeartbeat(hb)
     });
   },
   stopHandler(){
@@ -307,6 +322,7 @@ const Main = React.createClass({
           <div>{ this.state.related.map(item => { return (<div>{item.url}</div>) }) }</div>
 
         </div>
+        
         <Face recording={this.state.recording}>
           <TextField
             style={{margin: "10px", textAlign: "center", width: "90%"}}

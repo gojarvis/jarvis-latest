@@ -6,6 +6,10 @@ import model from 'seraph-model';
 import Promise from 'bluebird';
 import PouchDB from 'pouchdb';
 
+
+import MetaInspector from 'node-metainspector';
+
+
 let graph = require("seraph")({
   user: 'neo4j',
   pass: 'sherpa'
@@ -50,6 +54,7 @@ class ChromeController {
     });
 
     self.socket.on('chrome-highlighted', function(active){
+      console.log('high');
       self.handleHighlighted(active).then(function(related){
         self.io.emit('related', related);
       });
@@ -87,7 +92,6 @@ class ChromeController {
     catch(err) {
       //already exists
       graphNodes = await Promise.all(tabs.map(tab => this.getUrl(tab.url)));
-
     }
 
     this.urls = graphNodes;
@@ -95,7 +99,7 @@ class ChromeController {
     let relationshipsTop = await Promise.all(graphNodes.map(node =>{
       let origin = node;
       let others = graphNodes.filter(node => node.id !== origin.id);
-      let relationship = 'OPENWITH'
+      let relationship = 'OPENWITH';
       return this.relateOneToMany(origin,others,relationship)
     }));
   }
@@ -136,7 +140,7 @@ class ChromeController {
   }
 
   async getRelated(url, threshold){
-    let cypher = 'MATCH (n:Url)-[r:OPENWITH]->() WHERE n.url = "' + url +'" AND r.weight > ' + threshold +'  RETURN r ORDER BY r.weight DESC LIMIT 5';
+    let cypher = 'MATCH (n:Url)-[r:OPENWITH]->() WHERE n.url = "' + url +'" AND r.weight > ' + threshold +'  RETURN r ORDER BY r.weight DESC LIMIT 10';
     // console.log(cypher);
     let params = {url: url, threshold: threshold};
 
@@ -160,11 +164,17 @@ class ChromeController {
   }
 
   saveUrl(url){
+    let self = this;
     return new Promise(function(resolve, reject) {
       graph.save({type: 'url', url: url}, 'Url', function(err, node){
         node = node ? node : {type: 'url', url: url};
         if (err) reject(err)
-        else resolve(node);
+        else {
+          resolve(node);
+          self.fetchUrlMetaData(url);
+        }
+
+
       });
     });
   }
@@ -179,6 +189,32 @@ class ChromeController {
     });
   }
 
+  fetchUrlMetaData(url){
+      let self = this;
+      if (url.startsWith("http")){
+        let client = new MetaInspector(url, { timeout: 5000 });
+        client.on('fetch', function(){
+          let keywords = client.keywords;
+          if (keywords.length >0 ){
+              self.saveUrlKeywords(url, keywords);
+          }
+
+        });
+
+        client.fetch();
+      }
+  }
+
+  async saveKeywords(url, keywords){
+      let keywordsNodes = await Promise.all(keywords.map(keyword => saveKeyword(keyword)))
+  }
+
+  saveKeyword(keyword){
+    return new Promise(function(resolve, reject) {
+      graph.save({type: 'keyword', text: keyword});
+    });
+  }
+
   getActiveTab(id){
     return this.tabs.filter(tab => tab.id === id)
   }
@@ -186,7 +222,6 @@ class ChromeController {
   getTabIds(tabs){
     return tabs.map(tab => tab.id)
   }
-
 
   findTabIdByUrl(tabs, url){
     let tab = tabs.filter(tab => { if (tab.url === url) return tab})
@@ -206,7 +241,6 @@ class ChromeController {
   async handleUpdated(active){
 
     let activeTab = this.getActiveTab(active)
-    console.log(activeTab[0].url);
     let related = await this.getRelated(activeTab[0].url,2);
 
     let relatedUrls = await Promise.all(related.map(relation => this.getUrlById(relation.end)))

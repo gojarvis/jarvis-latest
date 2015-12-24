@@ -19,6 +19,7 @@
     "level-browserify": "^1.1.0",
     "levelgraph": "^1.1.0",
     "limdu": "^0.6.0",
+    "node-metainspector": "^1.2.0",
     "node-record-lpcm16": "^0.1.4",
     "node-wit": "^2.0.0",
     "nodemon": "^1.8.1",

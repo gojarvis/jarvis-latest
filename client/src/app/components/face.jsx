@@ -49,7 +49,6 @@ const Face = React.createClass({
   },
   hum: function(){
       this.wait(Math.floor(Math.random() * 4000) + 1000, function(){
-        console.log("AM I RECORDING? ", this.props.recording);
         if (!this.props.recording){
           this.blink();
         }
@@ -94,6 +93,7 @@ const Face = React.createClass({
           <span style={style.face.mouth}>{this.state.mouth}</span>
           <span style={style.face.eyes}>{this.state.eyes.right}</span>
         </div>
+        
         <div style={{width: "100%", height: "40%", flexDirection: "row", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "40px"}}>
           <span>{this.props.children}</span>
         </div>
