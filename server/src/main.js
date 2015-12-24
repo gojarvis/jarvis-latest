@@ -9,7 +9,7 @@ app.get('/', function(req, res){
 });
 
 io.on('connection', function(socket){
-  var socketManager = new SocketManager(socket)
+  var socketManager = new SocketManager(socket,io)
 });
 
 

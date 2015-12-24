@@ -50,7 +50,8 @@ const Main = React.createClass({
       netResult: '',
       convResult: '',
       recording: false,
-      topic: ''
+      topic: '',
+      related: []
     };
   },
 
@@ -179,6 +180,14 @@ const Main = React.createClass({
       self.setState({status: "Stopped"})
     });
 
+    socket.on('speak', function(text){
+      self.say(text)
+    });
+
+    socket.on('related', function(related){
+      self.handleRelated(related);
+    });
+
     socket.on('log', function(msg){
       console.log(msg);
     });
@@ -239,6 +248,11 @@ const Main = React.createClass({
 		}
   },
 
+  handleRelated(related){
+    console.log('related',related);
+    this.setState({related: related});
+  },
+
 
   actionResultHandler(result){
     this.setState({actionResult: result});
@@ -284,8 +298,15 @@ const Main = React.createClass({
     //   })
     // }
 
+
+
+
     return (
       <div style={containerStyle}>
+        <div style={{margin: "10px", textAlign: "center", fontSize: "15px"}}>
+          <div>{ this.state.related.map(item => { return (<div>{item.url}</div>) }) }</div>
+
+        </div>
         <Face recording={this.state.recording}>
           <TextField
             style={{margin: "10px", textAlign: "center", width: "90%"}}
@@ -300,6 +321,7 @@ const Main = React.createClass({
           <div style={{margin: "10px", textAlign: "center", fontSize: "12px"}}>{this.state.actionResult}</div>
           <div style={{margin: "10px", textAlign: "center", fontSize: "20px", display: "none"}}>{this.state.netResult}</div>
           <div style={{margin: "10px", textAlign: "center", fontSize: "15px"}}>{this.state.convResult}</div>
+
           <TextField
             style={{margin: "10px", textAlign: "center", width: "90%"}}
             hintText="Teach me a response"
