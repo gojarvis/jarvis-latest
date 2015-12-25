@@ -21,15 +21,15 @@ chrome.tabs.onCreated.addListener(function(active){
 });
 
 chrome.tabs.onHighlighted.addListener(function(active){
-  socket.emit('chrome-highlighted', active)
+  socket.emit('chrome-highlighted', {active:active, tabs:tabs})
 });
 
-chrome.tabs.onUpdated.addListener(function(active){  
+chrome.tabs.onUpdated.addListener(function(active){
   socket.emit('chrome-updated', {active:active, tabs:tabs})
 });
 
 
-heart.createEvent(5, function(heartbeat, last){
+heart.createEvent(30, function(heartbeat, last){
   chrome.tabs.query({}, function(tabs){
       let hb = { heartbeat: heartbeat, last: last, tabs: tabs};
       socket.emit('heartbeat', hb);

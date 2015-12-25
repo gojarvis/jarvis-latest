@@ -6,7 +6,7 @@ import model from 'seraph-model';
 import Promise from 'bluebird';
 import PouchDB from 'pouchdb';
 
-
+import keywordExtractor from 'keyword-extractor';
 import MetaInspector from 'node-metainspector';
 
 
@@ -18,6 +18,11 @@ let graph = require("seraph")({
 let graphAsync = Promise.promisifyAll(graph);
 
 graph.constraints.uniqueness.create('Url', 'url', function(err, constraint) {
+  // console.log(constraint);
+  // -> { type: 'UNIQUENESS', label: 'Person', property_keys: ['name'] }
+});
+
+graph.constraints.uniqueness.create('Keyword', 'text', function(err, constraint) {
   // console.log(constraint);
   // -> { type: 'UNIQUENESS', label: 'Person', property_keys: ['name'] }
 });
@@ -53,8 +58,8 @@ class ChromeController {
       console.log('Found ', self.tabs.length, 'tabs');
     });
 
-    self.socket.on('chrome-highlighted', function(active){
-      console.log('high');
+    self.socket.on('chrome-highlighted', function(msg){
+      let {active, tabs} = msg;
       self.handleHighlighted(active).then(function(related){
         self.io.emit('related', related);
       });
@@ -64,6 +69,7 @@ class ChromeController {
     self.socket.on('chrome-updated', function(message){
       console.log('updated');
       let {active, tabs} = message;
+      console.log('tabs', tabs);
       self.tabs = tabs;
       self.handleUpdated(active).then(function(related){
         self.io.emit('related', related);
@@ -76,8 +82,6 @@ class ChromeController {
     });
 
     self.socket.emit('speak', "Ready.");
-    // console.log('top:', this.socket.id);
-
   }
 
   async saveSession(tabs){
@@ -107,6 +111,7 @@ class ChromeController {
 
 
   async relateOneToMany(origin, others, relationship){
+
     let relationships = [];
     try {
       relationships = await Promise.all(others.map(target => this.relateNodes(origin, target, relationship)));
@@ -120,6 +125,8 @@ class ChromeController {
 
 
   async relateNodes(origin, target, relationship){
+    // console.log(origin, target, relationship);
+
     let cypher = 'START a=node({origin}), b=node({target}) '
                 +'CREATE UNIQUE a-[r:'+relationship+']-b '
                 +'SET r.weight = coalesce(r.weight, 0) + 1';
@@ -133,7 +140,7 @@ class ChromeController {
     }
 
     catch(err){
-      // console.log('failed to relate', err);
+      // console.log('failed to relate', err, params);
     }
 
     return res
@@ -166,12 +173,31 @@ class ChromeController {
   saveUrl(url){
     let self = this;
     return new Promise(function(resolve, reject) {
-      graph.save({type: 'url', url: url}, 'Url', function(err, node){
+      graph.save({type: 'url', url: url, keywords: ''}, 'Url', function(err, node){
         node = node ? node : {type: 'url', url: url};
         if (err) reject(err)
         else {
           resolve(node);
-          self.fetchUrlMetaData(url);
+          if (!node.keywords ||node.keywords.length === 0){
+            self.fetchUrlMetaData(url);
+          }
+        }
+      });
+    });
+  }
+
+  getUrl(url){
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      graph.find({type: 'url', url: url}, function(err, node){
+        node = node ? node[0] : {type: 'url', url: url};
+        if (err) reject(err)
+        else {
+
+          resolve(node);
+          if (!node.keywords || node.keywords.length === 0){
+            self.fetchUrlMetaData(url);
+          }
         }
 
 
@@ -179,39 +205,81 @@ class ChromeController {
     });
   }
 
-  getUrl(url){
-    return new Promise(function(resolve, reject) {
-      graph.find({type: 'url', url: url}, function(err, node){
-        node = node ? node[0] : {type: 'url', url: url};
-        if (err) reject(err)
-        else resolve(node);
-      });
-    });
-  }
-
   fetchUrlMetaData(url){
       let self = this;
-      if (url.startsWith("http")){
-        let client = new MetaInspector(url, { timeout: 5000 });
-        client.on('fetch', function(){
-          let keywords = client.keywords;
-          if (keywords.length >0 ){
-              self.saveUrlKeywords(url, keywords);
-          }
+      try {
+        if (url.startsWith("http")){
+          let client = new MetaInspector(url, { timeout: 15000 });
+          client.on('fetch', function(){
+            let description = client.description;
+            if (description && description.length > 0 ){
+                console.log("found meta data for ", url, description.length);
+                self.saveUrlKeywordsFromDescription(url, description);
+            }
+          });
 
-        });
-
-        client.fetch();
+          client.fetch();
+        }
+      }
+      catch(err){
+        console.log('could not fetch ', url);
       }
   }
 
-  async saveKeywords(url, keywords){
-      let keywordsNodes = await Promise.all(keywords.map(keyword => saveKeyword(keyword)))
+  async saveUrlKeywordsFromDescription(url, description){
+      let keywords = keywordExtractor.extract(description, { language:"english", remove_digits: true, return_changed_case:true, remove_duplicates: false});
+      let keywordsNodes = await Promise.all(keywords.map(keyword => this.saveKeyword(keyword)));
+
+      // console.log(url, keywordsNodes);
+
+      let relationships = await Promise.all(keywordsNodes.map(keywordNode => this.relateKeywordToUrl(keywordNode[0].text,url)))
+
+      let updated = await this.updateUrlKeywordFetchStatus(url);
+
   }
+
+  async updateUrlKeywordFetchStatus(url){
+    let urlNode = await this.getUrlNodeByUrl(url);
+    urlNode.keywords = 'fetched';
+    let updatedNode = await this.saveUrlNode(urlNode);
+
+    return updatedNode;
+
+  }
+
+  saveUrlNode(urlNode){
+    return new Promise(function(resolve, reject) {
+      graph.save(urlNode, function(err, node){
+        if (err) reject(err)
+        else resolve(node)
+      })
+    });
+  }
+
+  async relateKeywordToUrl(keyword, url){
+      let self = this;
+      let keywordNode = await this.getKeywordByText(keyword);
+      let urlNode = await this.getUrlNodeByUrl(url);
+      let relationship = await self.relateNodes(keywordNode, urlNode, 'related');
+
+      return(relationship);
+  }
+
+
 
   saveKeyword(keyword){
     return new Promise(function(resolve, reject) {
-      graph.save({type: 'keyword', text: keyword});
+      graph.save({type: 'keyword', text: keyword}, 'Keyword', function(err, node){
+        if (err) {
+          graph.find({type: 'keyword', text: keyword},function(err,node){
+            if (err) reject(err)
+            else resolve(node);
+          })
+        }
+        else {
+          resolve(node);
+        }
+      });
     });
   }
 
@@ -238,20 +306,36 @@ class ChromeController {
     });
   }
 
-  async handleUpdated(active){
+  getKeywordByText(keyword){
+    return new Promise(function(resolve, reject) {
+      graph.find({type: 'keyword', text: keyword}, function(err, keywords){
+        if (err) reject (err)
+        else resolve(keywords[0])
+      })
+    });
+  }
 
+  getUrlNodeByUrl(url){
+    return new Promise(function(resolve, reject) {
+      graph.find({type: 'url', url: url}, function(err, urls){
+        if (err) reject (err)
+        else resolve(urls[0])
+      })
+    });
+  }
+
+  async handleUpdated(active){
     let activeTab = this.getActiveTab(active)
     let related = await this.getRelated(activeTab[0].url,2);
-
     let relatedUrls = await Promise.all(related.map(relation => this.getUrlById(relation.end)))
 
     return relatedUrls
   }
 
   async handleHighlighted(active){
-    // console.log(active,active.tabIds,active.tabIds[0]);
     let activeTab = this.getActiveTab(active.tabIds[0])
-    let activeId = this.urls.filter(node => node.url === activeTab[0].url).id;
+    let activeUrl = activeTab[0].url;
+    let activeId = this.urls.filter(node => node.url === activeUrl).id;
     let related = await this.getRelated(activeTab[0].url,2);
 
     let relatedUrls = await Promise.all(related.map(relation => this.getUrlById(relation.end)))
