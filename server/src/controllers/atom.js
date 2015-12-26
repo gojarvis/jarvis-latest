@@ -20,7 +20,7 @@ let graphAsync = Promise.promisifyAll(graph);
 graph.constraints.uniqueness.create('File', 'uri', function(err, constraint) {});
 
 class AtomController {
-  constructor(socket, sid,io){
+  constructor(socket, sid,io, context){
     this.redis = new Redis();
     this.socket = socket;
     this.registerEvents();
@@ -28,6 +28,7 @@ class AtomController {
     this.activeTab = {};
     this.sid = sid;
     this.io = io;
+    this.context = context;
   }
 
   registerEvents(){
@@ -37,6 +38,7 @@ class AtomController {
     self.socket.on('atom-open', function(msg){
       console.log('atom-open', msg);
     });
+
 
     // self.socket.on('atom-connected', function(){
     //   console.log('atom-connected');
@@ -52,15 +54,16 @@ class AtomController {
     //
     self.socket.on('atom-highlighted', function(msg){
       self.handleFileHighlighted(msg.uri);
+
     })
     //
-    self.socket.on('atom-file-open', function(msg){
-      self.handleFileOpen(msg.uri);
-    })
-    //
-    self.socket.on('atom-file-close', function(msg){
-      self.handleFileClose(msg.uri);
-    })
+    // self.socket.on('atom-file-open', function(msg){
+    //   self.handleFileOpen(msg.uri);
+    // })
+    // //
+    // self.socket.on('atom-file-close', function(msg){
+    //   self.handleFileClose(msg.uri);
+    // })
   }
 
   async saveSession(tabs){
@@ -190,26 +193,29 @@ class AtomController {
   async handleFileHighlighted(uri){
     let fileNode = await this.insertUniqueFile(uri)
     let otherNodes = this.tabs.filter(tab => tab.id !== fileNode.id);
-
-    // console.log('FILENODE',fileNode, otherNodes);
     let rel = await this.relateOneToMany(fileNode, otherNodes, 'OPENWITH');
-    console.log(rel);
+    // console.log('done relating', this.socket);
+    this.context.addFileNode(fileNode);
+
+
   }
 
 
 
   async handleFileObserved(uri){
-    let fileNode = this.insertUniqueFile(uri)
-    console.log(fileNode);
+    let fileNode = await this.insertUniqueFile(uri)
+    // console.log(fileNode);
+    this.context.addFileNode(uri);
   }
 
   async handleFileOpen(uri){
-    let fileNode = this.insertUniqueFile(uri);
-    console.log(fileNode);
+    let fileNode = await this.insertUniqueFile(uri);
+    // console.log(fileNode);
+    this.context.addFileNode(fileNode);
   }
 
   async handleFileClose(uri){
-    console.log('close',uri)
+    // console.log('close',uri)
     this.removeUniqueFile(uri);
   }
 

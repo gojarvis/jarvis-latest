@@ -64,7 +64,7 @@ class ChromeController {
       });
     });
 
-  
+
     self.socket.on('chrome-updated', function(message){
       console.log('updated');
       let {active, tabs} = message;
@@ -78,6 +78,16 @@ class ChromeController {
     self.socket.on('heartbeat', function(hb){
       console.log(".");
       self.saveSession(hb.tabs);
+    });
+
+    self.socket.on('hello', function(){
+      console.log('hello');
+    });
+
+
+    self.socket.on('atom-file-action-highlight', function(fileNode){
+      console.log('atom-file-action-highlight', fileNode);
+      self.associateWithFiles(fileNode);
     });
 
     self.socket.emit('speak', "Ready.");
@@ -97,7 +107,11 @@ class ChromeController {
       graphNodes = await Promise.all(tabs.map(tab => this.getUrl(tab.url)));
     }
 
+
+
     this.urls = graphNodes;
+
+    this.context.updateUrls(this.urls);
 
     let relationshipsTop = await Promise.all(graphNodes.map(node =>{
       let origin = node;
@@ -340,6 +354,12 @@ class ChromeController {
     let relatedUrls = await Promise.all(related.map(relation => this.getUrlById(relation.end)))
 
     return relatedUrls
+  }
+
+
+  async associateWithFiles(fileNode){
+    console.log('fileNode',fileNode);
+    console.log('urls',this.urls);
   }
 
 
