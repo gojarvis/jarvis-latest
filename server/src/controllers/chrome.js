@@ -31,7 +31,7 @@ let db = new PouchDB('sherpa');
 
 
 class ChromeController {
-  constructor(socket, sid,io){
+  constructor(socket, sid,io, context){
     this.redis = new Redis();
     this.socket = socket;
     this.registerEvents();
@@ -40,6 +40,7 @@ class ChromeController {
     this.activeTab = {};
     this.sid = sid;
     this.io = io;
+    this.context = context;
   }
 
   registerEvents(){
@@ -112,6 +113,7 @@ class ChromeController {
     this.urls = graphNodes;
 
     this.context.updateUrls(this.urls);
+    // console.log(this.context);
 
     let relationshipsTop = await Promise.all(graphNodes.map(node =>{
       let origin = node;
@@ -160,8 +162,10 @@ class ChromeController {
   }
 
   async getRelated(url, threshold){
+    let urlNode = await this.getUrlNodeByUrl(url);
     let cypher = 'MATCH (n:Url)-[r:OPENWITH]->() WHERE n.url = "' + url +'" AND r.weight > ' + threshold +'  RETURN r ORDER BY r.weight DESC LIMIT 10';
     // console.log(cypher);
+    // let cypher = 'START o=node({start}) MATCH o<-[r:related]-(keyword:Keyword)-[q:related]->(target:Url) RETURN q';
     let params = {url: url, threshold: threshold};
 
     try{
@@ -219,6 +223,7 @@ class ChromeController {
   }
 
   fetchUrlMetaData(url){
+      return;
       let self = this;
       try {
         if (url.startsWith("http")){

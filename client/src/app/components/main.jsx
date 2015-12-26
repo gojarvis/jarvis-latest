@@ -52,6 +52,7 @@ const Main = React.createClass({
       recording: false,
       topic: '',
       related: [],
+      relatedFiles: [],
       heart: '<#'
     };
   },
@@ -199,6 +200,10 @@ const Main = React.createClass({
       self.handleRelated(related);
     });
 
+    socket.on('related-files', function(related){
+      self.handleRelatedFiles(related);
+    });
+
     socket.on('log', function(msg){
       console.log(msg);
     });
@@ -268,6 +273,11 @@ const Main = React.createClass({
     this.setState({related: related});
   },
 
+  handleRelatedFiles(relatedFiles){
+    console.log('relatedFiles',relatedFiles);
+    this.setState({relatedFiles: relatedFiles});
+  },
+
 
   actionResultHandler(result){
     this.setState({actionResult: result});
@@ -320,6 +330,10 @@ const Main = React.createClass({
       <div style={containerStyle}>
         <div style={{margin: "10px", textAlign: "center", fontSize: "15px"}}>
           <div>{ this.state.related.map(item => { return (<div>{item.url}</div>) }) }</div>
+
+        </div>
+        <div style={{margin: "10px", textAlign: "center", fontSize: "15px"}}>
+          <div>{ this.state.relatedFiles.map(item => { return (<div>{item.uri}</div>) }) }</div>
 
         </div>
 

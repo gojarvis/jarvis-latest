@@ -53,7 +53,9 @@ class AtomController {
     })
     //
     self.socket.on('atom-highlighted', function(msg){
-      self.handleFileHighlighted(msg.uri);
+      self.handleFileHighlighted(msg.uri).then(function(related){
+        self.io.emit('related-files', related);
+      });
 
     })
     //
@@ -126,7 +128,7 @@ class AtomController {
   }
 
   async getRelated(uri, threshold){
-    let cypher = 'MATCH (n:File)-[r:OPENWITH]->() WHERE n.uri = "' + uri +'" AND r.weight > ' + threshold +'  RETURN r ORDER BY r.weight DESC LIMIT 10';
+    let cypher = 'MATCH (n:File)-[r:OPENWITH]->(q:File) WHERE n.uri = "' + uri +'" RETURN r ';
     // console.log(cypher);
     let params = {uri: uri, threshold: threshold};
 
@@ -197,7 +199,46 @@ class AtomController {
     // console.log('done relating', this.socket);
     this.context.addFileNode(fileNode);
 
+    let related = await this.getRelated(uri, 2);
 
+    let relatedFiles = await Promise.all(related.map(relation => this.getFileById(relation.end)))
+    console.log('relatedFiles', relatedFiles);
+    
+    return relatedFiles
+
+  }
+
+  async getRelated(uri, threshold){
+    let cypher = 'MATCH (n:File)-[r:OPENWITH]->(q:File) WHERE n.uri = "' + uri +'" AND r.weight > ' + threshold +'  RETURN r ORDER BY r.weight DESC LIMIT 10';
+    let params = {uri: uri, threshold: threshold};
+
+    try{
+      let res = await this.queryGraph(cypher,params);
+
+      return res;
+    }
+    catch(err){
+      // console.log('failed to relate', err);
+    }
+  }
+
+  queryGraph(cypher, params){
+    return new Promise(function(resolve, reject) {
+      graph.query(cypher, params, function(err, result){
+        if (err) reject(err)
+        else resolve(result)
+      });
+    });
+  }
+
+  getFileById(id){
+    return new Promise(function(resolve, reject) {
+      graph.read(id, function(err,node){
+        node = node ? node : {}
+        if (err) reject(err)
+        else resolve(node);
+      })
+    });
   }
 
 
