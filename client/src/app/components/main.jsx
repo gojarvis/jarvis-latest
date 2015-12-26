@@ -322,7 +322,7 @@ const Main = React.createClass({
           <div>{ this.state.related.map(item => { return (<div>{item.url}</div>) }) }</div>
 
         </div>
-        
+
         <Face recording={this.state.recording}>
           <TextField
             style={{margin: "10px", textAlign: "center", width: "90%"}}

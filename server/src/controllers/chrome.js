@@ -49,7 +49,6 @@ class ChromeController {
       console.log('chrome-init');
       console.log("found ",   tabs.length, "tabs.");
       self.saveSession(tabs);
-
     });
 
     self.socket.on('chrome-created', function(msg){
@@ -65,7 +64,7 @@ class ChromeController {
       });
     });
 
-
+  
     self.socket.on('chrome-updated', function(message){
       console.log('updated');
       let {active, tabs} = message;

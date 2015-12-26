@@ -3,6 +3,8 @@ AtomSherpaView = require './atom-sherpa-view'
 io = require('socket.io-client')('http://localhost:3000')
 vm = require('vm')
 
+
+io.emit('atom-connected');
 module.exports = AtomSherpa =
   atomSherpaView: null
   modalPanel: null
@@ -17,11 +19,12 @@ module.exports = AtomSherpa =
 
     # Register command that toggles this view
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-sherpa:toggle': => @toggle()
-    @subscriptions.add atom.workspace.onDidOpen (file) => @filesAction 'open', {uri: file.uri, index: file.index}, { }
-    @subscriptions.add atom.workspace.onDidDestroyPaneItem (context) => @filesAction 'close', {uri: context.item.getPath()}, { }
+    @subscriptions.add atom.workspace.onDidOpen (file) => @handleOpen 'open', {uri: file.uri, index: file.index, file:file}, { }
+    @subscriptions.add atom.workspace.onDidDestroyPaneItem (context) => @handleClose 'close', {uri: context.item.getPath()}, { }
     @subscriptions.add atom.workspace.observeTextEditors (editor) => @handleEditor editor
+    @subscriptions.add atom.workspace.onDidChangeActivePaneItem (file) => @handleHighlighted file
     @subscriptions.add @socket.on 'run cmd', (cmd) => @runCommand cmd
-    @subscriptions.add @socket.on 'files', (files) => console.log 'P.onFiles:', files
+    @subscriptions.add @socket.on 'list files', (files) => console.log 'P.onFiles:', files
     @subscriptions.add @socket.on 'name', (name) => @handleName name
     @subscriptions.add @socket.on 'context', (context) => @handleContext context
 
@@ -30,9 +33,9 @@ module.exports = AtomSherpa =
         @atomSherpaView = new AtomSherpaView(state.atomSherpaViewState)
       createStatusEntry()
     # @modalPanel = atom.workspace.addModalPanel(item: @atomSherpaView.getElement(), visible: false)
-
     # leaving this out for now, as it triggers for both file open and tab creation, tripping up the events (for some reason)
     # @subscriptions.add atom.workspace.onDidAddPaneItem (context) => @emitEvent('tab open', {uri: context.item.getPath()})
+
 
     @socket.emit 'give context'
 
@@ -55,12 +58,25 @@ module.exports = AtomSherpa =
     @emitEvent 'files', context
 
 
+  handleOpen: (uri) ->
+    @socket.emit('atom-file-open', {uri: uri});
+
+  handleClose: (uri) ->
+    @socket.emit('atom-file-close', {uri: uri});
+
   emitEvent: (eventName, eventObj) ->
     console.info 'P.emitEvent: ' + eventName + ':', eventObj
     @socket.emit eventName, eventObj
 
   handleEditor: (editor) ->
-    @subscriptions.add editor.onDidSave (event) => @emitEvent 'file saved', {uri: editor.getPath()}
+    @socket.emit('atom-file-observed', {uri: editor.getPath()});
+    @subscriptions.add editor.onDidSave (event) => @emitEvent 'atom-file-saved', {uri: editor.getPath()}
+
+  handleHighlighted: (textEditor) ->
+    uri = textEditor.getPath()
+
+    @socket.emit('atom-highlighted', {uri: uri});
+    
 
   runCommand: (cmd) ->
     console.info 'P.runCommand: ', cmd
@@ -72,8 +88,3 @@ module.exports = AtomSherpa =
 
   toggle: ->
     console.log 'P.toggle'
-
-    # if @modalPanel.isVisible()
-      # @modalPanel.hide()
-    # else
-      # @modalPanel.show()
