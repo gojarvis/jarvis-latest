@@ -28,6 +28,9 @@ chrome.tabs.onUpdated.addListener(function(active){
   socket.emit('chrome-updated', {active:active, tabs:tabs})
 });
 
+//https://developer.chrome.com/extensions/omnibox
+// chrome.onInputEntered()
+
 
 heart.createEvent(30, function(heartbeat, last){
   chrome.tabs.query({}, function(tabs){

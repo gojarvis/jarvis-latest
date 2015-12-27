@@ -20,7 +20,7 @@ let graphAsync = Promise.promisifyAll(graph);
 graph.constraints.uniqueness.create('File', 'uri', function(err, constraint) {});
 
 class AtomController {
-  constructor(socket, sid,io, context){
+  constructor(socket, sid,io, context, history){
     this.redis = new Redis();
     this.socket = socket;
     this.registerEvents();
@@ -29,6 +29,7 @@ class AtomController {
     this.sid = sid;
     this.io = io;
     this.context = context;
+    this.history = history;
   }
 
   registerEvents(){
@@ -36,7 +37,7 @@ class AtomController {
     var self = this;
 
     self.socket.on('atom-open', function(msg){
-      console.log('atom-open', msg);
+      // console.log('atom-open', msg);
     });
 
 
@@ -202,8 +203,12 @@ class AtomController {
     let related = await this.getRelated(uri, 2);
 
     let relatedFiles = await Promise.all(related.map(relation => this.getFileById(relation.end)))
-    console.log('relatedFiles', relatedFiles);
-    
+    // console.log('relatedFiles', relatedFiles);
+
+    this.history.saveEvent({type: 'highlighted', source: 'atom', data: { nodeId: fileNode.id, uri: uri} }).then(function(res){
+      console.log('highlited atom saved');
+    });
+
     return relatedFiles
 
   }

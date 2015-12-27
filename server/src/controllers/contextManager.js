@@ -8,12 +8,11 @@ let graph = require("seraph")({
 
 
 class contextManager{
-  constructor(){
-    console.log('context online');
+  constructor(history){
     this.urls = [];
     this.files = [];
     this.heart = heartbeats.createHeart(1000);
-
+    this.history = history;
     this.heart.createEvent(10, function(heartbeat, last){
       this.handleHeartbeat(heartbeat);
     }.bind(this));
@@ -56,7 +55,9 @@ class contextManager{
     console.log("*", this.files.length, this.urls.length);
     this.relateUrlsToFiles()
     this.updateStats();
-
+    this.history.saveEvent({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls} }).then(function(res){
+      // console.log(res);
+    })
   }
 
   async relateOneToMany(origin, others, relationship){
@@ -112,7 +113,19 @@ class contextManager{
 
   }
 
+  updateDelats(){
+
+  }
+
   getUrlCount(){
+    return new Promise(function(resolve, reject) {
+      graph.query('MATCH (n:Url) RETURN count(n)', function(err, result){
+        if (err) reject(err)
+      });
+    });
+  }
+
+  getFileCount(){
     return new Promise(function(resolve, reject) {
       graph.query('MATCH (n:Url) RETURN count(n)', function(err, result){
         if (err) reject(err)

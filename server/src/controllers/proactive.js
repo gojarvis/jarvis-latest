@@ -19,8 +19,6 @@ class Proactive {
 
     registerEvents(){
       let self = this;
-
-      // self.socket.emit('speak', 'Proactive is now online.');
     }
 
     handleHeartbeat(){

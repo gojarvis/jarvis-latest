@@ -31,7 +31,7 @@ let db = new PouchDB('sherpa');
 
 
 class ChromeController {
-  constructor(socket, sid,io, context){
+  constructor(socket, sid,io, context, history){
     this.redis = new Redis();
     this.socket = socket;
     this.registerEvents();
@@ -41,6 +41,7 @@ class ChromeController {
     this.sid = sid;
     this.io = io;
     this.context = context;
+    this.history = history;
   }
 
   registerEvents(){
@@ -86,10 +87,10 @@ class ChromeController {
     });
 
 
-    self.socket.on('atom-file-action-highlight', function(fileNode){
-      console.log('atom-file-action-highlight', fileNode);
-      self.associateWithFiles(fileNode);
-    });
+    // self.socket.on('atom-file-action-highlight', function(fileNode){
+    //   console.log('atom-file-action-highlight', fileNode);
+    //   self.associateWithFiles(fileNode);
+    // });
 
     self.socket.emit('speak', "Ready.");
   }
@@ -357,7 +358,9 @@ class ChromeController {
     let related = await this.getRelated(activeTab[0].url,2);
 
     let relatedUrls = await Promise.all(related.map(relation => this.getUrlById(relation.end)))
-
+    this.history.saveEvent({type: 'highlighted', source: 'chrome', data: { nodeId: activeId, url: activeUrl} }).then(function(res){
+      console.log('highlited chrome saved');
+    });
     return relatedUrls
   }
 
