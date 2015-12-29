@@ -1,5 +1,8 @@
 import heartbeats from 'heartbeats'
+import Thinky from 'thinky'
 
+var db = Thinky();
+var type = db.type;
 
 let graph = require("seraph")({
   user: 'neo4j',
@@ -7,8 +10,18 @@ let graph = require("seraph")({
   server: 'http://45.55.36.193:7474'
 });
 
+var User = db.createModel("User", {
+  id: type.string(),
+  username: type.string(),
+}, { pk: "username"})
+
+
+graph.constraints.uniqueness.create('User', 'username', function(err, constraint) {});
+
 class contextManager{
-  constructor(history){
+  constructor(history, userInfo){
+
+    this.user = {};
     this.urls = [];
     this.files = [];
     this.heart = heartbeats.createHeart(1000);
@@ -16,6 +29,12 @@ class contextManager{
     this.heart.createEvent(10, function(heartbeat, last){
       this.handleHeartbeat(heartbeat);
     }.bind(this));
+
+    this.initContext(userInfo)
+  }
+
+  async initContext(userInfo){
+      this.user = await this.setUser(userInfo);
   }
 
   get() {
@@ -23,6 +42,52 @@ class contextManager{
       urls: this.urls,
       files: this.files
     }
+  }
+
+  async setUser(user){
+    console.log("SETUSER", user);
+    let rethinkUser = await saveUserInRethink(user);
+    console.log(rethinkUser);
+    // console.log(userInfo);
+    // let user = new User(userInfo);
+    //
+    // let rethinkUser = {};
+    // // try {
+    //    user = user.save()
+    // }
+    // catch(err){
+    //     user = await User.get(userInfo)
+    // }
+    // user.save().then(function(err, res){
+    //   if (err) {
+    //
+    //   }
+    // });
+    // console.log('user',user)
+    // console.log('user', rethinkUser);
+    let graphUser = await graph.save(rethinkUser, 'User')
+    console.log(graphUser);
+    return graphUser
+  }
+
+  saveUserInRethink(userInfo){
+    return new Promise(function(resolve, reject) {
+       let user = new User(userInfo);
+       user.save().then(function(err,res){
+         console.log(err,res);
+         if (err) {
+           User.get(userInfo).then(function(err,res){
+             if (err){
+               console.log('cant get', err)
+             }
+             else{
+               resolve(res);
+             }
+           })
+         }
+         else resolve(res);
+       });
+    });
   }
 
   updateFiles(files){
@@ -51,6 +116,7 @@ class contextManager{
     console.log('related stuff', this.files.length, this.urls.length);
   }
 
+
   handleHeartbeat(heartbeat){
     console.log("*", this.files.length, this.urls.length);
     this.relateUrlsToFiles()
@@ -78,6 +144,32 @@ class contextManager{
 
     let cypher = 'START a=node({origin}), b=node({target}) '
                 +'CREATE UNIQUE a-[r:'+relationship+']-b '
+                +'SET r.weight = coalesce(r.weight, 0) + 1';
+    let params = {origin: origin.id, target: target.id, relationship: relationship};
+
+    let res = {};
+
+    try{
+      res = await this.queryGraph(cypher,params);
+      // console.log('res', res, cypher, params);
+    }
+
+    catch(err){
+      let cypher = 'START a=node('+origin.id+'), b=node('+target.id+') '
+                  +'CREATE UNIQUE a-[r:'+relationship+']-b '
+                  +'SET r.weight = coalesce(r.weight, 0) + 1';
+
+      // console.log('failed', err, cypher);
+    }
+
+    return res
+  }
+
+
+  //Creates a bi-directional relationship between nodes
+  async associateNodes(origin, target, relationship){
+    let cypher = 'START a=node({origin}), b=node({target}) '
+                +'CREATE UNIQUE a<-[r:'+relationship+']->b '
                 +'SET r.weight = coalesce(r.weight, 0) + 1';
     let params = {origin: origin.id, target: target.id, relationship: relationship};
 

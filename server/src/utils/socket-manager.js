@@ -11,8 +11,10 @@ const Deep = require('../controllers/deep');
 
 //The context contains all the urls and files open right now
 //Access to the knowledge graph is gained via the context
-const history = new History();
-const context = new Context(history);
+const userInfo = { username: 'roieki'};
+
+const history = new History(userInfo);
+const context = new Context(history, userInfo);
 const deep = new Deep(history,context);
 
 

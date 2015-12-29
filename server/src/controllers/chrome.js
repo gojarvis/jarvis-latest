@@ -188,7 +188,6 @@ class ChromeController {
   }
 
   saveUrl(url){
-    console.log('SAVING');
     let self = this;
     return new Promise(function(resolve, reject) {
       graph.save({type: 'url', url: url, keywords: ''}, 'Url', function(err, node){
@@ -226,7 +225,7 @@ class ChromeController {
 
   fetchUrlMetaData(url){
       let self = this;
-      console.log('url', url);
+      // console.log('url', url);
       try {
         if (url.startsWith("http")){
           let client = new MetaInspector(url, { timeout: 15000 });
@@ -239,7 +238,7 @@ class ChromeController {
           });
 
           client.on('error', function(err){
-            console.log(err)
+            // console.log(err)
           });
 
           client.fetch();

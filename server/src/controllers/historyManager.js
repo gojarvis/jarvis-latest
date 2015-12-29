@@ -18,7 +18,7 @@ var Event = db.createModel("Event", {
 })
 
 class HistoryManager{
-  constructor(){
+  constructor(userName){
   }
 
   saveEvent(event){
