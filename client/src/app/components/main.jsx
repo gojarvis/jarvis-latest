@@ -316,16 +316,29 @@ const Main = React.createClass({
     ];
     let entities = <div></div>;
 
+    let urlStyle = {
+      background: "#39E0F1",
+      padding: "10px",
+      borderRadius: "7px",
+      margin: "10px"
+    }
+
+    let fileStyle = {
+      background: "#00E601",
+      padding: "10px",
+      borderRadius: "7px",
+      margin: "10px"
+    }
+
     return (
       <div style={containerStyle}>
-        
+
         <div style={{margin: "10px", textAlign: "center", fontSize: "15px"}}>
-          <div>{ this.state.related.map(item => { return (<div>{item.url}</div>) }) }</div>
+          <div>{ this.state.related.map(item => { if (item.url) return (<div style={urlStyle}>{item.url}</div>) }) }</div>
 
         </div>
         <div style={{margin: "10px", textAlign: "center", fontSize: "15px"}}>
-          <div>{ this.state.relatedFiles.map(item => { return (<div>{item.uri}</div>) }) }</div>
-
+          <div>{ this.state.relatedFiles.map(item => { return (<div style={fileStyle}>{item.uri}</div>) }) }</div>
         </div>
 
         <Face recording={this.state.recording}>
@@ -358,7 +371,6 @@ const Main = React.createClass({
               onKeyDown={this.handleKeyDownIn}
               onChange={this.handleChangeTopic}
               />
-
 
         </Face>
 
