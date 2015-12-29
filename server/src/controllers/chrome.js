@@ -12,7 +12,8 @@ import MetaInspector from 'node-metainspector';
 
 let graph = require("seraph")({
   user: 'neo4j',
-  pass: 'sherpa'
+  pass: 'sherpa',
+  server: 'http://45.55.36.193:7474'
 });
 
 let graphAsync = Promise.promisifyAll(graph);
@@ -187,6 +188,7 @@ class ChromeController {
   }
 
   saveUrl(url){
+    console.log('SAVING');
     let self = this;
     return new Promise(function(resolve, reject) {
       graph.save({type: 'url', url: url, keywords: ''}, 'Url', function(err, node){
@@ -194,7 +196,8 @@ class ChromeController {
         if (err) reject(err)
         else {
           resolve(node);
-          if (node && !node.keywords ||node.keywords.length === 0){
+
+          if (node && !node.keywords || node.keywords.length === 0){
             self.fetchUrlMetaData(url);
           }
         }
@@ -211,7 +214,7 @@ class ChromeController {
         else {
 
           resolve(node);
-          if (!node.keywords || node.keywords.length === 0){
+          if (node && !node.keywords || node.keywords.length === 0){
             self.fetchUrlMetaData(url);
           }
         }
@@ -222,8 +225,8 @@ class ChromeController {
   }
 
   fetchUrlMetaData(url){
-      return;
       let self = this;
+      console.log('url', url);
       try {
         if (url.startsWith("http")){
           let client = new MetaInspector(url, { timeout: 15000 });
@@ -233,6 +236,10 @@ class ChromeController {
                 console.log("found meta data for ", url, description.length);
                 self.saveUrlKeywordsFromDescription(url, description);
             }
+          });
+
+          client.on('error', function(err){
+            console.log(err)
           });
 
           client.fetch();
@@ -249,7 +256,11 @@ class ChromeController {
 
       // console.log(url, keywordsNodes);
 
-      let relationships = await Promise.all(keywordsNodes.map(keywordNode => this.relateKeywordToUrl(keywordNode[0].text,url)))
+      let relationships = await Promise.all(keywordsNodes.map(keywordNode => {
+        if (keywordNode && keywordNode[0]){
+            return this.relateKeywordToUrl(keywordNode[0].text,url)
+        }
+      }));
 
       let updated = await this.updateUrlKeywordFetchStatus(url);
 
@@ -315,7 +326,7 @@ class ChromeController {
 
   getUrlById(id){
     return new Promise(function(resolve, reject) {
-      console.log('ID', id);
+      // console.log('ID', id);
       graph.read(id, function(err,node){
         node = node ? node : {}
         if (err) reject(err)
@@ -344,7 +355,7 @@ class ChromeController {
 
   async handleUpdated(active){
     let activeTab = this.getActiveTab(active)
-    let related = await this.getRelated(activeTab[0].url,100);
+    let related = await this.getRelated(activeTab[0].url,10);
     let relatedUrls = await Promise.all(related.map(relation => this.getUrlById(relation.end)))
 
     return relatedUrls
@@ -359,9 +370,9 @@ class ChromeController {
     let activeUrl = activeTab[0].url;
     let activeId = this.urls.filter(node => node.url === activeUrl)[0].id;
 
-    console.log("URLS", this.urls, activeId, activeUrl);
+    // console.log("URLS", this.urls, activeId, activeUrl);
 
-    let related = await this.getRelated(activeTab[0].url,2);
+    let related = await this.getRelated(activeTab[0].url,10);
     let urlNode = await this.getUrlById(activeId);
     let relatedUrls = await Promise.all(related.map(relation => this.getUrlById(relation.end)))
     this.history.saveEvent({type: 'highlighted', source: 'chrome', data: { nodeId: activeId, url: activeUrl} }).then(function(res){

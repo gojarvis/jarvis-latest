@@ -3,9 +3,9 @@ import heartbeats from 'heartbeats'
 
 let graph = require("seraph")({
   user: 'neo4j',
-  pass: 'sherpa'
+  pass: 'sherpa',
+  server: 'http://45.55.36.193:7474'
 });
-
 
 class contextManager{
   constructor(history){
@@ -108,13 +108,9 @@ class contextManager{
     });
   }
 
-  updateStats(){
+  updateStats(){}
 
-  }
-
-  updateDelats(){
-
-  }
+  updateDelats(){}
 
   getUrlCount(){
     return new Promise(function(resolve, reject) {
@@ -131,8 +127,6 @@ class contextManager{
       });
     });
   }
-
-  
 
 }
 

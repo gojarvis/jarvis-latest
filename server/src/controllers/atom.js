@@ -12,7 +12,8 @@ import MetaInspector from 'node-metainspector';
 
 let graph = require("seraph")({
   user: 'neo4j',
-  pass: 'sherpa'
+  pass: 'sherpa',
+  server: 'http://45.55.36.193:7474'
 });
 
 let graphAsync = Promise.promisifyAll(graph);
@@ -200,7 +201,7 @@ class AtomController {
     // console.log('done relating', this.socket);
     this.context.addFileNode(fileNode);
 
-    let related = await this.getRelated(uri, 50);
+    let related = await this.getRelated(uri, 3);
 
     let relatedFiles = await Promise.all(related.map(relation => this.getFileById(relation.end)))
     // console.log('relatedFiles', relatedFiles);
@@ -267,7 +268,7 @@ class AtomController {
 
   async insertUniqueFile(uri){
     let fileNode = await this.getAndSave(uri);
-    console.log("found", fileNode.uri);
+    // console.log("found", fileNode.uri);
     let tab = this.tabs.filter(tab => tab.uri === fileNode.uri);
     if (tab.length == 0){
 
