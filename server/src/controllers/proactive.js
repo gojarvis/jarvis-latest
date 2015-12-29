@@ -2,7 +2,7 @@ import heartbeats from 'heartbeats'
 
 
 class Proactive {
-    constructor(socket, sid, io, context){
+    constructor(socket, sid, io, context, history, deep){
       this.socket = socket;
       this.sid = sid;
       this.io = io;
@@ -14,6 +14,10 @@ class Proactive {
         this.handleHeartbeat(heartbeat);
       }.bind(this));
 
+      this.heart.createEvent(100, function(heartbeat, last){
+        this.handleDeepconnect(heartbeat);
+      }.bind(this));
+
       this.registerEvents()
     }
 
@@ -23,11 +27,34 @@ class Proactive {
 
     handleHeartbeat(){
       let self = this;
-
-
-
-      // self.socket.emit('speak', 'boo boom')
     }
+
+    async handleDeepconnect(){
+
+      //Suggest clusters for tagging
+      let possibleClusters = await this.deep.updateClusters()
+      if (possibleClusters > 0){
+        this.socket.emit('possible-clusters', possibleClusters)
+      }
+
+      let relevantFiles = await this.relevantFiles()
+      if (relevantFiles > 0){
+        this.socket.emit('relevant-files', relevantFiles)
+      }
+
+      let relevantUrls = await this.relevantFiles()
+      if (relevantUrls > 0){
+        this.socket.emit('relevant-urls', relevantUrls)
+      }
+
+
+    }
+
+    async getFrame(){
+      //https://www.youtube.com/watch?v=2o2xBOQeB7Q
+    }
+
+
 
 }
 

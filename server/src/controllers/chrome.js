@@ -109,8 +109,6 @@ class ChromeController {
       graphNodes = await Promise.all(tabs.map(tab => this.getUrl(tab.url)));
     }
 
-
-
     this.urls = graphNodes;
 
     this.context.updateUrls(this.urls);
@@ -317,6 +315,7 @@ class ChromeController {
 
   getUrlById(id){
     return new Promise(function(resolve, reject) {
+      console.log('ID', id);
       graph.read(id, function(err,node){
         node = node ? node : {}
         if (err) reject(err)
@@ -354,9 +353,12 @@ class ChromeController {
   async handleHighlighted(active){
     let activeTab = this.getActiveTab(active.tabIds[0])
     let activeUrl = activeTab[0].url;
-    let activeId = this.urls.filter(node => node.url === activeUrl).id;
-    let related = await this.getRelated(activeTab[0].url,2);
+    let activeId = this.urls.filter(node => node.url === activeUrl)[0].id;
 
+    console.log("URLS", this.urls, activeId, activeUrl);
+
+    let related = await this.getRelated(activeTab[0].url,2);
+    let urlNode = await this.getUrlById(activeId);
     let relatedUrls = await Promise.all(related.map(relation => this.getUrlById(relation.end)))
     this.history.saveEvent({type: 'highlighted', source: 'chrome', data: { nodeId: activeId, url: activeUrl} }).then(function(res){
       console.log('highlited chrome saved');

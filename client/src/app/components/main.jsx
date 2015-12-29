@@ -160,7 +160,6 @@ const Main = React.createClass({
   clickHandler() {
     socket.emit('record');
   },
-
   handleHeartbeat(hb){
     if (hb.heartbeat % 2 === 0){
       this.setState({heart: "<3"})
@@ -169,7 +168,6 @@ const Main = React.createClass({
       this.setState({heart: "<|"})
     }
   },
-
   attachEvents(socket){
     let self = this;
     socket.on('result', function(result){
@@ -255,7 +253,6 @@ const Main = React.createClass({
       this.setState({input: ""});
 		}
   },
-
   handleChangeTopic(event){
     this.setState({topic: event.target.value})
 
@@ -267,18 +264,14 @@ const Main = React.createClass({
       this.setState({topic: "", });
 		}
   },
-
   handleRelated(related){
     console.log('related',related);
     this.setState({related: related});
   },
-
   handleRelatedFiles(relatedFiles){
     console.log('relatedFiles',relatedFiles);
     this.setState({relatedFiles: relatedFiles});
   },
-
-
   actionResultHandler(result){
     this.setState({actionResult: result});
   },
@@ -289,7 +282,6 @@ const Main = React.createClass({
     this.say(pick);
     this.setState({netResult: pick});
   },
-
   convResultHandler(result){
     console.log("Got result from CONV", result);
     let rnd = Math.floor(Math.random() * result.length);
@@ -306,8 +298,13 @@ const Main = React.createClass({
     socket.emit('stop');
     console.log('stop');
   },
-  render() {
 
+
+
+
+
+
+  render() {
     let containerStyle = {
       margin: '0px',
       paddingTop: '0px',
@@ -316,15 +313,6 @@ const Main = React.createClass({
       { text: 'Okay' },
     ];
     let entities = <div></div>;
-
-    // if (this.state.entities && this.state.entities.length > 0){
-    //   this.state.entities.forEach(function(entity){
-    //     console.log(entity);
-    //   })
-    // }
-
-
-
 
     return (
       <div style={containerStyle}>

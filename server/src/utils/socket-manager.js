@@ -6,15 +6,16 @@ const AtomController = require('../controllers/atom');
 
 const Context = require('../controllers/contextManager');
 const History = require('../controllers/historyManager');
-
-const Proactive = require('../controllers/proactive')
+const Proactive = require('../controllers/proactive');
+const Deep = require('../controllers/deep');
 
 //The context contains all the urls and files open right now
 //Access to the knowledge graph is gained via the context
-
 const history = new History();
-
 const context = new Context(history);
+const deep = new Deep(history,context);
+
+
 
 class SocketManager {
   constructor(socket,io){
@@ -30,7 +31,7 @@ class SocketManager {
     this.chrome = new ChromeController(socket, sid, io, context, history)
     this.atom = new AtomController(socket, sid, io, context, history)
 
-    this.proactive = new Proactive(socket, sid, io, context, history);
+    this.proactive = new Proactive(socket, sid, io, context, history, deep);
   }
 }
 module.exports = SocketManager;

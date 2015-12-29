@@ -73,7 +73,6 @@ class contextManager{
     return relationships;
   }
 
-
   async relateNodes(origin, target, relationship){
     // console.log(origin, target, relationship);
 
@@ -133,6 +132,7 @@ class contextManager{
     });
   }
 
+  
 
 }
 
