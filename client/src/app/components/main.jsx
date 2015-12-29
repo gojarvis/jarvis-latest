@@ -9,6 +9,8 @@ const Mic = require('./mic.jsx');
 const FlatButton = require('material-ui/lib/flat-button');
 const TextField = require('material-ui/lib/text-field');
 
+const Card = require('material-ui/lib/card');
+
 const AppBar = require('material-ui/lib/app-bar')
 const Table = require('./table.jsx'); // Our custom react component
 const ENTER_KEY = 13;
@@ -316,6 +318,7 @@ const Main = React.createClass({
 
     return (
       <div style={containerStyle}>
+        
         <div style={{margin: "10px", textAlign: "center", fontSize: "15px"}}>
           <div>{ this.state.related.map(item => { return (<div>{item.url}</div>) }) }</div>
 

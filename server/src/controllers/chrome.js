@@ -194,7 +194,7 @@ class ChromeController {
         if (err) reject(err)
         else {
           resolve(node);
-          if (!node.keywords ||node.keywords.length === 0){
+          if (node && !node.keywords ||node.keywords.length === 0){
             self.fetchUrlMetaData(url);
           }
         }
@@ -344,7 +344,7 @@ class ChromeController {
 
   async handleUpdated(active){
     let activeTab = this.getActiveTab(active)
-    let related = await this.getRelated(activeTab[0].url,2);
+    let related = await this.getRelated(activeTab[0].url,100);
     let relatedUrls = await Promise.all(related.map(relation => this.getUrlById(relation.end)))
 
     return relatedUrls
@@ -352,6 +352,10 @@ class ChromeController {
 
   async handleHighlighted(active){
     let activeTab = this.getActiveTab(active.tabIds[0])
+
+    if (!activeTab[0]){
+      return [];
+    }
     let activeUrl = activeTab[0].url;
     let activeId = this.urls.filter(node => node.url === activeUrl)[0].id;
 

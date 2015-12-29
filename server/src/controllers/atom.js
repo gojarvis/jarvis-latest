@@ -200,7 +200,7 @@ class AtomController {
     // console.log('done relating', this.socket);
     this.context.addFileNode(fileNode);
 
-    let related = await this.getRelated(uri, 2);
+    let related = await this.getRelated(uri, 50);
 
     let relatedFiles = await Promise.all(related.map(relation => this.getFileById(relation.end)))
     // console.log('relatedFiles', relatedFiles);
