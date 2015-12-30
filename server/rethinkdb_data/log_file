@@ -1,0 +1,21 @@
+2015-12-29T18:20:13.652866000 0.483122s notice: Recursively removing directory /Users/roieki/Sites/sherpa/server/rethinkdb_data/tmp
+2015-12-29T18:20:13.654671000 0.484930s notice: Initializing directory /Users/roieki/Sites/sherpa/server/rethinkdb_data
+2015-12-29T18:20:13.655238000 0.485493s info: Creating a default database for your convenience. (This is because you ran 'rethinkdb' without 'create', 'serve', or '--join', and the directory '/Users/roieki/Sites/sherpa/server/rethinkdb_data' did not already exist or is empty.)
+2015-12-29T18:20:13.655287000 0.485542s notice: Running rethinkdb 2.2.2 (CLANG 7.0.2 (clang-700.1.81))...
+2015-12-29T18:20:13.661734000 0.491991s notice: Running on Darwin 15.2.0 x86_64
+2015-12-29T18:20:13.661802000 0.492057s notice: Loading data from directory /Users/roieki/Sites/sherpa/server/rethinkdb_data
+2015-12-29T18:20:13.793677000 0.623932s info: Automatically using cache size of 100 MB
+2015-12-29T18:20:13.793690000 0.623945s warn: Cache size does not leave much memory for server and query overhead (available memory: 700 MB).
+2015-12-29T18:20:13.793718000 0.623972s warn: Cache size is very low and may impact performance.
+2015-12-29T18:20:13.794956000 0.625211s notice: Listening for intracluster connections on port 29015
+2015-12-29T18:20:13.800910000 0.631165s notice: Listening for client driver connections on port 28015
+2015-12-29T18:20:13.801125000 0.631380s notice: Listening for administrative HTTP connections on port 8080
+2015-12-29T18:20:13.801132000 0.631387s notice: Listening on addresses: 127.0.0.1, ::1
+2015-12-29T18:20:13.801134000 0.631389s notice: To fully expose RethinkDB on the network, bind to all addresses by running rethinkdb with the `--bind all` command line option.
+2015-12-29T18:20:13.801139000 0.631394s notice: Server ready, "Roies_MBP_2_lan_hpr" 6c124359-8f73-4038-867e-37f10558172a
+2015-12-29T18:21:06.333138000 53.165122s info: Table efc0be8b-dcd4-42ee-9f69-a8e71280858c: Added replica on this server.
+2015-12-29T18:21:06.333941000 53.165924s info: Table be38680f-4aaa-4c35-aa42-76e3cde833b4: Added replica on this server.
+2015-12-29T18:21:07.530490000 54.362474s info: Table be38680f-4aaa-4c35-aa42-76e3cde833b4: Starting a new Raft election for term 1.
+2015-12-29T18:21:07.565249000 54.397233s info: Table be38680f-4aaa-4c35-aa42-76e3cde833b4: This server is Raft leader for term 1. Latest log index is 0.
+2015-12-29T18:21:08.160903000 54.992944s info: Table efc0be8b-dcd4-42ee-9f69-a8e71280858c: Starting a new Raft election for term 1.
+2015-12-29T18:21:08.188310000 55.020351s info: Table efc0be8b-dcd4-42ee-9f69-a8e71280858c: This server is Raft leader for term 1. Latest log index is 0.
