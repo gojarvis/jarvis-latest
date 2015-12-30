@@ -20,9 +20,9 @@ module.exports = AtomSherpa =
     # Register command that toggles this view
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-sherpa:toggle': => @toggle()
     @subscriptions.add atom.workspace.onDidOpen (file) => @handleOpen 'open', {uri: file.uri, index: file.index, file:file}, { }
-    @subscriptions.add atom.workspace.onDidDestroyPaneItem (context) => @handleClose 'close', {uri: context.item.getPath()}, { }
+    @subscriptions.add atom.workspace.onDidDestroyPaneItem (context) => @handleClose 'close', {uri: context.item.getURI()}, { }
     @subscriptions.add atom.workspace.observeTextEditors (editor) => @handleEditor editor
-    @subscriptions.add atom.workspace.onDidChangeActivePaneItem (file) => @handleHighlighted file
+    @subscriptions.add atom.workspace.onDidChangeActivePaneItem (item) => @handleHighlighted item
     @subscriptions.add @socket.on 'run cmd', (cmd) => @runCommand cmd
     @subscriptions.add @socket.on 'list files', (files) => console.log 'P.onFiles:', files
     @subscriptions.add @socket.on 'name', (name) => @handleName name
@@ -34,7 +34,7 @@ module.exports = AtomSherpa =
       createStatusEntry()
     # @modalPanel = atom.workspace.addModalPanel(item: @atomSherpaView.getElement(), visible: false)
     # leaving this out for now, as it triggers for both file open and tab creation, tripping up the events (for some reason)
-    # @subscriptions.add atom.workspace.onDidAddPaneItem (context) => @emitEvent('tab open', {uri: context.item.getPath()})
+    # @subscriptions.add atom.workspace.onDidAddPaneItem (context) => @emitEvent('tab open', {uri: context.item.getURI()})
 
 
     @socket.emit 'give context'
@@ -69,14 +69,17 @@ module.exports = AtomSherpa =
     @socket.emit eventName, eventObj
 
   handleEditor: (editor) ->
-    @socket.emit('atom-file-observed', {uri: editor.getPath()});
-    @subscriptions.add editor.onDidSave (event) => @emitEvent 'atom-file-saved', {uri: editor.getPath()}
+    @socket.emit('atom-file-observed', {uri: editor.getURI()});
+    @subscriptions.add editor.onDidSave (event) => @emitEvent 'atom-file-saved', {uri: editor.getURI()}
 
-  handleHighlighted: (textEditor) ->
-    uri = textEditor.getPath()
+  handleHighlighted: (item) ->
+    if item.getPath
+      uri = item.getPath()
+    else
+      uri = item.getURI()
 
     @socket.emit('atom-highlighted', {uri: uri});
-    
+
 
   runCommand: (cmd) ->
     console.info 'P.runCommand: ', cmd

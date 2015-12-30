@@ -3,6 +3,7 @@
   "version": "0.6.0",
   "description": "Boilerplate for Chrome extension React.js project",
   "scripts": {
+    "start": "gulp",
     "dev": "gulp",
     "build": "gulp build",
     "compress": "gulp compress",
