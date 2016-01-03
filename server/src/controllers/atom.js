@@ -5,7 +5,7 @@ import serialize from 'serialization'
 import model from 'seraph-model';
 import Promise from 'bluebird';
 import PouchDB from 'pouchdb';
-
+import _ from 'lodash';
 import keywordExtractor from 'keyword-extractor';
 import MetaInspector from 'node-metainspector';
 
@@ -204,7 +204,12 @@ class AtomController {
     let related = await this.getRelated(uri, 3);
 
     let relatedFiles = await Promise.all(related.map(relation => this.getFileById(relation.end)))
-    // console.log('relatedFiles', relatedFiles);
+
+    let relatedFilesFix = relatedFiles.map(item => {
+      // console.log(_.lodash(item.uri.split("/")));
+      console.log(item);
+
+    });
 
     this.history.saveEvent({type: 'highlighted', source: 'atom', data: { nodeId: fileNode.id, uri: uri} }).then(function(res){
       console.log('highlited atom saved');

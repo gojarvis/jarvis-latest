@@ -15,7 +15,7 @@ const AppBar = require('material-ui/lib/app-bar')
 const Table = require('./table.jsx'); // Our custom react component
 const ENTER_KEY = 13;
 const Face = require('./face.jsx'); // Our custom react component
-
+const Feedback = require('./feedback.jsx');
 
 const greetingResponses = require('../conversations/greetings');
 const queryIdentityResponses = require('../conversations/queryIdentity');
@@ -55,7 +55,8 @@ const Main = React.createClass({
       topic: '',
       related: [],
       relatedFiles: [],
-      heart: '<#'
+      heart: '<#',
+      heartValue: 0
     };
   },
 
@@ -169,6 +170,9 @@ const Main = React.createClass({
     else{
       this.setState({heart: "<|"})
     }
+
+    let newHeartValue = this.state.heartValue + 1;
+    this.setState({heartValue: newHeartValue})
   },
   attachEvents(socket){
     let self = this;
@@ -333,7 +337,7 @@ const Main = React.createClass({
     return (
       <div style={containerStyle}>
 
-        <div style={{ height: "300px",}}>
+        <div style={{ height: "300px", opacity: "0.2", display: "none"}}>
           <div style={{margin: "10px", textAlign: "center", fontSize: "15px"}}>
             <div>{ this.state.related.map(item => { if (item.url) return (<div style={urlStyle}>{item.url}</div>) }) }</div>
 
@@ -342,13 +346,15 @@ const Main = React.createClass({
             <div>{ this.state.relatedFiles.map(item => { return (<div style={fileStyle}>{item.uri}</div>) }) }</div>
           </div>
         </div>
+        <Feedback type="svg" tick={this.state.heartValue} items={this.state.related}/>
+        <Feedback type="svg" tick={this.state.heartValue} items={this.state.relatedFiles}/>
 
-        <Face recording={this.state.recording}>
+        <Face  style={{position: "absolute", bottom: "10px"}} recording={this.state.recording}>
 
 
         </Face>
 
-        <div>
+        <div style={{display: "none"}}>
           <TextField
             style={{margin: "10px", textAlign: "center", width: "90%"}}
             hintText={this.state.hint}

@@ -20,5 +20,41 @@ class GraphDB{
     });
   }
 
+  getUrlById(id){
+    return new Promise(function(resolve, reject) {
+      // console.log('ID', id);
+      graph.read(id, function(err,node){
+        node = node ? node : {}
+        if (err) reject(err)
+        else resolve(node);
+      })
+    });
+  }
+
+  getUrlNodeByUrl(url){
+    return new Promise(function(resolve, reject) {
+      graph.find({type: 'url', url: url}, function(err, urls){
+        if (err) reject (err)
+        else resolve(urls[0])
+      })
+    });
+  }
+
+  async getRelatedToUrl(url, relationship, threshold){
+    let urlNode = await this.getUrlNodeByUrl(url);
+    let cypher = 'MATCH (n:Url)-[r:'+relationship+']->(q) WHERE n.url = "' + url +'" AND r.weight > ' + threshold +'  RETURN n,r,q ORDER BY r.weight DESC LIMIT 10';
+    console.log(cypher);
+    // let cypher = 'START o=node({start}) MATCH o<-[r:related]-(keyword:Keyword)-[q:related]->(target:Url) RETURN q';
+    let params = {url: url, threshold: threshold};
+
+    try{
+      let res = await this.queryGraph(cypher,params);
+      return res;
+    }
+    catch(err){
+      console.log('failed to relate', err);
+    }
+  }
+
 
 }

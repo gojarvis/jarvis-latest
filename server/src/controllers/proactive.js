@@ -1,13 +1,12 @@
 import heartbeats from 'heartbeats'
 
-
 class Proactive {
     constructor(socket, sid, io, context, history, deep){
       this.socket = socket;
       this.sid = sid;
       this.io = io;
       this.context = context;
-
+      this.deep = deep;
       this.heart = heartbeats.createHeart(1000);
 
       this.heart.createEvent(10, function(heartbeat, last){
@@ -25,8 +24,10 @@ class Proactive {
       let self = this;
     }
 
-    handleHeartbeat(){
+    handleHeartbeat(hb){
       let self = this;
+      self.socket.emit('heartbeat', hb);
+      self.deep.getRelevantNodes()
     }
 
     async handleDeepconnect(){

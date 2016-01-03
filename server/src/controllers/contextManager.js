@@ -139,26 +139,26 @@ class contextManager{
 
   async relateUserToContext(){
     let self = this;
-    console.log(this.user);
+    // console.log(this.user);
     if (_.isUndefined(this.user.id)){
       console.log('User not set yet, cannot relate user to context');
       return;
     }
 
-    console.log('associating user with context', self.user.id, this.urls.length, this.files.length);
+    // console.log('associating user with context', self.user.id, this.urls.length, this.files.length);
 
     if (!_.isEmpty(this.urls)){
       let userToUrls = await this.relateOneToMany(this.user, this.urls, 'touched')
-      console.log('associated user with ', this.urls.length, 'urls');
+      // console.log('associated user with ', this.urls.length, 'urls');
     }
     else{
       console.log('no urls to associate');
     }
 
     if (!_.isEmpty(this.files)){
-      console.log('assoc files', this.files);
+      // console.log('assoc files', this.files);
       let userToFiles = await this.relateOneToMany(this.user, this.files, 'touched')
-      console.log('associated user with ', this.files.length, 'files');
+      // console.log('associated user with ', this.files.length, 'files');
 
     }
     else{
@@ -176,6 +176,7 @@ class contextManager{
 
     this.history.saveEvent({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls} }).then(function(res){
       // console.log(res);
+
     })
   }
 
@@ -193,7 +194,6 @@ class contextManager{
   }
 
   async relateNodes(origin, target, relationship){
-    console.log(origin, target, relationship);
 
     let cypher = 'START a=node({origin}), b=node({target}) '
                 +'CREATE UNIQUE a-[r:'+relationship+']-b '
@@ -204,7 +204,7 @@ class contextManager{
 
     try{
       res = await this.queryGraph(cypher,params);
-      console.log('res', res, cypher, params);
+      // console.log('res', res, cypher, params);
     }
 
     catch(err){
@@ -212,7 +212,7 @@ class contextManager{
                   +'CREATE UNIQUE a-[r:'+relationship+']-b '
                   +'SET r.weight = coalesce(r.weight, 0) + 1';
 
-      console.log('failed', err, cypher);
+      // console.log('failed', err, cypher);
     }
 
     return res
@@ -245,7 +245,7 @@ class contextManager{
   }
 
   queryGraph(cypher, params){
-    console.log(cypher, params);
+
     return new Promise(function(resolve, reject) {
       graph.query(cypher, params, function(err, result){
         if (err) reject(err)
