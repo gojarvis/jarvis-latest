@@ -1,0 +1,3 @@
+ curl -X POST -u "f46fad03-a848-4e13-849a-2fef045711df":"IPtBcAvmt1kl" "https://gateway.watsonplatform.net/retrieve-and-rank/api/v1/solr_clusters" -d ""
+
+ scf1a1a702_0082_438c_84e9_70cb072fd15a

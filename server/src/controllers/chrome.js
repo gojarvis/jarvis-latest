@@ -10,6 +10,7 @@ import keywordExtractor from 'keyword-extractor';
 import MetaInspector from 'node-metainspector';
 
 
+
 let graph = require("seraph")({
   user: 'neo4j',
   pass: 'sherpa',
@@ -69,9 +70,9 @@ class ChromeController {
 
 
     self.socket.on('chrome-updated', function(message){
-      console.log('updated');
+      // console.log('updated');
       let {active, tabs} = message;
-      console.log('tabs', tabs);
+      // console.log('tabs', tabs);
       self.tabs = tabs;
       self.handleUpdated(active).then(function(related){
         self.io.emit('related', related);
