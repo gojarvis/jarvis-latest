@@ -32,21 +32,23 @@ class GraphDB{
   }
 
   getUrlNodeByUrl(url){
+    console.log('getUrlNodeByUrl', url);
     return new Promise(function(resolve, reject) {
       graph.find({type: 'url', url: url}, function(err, urls){
-        if (err) reject (err)
+        if (err)  {
+          console.log(err);
+          reject(err);
+        }
         else resolve(urls[0])
       })
     });
   }
 
   async getRelatedToUrl(url, relationship, threshold){
-    let urlNode = await this.getUrlNodeByUrl(url);
+    let urlNode = await this.getUrlNodeByUrl(url);    
     let cypher = 'MATCH (n:Url)-[r:'+relationship+']->(q) WHERE n.url = "' + url +'" AND r.weight > ' + threshold +'  RETURN n,r,q ORDER BY r.weight DESC LIMIT 10';
-    console.log(cypher);
-    // let cypher = 'START o=node({start}) MATCH o<-[r:related]-(keyword:Keyword)-[q:related]->(target:Url) RETURN q';
     let params = {url: url, threshold: threshold};
-
+    // console.log(cypher);
     try{
       let res = await this.queryGraph(cypher,params);
       return res;
@@ -58,3 +60,6 @@ class GraphDB{
 
 
 }
+
+
+module.exports = GraphDB;

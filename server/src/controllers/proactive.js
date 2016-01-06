@@ -9,7 +9,7 @@ class Proactive {
       this.deep = deep;
       this.heart = heartbeats.createHeart(1000);
 
-      this.heart.createEvent(10, function(heartbeat, last){
+      this.heart.createEvent(30, function(heartbeat, last){
         this.handleHeartbeat(heartbeat);
       }.bind(this));
 
@@ -26,6 +26,7 @@ class Proactive {
 
     handleHeartbeat(hb){
       let self = this;
+      console.log("_");
       self.socket.emit('heartbeat', hb);
       self.deep.getRelevantNodes()
     }

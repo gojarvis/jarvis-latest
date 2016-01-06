@@ -347,13 +347,14 @@ const Main = React.createClass({
           </div>
         </div>
         <Feedback type="svg" tick={this.state.heartValue} items={this.state.related}/>
-        <Feedback type="svg" tick={this.state.heartValue} items={this.state.relatedFiles}/>
+        <Feedback type="svg" tick={this.state.heartValue} items={this.state.relatedFiles} />
 
-        <Face  style={{position: "absolute", bottom: "10px"}} recording={this.state.recording}>
+        <div style={{position: "absolute", bottom: "50px", margin:"0 auto", width: "100%"}}>
+          <Face recording={this.state.recording}>
 
 
-        </Face>
-
+          </Face>
+        </div>
         <div style={{display: "none"}}>
           <TextField
             style={{margin: "10px", textAlign: "center", width: "90%"}}

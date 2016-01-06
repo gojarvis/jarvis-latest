@@ -84,34 +84,44 @@ const Feedback = React.createClass({
 
     const {lastPress, isPressed, mouse} = this.state;
     let width = 3000;
+    let containerStyle = {
+        display: "block",
+        position: "relative"
+    }
+
     return (
-      <div style={{display: "block"}}>
+      <div style={containerStyle}>
         {
           balls.map((item, key) => {
-            console.log(key);
-            let x = 200 +  150 * key;
-            let y = 200;
+
+            let x = 50;
+            let y = 80 + (key * 80);
             let op = 1;
             // let y = Math.sin(key) * 400 * Math.sin(this.props.tick);
 
 
 
             let text = "";
+            let backgroundColor = "rgba(132, 115, 26, 0)"
             switch(item.type){
               case 'url':
-                text = item.url.split("/")[0];
+                text = item.url;
+                backgroundColor = "rgba(137, 175, 234, 0.23)"
               break;
               case 'file':
-              text = _.last(item.uri.split("/"));
+                text = _.last(item.uri.split("/"));
+                backgroundColor = "rgba(160, 234, 137, 0.23)"
+                x = x + 400;
               break;
             }
+
 
 
             let style = {
               translateX: spring(x , [20,30]),
               translateY: spring(y, [20,30]),
               scale: 1,
-              boxShadow: 5,
+              boxShadow: 1,
               opacity: spring(op)
             };
 
@@ -121,10 +131,10 @@ const Feedback = React.createClass({
                    <div
                      className="suggestion"
                      style={{
-                       backgroundColor: '#49BEAA',
+                       backgroundColor: `${backgroundColor}`,
                        WebkitTransform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`,
                        transform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`,
-                       boxShadow: `${boxShadow}px 5px 5px rgba(0,0,0,0.5)`,
+                       boxShadow: `${boxShadow}px 2px 9px rgba(0,0,0,0.5)`,
                        opacity: `${opacity}`
                      }}
                    >

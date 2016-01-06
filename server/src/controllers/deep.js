@@ -1,8 +1,10 @@
-import graph from '../utils/graph'
+import GraphDB from '../utils/graph'
+let graph = new GraphDB();
 
 class Deep{
   constructor(history, context){
     this.context = context;
+
   }
 
   async updateClusters(){
@@ -27,12 +29,12 @@ class Deep{
   }
 
   async getRelevantUrls(){
-    // console.log('getRelevantUrls',this.context.urls);
+
     let urls = this.context.urls.map(item => item.url);
-    console.log(graph);
-    let related = await Promise.all(urls.map( url => graph.getRelatedToUrl(url, 'OPENWITH', 30)));
-    console.log(related);
-    return this.context.urls;
+
+    let related = await Promise.all(urls.map(url => graph.getRelatedToUrl(url, 'OPENWITH', 30)));
+    console.log(related);   
+    return related;
   }
 
   async getRelevantFiles(){

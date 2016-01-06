@@ -207,7 +207,7 @@ class AtomController {
 
     let relatedFilesFix = relatedFiles.map(item => {
       // console.log(_.lodash(item.uri.split("/")));
-      console.log(item);
+      // console.log(item);
 
     });
 
@@ -220,7 +220,7 @@ class AtomController {
   }
 
   async getRelated(uri, threshold){
-    let cypher = 'MATCH (n:File)-[r:OPENWITH]->(q:File) WHERE n.uri = "' + uri +'" AND r.weight > ' + threshold +'  RETURN r ORDER BY r.weight DESC LIMIT 10';
+    let cypher = 'MATCH (n:File)-[r:OPENWITH]->(q:File) WHERE n.uri = "' + uri +'" AND r.weight > ' + threshold +'  RETURN r ORDER BY r.weight DESC LIMIT 5';
     let params = {uri: uri, threshold: threshold};
 
     try{

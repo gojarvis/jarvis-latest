@@ -164,8 +164,11 @@ class ChromeController {
 
   async getRelated(url, threshold){
     let urlNode = await this.getUrlNodeByUrl(url);
-    let cypher = 'MATCH (n:Url)-[r:OPENWITH]->() WHERE n.url = "' + url +'" AND r.weight > ' + threshold +'  RETURN r ORDER BY r.weight DESC LIMIT 10';
-    // console.log(cypher);
+    // let cypher = 'MATCH (n:Url)-[r:OPENWITH]->(p:Url) WHERE n.url = "' + url +'" AND r.weight > ' + threshold +'  RETURN r ORDER BY r.weight DESC LIMIT 5';
+    let cypher = 'MATCH (n:User)-[t:touched]-(q:Url)-[:related]-(s:Keyword)-[r:related]-(u:Url) where q.url="' + url +'" RETURN r limit 5';
+
+    // MATCH (n:User)-[t:touched]-(q:Url)-[:related]-(s:Keyword)-[:related]-(u:Url)
+    console.log(cypher);
     // let cypher = 'START o=node({start}) MATCH o<-[r:related]-(keyword:Keyword)-[q:related]->(target:Url) RETURN q';
     let params = {url: url, threshold: threshold};
 

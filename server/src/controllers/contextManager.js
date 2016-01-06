@@ -140,7 +140,7 @@ class contextManager{
   }
 
   async doTheWatson(url){
-    console.log('WATSON', url);
+    // console.log('WATSON', url);
   }
 
 
