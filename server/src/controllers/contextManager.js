@@ -1,6 +1,7 @@
 import heartbeats from 'heartbeats'
 import Thinky from 'thinky'
 import _ from 'lodash';
+import watson from 'watson-developer-cloud';
 
 var db = Thinky();
 var type = db.type;
@@ -94,7 +95,7 @@ class contextManager{
     return new Promise(function(resolve, reject) {
        let user = new User(userInfo);
        user.save().then(function(err,res){
-         console.log(err,res);
+        //  console.log(err,res);
          if (err) {
            User.get(userInfo).then(function(err,res){
              if (err){
@@ -133,7 +134,13 @@ class contextManager{
     // console.log(this.urls,this.files)
     let urlToFiles = await Promise.all(this.urls.map(url => this.relateOneToMany(url, this.files, 'OPENWITH')));
     let filesToUrls = await Promise.all(this.files.map(file => this.relateOneToMany(file, this.urls, 'OPENWITH')));
+
+    let watsonium = await Promise.all(this.urls.map(url => this.doTheWatson(url)));
     // console.log('related stuff', this.files.length, this.urls.length);
+  }
+
+  async doTheWatson(url){
+    console.log('WATSON', url);
   }
 
 
