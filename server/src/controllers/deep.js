@@ -41,7 +41,7 @@ class Deep{
 WITH otherUrl, keyword, count(kr) as countKeyword, user, s, another
 where  user.username = '${username}'
 and not (user)-[:touched]-(otherUrl)
-return distinct(otherUrl.url) as url, countKeyword,another.user
+return distinct(otherUrl.url) as url, countKeyword,another.username
 order by countKeyword desc
 limit 10`;
 

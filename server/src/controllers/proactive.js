@@ -37,11 +37,21 @@ class Proactive {
 
     async recommend(){
       let user = this.context.get().user;
-      // console.log(this.context.get());
-      if (_.isEmpty(user)) return;
-      console.log('getting recommendations');
+      if (_.isEmpty(user)){
+        console.error('No user loaded, cant get recommendations');
+      }
+
       let social = await this.deep.getSocial(user.username);
       let historics = await this.deep.getHistorics(user.username);
+
+      //What did I work on {time}
+      this.io.emit('recommendations', {
+        historics: historics,
+        social: social
+      })
+
+
+
     }
 
     async handleDeepconnect(){

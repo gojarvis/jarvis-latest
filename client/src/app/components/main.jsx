@@ -204,6 +204,10 @@ const Main = React.createClass({
       self.handleRelated(related);
     });
 
+    socket.on('recommendations', function(recommendations){
+      self.handleRecommendation(recommendations);
+    })
+
     socket.on('related-files', function(related){
       self.handleRelatedFiles(related);
     });
@@ -280,6 +284,10 @@ const Main = React.createClass({
   },
   actionResultHandler(result){
     this.setState({actionResult: result});
+  },
+
+  handleRecommendation(recommendations){
+    // console.log('Recommendations', recommendations);
   },
   netResultHandler(result){
     console.log(result);
