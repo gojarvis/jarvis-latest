@@ -9,7 +9,7 @@ import PouchDB from 'pouchdb';
 import keywordExtractor from 'keyword-extractor';
 import MetaInspector from 'node-metainspector';
 
-
+import request from 'request-promise'
 
 let graph = require("seraph")({
   user: 'neo4j',
@@ -93,8 +93,16 @@ class ChromeController {
     //   console.log('atom-file-action-highlight', fileNode);
     //   self.associateWithFiles(fileNode);
     // });
+    request.get('http://api.icndb.com/jokes/random')
+    .then(function(res){
+      console.log(res);
+      let joke = JSON.parse(res).value.joke;
+      self.socket.emit('speak', joke);
+    })
+    .catch(function(err){
+      console.log('no jokes for you', err);
+    });
 
-    self.socket.emit('speak', "Ready.");
   }
 
   async saveSession(tabs){

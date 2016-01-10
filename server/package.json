@@ -36,6 +36,7 @@
     "levelgraph": "^1.1.0",
     "limdu": "^0.6.0",
     "lodash": "^3.10.1",
+    "moment": "^2.11.1",
     "node-metainspector": "^1.2.0",
     "node-record-lpcm16": "^0.1.4",
     "node-wit": "^2.0.0",

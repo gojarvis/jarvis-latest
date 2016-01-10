@@ -58,13 +58,17 @@ limit 10`;
 
   getHistorics(username){
     return new Promise(function(resolve, reject) {
-      r.table('Event').filter({user: 'roieki'}).run(connection).then(function(cursor){
+      r.table('Event').filter(r.row('timestamp')
+      .during(start, end), {leftBound: "open", rightBound: "closed"})
+      .filter({user: username}).run(connection).then(function(cursor){
         return cursor.toArray();
       }).then(function(result){
         resolve(result);
       });
     });
   }
+
+
 
 
 

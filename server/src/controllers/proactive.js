@@ -1,7 +1,7 @@
 import heartbeats from 'heartbeats'
 import r from 'rethinkdb'
 import _ from 'lodash'
-
+import moment from 'moment'
 
 
 class Proactive {
@@ -40,11 +40,20 @@ class Proactive {
       if (_.isEmpty(user)){
         console.error('No user loaded, cant get recommendations');
       }
+      let anHourAgo = moment().subtract(1, 'hour').format("L");
+      let yesterday = moment().subtract(1, 'day').format("L");
+      let yesterdayHour = moment().subtract(1, 'day').add(1, 'hour').format("L");
+      let startOfDay = moment().startOf('day').fromNow().format("L");
+      let now = moment().format("L");
 
       let social = await this.deep.getSocial(user.username);
-      let historics = await this.deep.getHistorics(user.username);
+      let lastHour = await this.deep.getHistorics(user.username, anHourAgo,now);
+      let yesterdayDay = await this.deep.getHistorics(user.username, yesterday,now);
+      let yesterdayThisHour = await this.deep.getHistorics(user.username, yesterday,yesterdayHour);
 
-      //What did I work on {time}
+      let historics = {social,lastHour, yesterdayDay, yesterdayThisHour};
+      console.log(historics);
+
       this.io.emit('recommendations', {
         historics: historics,
         social: social
