@@ -46,10 +46,8 @@ class Proactive {
     async deepContext(){
         try{
           let urls = this.context.get().urls;
-          console.log('deep context', urls.length);
           if (urls.length === 0) return;
           let keywords = await Promise.all(urls.map(url => this.metadata.getSetKeywordsForUrl(url)));
-          // console.log('back in deep context', keywords);
         }
         catch(err){
           console.log('bad deep', err);

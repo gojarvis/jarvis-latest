@@ -34,7 +34,6 @@ class GraphDB{
   }
 
   getUrlNodeByUrl(url){
-    console.log('getUrlNodeByUrl', url);
     return new Promise(function(resolve, reject) {
       graph.find({type: 'url', url: url}, function(err, urls){
         if (err)  {
