@@ -2,6 +2,8 @@ import heartbeats from 'heartbeats'
 import r from 'rethinkdb'
 import _ from 'lodash'
 import moment from 'moment'
+import Meta from './metadataManager';
+
 
 
 class Proactive {
@@ -13,7 +15,12 @@ class Proactive {
       this.deep = deep;
       this.heart = heartbeats.createHeart(1000);
 
-      this.heart.createEvent(10, function(heartbeat, last){
+      //I'm going to throw up on myself, but FUCK IT.
+      this.user = this.context.get().user;
+      this.metadata = new Meta(this.user);
+
+
+      this.heart.createEvent(30, function(heartbeat, last){
         this.handleHeartbeat(heartbeat);
       }.bind(this));
 
@@ -32,7 +39,21 @@ class Proactive {
       let self = this;
       self.socket.emit('heartbeat', hb);
       self.recommend();
+      self.deepContext();
       process.stdout.write('.');
+    }
+
+    async deepContext(){
+        try{
+          let urls = this.context.get().urls;
+          console.log('deep context', urls.length);
+          if (urls.length === 0) return;
+          let keywords = await Promise.all(urls.map(url => this.metadata.getSetKeywordsForUrl(url)));
+          // console.log('back in deep context', keywords);
+        }
+        catch(err){
+          console.log('bad deep', err);
+        }
     }
 
     async recommend(){
@@ -40,25 +61,35 @@ class Proactive {
       if (_.isEmpty(user)){
         console.error('No user loaded, cant get recommendations');
       }
-      let anHourAgo = moment().subtract(1, 'hour').format("L");
-      let yesterday = moment().subtract(1, 'day').format("L");
-      let yesterdayHour = moment().subtract(1, 'day').add(1, 'hour').format("L");
-      let startOfDay = moment().startOf('day').fromNow().format("L");
-      let now = moment().format("L");
+      try {
+        let anHourAgo = moment().subtract(1, 'hour').format();
 
-      let social = await this.deep.getSocial(user.username);
-      let lastHour = await this.deep.getHistorics(user.username, anHourAgo,now);
-      let yesterdayDay = await this.deep.getHistorics(user.username, yesterday,now);
-      let yesterdayThisHour = await this.deep.getHistorics(user.username, yesterday,yesterdayHour);
+        let yesterday = moment().subtract(1, 'day').format();
+        let yesterdayHour = moment().subtract(1, 'day').add(1, 'hour').format();
+        let startOfDay = moment().startOf('day').format();
+        let now = moment().format();
 
-      let historics = {social,lastHour, yesterdayDay, yesterdayThisHour};
-      console.log(historics);
+        let social = await this.deep.getSocial(user.username);
 
-      this.io.emit('recommendations', {
-        historics: historics,
-        social: social
-      })
+        //
+        let lastHour = await this.deep.getHistorics(user.username, anHourAgo,now);
+        let yesterdayDay = await this.deep.getHistorics(user.username, yesterday,now);
+        let yesterdayThisHour = await this.deep.getHistorics(user.username, yesterday,yesterdayHour);
 
+        let historics = {social,lastHour, yesterdayDay, yesterdayThisHour};
+
+
+
+        this.io.emit('recommendations', {
+          historics: historics,
+          social: social
+        })
+
+      } catch (e) {
+          console.log('whoops', e);
+      } finally {
+
+      }
 
 
     }

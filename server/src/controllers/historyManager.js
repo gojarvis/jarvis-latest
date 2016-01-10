@@ -24,7 +24,6 @@ class HistoryManager{
   }
 
   saveEvent(event){
-    console.log('!!!!----history', this.user);
     let ev = new Event({timestamp: new Date(), eventType: event.type, source: event.source, data: event.data, user:this.user})
     return ev.save()
   }

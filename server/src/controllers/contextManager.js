@@ -36,9 +36,6 @@ class contextManager{
     this.history = history;
 
     this.initContext(userInfo)
-
-
-
   }
 
   async initContext(userInfo){
@@ -155,7 +152,6 @@ class contextManager{
     // console.log('WATSON', url);
   }
 
-
   async relateUserToContext(){
     let self = this;
     // console.log(this.user);
@@ -231,8 +227,6 @@ class contextManager{
     return res
   }
 
-
-
   //Creates a bi-directional relationship between nodes
   async associateNodes(origin, target, relationship){
     let cypher = 'START a=node({origin}), b=node({target}) '
@@ -271,7 +265,6 @@ class contextManager{
     });
   }
 
-
   getUrlCount(){
     return new Promise(function(resolve, reject) {
       graph.query('MATCH (n:Url) RETURN count(n)', function(err, result){
@@ -289,6 +282,5 @@ class contextManager{
   }
 
 }
-
 
 module.exports = contextManager;

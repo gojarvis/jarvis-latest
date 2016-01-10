@@ -48,16 +48,15 @@ class GraphDB{
 
   async getRelatedToUrl(url, relationship, threshold){
     let urlNode = await this.getUrlNodeByUrl(url);
-    let cypher = 'MATCH (n:Url)-[r:'+relationship+']->(q) WHERE n.url = "' + url +'" AND r.weight > ' + threshold +'  RETURN r,q ORDER BY r.weight DESC LIMIT 10';
+    let cypher = 'MATCH (n:Url)-[r:'+relationship+']-(q) WHERE n.url = "' + url +'" AND r.weight > ' + threshold +'  RETURN r,q ORDER BY r.weight DESC LIMIT 10';
     let params = {url: url, threshold: threshold};
     // console.log(cypher);
     try{
       let res = await this.queryGraph(cypher,params);
-      let urls = await Promise.all(res.map())
       return res;
     }
     catch(err){
-      console.log('failed to relate', err);
+      console.log('failed to get related', err);
     }
   }
 

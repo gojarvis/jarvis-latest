@@ -84,18 +84,10 @@ class ChromeController {
       self.saveSession(hb.tabs);
     });
 
-    self.socket.on('hello', function(){
-      console.log('hello');
-    });
 
 
-    // self.socket.on('atom-file-action-highlight', function(fileNode){
-    //   console.log('atom-file-action-highlight', fileNode);
-    //   self.associateWithFiles(fileNode);
-    // });
     request.get('http://api.icndb.com/jokes/random')
     .then(function(res){
-      console.log(res);
       let joke = JSON.parse(res).value.joke;
       self.socket.emit('speak', joke);
     })
@@ -131,7 +123,6 @@ class ChromeController {
       return this.relateOneToMany(origin,others,relationship)
     }));
   }
-
 
 
   async relateOneToMany(origin, others, relationship){
@@ -244,7 +235,7 @@ class ChromeController {
           client.on('fetch', function(){
             let description = client.description;
             if (description && description.length > 0 ){
-                console.log("found meta data for ", url, description.length);
+                // console.log("found meta data for ", url, description.length);
                 self.saveUrlKeywordsFromDescription(url, description);
             }
           });

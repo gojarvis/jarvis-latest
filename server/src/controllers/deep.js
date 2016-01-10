@@ -1,6 +1,9 @@
 import GraphDB from '../utils/graph'
 import r from 'rethinkdb'
 
+
+
+
 let graph = new GraphDB();
 let connection = null;
 
@@ -29,6 +32,7 @@ class Deep{
   }
 
 
+
   async getSocial(username){
 
       let cypher =
@@ -53,13 +57,12 @@ limit 10`;
         console.log('cant get social', err);
       }
 
-
   }
 
-  getHistorics(username){
+  getHistorics(username,start,end){
     return new Promise(function(resolve, reject) {
       r.table('Event').filter(r.row('timestamp')
-      .during(start, end), {leftBound: "open", rightBound: "closed"})
+      .during(new Date(start), new Date(end), {leftBound: "open", rightBound: "closed"}))
       .filter({user: username}).run(connection).then(function(cursor){
         return cursor.toArray();
       }).then(function(result){

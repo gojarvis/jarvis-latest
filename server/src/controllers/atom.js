@@ -34,7 +34,7 @@ class AtomController {
   }
 
   registerEvents(){
-    console.log('atom-online');
+    // console.log('atom-online');
     var self = this;
 
     self.socket.on('atom-open', function(msg){
@@ -212,7 +212,7 @@ class AtomController {
     });
 
     this.history.saveEvent({type: 'highlighted', source: 'atom', data: { nodeId: fileNode.id, uri: uri} }).then(function(res){
-      console.log('highlited atom saved');
+      // console.log('highlited atom saved');
     });
 
     return relatedFiles

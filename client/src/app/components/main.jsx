@@ -287,7 +287,7 @@ const Main = React.createClass({
   },
 
   handleRecommendation(recommendations){
-    // console.log('Recommendations', recommendations);
+    console.log('Recommendations', recommendations);
   },
   netResultHandler(result){
     console.log(result);
