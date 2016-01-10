@@ -47,6 +47,7 @@
     "redis-timeseries": "^0.4.0",
     "request": "^2.67.0",
     "request-promise": "^1.0.2",
+    "rethinkdb": "^2.2.1",
     "seraph": "^0.14.0",
     "seraph-model": "^0.7.5",
     "serialization": "^0.2.0",

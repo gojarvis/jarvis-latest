@@ -39,3 +39,10 @@ gulp.task('default', function() {
 process.on('exit', function() {
     if (node) node.kill()
 })
+
+process.on('SIGINT', function() {
+  setTimeout(function() {
+    gutil.log(gutil.colors.red('Successfully closed ' + process.pid));
+    process.exit(1);
+  }, 500);
+});

@@ -13,7 +13,7 @@ const Deep = require('../controllers/deep');
 //Access to the knowledge graph is gained via the context
 const userInfo = { username: 'roieki' };
 
-const history = new History(userInfo);
+const history = new History(userInfo.username);
 const context = new Context(history, userInfo);
 const deep = new Deep(history,context);
 

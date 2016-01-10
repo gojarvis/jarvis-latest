@@ -1,5 +1,13 @@
 import GraphDB from '../utils/graph'
+import r from 'rethinkdb'
+
 let graph = new GraphDB();
+let connection = null;
+
+r.connect( {host: 'localhost', port: 28015}, function(err, conn) {
+    if (err) throw err;
+    connection = conn;
+})
 
 class Deep{
   constructor(history, context){
@@ -20,30 +28,47 @@ class Deep{
 
   }
 
-  async getRelevantNodes(){
-    let relevantUrls = await this.getRelevantUrls()
-    // let relevantFiles = await this.getRelevantUrls()
-    // let relevantKeywords = await this.getRelevantUrls()
 
-    return
+  async getSocial(username){
+
+      let cypher =
+`MATCH (file:File)-[t:touched]-(user:User),
+(file)-[ow:OPENWITH]-(url:Url),
+(url)<-[s:touched]-(another:User),
+(another)-[p:touched]-(otherUrl:Url),
+(keyword)-[kr:related]-(url),
+(keyword)-[krr:related]-(otherUrl)
+WITH otherUrl, keyword, count(kr) as countKeyword, user, s, another
+where  user.username = '${username}'
+and not (user)-[:touched]-(otherUrl)
+return distinct(otherUrl.url) as url, countKeyword,another.user
+order by countKeyword desc
+limit 10`;
+
+      try{
+        let social = await graph.queryGraph(cypher);
+        return social;
+      }
+      catch(err){
+        console.log('cant get social', err);
+      }
+
+
   }
 
-  async getRelevantUrls(){
-
-    let urls = this.context.urls.map(item => item.url);
-
-    let related = await Promise.all(urls.map(url => graph.getRelatedToUrl(url, 'OPENWITH', 30)));
-    console.log(related);   
-    return related;
+  getHistorics(username){
+    return new Promise(function(resolve, reject) {
+      r.table('Event').filter({user: 'roieki'}).run(connection).then(function(cursor){
+        return cursor.toArray();
+      }).then(function(result){
+        resolve(result);
+      });
+    });
   }
 
-  async getRelevantFiles(){
 
-  }
 
-  async getRelevantKeywords(){
 
-  }
 
   // let relatedUrls = await Promise.all(related.map(relation => this.getUrlById(relation.end)))
 

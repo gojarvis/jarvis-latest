@@ -20,16 +20,16 @@ app.get('/', function(req, res){
 io.on('connection', function(socket){
   var socketManager = new SocketManager(socket,io)
 
-  app.get('/alexa', function(req,res){
-    io.emit('speak', "AAlexa");
-    io.emit('speak', "");
-    io.emit('speak', "Trigger Jarvis Greeting");
-  })
-
-  app.post('/phone', function(req,res){
-    io.emit('speak', "Hello Phone");
-    console.log('phone', req.body);
-  })
+  // app.get('/alexa', function(req,res){
+  //   io.emit('speak', "AAlexa");
+  //   io.emit('speak', "");
+  //   io.emit('speak', "Trigger Jarvis Greeting");
+  // })
+  //
+  // app.post('/phone', function(req,res){
+  //   io.emit('speak', "Hello Phone");
+  //   console.log('phone', req.body);
+  // })
 });
 
 

@@ -14,15 +14,18 @@ var Event = db.createModel("Event", {
   timestamp: type.date(),
   source: type.string(),
   eventType: type.string(),
-  data: type.object()
+  data: type.object(),
+  user: type.string()
 })
 
 class HistoryManager{
   constructor(userName){
+    this.user = userName
   }
 
   saveEvent(event){
-    let ev = new Event({timestamp: new Date(), eventType: event.type, source: event.source, data: event.data})
+    console.log('!!!!----history', this.user);
+    let ev = new Event({timestamp: new Date(), eventType: event.type, source: event.source, data: event.data, user:this.user})
     return ev.save()
   }
 }

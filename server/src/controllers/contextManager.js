@@ -2,7 +2,7 @@ import heartbeats from 'heartbeats'
 import Thinky from 'thinky'
 import _ from 'lodash';
 import watson from 'watson-developer-cloud';
-
+import r from 'rethinkdb'
 var db = Thinky();
 var type = db.type;
 
@@ -12,7 +12,13 @@ let graph = require("seraph")({
   server: 'http://45.55.36.193:7474'
 });
 
-var User = db.createModel("User", {
+let connection = null;
+r.connect( {host: 'localhost', port: 28015}, function(err, conn) {
+    if (err) throw err;
+    connection = conn;
+})
+
+let User = db.createModel("User", {
   id: type.string(),
   username: type.string(),
 }, { pk: "username"})
@@ -26,6 +32,7 @@ class contextManager{
     this.urls = [];
     this.files = [];
     this.heart = heartbeats.createHeart(1000);
+    this.slowHeart = heartbeats.createHeart(5000);
     this.history = history;
 
     this.initContext(userInfo)
@@ -40,8 +47,12 @@ class contextManager{
         user = await this.setUser(userInfo);
         this.user = user;
         console.log('user', this.user);
-        this.heart.createEvent(10, function(heartbeat, last){
+        this.heart.createEvent(1000, function(heartbeat, last){
           this.handleHeartbeat(heartbeat);
+        }.bind(this));
+
+        this.slowHeart.createEvent(100, function(heartbeat, last){
+          this.handleSlowHeartbeat(heartbeat);
         }.bind(this));
     }
     catch(err){
@@ -55,7 +66,8 @@ class contextManager{
   get() {
     return {
       urls: this.urls,
-      files: this.files
+      files: this.files,
+      user: this.user
     }
   }
 
@@ -152,14 +164,13 @@ class contextManager{
       return;
     }
 
-    // console.log('associating user with context', self.user.id, this.urls.length, this.files.length);
 
     if (!_.isEmpty(this.urls)){
       let userToUrls = await this.relateOneToMany(this.user, this.urls, 'touched')
       // console.log('associated user with ', this.urls.length, 'urls');
     }
     else{
-      console.log('no urls to associate');
+      // console.log('no urls to associate');
     }
 
     if (!_.isEmpty(this.files)){
@@ -169,26 +180,21 @@ class contextManager{
 
     }
     else{
-      console.log('no files to associate');
+      // console.log('no files to associate');
     }
-
-
   }
 
   handleHeartbeat(heartbeat){
-    console.log("*", this.files.length, this.urls.length);
+    process.stdout.write('.');
     this.relateUrlsToFiles()
-    this.updateStats();
     this.relateUserToContext();
+  }
 
-    this.history.saveEvent({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls} }).then(function(res){
-      // console.log(res);
-
-    })
+  handleSlowHeartbeat(heartbeat){
+    this.history.saveEvent({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls} }).then(function(res){})
   }
 
   async relateOneToMany(origin, others, relationship){
-    // console.log('relating one to many', origin, others, relationship);
     let relationships = [];
     try {
       relationships = await Promise.all(others.map(target => this.relateNodes(origin, target, relationship)));
@@ -226,6 +232,7 @@ class contextManager{
   }
 
 
+
   //Creates a bi-directional relationship between nodes
   async associateNodes(origin, target, relationship){
     let cypher = 'START a=node({origin}), b=node({target}) '
@@ -255,15 +262,14 @@ class contextManager{
 
     return new Promise(function(resolve, reject) {
       graph.query(cypher, params, function(err, result){
-        if (err) reject(err)
+        if (err) {
+          console.log('err', err);
+          reject(err)
+        }
         else resolve(result)
       });
     });
   }
-
-  updateStats(){}
-
-  updateDelats(){}
 
 
   getUrlCount(){
