@@ -29,17 +29,26 @@ class MetadataManager{
 
   async getSetKeywordsForUrl(urlNode){
     let url = urlNode.url;
+    if (!url.startsWith('http') || url.indexOf('localhost') != -1){
+      return;
+    }
+
     try {
       // let urlNode = await this.getUrlNodeByUrl(url);
       if (_.isUndefined(urlNode.alchemy)){
 
         console.log('no alchemy fetched yet, fetching for', url);
-        let keywords = await this.getAlchemyKeyWords(url);
+        try{
+          let keywords = await this.getAlchemyKeyWords(url);
 
-        let keywordsNodes = await Promise.all(keywords.map(keyword => this.saveKeyword(keyword.text)))
+          let keywordsNodes = await Promise.all(keywords.map(keyword => this.saveKeyword(keyword.text)))
 
-        let updatedNode = await this.updateUrlKeywordFetchStatus(url);
-        let relationship = await Promise.all(keywords.map(keyword => this.relateKeywordToUrl(keyword,url)));
+          let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'fetched');
+          let relationship = await Promise.all(keywords.map(keyword => this.relateKeywordToUrl(keyword,url)));
+        }
+        catch(err){
+          let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'failed');
+        }
       }
 
       let relatedKeywords = await graphUtils.getRelatedToUrl(url,'related',1);
@@ -52,9 +61,9 @@ class MetadataManager{
 
   }
 
-  async updateUrlKeywordFetchStatus(url){
+  async updateUrlKeywordFetchStatus(url, status){
     let urlNode = await this.getUrlNodeByUrl(url);
-    urlNode.alchemy = 'fetched';
+    urlNode.alchemy = status;
     let updatedNode = await this.saveUrlNode(urlNode);
     console.log('updated node after fetching meta');
 
