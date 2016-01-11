@@ -78,7 +78,6 @@ class contextManager{
 
   getSaveUserInGraph(user){
     return new Promise(function(resolve, reject) {
-      console.log("GETSAVING");
       graph.save(user, "User", function(err, node){
         if (err){
           //exists
@@ -144,8 +143,7 @@ class contextManager{
     let urlToFiles = await Promise.all(this.urls.map(url => this.relateOneToMany(url, this.files, 'OPENWITH')));
     let filesToUrls = await Promise.all(this.files.map(file => this.relateOneToMany(file, this.urls, 'OPENWITH')));
 
-    let watsonium = await Promise.all(this.urls.map(url => this.doTheWatson(url)));
-    // console.log('related stuff', this.files.length, this.urls.length);
+    console.log('related stuff', this.files.length, this.urls.length);
   }
 
   async doTheWatson(url){
@@ -163,10 +161,10 @@ class contextManager{
 
     if (!_.isEmpty(this.urls)){
       let userToUrls = await this.relateOneToMany(this.user, this.urls, 'touched')
-      // console.log('associated user with ', this.urls.length, 'urls');
+      console.log('associated user with ', this.urls.length, 'urls');
     }
     else{
-      // console.log('no urls to associate');
+      console.log('no urls to associate');
     }
 
     if (!_.isEmpty(this.files)){

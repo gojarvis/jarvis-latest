@@ -36,15 +36,11 @@ class MetadataManager{
     try {
       // let urlNode = await this.getUrlNodeByUrl(url);
       if (_.isUndefined(urlNode.alchemy)){
-
-        console.log('no alchemy fetched yet, fetching for', url);
         try{
           let keywords = await this.getAlchemyKeyWords(url);
-
-          let keywordsNodes = await Promise.all(keywords.map(keyword => this.saveKeyword(keyword.text)))
-
+          let keywordsNodes = await Promise.all(keywords.map(keyword => this.saveKeyword(keyword.text.toLowerCase)))
           let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'fetched');
-          let relationship = await Promise.all(keywords.map(keyword => this.relateKeywordToUrl(keyword,url)));
+          let relationship = await Promise.all(keywords.map(keyword => this.relateKeywordToUrl(keyword,urlNode)));
         }
         catch(err){
           let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'failed');
@@ -110,11 +106,10 @@ class MetadataManager{
 
   }
 
-  async relateKeywordToUrl(keyword, url){
+  async relateKeywordToUrl(keyword, urlNode){
       try {
         let self = this;
-        let keywordNode = await this.getKeywordByText(keyword.text);
-        let urlNode = await this.getUrlNodeByUrl(url);
+        let keywordNode = await this.getKeywordByText(keyword.text.toLowerCase());
         let relationship = await self.relateNodes(keywordNode, urlNode, 'related', keyword.relevance);
 
         return(relationship);

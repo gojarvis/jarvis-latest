@@ -5,7 +5,7 @@ import serialize from 'serialization'
 import model from 'seraph-model';
 import Promise from 'bluebird';
 import PouchDB from 'pouchdb';
-
+import _ from 'lodash';
 import keywordExtractor from 'keyword-extractor';
 import MetaInspector from 'node-metainspector';
 
@@ -59,6 +59,7 @@ class ChromeController {
       let {active, tabs} = msg;
       self.tabs = tabs;
       console.log('Found ', self.tabs.length, 'tabs');
+      self.saveSession(tabs);
     });
 
     self.socket.on('chrome-highlighted', function(msg){
@@ -140,7 +141,10 @@ class ChromeController {
 
 
   async relateNodes(origin, target, relationship){
-    // console.log(origin, target, relationship);
+    if (_.isUndefined(origin.id) || _.isUndefined(target.id)){
+      print.stdout.write(',');
+      return false
+    }
 
     let cypher = 'START a=node({origin}), b=node({target}) '
                 +'CREATE UNIQUE a-[r:'+relationship+']-b '
@@ -163,12 +167,7 @@ class ChromeController {
 
   async getRelated(url, threshold){
     let urlNode = await this.getUrlNodeByUrl(url);
-    // let cypher = 'MATCH (n:Url)-[r:OPENWITH]->(p:Url) WHERE n.url = "' + url +'" AND r.weight > ' + threshold +'  RETURN r ORDER BY r.weight DESC LIMIT 5';
-    let cypher = 'MATCH (n:User)-[t:touched]-(q:Url)-[:related]-(s:Keyword)-[r:related]-(u:Url) where q.url="' + url +'" RETURN r limit 5';
-
-    // MATCH (n:User)-[t:touched]-(q:Url)-[:related]-(s:Keyword)-[:related]-(u:Url)
-    console.log(cypher);
-    // let cypher = 'START o=node({start}) MATCH o<-[r:related]-(keyword:Keyword)-[q:related]->(target:Url) RETURN q';
+    let cypher = 'MATCH (n:Url)-[r:OPENWITH]->(p:Url) WHERE n.url = "' + url +'" AND r.weight > ' + threshold +'  RETURN r ORDER BY r.weight DESC LIMIT 5';
     let params = {url: url, threshold: threshold};
 
     try{
