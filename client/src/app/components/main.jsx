@@ -217,7 +217,7 @@ class Main extends React.Component {
     });
 
     socket.on('related', function (related) {
-      self.handleRelated(related);
+      // self.handleRelated(related);
     });
 
     socket.on('recommendations', function (recommendations) {
@@ -321,7 +321,7 @@ class Main extends React.Component {
 
   handleRecommendation(recommendations) {
     console.log('Recommendations', recommendations);
-    this.setState({recommendations: recommendations.social})
+    this.setState({recommendations: recommendations.social, related: recommendations.openwith})
   }
 
   netResultHandler(result) {
@@ -381,36 +381,7 @@ class Main extends React.Component {
       <div style={containerStyle}>
         <Style rules={STYLES.Main} />
 
-        <div style={{
-          height: "300px",
-          opacity: "0.2",
-          display: "none"
-        }}>
-          <div style={{
-            margin: "10px",
-            textAlign: "center",
-            fontSize: "15px"
-          }}>
-            <div>{this.state.related.map(item => {
-                if (item.url)
-                  return (
-                    <div style={urlStyle}>{item.url}</div>
-                  )
-              })}</div>
 
-          </div>
-          <div style={{
-            margin: "10px",
-            textAlign: "center",
-            fontSize: "15px"
-          }}>
-            <div>{this.state.relatedFiles.map(item => {
-                return (
-                  <div style={fileStyle}>{item.uri}</div>
-                )
-              })}</div>
-          </div>
-        </div>
 
         <div style={{
           display: 'flex'

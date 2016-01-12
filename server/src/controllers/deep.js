@@ -1,7 +1,6 @@
 import GraphDB from '../utils/graph'
 import r from 'rethinkdb'
-
-
+import Promise from 'bluebird';
 
 
 let graph = new GraphDB();
@@ -18,6 +17,30 @@ class Deep{
 
   }
 
+  getUrlById(id){
+    return new Promise(function(resolve, reject) {
+      // console.log('ID', id);
+      try {
+        graph.getNodeById(id, function(err,node){
+          console.log('getNodeById', node);
+          node = node ? node : {}
+          if (err) {
+            console.log('cant get node', id), err;
+            reject(err)
+          }
+          else {
+            console.log(node);
+            resolve(node);
+          }
+        })
+      } catch (e) {
+          console.log("FUCCCCK");
+      } finally {
+
+      }
+    });
+  }
+
   async updateClusters(){
       //Find groups of clusters, and add "cluster-handle"
       //node that will relate to the cluster.
@@ -31,6 +54,32 @@ class Deep{
 
   }
 
+  async getOpenWith(urlNode){
+    let url = urlNode.url;
+    let self = this;
+    let cypher =
+`match
+(url:Url)-[r:openwith]-(another:Url)
+where url.url = '${url}'
+and not another.url = '${url}'
+return r
+order by r.weight
+limit 10
+`;
+
+
+    let openwith = await graph.queryGraph(cypher);
+
+    let openwithUrls = await Promise.all(openwith.map(rel => self.getUrlById(rel.end)));
+    console.log('openwith', openwithUrls);
+    return openwithUrls;
+    // try{
+    //
+    // }
+    // catch(err){
+    //   console.log('cant get openwith', err);
+    // }
+  }
 
 
   async getSocial(username){
@@ -57,10 +106,11 @@ where user.username = '${username}'
 and not anotherUser.username = '${username}'
 and exists(url.title) and exists(anotherUrl.title)
 return distinct(anotherUrl.url) as url, anotherUrl.title as title, kw as keyword, a ,b, anotherUser
-order by a.weight desc`;
+order by a.weight desc limit 8`;
 
       try{
         let social = await graph.queryGraph(cypher);
+
         return social;
       }
       catch(err){

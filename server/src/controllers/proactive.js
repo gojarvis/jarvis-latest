@@ -88,6 +88,7 @@ class Proactive {
 
     async recommend(){
       let user = this.context.get().user;
+
       if (_.isEmpty(user)){
         console.error('No user loaded, cant get recommendations');
       }
@@ -100,6 +101,16 @@ class Proactive {
         let now = moment().format();
 
         let social = await this.deep.getSocial(user.username);
+        let activeUrl = this.context.getActiveUrl();
+
+        let openwith = [];
+        if (!_.isEmpty(activeUrl)){
+            // console.log('there is an active url', activeUrl);
+          openwith = await this.deep.getOpenWith(activeUrl);
+        }
+        else{
+          process.stdout.write('_');
+        }
 
         //
         let lastHour = await this.deep.getHistorics(user.username, anHourAgo,now);
@@ -112,7 +123,8 @@ class Proactive {
 
         this.io.emit('recommendations', {
           historics: historics,
-          social: social
+          social: social,
+          openwith: openwith
         })
 
       } catch (e) {
@@ -123,6 +135,8 @@ class Proactive {
 
 
     }
+
+
 
     async handleDeepconnect(){
 

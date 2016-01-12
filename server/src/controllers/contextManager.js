@@ -36,6 +36,7 @@ class contextManager{
     this.urlsArtifacts = [];
     this.tabs = [];
     this.files = [];
+    this.activeUrl = {};
     this.heart = heartbeats.createHeart(1000);
     this.slowHeart = heartbeats.createHeart(5000);
     this.history = history;
@@ -138,7 +139,15 @@ class contextManager{
     }
   }
 
+  async updateActivity(){
+    let activeUrl = this.getActiveUrl();
+    let urlNode = await this.getUrlNodeByUrl(activeUrl.url);
 
+    //TODO: handle no title
+
+    let rel = this.relateNodes(this.user, urlNode, 'touched');
+    
+  }
 
   updateTabs(tabs){
     let urlsArtifacts = tabs.map(tab => {
@@ -149,6 +158,15 @@ class contextManager{
     })
     this.urlsArtifacts = urlsArtifacts;
     // console.log('updated tabs', this.urlsArtifacts);
+  }
+
+  setActiveUrl(url){
+    this.activeUrl = url;
+    this.updateActivity();
+  }
+
+  getActiveUrl(){
+    return this.activeUrl;
   }
 
   async relateUrlsToFiles(){
