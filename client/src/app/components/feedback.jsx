@@ -2,6 +2,8 @@ import React from 'react';
 import {Motion, spring} from 'react-motion';
 import range from 'lodash.range';
 import _ from 'lodash';
+import Radium, { Style } from 'radium';
+
 function reinsert(arr, from, to) {
   const _arr = arr.slice(0);
   const val = _arr[from];
@@ -15,9 +17,30 @@ function clamp(n, min, max) {
 }
 
 const allColors = [
-  '#EF767A', '#456990', '#49BEAA', '#49DCB1', '#EEB868', '#EF767A', '#456990',
-  '#49BEAA', '#49DCB1', '#EEB868', '#EF767A',
+  // roieki
+  '#EF767A',
+  '#EF767A',
+  '#EF767A',
+  '#456990',
+  '#456990',
+  '#49BEAA',
+  '#49BEAA',
+  '#49DCB1',
+  '#EEB868',
+  '#EEB868',
+  // parties
+  '#3C3F42',
+  '#2FD1E2',
+  '#F4FAFF',
+  '#EFF2EF',
+  '#C93A67',
 ];
+
+const COLORS = {
+  FILE  : '#49DCB1',
+  URL   : '#2FD1E2',
+  TEXT  : '#3C3F42'
+}
 
 
 const [count, width, height] = [10, 300, 100];
@@ -28,39 +51,41 @@ const layout = range(count).map(n => {
   return [width * col, height * row];
 });
 
-const Feedback = React.createClass({
-  getInitialState() {
-    return {
+class Feedback extends React.Component {
+  constructor() {
+    super();
+
+    this.state = {
       mouse: [0, 0],
       delta: [0, 0], // difference between mouse and circle pos, for dragging
       lastPress: null, // key of the last pressed component
       isPressed: false,
     };
-  },
+  }
 
   componentDidMount() {
-    window.addEventListener('touchmove', this.handleTouchMove);
-    window.addEventListener('touchend', this.handleMouseUp);
-    window.addEventListener('mousemove', this.handleMouseMove);
-    window.addEventListener('mouseup', this.handleMouseUp);
-  },
+    // window.addEventListener('touchmove', this.handleTouchMove);
+    // window.addEventListener('touchend', this.handleMouseUp);
+    // window.addEventListener('mousemove', this.handleMouseMove);
+    // window.addEventListener('mouseup', this.handleMouseUp);
+  }
 
   handleTouchStart(key, pressLocation, e) {
     this.handleMouseDown(key, pressLocation, e.touches[0]);
-  },
+  }
 
   handleTouchMove(e) {
     e.preventDefault();
     this.handleMouseMove(e.touches[0]);
-  },
+  }
 
   handleMouseMove({pageX, pageY}) {
-    const {lastPress, isPressed, delta: [dx, dy]} = this.state;
+    let {lastPress, isPressed, delta: [dx, dy]} = this.state;
     if (isPressed) {
       const mouse = [pageX - dx, pageY - dy];
       this.setState({mouse: mouse});
     }
-  },
+  }
 
   handleMouseDown(key, [pressX, pressY], {pageX, pageY}) {
     this.setState({
@@ -69,88 +94,87 @@ const Feedback = React.createClass({
       delta: [pageX - pressX, pageY - pressY],
       mouse: [pressX, pressY],
     });
-  },
+  }
 
   handleMouseUp() {
     this.setState({isPressed: false, delta: [0, 0]});
-  },
+  }
 
 
 
   render() {
-    // let balls = range(0,this.props.tick);
-
-    let balls = this.props.items
-
-    const {lastPress, isPressed, mouse} = this.state;
-    let width = 3000;
-    let containerStyle = {
-        display: "block",
-        position: "relative"
-    }
-
     return (
-      <div style={containerStyle}>
-        {
-          balls.map((item, key) => {
-
-            let x = 50;
-            let y = 80 + (key * 80);
-            let op = 1;
-            // let y = Math.sin(key) * 400 * Math.sin(this.props.tick);
-
-
-
-            let text = "";
-            let backgroundColor = "rgba(132, 115, 26, 0)"
-            switch(item.type){
-              case 'url':
-                text = item.url;
-                backgroundColor = "rgba(137, 175, 234, 0.23)"
+      <div style={{flex: '1'}}>
+        {this.props.items.map(item => {
+          let text = '';
+          let backgroundColor = 'rgba(10, 0, 255, 0.5)';
+          switch(item.type){
+            case 'url':
+              text = item.url;
+              // backgroundColor = "rgba(137, 175, 234, 0.23)"
+              backgroundColor = COLORS.URL
               break;
-              case 'file':
-                text = _.last(item.uri.split("/"));
-                backgroundColor = "rgba(160, 234, 137, 0.23)"
-                x = x + 400;
+            case 'file':
+              text = _.last(item.uri.split("/"));
+              // backgroundColor = "rgba(160, 234, 137, 0.23)"
+              backgroundColor = COLORS.FILE;
               break;
-            }
+          }
 
-
-
-            let style = {
-              translateX: spring(x , [20,30]),
-              translateY: spring(y, [20,30]),
-              scale: 1,
-              boxShadow: 1,
-              opacity: spring(op)
-            };
-
-            return (
-              <Motion key={key} style={style}>
-                {({translateX, translateY, scale, boxShadow, opacity}) =>
-                   <div
-                     className="suggestion"
-                     style={{
-                       backgroundColor: `${backgroundColor}`,
-                       WebkitTransform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`,
-                       transform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`,
-                       boxShadow: `${boxShadow}px 2px 9px rgba(0,0,0,0.5)`,
-                       opacity: `${opacity}`
-                     }}
-                   >
-                   <div className="suggestion-text">
-                     {text}
-                   </div>
-                 </div>
-
-                 }
-              </Motion>
-            )
-          })
-        }
+          return (
+            <div
+              style={{...styles.suggestion, backgroundColor}}>
+              <div style={styles.title}>
+                <div style={{margin: '10px 10px 5px', fontSize: 18}}>{item.title || 'Title!'}</div>
+              </div>
+              <div style={styles.text}>
+                <a href={item.url} target="_blank">
+                  {text}
+                </a>
+              </div>
+            </div>
+          )
+        })}
       </div>
-    );
-  },
-});
+    )
+  }
+}
 
-export default Feedback;
+const styles = {
+  title: {
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    fontSize: 22,
+    borderBottom: '1px solid black',
+    maxWidth: '100%'
+  },
+  suggestion: {
+    fontFamily: 'Montserrat',
+    fontWeight: 400,
+    boxShadow: `1px 2px 9px rgba(0,0,0,0.5)`,
+    opacity: `1`,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    margin: 10
+  },
+  text: {
+    margin: 10
+  }
+}
+
+export default Radium(Feedback);
+
+
+function combineStyles(...args) {
+  let validArgs = args.filter(arg => arg && arg.constructor === Object)
+  let ret = {};
+
+  while (validArgs.length > 0) {
+    ret = {...ret, ...validArgs.shift()};
+  }
+
+  return ret;
+}
