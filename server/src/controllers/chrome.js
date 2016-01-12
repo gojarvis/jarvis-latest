@@ -144,8 +144,14 @@ class ChromeController {
       // console.log('ID', id);
       graph.read(id, function(err,node){
         node = node ? node : {}
-        if (err) reject(err)
-        else resolve(node);
+        if (err) {
+          console.log(err);
+          reject(err)
+        }
+        else {
+          console.log('found url by id', node);
+          resolve(node);
+        }
       })
     });
   }

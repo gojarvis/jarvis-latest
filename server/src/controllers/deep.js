@@ -19,25 +19,9 @@ class Deep{
 
   getUrlById(id){
     return new Promise(function(resolve, reject) {
-      // console.log('ID', id);
-      try {
-        graph.getNodeById(id, function(err,node){
-          console.log('getNodeById', node);
-          node = node ? node : {}
-          if (err) {
-            console.log('cant get node', id), err;
-            reject(err)
-          }
-          else {
-            console.log(node);
-            resolve(node);
-          }
-        })
-      } catch (e) {
-          console.log("FUCCCCK");
-      } finally {
-
-      }
+      graph.getNodeById(id).then(function(node){
+        resolve(node);
+      });
     });
   }
 
@@ -68,17 +52,10 @@ limit 10
 `;
 
 
-    let openwith = await graph.queryGraph(cypher);
-
+    let openwith = await graph.queryGraph(cypher);    
     let openwithUrls = await Promise.all(openwith.map(rel => self.getUrlById(rel.end)));
-    console.log('openwith', openwithUrls);
     return openwithUrls;
-    // try{
-    //
-    // }
-    // catch(err){
-    //   console.log('cant get openwith', err);
-    // }
+
   }
 
 
