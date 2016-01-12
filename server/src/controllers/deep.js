@@ -37,7 +37,7 @@ class Deep{
 
       let cypher =
 `MATCH (file:File)-[t:touched]-(user:User),
-(file)-[ow:OPENWITH]-(url:Url),
+(file)-[ow:openwith]-(url:Url),
 (url)<-[s:touched]-(another:User),
 (another)-[p:touched]-(otherUrl:Url),
 (keyword)-[kr:related]-(url),

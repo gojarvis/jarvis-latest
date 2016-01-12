@@ -89,7 +89,7 @@ class AtomController {
     // let relationshipsTop = await Promise.all(graphNodes.map(node =>{
     //   let origin = node;
     //   let others = graphNodes.filter(node => node.id !== origin.id);
-    //   let relationship = 'OPENWITH';
+    //   let relationship = 'openwith';
     //   return this.relateOneToMany(origin,others,relationship)
     // }));
   }
@@ -130,7 +130,7 @@ class AtomController {
   }
 
   async getRelated(uri, threshold){
-    let cypher = 'MATCH (n:File)-[r:OPENWITH]->(q:File) WHERE n.uri = "' + uri +'" RETURN r ';
+    let cypher = 'MATCH (n:File)-[r:openwith]->(q:File) WHERE n.uri = "' + uri +'" RETURN r ';
     // console.log(cypher);
     let params = {uri: uri, threshold: threshold};
 
@@ -197,7 +197,7 @@ class AtomController {
   async handleFileHighlighted(uri){
     let fileNode = await this.insertUniqueFile(uri)
     let otherNodes = this.tabs.filter(tab => tab.id !== fileNode.id);
-    let rel = await this.relateOneToMany(fileNode, otherNodes, 'OPENWITH');
+    let rel = await this.relateOneToMany(fileNode, otherNodes, 'openwith');
     // console.log('done relating', this.socket);
     this.context.addFileNode(fileNode);
 
@@ -220,7 +220,7 @@ class AtomController {
   }
 
   async getRelated(uri, threshold){
-    let cypher = 'MATCH (n:File)-[r:OPENWITH]->(q:File) WHERE n.uri = "' + uri +'" AND r.weight > ' + threshold +'  RETURN r ORDER BY r.weight DESC LIMIT 5';
+    let cypher = 'MATCH (n:File)-[r:openwith]->(q:File) WHERE n.uri = "' + uri +'" AND r.weight > ' + threshold +'  RETURN r ORDER BY r.weight DESC LIMIT 5';
     let params = {uri: uri, threshold: threshold};
 
     try{

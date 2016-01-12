@@ -23,13 +23,18 @@ let User = db.createModel("User", {
   username: type.string(),
 }, { pk: "username"})
 
-
+graph.constraints.uniqueness.create('Url', 'url', function(err, constraint) {
+  // console.log(constraint);
+  // -> { type: 'UNIQUENESS', label: 'Person', property_keys: ['name'] }
+});
 graph.constraints.uniqueness.create('User', 'username', function(err, constraint) {});
 
 class contextManager{
   constructor(history, userInfo){
     this.user = {};
     this.urls = [];
+    this.urlsArtifacts = [];
+    this.tabs = [];
     this.files = [];
     this.heart = heartbeats.createHeart(1000);
     this.slowHeart = heartbeats.createHeart(5000);
@@ -44,12 +49,12 @@ class contextManager{
         user = await this.setUser(userInfo);
         this.user = user;
         console.log('user', this.user);
-        this.heart.createEvent(1000, function(heartbeat, last){
+        this.heart.createEvent(5, function(heartbeat, last){
           this.handleHeartbeat(heartbeat);
         }.bind(this));
 
         this.slowHeart.createEvent(100, function(heartbeat, last){
-          this.handleSlowHeartbeat(heartbeat);
+          // this.handleSlowHeartbeat(heartbeat);
         }.bind(this));
     }
     catch(err){
@@ -133,22 +138,27 @@ class contextManager{
     }
   }
 
-  updateUrls(urls){
-    this.urls = urls;
-    // console.log('context updated urls', this.urls.length);
+
+
+  updateTabs(tabs){
+    let urlsArtifacts = tabs.map(tab => {
+      return {
+        url: tab.url,
+        title: tab.title
+      }
+    })
+    this.urlsArtifacts = urlsArtifacts;
+    // console.log('updated tabs', this.urlsArtifacts);
   }
 
   async relateUrlsToFiles(){
     // console.log(this.urls,this.files)
-    let urlToFiles = await Promise.all(this.urls.map(url => this.relateOneToMany(url, this.files, 'OPENWITH')));
-    let filesToUrls = await Promise.all(this.files.map(file => this.relateOneToMany(file, this.urls, 'OPENWITH')));
+    let urlToFiles = await Promise.all(this.urls.map(url => this.relateOneToMany(url, this.files, 'openwith')));
+    let filesToUrls = await Promise.all(this.files.map(file => this.relateOneToMany(file, this.urls, 'openwith')));
 
     console.log('related stuff', this.files.length, this.urls.length);
   }
 
-  async doTheWatson(url){
-    // console.log('WATSON', url);
-  }
 
   async relateUserToContext(){
     let self = this;
@@ -161,7 +171,7 @@ class contextManager{
 
     if (!_.isEmpty(this.urls)){
       let userToUrls = await this.relateOneToMany(this.user, this.urls, 'touched')
-      console.log('associated user with ', this.urls.length, 'urls');
+      // console.log('associated user with ', this.urls.length, 'urls');
     }
     else{
       console.log('no urls to associate');
@@ -179,14 +189,36 @@ class contextManager{
   }
 
   handleHeartbeat(heartbeat){
-    process.stdout.write('.');
-    this.relateUrlsToFiles()
-    this.relateUserToContext();
+    process.stdout.write('-');
+    this.saveContext();
   }
 
   handleSlowHeartbeat(heartbeat){
     this.history.saveEvent({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls} }).then(function(res){})
   }
+
+
+  async saveContext(){
+    let self = this;
+    try {
+      let urlsArtifacts = this.urlsArtifacts;
+      let files = this.files;
+
+      let urls = await Promise.all(urlsArtifacts.map(urlsArtifact => self.saveUrl(urlsArtifact.url, urlsArtifact.title)))
+      this.urls = urls;
+    } catch (e) {
+      console.error('something went wrong when creating a context', e);
+    } finally {
+
+    }
+
+    if (this.files.length > 0 ){
+      this.relateUrlsToFiles(urls, files);
+    }
+    this.relateUserToContext();
+  }
+
+
 
   async relateOneToMany(origin, others, relationship){
     let relationships = [];
@@ -275,6 +307,53 @@ class contextManager{
     return new Promise(function(resolve, reject) {
       graph.query('MATCH (n:Url) RETURN count(n)', function(err, result){
         if (err) reject(err)
+      });
+    });
+  }
+
+
+
+
+  saveUrl(url, title){
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.getUrl(url).then(function(result){
+        let node = result;
+        if (!_.isUndefined(node)){
+          resolve(node)
+        }
+        else{
+          try {
+            graph.save({type: 'url', url: url, keywords: '', title: title}, 'Url', function(err, result){
+              console.log(err, result);
+              node = result;
+
+              resolve(node);
+
+            });
+          } catch (e) {
+            console.log('url probably exist', e);
+
+
+          } finally {
+
+          }
+        }
+
+      });
+
+    });
+  }
+
+  getUrl(url){
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      graph.find({type: 'url', url: url}, function(err, node){
+        node = node ? node[0] : false;
+        if (err) reject(err)
+        else {
+          resolve(node);
+        }
       });
     });
   }

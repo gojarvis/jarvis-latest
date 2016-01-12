@@ -3,6 +3,8 @@ import r from 'rethinkdb'
 import _ from 'lodash'
 import moment from 'moment'
 import Meta from './metadataManager';
+import graphUtils from '../utils/graph';
+
 
 
 
@@ -13,6 +15,7 @@ class Proactive {
       this.io = io;
       this.context = context;
       this.deep = deep;
+      this.graph = new graphUtils();
       this.heart = heartbeats.createHeart(1000);
 
       //I'm going to throw up on myself, but FUCK IT.
@@ -20,7 +23,7 @@ class Proactive {
       this.metadata = new Meta(this.user);
 
 
-      this.heart.createEvent(30, function(heartbeat, last){
+      this.heart.createEvent(10, function(heartbeat, last){
         this.handleHeartbeat(heartbeat);
       }.bind(this));
 
@@ -40,18 +43,47 @@ class Proactive {
       self.socket.emit('heartbeat', hb);
       self.recommend();
       self.deepContext();
-      process.stdout.write('.');
+      process.stdout.write('0');
     }
 
     async deepContext(){
         try{
           let urls = this.context.get().urls;
-          if (urls.length === 0) return;
-          let keywords = await Promise.all(urls.map(url => this.metadata.getSetKeywordsForUrl(url)));
+          let files = this.context.get().files;
+          // console.log(urls);
+          if (urls.length > 0) {
+            let urlRelationships = Promise.all(urls.map(url => this.relateUrlToUrls(url,urls)))
+
+            let keywords = await Promise.all(urls.map(url => this.metadata.getSetKeywordsForUrl(url)));
+          }
+
+          if (files.length > 0){
+            let fileRelationships = Promise.all(files.map(file => this.relateFileToFiles(file, files, 'openwith')));
+          }
+
+          if (files.length > 0 && urls.length > 0){
+            let fileRelationships = Promise.all(files.map(file => this.graph.relateOneToMany(file, urls, 'openwith')));
+          }
+
+
+
+
         }
         catch(err){
           console.log('bad deep', err);
         }
+    }
+
+    async relateUrlToUrls(url, urls){
+      let others = urls.filter(item => item.url !== url.url);
+      let singleRelationships = await this.graph.relateOneToMany(url, others, 'openwith');
+      return singleRelationships;
+    }
+
+    async relateFileToFiles(file, files){
+      let others = files.filter(file => file.uri !== file.uri);
+      let singleRelationships = await this.graph.relateOneToMany(file, others, 'openwith');
+      return singleRelationships;
     }
 
     async recommend(){

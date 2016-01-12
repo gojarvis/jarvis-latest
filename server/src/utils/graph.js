@@ -77,7 +77,7 @@ class GraphDB{
 
     let urls = this.context.urls.map(item => item.url);
 
-    let related = await Promise.all(urls.map(url => graph.getRelatedToUrl(url, 'OPENWITH', 30)));
+    let related = await Promise.all(urls.map(url => graph.getRelatedToUrl(url, 'openwith', 30)));
     // console.log(related);
     return related;
   }
@@ -86,6 +86,43 @@ class GraphDB{
 
   async getRelevantKeywords(){
 
+  }
+
+  async relateOneToMany(origin, others, relationship){
+    let relationships = [];
+    try {
+      relationships = await Promise.all(others.map(target => this.relateNodes(origin, target, relationship)));
+    }
+    catch(err){
+      console.log('failed to relate one to many', err);
+    }
+
+    return relationships;
+  }
+
+  async relateNodes(origin, target, relationship){
+
+    let cypher = 'START a=node({origin}), b=node({target}) '
+                +'CREATE UNIQUE a-[r:'+relationship+']-b '
+                +'SET r.weight = coalesce(r.weight, 0) + 1';
+    let params = {origin: origin.id, target: target.id, relationship: relationship};
+
+    let res = {};
+
+    try{
+      res = await this.queryGraph(cypher,params);
+      // console.log('res', res, cypher, params);
+    }
+
+    catch(err){
+      let cypher = 'START a=node('+origin.id+'), b=node('+target.id+') '
+                  +'CREATE UNIQUE a-[r:'+relationship+']-b '
+                  +'SET r.weight = coalesce(r.weight, 0) + 1';
+
+      // console.log('failed', err, cypher);
+    }
+
+    return res
   }
 
 

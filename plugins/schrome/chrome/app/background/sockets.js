@@ -7,12 +7,7 @@ let heart = heartbeats.createHeart(1000);
 let socket = io.connect('http://localhost:3000', {reconnect: true});
 let tabs = [];
 
-let refreshTabs = new Promise(function(resolve, reject) {
-  chrome.tabs.query({}, function(res){
-      tabs = res
-      resolve(res);
-  });
-});
+
 
 //Initialize tabs
 chrome.tabs.query({}, function(res){
@@ -22,9 +17,12 @@ chrome.tabs.query({}, function(res){
 
 
 chrome.tabs.onCreated.addListener(function(active){
-  refreshTabs().then(function(){
+
+
+  chrome.tabs.query({}, function(res){
+      let tabs = res
       socket.emit('chrome-created', {active:active, tabs:tabs})
-  })
+  });
 
 });
 
@@ -33,9 +31,10 @@ chrome.tabs.onHighlighted.addListener(function(active){
 });
 
 chrome.tabs.onUpdated.addListener(function(active){
-  refreshTabs().then(function(){
+  chrome.tabs.query({}, function(res){
+      let tabs = res
       socket.emit('chrome-updated', {active:active, tabs:tabs});
-  })
+  });
 });
 
 //https://developer.chrome.com/extensions/omnibox

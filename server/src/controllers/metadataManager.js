@@ -29,18 +29,18 @@ class MetadataManager{
 
   async getSetKeywordsForUrl(urlNode){
     let url = urlNode.url;
+    // console.log(urlNode);
     if (!url.startsWith('http') || url.indexOf('localhost') != -1){
       return;
     }
 
     try {
-      // let urlNode = await this.getUrlNodeByUrl(url);
       if (_.isUndefined(urlNode.alchemy)){
         try{
           let keywords = await this.getAlchemyKeyWords(url);
-          let keywordsNodes = await Promise.all(keywords.map(keyword => this.saveKeyword(keyword.text.toLowerCase)))
+          let keywordsNodes = await Promise.all(keywords.map(keyword => this.saveKeyword(keyword)));
           let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'fetched');
-          let relationship = await Promise.all(keywords.map(keyword => this.relateKeywordToUrl(keyword,urlNode)));
+          let relationship = await Promise.all(keywords.map(keywords => this.relateKeywordToUrl(keywords,urlNode)));
         }
         catch(err){
           let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'failed');
@@ -109,7 +109,7 @@ class MetadataManager{
   async relateKeywordToUrl(keyword, urlNode){
       try {
         let self = this;
-        let keywordNode = await this.getKeywordByText(keyword.text.toLowerCase());
+        let keywordNode = await self.getKeywordByText(keyword.text)
         let relationship = await self.relateNodes(keywordNode, urlNode, 'related', keyword.relevance);
 
         return(relationship);
@@ -164,20 +164,31 @@ class MetadataManager{
 
   saveKeyword(keyword){
     return new Promise(function(resolve, reject) {
-      graph.save({type: 'keyword', text: keyword, alchemy:true}, 'Keyword', function(err, node){
+      graph.find({type: 'keyword', text: keyword.text, alchemy: true},function(err,res){
         if (err) {
-          graph.find({type: 'keyword', text: keyword, alchemy: true},function(err,node){
-            if (err) reject(err)
-            else {
-              console.log('saved keyword', node);
-              resolve(node);
-            }
-          })
+          console.log('could not find keyword', err);
+
         }
         else {
-          resolve(node);
+          if (_.isEmpty(res)){
+            graph.save({type: 'keyword', text: keyword.text, alchemy:true}, 'Keyword', function(err, node){
+              if (err) {
+                console.log('cant save keyword', node, res, keyword.text);
+              }
+              else {
+                console.log('saved keyword', node);
+                resolve(node[0])
+              }
+            });
+          }
+          else{
+            console.log('found keyword', res[0]);
+            resolve(res[0]);
+          }
+
         }
-      });
+      })
+
     });
   }
 }
