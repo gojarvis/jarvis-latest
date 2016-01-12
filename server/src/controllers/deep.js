@@ -55,7 +55,8 @@ class Deep{
 (url)-[a:related]-(kw:Keyword)-[b:related]-(anotherUrl)
 where user.username = '${username}'
 and not anotherUser.username = '${username}'
-return distinct(anotherUrl.url) as url, kw as keyword, a ,b, anotherUser
+and exists(url.title) and exists(anotherUrl.title)
+return distinct(anotherUrl.url) as url, anotherUrl.title as title, kw as keyword, a ,b, anotherUser
 order by a.weight desc`;
 
       try{
