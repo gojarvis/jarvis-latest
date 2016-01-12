@@ -58,6 +58,7 @@ class Main extends React.Component {
       topic: '',
       related: [],
       relatedFiles: [],
+      recommendations: [],
       heart: '<#',
       heartValue: 0
     };
@@ -320,6 +321,7 @@ class Main extends React.Component {
 
   handleRecommendation(recommendations) {
     console.log('Recommendations', recommendations);
+    this.setState({recommendations: recommendations.social})
   }
 
   netResultHandler(result) {
@@ -415,6 +417,7 @@ class Main extends React.Component {
         }}>
           <Feedback type="svg" tick={this.state.heartValue} items={this.state.related}/>
           <Feedback type="svg" tick={this.state.heartValue} items={this.state.relatedFiles}/>
+          <Feedback type="svg" tick={this.state.heartValue} items={this.state.recommendations}/>
         </div>
 
         <div style={{

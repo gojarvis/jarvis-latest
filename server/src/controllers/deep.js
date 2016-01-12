@@ -35,19 +35,28 @@ class Deep{
 
   async getSocial(username){
 
+//       let cypher =
+// `MATCH (file:File)-[t:touched]-(user:User),
+// (file)-[ow:openwith]-(url:Url),
+// (url)<-[s:touched]-(another:User),
+// (another)-[p:touched]-(otherUrl:Url),
+// (keyword)-[kr:related]-(url),
+// (keyword)-[krr:related]-(otherUrl)
+// WITH otherUrl, keyword, count(kr) as countKeyword, user, s, another
+// where  user.username = '${username}'
+// and not (user)-[:touched]-(otherUrl)
+// return distinct(otherUrl.url) as url, countKeyword,another.username
+// order by countKeyword desc
+// limit 10`;
       let cypher =
-`MATCH (file:File)-[t:touched]-(user:User),
-(file)-[ow:openwith]-(url:Url),
-(url)<-[s:touched]-(another:User),
-(another)-[p:touched]-(otherUrl:Url),
-(keyword)-[kr:related]-(url),
-(keyword)-[krr:related]-(otherUrl)
-WITH otherUrl, keyword, count(kr) as countKeyword, user, s, another
-where  user.username = '${username}'
-and not (user)-[:touched]-(otherUrl)
-return distinct(otherUrl.url) as url, countKeyword,another.username
-order by countKeyword desc
-limit 10`;
+`match
+(url:Url)-[t:touched]-(user:User),
+(anotherUrl:Url)-[at:touched]-(anotherUser:User),
+(url)-[a:related]-(kw:Keyword)-[b:related]-(anotherUrl)
+where user.username = '${username}'
+and not anotherUser.username = '${username}'
+return distinct(anotherUrl.url) as url, kw as keyword, a ,b, anotherUser
+order by a.weight desc`;
 
       try{
         let social = await graph.queryGraph(cypher);
