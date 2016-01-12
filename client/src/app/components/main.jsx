@@ -20,6 +20,7 @@ import Mic from './mic.jsx';
 import Table from './table.jsx';
 import Face from './face.jsx';
 import Feedback from './feedback.jsx';
+import CardsView from './CardsView.jsx';
 const ENTER_KEY = 13;
 
 import greetingResponses from '../conversations/greetings';
@@ -58,7 +59,6 @@ class Main extends React.Component {
       topic: '',
       related: [],
       relatedFiles: [],
-      recommendations: [],
       heart: '<#',
       heartValue: 0
     };
@@ -321,7 +321,6 @@ class Main extends React.Component {
 
   handleRecommendation(recommendations) {
     console.log('Recommendations', recommendations);
-    this.setState({recommendations: recommendations.social})
   }
 
   netResultHandler(result) {
@@ -352,135 +351,17 @@ class Main extends React.Component {
   }
 
   render() {
-    let containerStyle = {
-      margin: '0px',
-      paddingTop: '0px'
-    };
-    let standardActions = [
-      {
-        text: 'Okay'
-      }
-    ];
-    let entities = <div></div>;
-
-    let urlStyle = {
-      background: "#39E0F1",
-      padding: "10px",
-      borderRadius: "7px",
-      margin: "10px"
-    }
-
-    let fileStyle = {
-      background: "#00E601",
-      padding: "10px",
-      borderRadius: "7px",
-      margin: "10px"
-    }
-
     return (
-      <div style={containerStyle}>
+      <div style={{maxHeight: '100vh', height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end'}}>
         <Style rules={STYLES.Main} />
 
-        <div style={{
-          height: "300px",
-          opacity: "0.2",
-          display: "none"
-        }}>
-          <div style={{
-            margin: "10px",
-            textAlign: "center",
-            fontSize: "15px"
-          }}>
-            <div>{this.state.related.map(item => {
-                if (item.url)
-                  return (
-                    <div style={urlStyle}>{item.url}</div>
-                  )
-              })}</div>
-
-          </div>
-          <div style={{
-            margin: "10px",
-            textAlign: "center",
-            fontSize: "15px"
-          }}>
-            <div>{this.state.relatedFiles.map(item => {
-                return (
-                  <div style={fileStyle}>{item.uri}</div>
-                )
-              })}</div>
-          </div>
+        <div style={{flex: '1 1 auto', overflow: 'scroll'}}>
+          <CardsView urls={this.state.related} files={this.state.relatedFiles} />
         </div>
 
-        <div style={{
-          display: 'flex'
-        }}>
-          <Feedback type="svg" tick={this.state.heartValue} items={this.state.related}/>
-          <Feedback type="svg" tick={this.state.heartValue} items={this.state.relatedFiles}/>
-          <Feedback type="svg" tick={this.state.heartValue} items={this.state.recommendations}/>
-        </div>
-
-        <div style={{
-          position: "absolute",
-          bottom: "50px",
-          margin: "0 auto",
-          width: "100%"
-        }}>
+        <div style={{flex: '0 0 80px', marginTop: 40}}>
           <Face recording={this.state.recording}></Face>
         </div>
-        <div style={{
-          display: "none"
-        }}>
-          <TextField style={{
-            margin: "10px",
-            textAlign: "center",
-            width: "90%"
-          }} hintText={this.state.hint} value={this.state.command} onKeyDown={this.handleKeyDown} onChange={this.handleChange}/>
-          <div style={{
-            margin: "10px",
-            textAlign: "center",
-            fontSize: "12px"
-          }}>{this.state.intent}</div>
-          <div style={{
-            margin: "10px",
-            textAlign: "center",
-            fontSize: "12px"
-          }}>{this.state.topic}</div>
-          <div style={{
-            margin: "10px",
-            textAlign: "center",
-            fontSize: "20px"
-          }}>{this.state.message}</div>
-          <div style={{
-            margin: "10px",
-            textAlign: "center",
-            fontSize: "12px"
-          }}>{this.state.actionResult}</div>
-          <div style={{
-            margin: "10px",
-            textAlign: "center",
-            fontSize: "20px",
-            display: "none"
-          }}>{this.state.netResult}</div>
-          <div style={{
-            margin: "10px",
-            textAlign: "center",
-            fontSize: "15px"
-          }}>{this.state.convResult}</div>
-
-          <TextField style={{
-            margin: "10px",
-            textAlign: "center",
-            width: "90%"
-          }} hintText="Teach me a response" value={this.state.input} onKeyDown={this.handleKeyDownIn} onChange={this.handleChangeIn}/>
-
-          <TextField style={{
-            margin: "10px",
-            textAlign: "center",
-            width: "90%"
-          }} hintText="What are we talking about?" value={this.state.topic} onKeyDown={this.handleKeyDownIn} onChange={this.handleChangeTopic}/>
-        </div>
-
       </div>
     );
   }
