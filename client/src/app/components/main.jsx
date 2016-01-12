@@ -321,6 +321,10 @@ class Main extends React.Component {
 
   handleRecommendation(recommendations) {
     console.log('Recommendations', recommendations);
+    this.setState({
+      historics: recommendations.historics,
+      social: recommendations.social
+    });
   }
 
   netResultHandler(result) {
@@ -351,12 +355,25 @@ class Main extends React.Component {
   }
 
   render() {
+    let styles = {
+      maxHeight: '100vh',
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'flex-end'
+    };
+
     return (
-      <div style={{maxHeight: '100vh', height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end'}}>
+      <div style={styles}>
         <Style rules={STYLES.Main} />
 
-        <div style={{flex: '1 1 auto', overflow: 'scroll'}}>
-          <CardsView urls={this.state.related} files={this.state.relatedFiles} />
+        <div style={{flex: '1 1 auto', overflow: 'scroll', boxShadow: '20px 1px 12px 0px black'}}>
+          <CardsView lists={imm.fromJS({
+            urls: this.state.related,
+            files: this.state.relatedFiles,
+            historics: this.state.historics,
+            social: this.state.social
+          })} />
         </div>
 
         <div style={{flex: '0 0 80px', marginTop: 40}}>

@@ -53,7 +53,7 @@ const STYLES = {
       overflow: 'hidden',
       width: '100%'
     },
-    '.content > table': {
+    '.padded-table': {
       margin: 10
     }
   }

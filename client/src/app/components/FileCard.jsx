@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactTooltip from 'react-tooltip';
 import Radium, { Style } from 'radium';
 import imm from 'immutable';
 import { STYLES, COLORS } from '../styles';
@@ -23,6 +24,10 @@ export default class FileCard extends React.Component {
 
         <div className="title">
           <div className="title-pad">File: {title}</div>
+          <div className="title-tooltip" data-tip data-for='info'>?</div>
+          <ReactTooltip id='info' type='info'>
+            <pre>{JSON.stringify(item, null, 2)}</pre>
+          </ReactTooltip>
         </div>
 
         <div className='content'>

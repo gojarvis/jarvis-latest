@@ -4,12 +4,19 @@ import imm from 'immutable';
 import Card from './Card';
 import UrlCard from './UrlCard';
 import FileCard from './FileCard';
+import CardList from './CardList';
 
 export default class CardsView extends React.Component {
   constructor(...args) {
     super(...args);
 
     this._mapItem = this._mapItem.bind(this);
+  }
+
+  static get defaultProps() {
+    return {
+      lists: imm.Map()
+    }
   }
 
   _mapItem(item) {
@@ -20,19 +27,21 @@ export default class CardsView extends React.Component {
 
   render() {
     return (
-      <div>
+      <div style={{margin: 10}}>
         <Style rules={styles} />
         <div className="card-view">
-          <div className="urls">
-            {this.props.urls.map(item => {
-              return <UrlCard model={item} />
-            })}
-          </div>
-          <div className="files">
-            {this.props.files.map(item => {
-              return <FileCard model={item} />
-            })}
-          </div>
+          <CardList
+            list={this.props.lists.get('social', imm.List())}
+            name='Social Recommendations'
+            type='file' />
+          <CardList
+            list={this.props.lists.get('urls', imm.List())}
+            name='Urls'
+            type='url' />
+          <CardList
+            list={this.props.lists.get('files', imm.List())}
+            name='Files'
+            type='file' />
         </div>
       </div>
     )
@@ -41,9 +50,12 @@ export default class CardsView extends React.Component {
 
 let styles = {
   '.card-view': {
-    display: 'flex'
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap'
   },
-  '.urls, .files': {
-    flex: '1'
+  '.card-list': {
+    flex: '1',
+    minWidth: 400
   }
 }
