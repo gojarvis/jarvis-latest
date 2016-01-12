@@ -367,7 +367,7 @@ class Main extends React.Component {
       <div style={styles}>
         <Style rules={STYLES.Main} />
 
-        <div style={{flex: '1 1 auto', overflow: 'scroll', boxShadow: '20px 1px 12px 0px black'}}>
+        <div style={{flex: '1 1 auto', overflow: 'scroll'}}>
           <CardsView lists={imm.fromJS({
             urls: this.state.related,
             files: this.state.relatedFiles,
