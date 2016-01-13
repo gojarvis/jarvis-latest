@@ -23,7 +23,7 @@ class Proactive {
       this.metadata = new Meta(this.user);
 
 
-      this.heart.createEvent(10, function(heartbeat, last){
+      this.heart.createEvent(40, function(heartbeat, last){
         this.handleHeartbeat(heartbeat);
       }.bind(this));
 
@@ -100,8 +100,9 @@ class Proactive {
         let startOfDay = moment().startOf('day').format();
         let now = moment().format();
 
-        let social = await this.deep.getSocial(user.username);
         let activeUrl = this.context.getActiveUrl();
+        let social = await this.deep.getSocial(user.username, activeUrl);
+
 
         let openwith = [];
         if (!_.isEmpty(activeUrl)){

@@ -2,6 +2,7 @@ import request from 'request-promise'
 import watson from 'watson-developer-cloud';
 import GraphDB from '../utils/graph';
 import _ from 'lodash'
+import wdk from 'wikidata-sdk';
 
 let graphUtils = new GraphDB();
 
@@ -39,6 +40,7 @@ class MetadataManager{
         try{
           let keywords = await this.getAlchemyKeyWords(url);
           let keywordsNodes = await Promise.all(keywords.map(keyword => this.saveKeyword(keyword)));
+          let wikidata = await Promise.all(keywordsNodes.map(keywordNode => this.ensureWikidata(keywordNode)))
           let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'fetched');
           let relationship = await Promise.all(keywords.map(keywords => this.relateKeywordToUrl(keywords,urlNode)));
         }
@@ -65,6 +67,23 @@ class MetadataManager{
 
     return updatedNode;
 
+  }
+
+  async ensureWikidata(keywordNode){
+    if (_.isUndefined(keywordNode.wikidata)){
+        // let url = wdk.searchEntities({search: keywordNode.text, format: 'json', language:'en'});
+        // let data = await request(url);
+        // console.log('WIKIDATA', data);
+    }
+  }
+
+  saveKeywordWord(keywordNode){
+    return new Promise(function(resolve, reject) {
+      graph.save(keywordNode, function(err, node){
+        if (err) reject(err)
+        else resolve(node)
+      })
+    });
   }
 
   saveUrlNode(urlNode){
@@ -182,7 +201,7 @@ class MetadataManager{
             });
           }
           else{
-            console.log('found keyword', res[0]);
+            // console.log('found keyword', res[0]);
             resolve(res[0]);
           }
 

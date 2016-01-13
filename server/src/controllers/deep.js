@@ -52,40 +52,32 @@ limit 10
 `;
 
 
-    let openwith = await graph.queryGraph(cypher);    
+    let openwith = await graph.queryGraph(cypher);
     let openwithUrls = await Promise.all(openwith.map(rel => self.getUrlById(rel.end)));
     return openwithUrls;
 
   }
 
 
-  async getSocial(username){
 
-//       let cypher =
-// `MATCH (file:File)-[t:touched]-(user:User),
-// (file)-[ow:openwith]-(url:Url),
-// (url)<-[s:touched]-(another:User),
-// (another)-[p:touched]-(otherUrl:Url),
-// (keyword)-[kr:related]-(url),
-// (keyword)-[krr:related]-(otherUrl)
-// WITH otherUrl, keyword, count(kr) as countKeyword, user, s, another
-// where  user.username = '${username}'
-// and not (user)-[:touched]-(otherUrl)
-// return distinct(otherUrl.url) as url, countKeyword,another.username
-// order by countKeyword desc
-// limit 10`;
+
+
+
+
+  async getSocial(username, activeUrl){
       let cypher =
 `match
-(url:Url)-[t:touched]-(user:User),
-(anotherUrl:Url)-[at:touched]-(anotherUser:User),
-(url)-[a:related]-(kw:Keyword)-[b:related]-(anotherUrl)
-where user.username = '${username}'
-and not anotherUser.username = '${username}'
+(user:User)-[a:touched]-(url:Url)<-[c:openwith]->(anotherUrl:Url),
+(anotherUser:User)-[b:touched]-(anotherUrl)
+where url.url = '${activeUrl.url}'
 and exists(url.title) and exists(anotherUrl.title)
-return distinct(anotherUrl.url) as url, anotherUrl.title as title, kw as keyword, a ,b, anotherUser
-order by a.weight desc limit 8`;
+and not anotherUser.username = '${username}'
+return distinct(anotherUrl.url) as url, anotherUrl.title as title,b
+order by b.weight desc
+limit 10`;
 
       try{
+        console.log(cypher);
         let social = await graph.queryGraph(cypher);
 
         return social;
