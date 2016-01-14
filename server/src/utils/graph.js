@@ -24,7 +24,6 @@ class GraphDB{
 
   getNodeById(id){
     return new Promise(function(resolve, reject) {
-      // console.log('ID', id);
       graph.read(id, function(err,node){
         node = node ? node : {}
         if (err) reject(err)

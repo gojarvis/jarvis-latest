@@ -67,8 +67,8 @@ class ChromeController {
     self.socket.on('chrome-highlighted', function(msg){
       let {active, tabs} = msg;
 
-      self.handleHighlighted(active).then(function(){
-
+      self.handleHighlighted(active).then(function(related){
+          self.io.emit('related', related)
       });
     });
 
@@ -144,8 +144,14 @@ class ChromeController {
       // console.log('ID', id);
       graph.read(id, function(err,node){
         node = node ? node : {}
-        if (err) reject(err)
-        else resolve(node);
+        if (err) {
+          console.log(err);
+          reject(err)
+        }
+        else {
+          console.log('found url by id', node);
+          resolve(node);
+        }
       })
     });
   }
@@ -172,7 +178,7 @@ class ChromeController {
     let activeTab = this.getActiveTab(active)
     // let related = await this.getRelated(activeTab[0].url,10);
     // let relatedUrls = await Promise.all(related.map(relation => this.getUrlById(relation.end)))
-
+    this.context.setActiveUrl({url: activeTab.url, title: activeTab.title});
     // return relatedUrls
   }
 
@@ -182,13 +188,16 @@ class ChromeController {
     if (!activeTab[0]){
       return [];
     }
-    let activeUrl = activeTab[0].url;
+    let activeUrl = { url: activeTab[0].url, title: activeTab[0].title};
+    this.context.setActiveUrl(activeUrl);
     // let activeId = this.tabs.filter(node => node.url === activeUrl)[0].id;
-
+    //
     // console.log("URLS", this.urls, activeId, activeUrl);
     //
     // let related = await this.getRelated(activeTab[0].url,10);
-    // let urlNode = await this.getUrlById(activeId);
+
+
+    // let urlNode = await this.getUrlNodeByUrl(activeUrl);
     // let relatedUrls = await Promise.all(related.map(relation => this.getUrlById(relation.end)))
     // this.history.saveEvent({type: 'highlighted', source: 'chrome', data: { nodeId: activeId, url: activeUrl} }).then(function(res){
     //   console.log('highlited chrome saved');
@@ -200,6 +209,20 @@ class ChromeController {
   async associateWithFiles(fileNode){
     console.log('fileNode',fileNode);
     console.log('urls',this.urls);
+  }
+
+  async getRelated(url, threshold){
+    let cypher = 'MATCH (n:Url)-[r:openwith]->(q:Url) WHERE n.url = "' + url +'" RETURN r ';
+    console.log(cypher);
+    let params = {url: url, threshold: threshold};
+
+    try{
+      let res = await this.queryGraph(cypher,params);
+      return res;
+    }
+    catch(err){
+      // console.log('failed to relate', err);
+    }
   }
 
 

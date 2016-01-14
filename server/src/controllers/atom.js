@@ -129,22 +129,23 @@ class AtomController {
     return res
   }
 
-  async getRelated(uri, threshold){
-    let cypher = 'MATCH (n:File)-[r:openwith]->(q:File) WHERE n.uri = "' + uri +'" RETURN r ';
-    // console.log(cypher);
-    let params = {uri: uri, threshold: threshold};
-
-    try{
-      let res = await this.queryGraph(cypher,params);
-      return res;
-    }
-    catch(err){
-      // console.log('failed to relate', err);
-    }
-  }
+  // async getRelated(uri, threshold){
+  //   let cypher = 'MATCH (n:File)-[r:openwith]->(q) WHERE n.uri = "' + uri +'" RETURN r ';
+  //   console.log(cypher);
+  //   let params = {uri: uri, threshold: threshold};
+  //
+  //   try{
+  //     let res = await this.queryGraph(cypher,params);
+  //     return res;
+  //   }
+  //   catch(err){
+  //     // console.log('failed to relate', err);
+  //   }
+  // }
 
 
   queryGraph(cypher, params){
+    console.log('QUERY ATOM', cypher);
     return new Promise(function(resolve, reject) {
       graph.query(cypher, params, function(err, result){
         if (err) reject(err)
@@ -201,26 +202,44 @@ class AtomController {
     // console.log('done relating', this.socket);
     this.context.addFileNode(fileNode);
 
-    let related = await this.getRelated(uri, 3);
+    let relatedFiles = await this.getRelatedFiles(uri, 3);
+    let relatedUrls = await this.getRelatedUrls(uri, 3);
 
-    let relatedFiles = await Promise.all(related.map(relation => this.getFileById(relation.end)))
+    let relatedFilesNodes = await Promise.all(relatedFiles.map(relation => this.getNodeById(relation.end)))
+    let relatedUrlNodes = await Promise.all(relatedUrls.map(relation => this.getNodeById(relation.end)))
 
-    let relatedFilesFix = relatedFiles.map(item => {
-      // console.log(_.lodash(item.uri.split("/")));
-      // console.log(item);
-
-    });
+    
+    let related = _.union(relatedFilesNodes,relatedUrlNodes)
+    // let relatedFilesFix = relatedFiles.map(item => {
+    //   // console.log(_.lodash(item.uri.split("/")));
+    //   // console.log(item);
+    //
+    // });
 
     this.history.saveEvent({type: 'highlighted', source: 'atom', data: { nodeId: fileNode.id, uri: uri} }).then(function(res){
       // console.log('highlited atom saved');
     });
 
-    return relatedFiles
+    return related
 
   }
 
-  async getRelated(uri, threshold){
-    let cypher = 'MATCH (n:File)-[r:openwith]->(q:File) WHERE n.uri = "' + uri +'" AND r.weight > ' + threshold +'  RETURN r ORDER BY r.weight DESC LIMIT 5';
+  async getRelatedUrls(uri, threshold){
+    let cypher = 'MATCH (n:File)-[r:openwith]->(q:Url) WHERE n.uri = "' + uri +'" AND r.weight > ' + threshold +'  RETURN r ORDER BY r.weight DESC LIMIT 4';
+    let params = {uri: uri, threshold: threshold};
+
+    try{
+      let res = await this.queryGraph(cypher,params);
+
+      return res;
+    }
+    catch(err){
+      // console.log('failed to relate', err);
+    }
+  }
+
+  async getRelatedFiles(uri, threshold){
+    let cypher = 'MATCH (n:File)-[r:openwith]->(q:File) WHERE n.uri = "' + uri +'" AND r.weight > ' + threshold +'  RETURN r ORDER BY r.weight DESC LIMIT 6';
     let params = {uri: uri, threshold: threshold};
 
     try{
@@ -242,7 +261,7 @@ class AtomController {
     });
   }
 
-  getFileById(id){
+  getNodeById(id){
     return new Promise(function(resolve, reject) {
       graph.read(id, function(err,node){
         node = node ? node : {}

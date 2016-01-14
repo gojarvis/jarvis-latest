@@ -217,7 +217,7 @@ class Main extends React.Component {
     });
 
     socket.on('related', function (related) {
-      self.handleRelated(related);
+      // self.handleRelated(related);
     });
 
     socket.on('recommendations', function (recommendations) {
@@ -321,10 +321,7 @@ class Main extends React.Component {
 
   handleRecommendation(recommendations) {
     console.log('Recommendations', recommendations);
-    this.setState({
-      historics: recommendations.historics,
-      social: recommendations.social
-    });
+    this.setState({recommendations: recommendations.social, related: recommendations.openwith})
   }
 
   netResultHandler(result) {
