@@ -9,7 +9,7 @@ const STYLES = {
   Main: {
     body: {
       margin: 0,
-      fontFamily: 'Montserrat',
+      fontFamily: 'Roboto',
       lineHeight: '20px',
       fontSize: 13
     },

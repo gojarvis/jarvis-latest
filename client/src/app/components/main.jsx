@@ -384,7 +384,7 @@ class Main extends React.Component {
 
 
         <div style={{
-          display: 'flex'
+          width: '100%'
         }}>
           <Feedback type="svg" tick={this.state.heartValue} items={this.state.related}/>
           <Feedback type="svg" tick={this.state.heartValue} items={this.state.relatedFiles}/>

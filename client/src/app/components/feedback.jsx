@@ -3,6 +3,7 @@ import {Motion, spring} from 'react-motion';
 import range from 'lodash.range';
 import _ from 'lodash';
 import Radium, { Style } from 'radium';
+import Masonry from 'react-masonry-component';
 
 function reinsert(arr, from, to) {
   const _arr = arr.slice(0);
@@ -50,6 +51,33 @@ const layout = range(count).map(n => {
   const col = n % 3;
   return [width * col, height * row];
 });
+
+const styles = {
+  title: {
+    width: '200px',
+    display: 'flex',
+    alignItems: 'center',
+    fontSize: 14,
+    borderBottom: '1px solid black',
+    maxWidth: '100%'
+  },
+  suggestion: {
+    fontFamily: 'Roboto',
+    fontWeight: 400,
+    boxShadow: `1px 2px 9px rgba(0,0,0,0.5)`,
+    opacity: `1`,
+    margin: 10,
+    display: 'inline-block',
+    width: '200px',
+    overflow:'hidden'
+  },
+  segment: {
+    width: '100%'
+  },
+  text: {
+    margin: 10
+  }
+}
 
 class Feedback extends React.Component {
   constructor() {
@@ -103,67 +131,59 @@ class Feedback extends React.Component {
 
 
   render() {
-    return (
-      <div style={{flex: '1'}}>
-        {this.props.items.map(item => {
-          let text = '';
-          let backgroundColor = 'rgba(10, 0, 255, 0.5)';
-          switch(item.type){
-            case 'url':
-              text = item.url;
-              // backgroundColor = "rgba(137, 175, 234, 0.23)"
-              backgroundColor = COLORS.URL
-              break;
-            case 'file':
-              text = _.last(item.uri.split("/"));
-              // backgroundColor = "rgba(160, 234, 137, 0.23)"
-              backgroundColor = COLORS.FILE;
-              break;
-          }
+    let masonryOptions = {
+        transitionDuration: 20000
+    };
+    let childElements = this.props.items.map(item => {
+      let text = '';
+      let backgroundColor = '';
+      switch(item.type){
+        case 'url':
+          text = item.url;
 
-          return (
-            <div
-              style={{...styles.suggestion, backgroundColor}}>
-              <div style={styles.title}>
-                <div style={{margin: '10px 10px 5px', fontSize: 18}}>{item.title || 'Title!'}</div>
-              </div>
-              <div style={styles.text}>
-                <a href={item.url} target="_blank">
-                  {text}
-                </a>
-              </div>
-            </div>
-          )
-        })}
-      </div>
+          backgroundColor = COLORS.URL
+          break;
+        case 'file':
+          text = _.last(item.uri.split("/"));
+
+          backgroundColor = COLORS.FILE;
+          break;
+      }
+
+
+
+      return (
+        <div
+          style={{...styles.suggestion, backgroundColor}}>
+          <div style={styles.title}>
+            <div style={{margin: '10px 10px 5px', fontSize: 18}}>{item.title || 'Title!'}</div>
+          </div>
+          <div style={styles.text}>
+            <a href={item.url} target="_blank">
+              {text}
+            </a>
+          </div>
+        </div>
+      );
+    });
+
+    return (
+      <Masonry
+          style={{...styles.segment}}
+          className={'my-gallery-class'} // default ''
+          elementType={'ul'} // default 'div'
+          options={masonryOptions} // default {}
+          disableImagesLoaded={false} // default false
+      >
+          {childElements}
+      </Masonry>
+
     )
   }
 }
 
-const styles = {
-  title: {
-    width: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    fontSize: 22,
-    borderBottom: '1px solid black',
-    maxWidth: '100%'
-  },
-  suggestion: {
-    fontFamily: 'Montserrat',
-    fontWeight: 400,
-    boxShadow: `1px 2px 9px rgba(0,0,0,0.5)`,
-    opacity: `1`,
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    margin: 10
-  },
-  text: {
-    margin: 10
-  }
-}
+
+
 
 export default Radium(Feedback);
 
