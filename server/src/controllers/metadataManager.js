@@ -31,7 +31,7 @@ class MetadataManager{
   async getSetKeywordsForUrl(urlNode){
     let url = urlNode.url;
     // console.log(urlNode);
-    if (!url.startsWith('http') || url.indexOf('localhost') != -1){
+    if (!url.startsWith('http') || url.indexOf('localhost') != -1 || url.startsWith('https://www.google.com') || url.startsWith('http://www.facebook.com') || url.startsWith('http://www.google.com')){
       return;
     }
 
@@ -63,7 +63,7 @@ class MetadataManager{
     let urlNode = await this.getUrlNodeByUrl(url);
     urlNode.alchemy = status;
     let updatedNode = await this.saveUrlNode(urlNode);
-    console.log('updated node after fetching meta');
+    // console.log('updated node after fetching meta');
 
     return updatedNode;
 
@@ -192,7 +192,7 @@ class MetadataManager{
           if (_.isEmpty(res)){
             graph.save({type: 'keyword', text: keyword.text, alchemy:true}, 'Keyword', function(err, node){
               if (err) {
-                console.log('cant save keyword', node, res, keyword.text);
+                console.log('cant save keyword', node, res,err,  keyword.text);
               }
               else {
                 console.log('saved keyword', node);

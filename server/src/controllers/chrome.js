@@ -91,16 +91,17 @@ class ChromeController {
     });
 
 
-
-    request.get('http://api.icndb.com/jokes/random')
+    let rnd = _.random(0,1000);
+    request.get('http://numbersapi.com/'+rnd+'/trivia?notfound=floor&fragment')
     .then(function(res){
-      let joke = JSON.parse(res).value.joke;
-      self.socket.emit('speak', joke);
+      // let joke = JSON.parse(res).value.joke;
+      let wat = res;
+      // console.log(joke);
+      self.socket.emit('speak', 'The number ' + rnd + ' is ' +  wat);
     })
     .catch(function(err){
       console.log('no jokes for you', err);
     });
-
   }
 
   async saveSession(){

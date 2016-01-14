@@ -1,4 +1,8 @@
 //TODO: All graph methods should live in one place. Currently unused.
+import Redis from 'ioredis'
+let redis = new Redis();
+let pipeline = redis.pipeline();
+
 
 let graph = require("seraph")({
   user: 'neo4j',
@@ -15,6 +19,9 @@ class GraphDB{
   queryGraph(cypher, params={}){
     // console.log(cypher);
     return new Promise(function(resolve, reject) {
+
+
+
       graph.query(cypher, params, function(err, result){
         if (err) reject(err)
         else resolve(result)

@@ -77,7 +77,6 @@ order by b.weight desc
 limit 10`;
 
       try{
-        console.log(cypher);
         let social = await graph.queryGraph(cypher);
 
         return social;

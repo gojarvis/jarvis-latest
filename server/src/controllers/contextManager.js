@@ -38,7 +38,7 @@ class contextManager{
     this.files = [];
     this.activeUrl = {};
     this.heart = heartbeats.createHeart(1000);
-    this.slowHeart = heartbeats.createHeart(5000);
+    this.slowHeart = heartbeats.createHeart(1000);
     this.history = history;
 
     this.initContext(userInfo)
@@ -50,11 +50,11 @@ class contextManager{
         user = await this.setUser(userInfo);
         this.user = user;
         console.log('user', this.user);
-        this.heart.createEvent(5, function(heartbeat, last){
+        this.heart.createEvent(60, function(heartbeat, last){
           this.handleHeartbeat(heartbeat);
         }.bind(this));
 
-        this.slowHeart.createEvent(100, function(heartbeat, last){
+        this.slowHeart.createEvent(300, function(heartbeat, last){
           // this.handleSlowHeartbeat(heartbeat);
         }.bind(this));
     }
@@ -146,7 +146,7 @@ class contextManager{
     //TODO: handle no title
 
     let rel = this.relateNodes(this.user, urlNode, 'touched');
-    
+
   }
 
   updateTabs(tabs){
