@@ -132,7 +132,7 @@ class Feedback extends React.Component {
 
   render() {
     let masonryOptions = {
-        transitionDuration: 20000
+        transitionDuration: '0.7s'
     };
     let childElements = this.props.items.map(item => {
       let text = '';
