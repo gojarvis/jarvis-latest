@@ -1,8 +1,11 @@
 (function () {
   let React = require('react');
   let ReactDOM = require('react-dom');
+  let { Provider } = require('react-redux');
   let injectTapEventPlugin = require('react-tap-event-plugin');
-  let Main = require('./components/main.jsx'); // Our custom react component
+  let configureStore = require('./stores/configureStore');
+  let animationActions = require('./actions/animation');
+  let Main = require('./components/Main'); // Our custom react component
 
   // let Face = require('./components/face.jsx'); // Our custom react component
   let io = require('socket.io-client')
@@ -21,8 +24,16 @@
   //https://github.com/zilverline/react-tap-event-plugin
   injectTapEventPlugin();
 
+  const store = configureStore();
+
+  // no idea what I'm dong here, just mimicking things
+  // store.dispatch(animationActions.init);
+
   // Render the main app react component into the app div.
   // For more details see: https://facebook.github.io/react/docs/top-level-api.html#react.render
-  ReactDOM.render(<Main />, document.getElementById('app'));
-
+  ReactDOM.render(
+    <Provider store={store}>
+      <Main />
+    </Provider>,
+    document.getElementById('app'));
 })();

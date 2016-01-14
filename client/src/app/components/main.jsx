@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { Component, PropTypes } from 'react';
 import imm from 'immutable';
 import Radium, { Style } from 'radium';
 import { STYLES, COLORS } from '../styles';
+import BaseComponent from './_BaseComponent';
+import { connect } from 'react-redux';
 
 // ui imports
 import RaisedButton from 'material-ui/lib/raised-button';
@@ -35,10 +37,10 @@ import heckle from '../conversations/heckle';
 
 import {mouseTrap} from 'react-mousetrap';
 
-class Main extends React.Component {
+class Main extends BaseComponent {
 
-  constructor() {
-    super();
+  constructor(props, context) {
+    super(props, context);
 
     this.state = {
       muiTheme: ThemeManager.getMuiTheme(LightRawTheme),
@@ -365,12 +367,14 @@ class Main extends React.Component {
         <Style rules={STYLES.Main} />
 
         <div style={{flex: '1 1 auto', overflow: 'scroll'}}>
-          <CardsView lists={imm.fromJS({
-            urls: this.state.related,
-            files: this.state.relatedFiles,
-            historics: this.state.historics,
-            social: this.state.social
-          })} />
+          <CardsView
+            animation={this.props.animation}
+            lists={imm.fromJS({
+              urls: this.state.related,
+              files: this.state.relatedFiles,
+              historics: this.state.historics,
+              social: this.state.social
+            })} />
         </div>
 
         <div style={{flex: '0 0 80px', marginTop: 40}}>
@@ -390,4 +394,10 @@ Main.childContextTypes = {
   muiTheme: React.PropTypes.object
 }
 
-export default mouseTrap(Radium(Main));
+// trimmed version, you can specify what props to show
+function select(state) {
+  return state;
+}
+
+// lol @ this mess
+export default connect(select)(mouseTrap(Radium(Main)));

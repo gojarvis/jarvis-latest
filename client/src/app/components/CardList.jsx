@@ -13,9 +13,9 @@ export default class CardList extends React.Component {
 
   render() {
     return (
-      <div className={`card-list ${this.props.name}`}>
-        <h3>{this.props.name}</h3>
-        {this.props.list.map(item => {
+      <div className={`card-list ${this.props.name}`} style={this.props.style}>
+        <h3 style={{textAlign: 'center'}}>{this.props.name}</h3>
+        {this.props.list.take(2).map(item => {
           return <Card model={item} />
         })}
       </div>
