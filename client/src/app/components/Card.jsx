@@ -2,12 +2,36 @@ import React from 'react';
 import Radium, { Style } from 'radium';
 import imm from 'immutable';
 import { STYLES, COLORS } from '../styles';
+import { VictoryAnimation } from 'victory-animation';
+
+const HIDDEN = {
+  opacity: 0
+}
+const SHOWN = {
+  opacity: 1
+}
 
 export default class Card extends React.Component {
   constructor(...args) {
     super(...args);
 
-    this.state = {};
+    this.state = {
+      animation: {...HIDDEN}
+    };
+  }
+
+  componentDidMount() {
+    setTimeout(() => {
+      this.setState({
+        animation: {...SHOWN}
+      })
+    }, 1000)
+  }
+
+  componentWillUnmount() {
+    this.setState({
+      animation: {...HIDDEN}
+    })
   }
 
   render() {
@@ -26,36 +50,43 @@ export default class Card extends React.Component {
         backgroundColor = COLORS.FILE;
         break;
       default:
-        text = <a href={item.get('url')}>{item.get('title', item.get('url'))}</a> || '<empty text>';
+        text = '<empty text>';
         backgroundColor = item.get('url', false) ? COLORS.URL : COLORS.FILE
         break;
     }
 
     return (
-      <div className='card' style={{...styles.suggestion, backgroundColor}}>
-        <Style rules={STYLES.Card} />
-        <div style={styles.title}>
-          <div style={{margin: '10px 10px 5px', fontSize: 18}}>{item.get('title') || 'Title!'}</div>
-        </div>
-        <div style={styles.text}>
-          <a href={item.url} target="_blank">
-            {text}
-          </a>
-        </div>
+      <VictoryAnimation data={this.state.animation}>
+        {(data) => {
+          return (
+            <div className='card' style={{...styles.suggestion, backgroundColor, ...data}}>
+              <div style={styles.title}>
+                <div style={{margin: '10px 10px 5px', fontSize: 18}}>{item.get('title') || 'Title!'}</div>
+              </div>
+              <div style={styles.text}>
+                <a href={item.url} target="_blank">
+                  {text}
+                </a>
+              </div>
 
-        <div className='content'>
-          <table className='padded-table'>
-            {map.map((value, key) => {
-              return (
-                <tr>
-                  <td>{key}</td>
-                  <td>{value}</td>
-                </tr>
-              )
-            })}
-          </table>
-        </div>
-      </div>
+              <div className='content'>
+                <table className='padded-table'>
+                  <tbody>
+                    {map.map((value, key) => {
+                      return (
+                        <tr key={key}>
+                          <td>{key}</td>
+                          <td>{value}</td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )
+        }}
+      </VictoryAnimation>
     )
   }
 }
