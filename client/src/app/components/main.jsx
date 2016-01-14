@@ -323,7 +323,11 @@ class Main extends BaseComponent {
 
   handleRecommendation(recommendations) {
     console.log('Recommendations', recommendations);
-    this.setState({recommendations: recommendations.social, related: recommendations.openwith})
+    this.setState({recommendations: null, related: null}, () => {
+      setTimeout(() => {
+        this.setState({recommendations: recommendations.social, related: recommendations.openwith})
+      }, 2000);
+    });
   }
 
   netResultHandler(result) {
