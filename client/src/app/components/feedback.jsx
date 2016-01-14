@@ -68,7 +68,7 @@ const styles = {
     opacity: `1`,
     margin: 10,
     display: 'inline-block',
-    width: '200px',
+    width: '20%',
     overflow:'hidden'
   },
   segment: {

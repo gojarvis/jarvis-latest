@@ -2,6 +2,9 @@ import React from 'react';
 import imm from 'immutable';
 import Radium, { Style } from 'radium';
 import { STYLES, COLORS } from '../styles';
+import Tabs from 'material-ui/lib/tabs/tabs';
+import Tab from 'material-ui/lib/tabs/tab';
+import SwipeableViews from 'react-swipeable-views';
 
 // ui imports
 import RaisedButton from 'material-ui/lib/raised-button';
@@ -14,7 +17,7 @@ import FlatButton from 'material-ui/lib/flat-button';
 import TextField from 'material-ui/lib/text-field';
 import Card from 'material-ui/lib/card';
 import AppBar from 'material-ui/lib/app-bar';
-
+import _ from 'lodash';
 // Our custom react components
 import Mic from './mic.jsx';
 import Table from './table.jsx';
@@ -60,7 +63,8 @@ class Main extends React.Component {
       relatedFiles: [],
       recommendations: [],
       heart: '<#',
-      heartValue: 0
+      heartValue: 0,
+      slideIndex: 0
     };
   }
 
@@ -185,7 +189,6 @@ class Main extends React.Component {
     } else {
       this.setState({heart: "<|"})
     }
-
     let newHeartValue = this.state.heartValue + 1;
     this.setState({heartValue: newHeartValue})
   }
@@ -351,6 +354,12 @@ class Main extends React.Component {
     console.log('stop');
   }
 
+  handleSlideChange = (value) => {
+    this.setState({
+      slideIndex: value,
+    });
+  }
+
   render() {
     let containerStyle = {
       margin: '0px',
@@ -386,9 +395,21 @@ class Main extends React.Component {
         <div style={{
           width: '100%'
         }}>
-          <Feedback type="svg" tick={this.state.heartValue} items={this.state.related}/>
-          <Feedback type="svg" tick={this.state.heartValue} items={this.state.relatedFiles}/>
-          <Feedback type="svg" tick={this.state.heartValue} items={this.state.recommendations}/>
+        <Tabs
+          onChange={this.handleSlideChange}
+          value={this.state.slideIndex}
+        >
+          <Tab label="Open With" value={0} />
+          <Tab label="Files" value={1} />
+          <Tab label="Social" value={2} />
+        </Tabs>
+          <SwipeableViews
+            index={this.state.slideIndex}
+            onChangeIndex={this.handleChange}>
+            <Feedback type="svg" tick={this.state.heartValue} items={this.state.related}/>
+            <Feedback type="svg" tick={this.state.heartValue} items={this.state.relatedFiles}/>
+            <Feedback type="svg" tick={this.state.heartValue} items={this.state.recommendations}/>
+          </SwipeableViews>
         </div>
 
         <div style={{
