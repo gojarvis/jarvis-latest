@@ -23,7 +23,7 @@ class Proactive {
       this.metadata = new Meta(this.user);
 
 
-      this.heart.createEvent(60, function(heartbeat, last){
+      this.heart.createEvent(100, function(heartbeat, last){
         this.handleHeartbeat(heartbeat);
       }.bind(this));
 
@@ -119,14 +119,15 @@ class Proactive {
         let yesterdayThisHour = await this.deep.getHistorics(user.username, yesterday,yesterdayHour);
 
         let historics = {social,lastHour, yesterdayDay, yesterdayThisHour};
-
-
-
-        this.io.emit('recommendations', {
+        let recommendations = {
           historics: historics,
           social: social,
           openwith: openwith
-        })
+        };
+        
+        this.context.set('recommendations', recommendations);
+
+        this.io.emit('recommendations', recommendations)
 
       } catch (e) {
           console.log('whoops', e);

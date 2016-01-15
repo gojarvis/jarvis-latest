@@ -24,8 +24,13 @@ class HistoryManager{
   }
 
   saveEvent(event){
-    let ev = new Event({timestamp: new Date(), eventType: event.type, source: event.source, data: event.data, user:this.user})
-    return ev.save()
+    try{
+      let ev = new Event({timestamp: new Date(), eventType: event.type, source: event.source, data: event.data, user:this.user})
+      return ev.save()
+    }
+    catch(e){
+      console.error('History Manager: error saving history event', e);
+    }
   }
 }
 

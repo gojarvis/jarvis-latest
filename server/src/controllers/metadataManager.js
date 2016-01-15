@@ -52,7 +52,8 @@ class MetadataManager{
       let relatedKeywords = await graphUtils.getRelatedToUrl(url,'related',1);
       return relatedKeywords;
     } catch (e) {
-      console.log('cant getset kws for url', e);
+      // console.log('cant getset kws for url', e);
+      process.stdout.write(',');
     } finally {
 
     }
@@ -105,7 +106,8 @@ class MetadataManager{
 
         alchemy_language.keywords(params, function (err, response) {
           if (err){
-              console.log('error:', err);
+              // console.log('error:', err);
+              process.stdout.write('~');
               reject(err);
           }
           else{
@@ -133,7 +135,8 @@ class MetadataManager{
 
         return(relationship);
       } catch (e) {
-        console.log('cant relate keyword to url', e);
+        // console.log('cant relate keyword to url', e);
+        process.stdout.write('$');
       } finally {
 
       }

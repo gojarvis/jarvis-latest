@@ -38,8 +38,8 @@ const allColors = [
 ];
 
 const COLORS = {
-  FILE  : '#49DCB1',
-  URL   : '#2FD1E2',
+  FILE  : 'rgb(182, 169, 220)',
+  URL   : 'rgb(121, 194, 202)',
   TEXT  : '#3C3F42'
 }
 
