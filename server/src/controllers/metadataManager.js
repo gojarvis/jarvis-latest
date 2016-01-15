@@ -195,10 +195,11 @@ class MetadataManager{
           if (_.isEmpty(res)){
             graph.save({type: 'keyword', text: keyword.text, alchemy:true}, 'Keyword', function(err, node){
               if (err) {
-                console.log('cant save keyword', node, res,err,  keyword.text);
+                // console.log('cant save keyword', node, res,err,  keyword.text);
+                process.stdout.write(':');
               }
               else {
-                console.log('saved keyword', node);
+                process.stdout.write('^');
                 resolve(node[0])
               }
             });

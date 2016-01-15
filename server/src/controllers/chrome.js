@@ -191,6 +191,10 @@ class ChromeController {
     }
     let activeUrl = { url: activeTab[0].url, title: activeTab[0].title};
     this.context.setActiveUrl(activeUrl);
+
+    this.history.saveEvent({type: 'highlighted', source: 'chrome', data: { url: activeUrl} }).then(function(res){
+      console.log('highlited chrome saved');
+    });
   }
 
 

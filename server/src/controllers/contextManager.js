@@ -151,10 +151,6 @@ class contextManager{
     let urlNode = await this.getUrlNodeByUrl(activeUrl.url);
 
 
-    this.history.saveEvent({type: 'highlighted', source: 'chrome', data: { nodeId: urlNode.id, url: activeUrl} }).then(function(res){
-      console.log('highlited chrome saved');
-    });
-
 
     let rel = this.relateNodes(this.user, urlNode, 'touched');
 
