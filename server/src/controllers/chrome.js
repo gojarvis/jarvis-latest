@@ -191,19 +191,6 @@ class ChromeController {
     }
     let activeUrl = { url: activeTab[0].url, title: activeTab[0].title};
     this.context.setActiveUrl(activeUrl);
-    // let activeId = this.tabs.filter(node => node.url === activeUrl)[0].id;
-    //
-    // console.log("URLS", this.urls, activeId, activeUrl);
-    //
-    // let related = await this.getRelated(activeTab[0].url,10);
-
-
-    // let urlNode = await this.getUrlNodeByUrl(activeUrl);
-    // let relatedUrls = await Promise.all(related.map(relation => this.getUrlById(relation.end)))
-    // this.history.saveEvent({type: 'highlighted', source: 'chrome', data: { nodeId: activeId, url: activeUrl} }).then(function(res){
-    //   console.log('highlited chrome saved');
-    // });
-    // return relatedUrls
   }
 
 
