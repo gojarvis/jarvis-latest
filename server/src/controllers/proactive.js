@@ -128,7 +128,7 @@ class Proactive {
         this.context.set('recommendations', recommendations);
         // console.log(recommendations);
         this.io.emit('recommendations', recommendations)
-        this.socket.emit('speak', 'New recommendations are in, there are ' + openwith.length + 'relevant files');
+        // this.socket.emit('speak', 'New recommendations are in, there are ' + openwith.length + 'relevant files');
 
       } catch (e) {
           console.log('whoops', e);
