@@ -23,7 +23,7 @@ class Proactive {
       this.metadata = new Meta(this.user);
 
 
-      this.heart.createEvent(100, function(heartbeat, last){
+      this.heart.createEvent(45, function(heartbeat, last){
         this.handleHeartbeat(heartbeat);
       }.bind(this));
 
@@ -53,8 +53,8 @@ class Proactive {
           // console.log(urls);
           if (urls.length > 0) {
             let urlRelationships = Promise.all(urls.map(url => this.relateUrlToUrls(url,urls)))
-
             let keywords = await Promise.all(urls.map(url => this.metadata.getSetKeywordsForUrl(url)));
+
           }
 
           if (files.length > 0){
@@ -124,10 +124,11 @@ class Proactive {
           social: social,
           openwith: openwith
         };
-        
-        this.context.set('recommendations', recommendations);
 
+        this.context.set('recommendations', recommendations);
+        // console.log(recommendations);
         this.io.emit('recommendations', recommendations)
+        this.socket.emit('speak', 'New recommendations are in, there are ' + openwith.length + 'relevant files');
 
       } catch (e) {
           console.log('whoops', e);

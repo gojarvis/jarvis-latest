@@ -429,8 +429,9 @@ class Main extends React.Component {
           <Face recording={this.state.recording}></Face>
         </div>
         <div style={{
-
-        }}>
+            position: "absolute",
+            bottom: "100px"
+          }}>
           <TextField style={{
             margin: "10px",
             textAlign: "center",

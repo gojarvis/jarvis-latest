@@ -40,6 +40,7 @@ class MetadataManager{
         try{
           let keywords = await this.getAlchemyKeyWords(url);
           let keywordsNodes = await Promise.all(keywords.map(keyword => this.saveKeyword(keyword)));
+          console.log('keywords', keywords);
           let wikidata = await Promise.all(keywordsNodes.map(keywordNode => this.ensureWikidata(keywordNode)))
           let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'fetched');
           let relationship = await Promise.all(keywords.map(keywords => this.relateKeywordToUrl(keywords,urlNode)));

@@ -51,7 +51,7 @@ order by r.weight
 limit 10
 `;
 
-
+    console.log(cypher);
     let openwith = await graph.queryGraph(cypher);
     let openwithUrls = await Promise.all(openwith.map(rel => self.getUrlById(rel.end)));
     return openwithUrls;
