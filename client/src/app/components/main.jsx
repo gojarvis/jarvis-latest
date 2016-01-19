@@ -2,6 +2,9 @@ import React from 'react';
 import imm from 'immutable';
 import Radium, { Style } from 'radium';
 import { STYLES, COLORS } from '../styles';
+import Tabs from 'material-ui/lib/tabs/tabs';
+import Tab from 'material-ui/lib/tabs/tab';
+import SwipeableViews from 'react-swipeable-views';
 
 // ui imports
 import RaisedButton from 'material-ui/lib/raised-button';
@@ -14,7 +17,7 @@ import FlatButton from 'material-ui/lib/flat-button';
 import TextField from 'material-ui/lib/text-field';
 import Card from 'material-ui/lib/card';
 import AppBar from 'material-ui/lib/app-bar';
-
+import _ from 'lodash';
 // Our custom react components
 import Mic from './mic.jsx';
 import Table from './table.jsx';
@@ -58,8 +61,10 @@ class Main extends React.Component {
       topic: '',
       related: [],
       relatedFiles: [],
+      recommendations: [],
       heart: '<#',
-      heartValue: 0
+      heartValue: 0,
+      slideIndex: 0
     };
   }
 
@@ -80,8 +85,8 @@ class Main extends React.Component {
       this.setState({voices: voices});
     }.bind(this);
 
-    this.props.bindShortcut('space space', this.stopRecording);
-    this.props.bindShortcut('enter enter', this.startRecording);
+    // this.props.bindShortcut('space space', this.stopRecording);
+    // this.props.bindShortcut('enter enter', this.startRecording);
 
   }
 
@@ -102,6 +107,7 @@ class Main extends React.Component {
       this.setState({witresult: result});
 
       this.state.socket.emit('ask', bestInputGuess.intent);
+      this.state.socket.emit('intent', bestInputGuess);
 
       if (this.state.topic) {
         console.log("topic is set, sending to conv");
@@ -184,7 +190,6 @@ class Main extends React.Component {
     } else {
       this.setState({heart: "<|"})
     }
-
     let newHeartValue = this.state.heartValue + 1;
     this.setState({heartValue: newHeartValue})
   }
@@ -201,6 +206,11 @@ class Main extends React.Component {
       self.netResultHandler(result)
     });
 
+    socket.on('intent-result', function (result) {
+      self.intentResultHandler(result)
+    });
+
+
     socket.on('conv-result', function (result) {
       self.convResultHandler(result)
     });
@@ -216,7 +226,7 @@ class Main extends React.Component {
     });
 
     socket.on('related', function (related) {
-      self.handleRelated(related);
+      // self.handleRelated(related);
     });
 
     socket.on('recommendations', function (recommendations) {
@@ -249,7 +259,8 @@ class Main extends React.Component {
     socket.emit('stop');
   }
 
-  handleChange(event) {
+  handleChangeCommand(event) {
+    event.preventDefault();
     this.setState({command: event.target.value})
 
   }
@@ -305,12 +316,10 @@ class Main extends React.Component {
   }
 
   handleRelated(related) {
-    console.log('related', related);
     this.setState({related: related});
   }
 
   handleRelatedFiles(relatedFiles) {
-    console.log('relatedFiles', relatedFiles);
     this.setState({relatedFiles: relatedFiles});
   }
 
@@ -319,7 +328,7 @@ class Main extends React.Component {
   }
 
   handleRecommendation(recommendations) {
-    console.log('Recommendations', recommendations);
+    this.setState({recommendations: recommendations.social, related: recommendations.openwith})
   }
 
   netResultHandler(result) {
@@ -328,6 +337,12 @@ class Main extends React.Component {
     let pick = result[rnd];
     this.say(pick);
     this.setState({netResult: pick});
+  }
+
+  intentResultHandler(result) {
+    console.log(result);
+    this.say(result.speech);
+    this.setState({recommendations: result.recommendations});
   }
 
   convResultHandler(result) {
@@ -347,6 +362,12 @@ class Main extends React.Component {
     this.setState({recording: false});
     socket.emit('stop');
     console.log('stop');
+  }
+
+  handleSlideChange = (value) => {
+    this.setState({
+      slideIndex: value,
+    });
   }
 
   render() {
@@ -379,42 +400,24 @@ class Main extends React.Component {
       <div style={containerStyle}>
         <Style rules={STYLES.Main} />
 
-        <div style={{
-          height: "300px",
-          opacity: "0.2",
-          display: "none"
-        }}>
-          <div style={{
-            margin: "10px",
-            textAlign: "center",
-            fontSize: "15px"
-          }}>
-            <div>{this.state.related.map(item => {
-                if (item.url)
-                  return (
-                    <div style={urlStyle}>{item.url}</div>
-                  )
-              })}</div>
 
-          </div>
-          <div style={{
-            margin: "10px",
-            textAlign: "center",
-            fontSize: "15px"
-          }}>
-            <div>{this.state.relatedFiles.map(item => {
-                return (
-                  <div style={fileStyle}>{item.uri}</div>
-                )
-              })}</div>
-          </div>
-        </div>
 
         <div style={{
-          display: 'flex'
+          width: '100%'
         }}>
-          <Feedback type="svg" tick={this.state.heartValue} items={this.state.related}/>
-          <Feedback type="svg" tick={this.state.heartValue} items={this.state.relatedFiles}/>
+        <Tabs
+          onChange={this.handleSlideChange}
+          value={this.state.slideIndex}
+        >
+          <Tab label="Open With" value={0} />
+          <Tab label="Files" value={1} />
+          <Tab label="Social" value={2} />
+        </Tabs>
+          <SwipeableViews index={this.state.slideIndex}>
+            <Feedback type="svg" tick={this.state.heartValue} items={this.state.related}/>
+            <Feedback type="svg" tick={this.state.heartValue} items={this.state.relatedFiles}/>
+            <Feedback type="svg" tick={this.state.heartValue} items={this.state.recommendations}/>
+          </SwipeableViews>
         </div>
 
         <div style={{
@@ -426,13 +429,14 @@ class Main extends React.Component {
           <Face recording={this.state.recording}></Face>
         </div>
         <div style={{
-          display: "none"
-        }}>
+            position: "absolute",
+            bottom: "100px"
+          }}>
           <TextField style={{
             margin: "10px",
             textAlign: "center",
             width: "90%"
-          }} hintText={this.state.hint} value={this.state.command} onKeyDown={this.handleKeyDown} onChange={this.handleChange}/>
+          }} hintText={this.state.hint} value={this.state.command} onKeyDown={this.handleKeyDown.bind(this)} onChange={this.handleChangeCommand.bind(this)}/>
           <div style={{
             margin: "10px",
             textAlign: "center",
@@ -469,13 +473,13 @@ class Main extends React.Component {
             margin: "10px",
             textAlign: "center",
             width: "90%"
-          }} hintText="Teach me a response" value={this.state.input} onKeyDown={this.handleKeyDownIn} onChange={this.handleChangeIn}/>
+          }} hintText="Teach me a response" value={this.state.input} onKeyDown={this.handleKeyDownIn.bind(this)} onChange={this.handleChangeIn.bind(this)}/>
 
           <TextField style={{
             margin: "10px",
             textAlign: "center",
             width: "90%"
-          }} hintText="What are we talking about?" value={this.state.topic} onKeyDown={this.handleKeyDownIn} onChange={this.handleChangeTopic}/>
+          }} hintText="What are we talking about?" value={this.state.topic} onKeyDown={this.handleKeyDownIn.bind(this)} onChange={this.handleChangeTopic.bind(this)}/>
         </div>
 
       </div>

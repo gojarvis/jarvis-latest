@@ -36,10 +36,11 @@ class contextManager{
     this.urlsArtifacts = [];
     this.tabs = [];
     this.files = [];
+    this.activeUrl = {};
     this.heart = heartbeats.createHeart(1000);
-    this.slowHeart = heartbeats.createHeart(5000);
+    this.slowHeart = heartbeats.createHeart(1000);
     this.history = history;
-
+    this.recommendations = [];
     this.initContext(userInfo)
   }
 
@@ -48,13 +49,13 @@ class contextManager{
     try{
         user = await this.setUser(userInfo);
         this.user = user;
-        console.log('user', this.user);
-        this.heart.createEvent(5, function(heartbeat, last){
+
+        this.heart.createEvent(60, function(heartbeat, last){
           this.handleHeartbeat(heartbeat);
         }.bind(this));
 
-        this.slowHeart.createEvent(100, function(heartbeat, last){
-          // this.handleSlowHeartbeat(heartbeat);
+        this.slowHeart.createEvent(300, function(heartbeat, last){
+
         }.bind(this));
     }
     catch(err){
@@ -69,8 +70,13 @@ class contextManager{
     return {
       urls: this.urls,
       files: this.files,
-      user: this.user
+      user: this.user,
+      recommendations: []
     }
+  }
+
+  set(field, value){
+    this[field]  = value;
   }
 
   async setUser(user){
@@ -83,24 +89,26 @@ class contextManager{
 
   getSaveUserInGraph(user){
     return new Promise(function(resolve, reject) {
-      graph.save(user, "User", function(err, node){
+      graph.find(user, function(err, node){
         if (err){
-          //exists
-          console.log("User probably exists. Fetching...");
-          graph.find(user, function(err, node){
+          console.log('user doesnt exist, saving', user);
+          graph.save(user, "User", function(err, node){
             if (err){
-              console.log('cant get node',user)
+              console.log('CANT SAVE USER', user, err);
+              reject(err);
             }
             else{
-              console.log('user found')
-              resolve(node[0])
+              console.log('USER SAVED', node, node[0]);
+              resolve(node[0]);
             }
           })
         }
         else{
-          resolve(node[0]);
+          console.log('user found')
+          resolve(node[0])
         }
       })
+
     });
   }
 
@@ -138,7 +146,15 @@ class contextManager{
     }
   }
 
+  async updateActivity(){
+    let activeUrl = this.getActiveUrl();
+    let urlNode = await this.getUrlNodeByUrl(activeUrl.url);
 
+
+
+    let rel = this.relateNodes(this.user, urlNode, 'touched');
+
+  }
 
   updateTabs(tabs){
     let urlsArtifacts = tabs.map(tab => {
@@ -149,6 +165,16 @@ class contextManager{
     })
     this.urlsArtifacts = urlsArtifacts;
     // console.log('updated tabs', this.urlsArtifacts);
+  }
+
+  setActiveUrl(url){
+    this.activeUrl = url;
+
+    this.updateActivity();
+  }
+
+  getActiveUrl(){
+    return this.activeUrl;
   }
 
   async relateUrlsToFiles(){

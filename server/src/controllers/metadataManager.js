@@ -2,6 +2,7 @@ import request from 'request-promise'
 import watson from 'watson-developer-cloud';
 import GraphDB from '../utils/graph';
 import _ from 'lodash'
+import wdk from 'wikidata-sdk';
 
 let graphUtils = new GraphDB();
 
@@ -30,7 +31,7 @@ class MetadataManager{
   async getSetKeywordsForUrl(urlNode){
     let url = urlNode.url;
     // console.log(urlNode);
-    if (!url.startsWith('http') || url.indexOf('localhost') != -1){
+    if (!url.startsWith('http') || url.indexOf('localhost') != -1 || url.startsWith('https://www.google.com') || url.startsWith('http://www.facebook.com') || url.startsWith('http://www.google.com')){
       return;
     }
 
@@ -39,6 +40,8 @@ class MetadataManager{
         try{
           let keywords = await this.getAlchemyKeyWords(url);
           let keywordsNodes = await Promise.all(keywords.map(keyword => this.saveKeyword(keyword)));
+          console.log('keywords', keywords);
+          let wikidata = await Promise.all(keywordsNodes.map(keywordNode => this.ensureWikidata(keywordNode)))
           let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'fetched');
           let relationship = await Promise.all(keywords.map(keywords => this.relateKeywordToUrl(keywords,urlNode)));
         }
@@ -50,7 +53,8 @@ class MetadataManager{
       let relatedKeywords = await graphUtils.getRelatedToUrl(url,'related',1);
       return relatedKeywords;
     } catch (e) {
-      console.log('cant getset kws for url', e);
+      // console.log('cant getset kws for url', e);
+      process.stdout.write(',');
     } finally {
 
     }
@@ -61,10 +65,27 @@ class MetadataManager{
     let urlNode = await this.getUrlNodeByUrl(url);
     urlNode.alchemy = status;
     let updatedNode = await this.saveUrlNode(urlNode);
-    console.log('updated node after fetching meta');
+    // console.log('updated node after fetching meta');
 
     return updatedNode;
 
+  }
+
+  async ensureWikidata(keywordNode){
+    if (_.isUndefined(keywordNode.wikidata)){
+        // let url = wdk.searchEntities({search: keywordNode.text, format: 'json', language:'en'});
+        // let data = await request(url);
+        // console.log('WIKIDATA', data);
+    }
+  }
+
+  saveKeywordWord(keywordNode){
+    return new Promise(function(resolve, reject) {
+      graph.save(keywordNode, function(err, node){
+        if (err) reject(err)
+        else resolve(node)
+      })
+    });
   }
 
   saveUrlNode(urlNode){
@@ -86,7 +107,8 @@ class MetadataManager{
 
         alchemy_language.keywords(params, function (err, response) {
           if (err){
-              console.log('error:', err);
+              // console.log('error:', err);
+              process.stdout.write('~');
               reject(err);
           }
           else{
@@ -114,7 +136,8 @@ class MetadataManager{
 
         return(relationship);
       } catch (e) {
-        console.log('cant relate keyword to url', e);
+        // console.log('cant relate keyword to url', e);
+        process.stdout.write('$');
       } finally {
 
       }
@@ -173,16 +196,17 @@ class MetadataManager{
           if (_.isEmpty(res)){
             graph.save({type: 'keyword', text: keyword.text, alchemy:true}, 'Keyword', function(err, node){
               if (err) {
-                console.log('cant save keyword', node, res, keyword.text);
+                // console.log('cant save keyword', node, res,err,  keyword.text);
+                process.stdout.write(':');
               }
               else {
-                console.log('saved keyword', node);
+                process.stdout.write('^');
                 resolve(node[0])
               }
             });
           }
           else{
-            console.log('found keyword', res[0]);
+            // console.log('found keyword', res[0]);
             resolve(res[0]);
           }
 

@@ -23,7 +23,7 @@ class Proactive {
       this.metadata = new Meta(this.user);
 
 
-      this.heart.createEvent(10, function(heartbeat, last){
+      this.heart.createEvent(45, function(heartbeat, last){
         this.handleHeartbeat(heartbeat);
       }.bind(this));
 
@@ -53,8 +53,8 @@ class Proactive {
           // console.log(urls);
           if (urls.length > 0) {
             let urlRelationships = Promise.all(urls.map(url => this.relateUrlToUrls(url,urls)))
-
             let keywords = await Promise.all(urls.map(url => this.metadata.getSetKeywordsForUrl(url)));
+
           }
 
           if (files.length > 0){
@@ -88,6 +88,7 @@ class Proactive {
 
     async recommend(){
       let user = this.context.get().user;
+
       if (_.isEmpty(user)){
         console.error('No user loaded, cant get recommendations');
       }
@@ -99,7 +100,18 @@ class Proactive {
         let startOfDay = moment().startOf('day').format();
         let now = moment().format();
 
-        let social = await this.deep.getSocial(user.username);
+        let activeUrl = this.context.getActiveUrl();
+
+
+        let openwith = [];
+        let social = [];
+        if (!_.isEmpty(activeUrl)){
+          social = await this.deep.getSocial(user.username, activeUrl);
+          openwith = await this.deep.getOpenWith(activeUrl);
+        }
+        else{
+          process.stdout.write('_');
+        }
 
         //
         let lastHour = await this.deep.getHistorics(user.username, anHourAgo,now);
@@ -107,13 +119,16 @@ class Proactive {
         let yesterdayThisHour = await this.deep.getHistorics(user.username, yesterday,yesterdayHour);
 
         let historics = {social,lastHour, yesterdayDay, yesterdayThisHour};
-
-
-
-        this.io.emit('recommendations', {
+        let recommendations = {
           historics: historics,
-          social: social
-        })
+          social: social,
+          openwith: openwith
+        };
+
+        this.context.set('recommendations', recommendations);
+        // console.log(recommendations);
+        this.io.emit('recommendations', recommendations)
+        // this.socket.emit('speak', 'New recommendations are in, there are ' + openwith.length + 'relevant files');
 
       } catch (e) {
           console.log('whoops', e);
@@ -123,6 +138,8 @@ class Proactive {
 
 
     }
+
+
 
     async handleDeepconnect(){
 

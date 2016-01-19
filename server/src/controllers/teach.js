@@ -3,7 +3,7 @@ import limdu from 'limdu'
 import Redis from 'ioredis'
 import serialize from 'serialization'
 
-
+import IntentsManager from './intentsManager.js';
 
 // First, define our base classifier type (a multi-label classifier based on svm.js):
 let TextClassifier = limdu.classifiers.multilabel.BinaryRelevance.bind(0, {
@@ -33,15 +33,16 @@ function newClassifierFunction() {
 
 
 class Teach {
-  constructor(socket){
+  constructor(socket, sid, context, history){
     this.db = new Redis();
     this.socket = socket;
     this.registerEvents();
-
-
+    this.context = context;
+    this.intents = new IntentsManager(context);
     this.net = newClassifierFunction();
     this.conv = newClassifierFunction();
     this.loadNet();
+    this.history = history;
 
   }
 
@@ -81,6 +82,12 @@ class Teach {
     return this.net.backClassify(intent);
   }
 
+  async intentHandler(witResponse){
+    let self = this;
+    let result = await this.intents.handleKnownIntents(witResponse, this.context, this.history);
+    self.socket.emit('intent-result', result);
+  }
+
   conversation(msg){
     let self = this;
     self.socket.emit('log', {msg: msg, origin: 'server-in-message'});
@@ -109,6 +116,10 @@ class Teach {
 
     self.socket.on('ask', function(intent){
       self.socket.emit('net-result', self.ask(intent));
+    });
+
+    self.socket.on('intent', function(witResponse){
+      let result = self.intentHandler(witResponse);
     });
 
     self.socket.on('conv', function(msg){

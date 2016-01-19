@@ -71,6 +71,7 @@ module.exports = AtomSherpa =
   handleEditor: (editor) ->
     @socket.emit('atom-file-observed', {uri: editor.getURI()});
     @subscriptions.add editor.onDidSave (event) => @emitEvent 'atom-file-saved', {uri: editor.getURI()}
+    @subscriptions.add editor.onDidChangeSelectionRange (event) => @emitEvent 'atom-selection', {uri: editor.getURI(), selection: event.selection}
 
   handleHighlighted: (item) ->
     if item.getPath
