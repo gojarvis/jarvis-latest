@@ -44,7 +44,7 @@ class Proactive {
       self.socket.emit('heartbeat', hb);
 
       self.recommend();
-      self.deepContext();
+
       process.stdout.write('0');
     }
 
@@ -117,9 +117,11 @@ class Proactive {
 
         let openwith = [];
         let social = [];
-        if (!_.isEmpty(activeUrl)){
+        let kwrelated = [];
+        if (!_.isEmpty(activeUrl) && !_.isUndefined(activeUrl)){
           social = await this.deep.getSocial(user.username, activeUrl);
           openwith = await this.deep.getOpenWith(activeUrl);
+          kwrelated = await this.deep.getKeywordRelated(activeUrl);
         }
         else{
           process.stdout.write('_');
@@ -137,7 +139,8 @@ class Proactive {
         this.io.emit('recommendations', {
           historics: historics,
           social: social,
-          openwith: openwith
+          openwith: openwith,
+          kwrelated: kwrelated
         })
 
       } catch (e) {
@@ -152,7 +155,8 @@ class Proactive {
 
 
     async handleDeepconnect(){
-
+      let self = this;
+      self.deepContext();
       //Suggest clusters for tagging
       // let possibleClusters = await this.deep.updateClusters()
       // if (possibleClusters > 0){

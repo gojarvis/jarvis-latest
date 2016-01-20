@@ -52,6 +52,7 @@ limit 10
 `;
 
 
+
     let openwith = await graph.queryGraph(cypher);
     // let openwithUrls = await Promise.all(openwith.map(entry => {
     //   return { url: entry.url, title: entry.title, id: entry.id }
@@ -62,24 +63,60 @@ limit 10
   }
 
 
+  async getKeywordRelated(urlNode){
+    let url = urlNode.url;
+    let cypher =
+// `match
+// (url:Url)-[r:openwith]-(another:Url),
+// (another)-[:related]-(keyword:Keyword),
+// (target:Url)-[:related]-(keyword)
+// where url.url = '${url}'
+// return distinct(target.url) as url, target.title as title, target.type as type, another, r, keyword
+// order by r.weight desc
+// limit 30`;
+`match
+(url:Url)-[*1..3]-(another:Url),
+(another)-[:related]-(keyword:Keyword),
+(url)-[:related]-(keyword)
+where url.url = '${url}'
+return distinct(another.url) as url, another.title as title, another.type as type, keyword limit 10`
 
+    let kwrelated = await graph.queryGraph(cypher);
+    return kwrelated;
+  }
 
 
 
 
   async getSocial(username, activeUrl){
+
       let cypher =
+
 `match
 (user:User)-[a:touched]-(url:Url)<-[c:openwith]->(anotherUrl:Url),
-(anotherUser:User)-[b:touched]-(anotherUrl)
-where url.url = '${activeUrl.url}'
-and exists(url.title) and exists(anotherUrl.title)
+(url)-[:related]-(keyword:Keyword)-[:related]-(anotherUrl),
+(anotherUser:User)-[b:touched]->(target:Url)-[s:openwith]-(anotherUrl)
+where exists(url.title) and exists(target.title)
+and url.url = '${activeUrl.url}'
 and not anotherUser.username = '${username}'
-return distinct(anotherUrl.url) as url, anotherUrl.title as title,b
-order by b.weight desc
-limit 10`;
+with anotherUrl, s
+order by s.weight desc
+return distinct(anotherUrl.url) as url, anotherUrl.title as title, anotherUrl.type as type`;
+//
+//
+// `match
+// (user:User)-[a:touched]-(url:Url)<-[c:openwith]->(anotherUrl:Url),
+// (anotherUser:User)-[b:touched]-(anotherUrl)
+// where url.url = '${activeUrl.url}'
+// and exists(url.title) and exists(anotherUrl.title)
+// and not anotherUser.username = '${username}'
+// return distinct(anotherUrl.url) as url, anotherUrl.title as title,b
+// order by b.weight desc
+// limit 10`;
 
       try{
+        console.log('social=============>>>');
+        console.log(cypher);
         let social = await graph.queryGraph(cypher);
 
         return social;
