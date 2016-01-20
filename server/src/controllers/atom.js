@@ -208,7 +208,7 @@ class AtomController {
     let relatedFilesNodes = await Promise.all(relatedFiles.map(relation => this.getNodeById(relation.end)))
     let relatedUrlNodes = await Promise.all(relatedUrls.map(relation => this.getNodeById(relation.end)))
 
-    
+
     let related = _.union(relatedFilesNodes,relatedUrlNodes)
     // let relatedFilesFix = relatedFiles.map(item => {
     //   // console.log(_.lodash(item.uri.split("/")));
@@ -239,7 +239,17 @@ class AtomController {
   }
 
   async getRelatedFiles(uri, threshold){
-    let cypher = 'MATCH (n:File)-[r:openwith]->(q:File) WHERE n.uri = "' + uri +'" AND r.weight > ' + threshold +'  RETURN r ORDER BY r.weight DESC LIMIT 6';
+    let cypher =
+`match
+(file:File)-[o:openwith]-(url:Url)-[r:related]-(keyword:Keyword)
+with file,url,keyword, count(r) as cr
+where file.uri = '${uri}'
+and cr > 1
+with file,url,keyword, cr
+order by("cr desc ,o.weight desc")
+return distinct(url.url) as url, url.type as type, url.title as title ,keyword
+limit 10`;
+
     let params = {uri: uri, threshold: threshold};
 
     try{
