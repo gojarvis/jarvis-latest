@@ -28,8 +28,8 @@ class SocketManager {
     this.wit = new WitController(socket, sid, context, history)
 
     //Slack
-    this.slack = new SlackController(socket)
-    
+    // this.slack = new SlackController(socket)
+
 
     //Basic conversation
     this.teach = new TeachController(socket, sid, context, history)

@@ -24,11 +24,11 @@ class Proactive {
       this.metadata = new Meta(this.user);
 
 
-      this.heart.createEvent(3, function(heartbeat, last){
+      this.heart.createEvent(10, function(heartbeat, last){
         this.handleHeartbeat(heartbeat);
       }.bind(this));
 
-      this.heart.createEvent(100, function(heartbeat, last){
+      this.heart.createEvent(10, function(heartbeat, last){
         this.handleDeepconnect(heartbeat);
       }.bind(this));
 
