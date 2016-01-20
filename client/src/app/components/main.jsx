@@ -357,8 +357,9 @@ class Main extends React.Component {
   }
 
   handleSlideChange = (value) => {
+    console.log("SLID VALUE", parseInt(value));
     this.setState({
-      slideIndex: value,
+      slideIndex: parseInt(value),
     });
   }
 
@@ -401,14 +402,14 @@ class Main extends React.Component {
           onChange={this.handleSlideChange}
           value={this.state.slideIndex}
         >
-          <Tab label="Open With" value={0} />
-          <Tab label="Keywords" value={1} />
-          <Tab label="Files" value={2} />
-          <Tab label="Social" value={3} />
+          <Tab label="Open With" value="0" />
+          <Tab label="Keywords" value="1" />
+          <Tab label="Files" value="2" />
+          <Tab label="Social" value="3" />
         </Tabs>
           <SwipeableViews
             index={this.state.slideIndex}
-            onChangeIndex={this.handleChange}>
+            >
             <Feedback ref="related" type="svg" tick={this.state.heartValue} items={this.state.related}/>
             <Feedback ref="kwrelated" type="svg" tick={this.state.heartValue} items={this.state.kwrelated}/>
             <Feedback ref="relatedfiles" type="svg" tick={this.state.heartValue} items={this.state.relatedFiles}/>

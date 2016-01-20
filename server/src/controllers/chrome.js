@@ -42,8 +42,9 @@ class ChromeController {
     this.context = context;
     this.history = history;
 
-
+    this.io.emit('load-tabs');
     this.registerEvents();
+
   }
 
   registerEvents(){

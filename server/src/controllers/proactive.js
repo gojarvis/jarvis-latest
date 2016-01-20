@@ -24,7 +24,7 @@ class Proactive {
       this.metadata = new Meta(this.user);
 
 
-      this.heart.createEvent(3, function(heartbeat, last){
+      this.heart.createEvent(7, function(heartbeat, last){
         this.handleHeartbeat(heartbeat);
       }.bind(this));
 
@@ -100,7 +100,7 @@ class Proactive {
 
         //If the url is the same as before, do nothing
 
-        if (activeUrl.url === this.lastActiveUrl){
+        if (activeUrl.url === this.lastActiveUrl || _.isUndefined(activeUrl.url)){
           process.stdout.write('=');
           return;
         }

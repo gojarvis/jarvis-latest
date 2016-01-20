@@ -94,9 +94,9 @@ return distinct(another.url) as url, another.title as title, another.type as typ
 
 `match
 (user:User)-[a:touched]-(url:Url)<-[c:openwith]->(anotherUrl:Url),
-(url)-[:related]-(keyword:Keyword)-[:related]-(anotherUrl),
 (anotherUser:User)-[b:touched]->(target:Url)-[s:openwith]-(anotherUrl)
 where exists(url.title) and exists(target.title)
+and not user.username = anotherUser.username
 and url.url = '${activeUrl.url}'
 and not anotherUser.username = '${username}'
 with anotherUrl, s

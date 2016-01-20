@@ -8,7 +8,12 @@ let socket = io.connect('http://localhost:3000', {reconnect: true});
 let tabs = [];
 
 
-
+socket.on('load-tabs', function(){
+  chrome.tabs.query({}, function(res){
+      tabs = res
+  });
+  socket.emit('speak', 'loaded tabs');
+})
 //Initialize tabs
 chrome.tabs.query({}, function(res){
     tabs = res
@@ -17,8 +22,6 @@ chrome.tabs.query({}, function(res){
 
 
 chrome.tabs.onCreated.addListener(function(active){
-
-
   chrome.tabs.query({}, function(res){
       let tabs = res
       socket.emit('chrome-created', {active:active, tabs:tabs})
@@ -34,6 +37,13 @@ chrome.tabs.onUpdated.addListener(function(active){
   chrome.tabs.query({}, function(res){
       let tabs = res
       socket.emit('chrome-updated', {active:active, tabs:tabs});
+  });
+});
+
+chrome.tabs.onActivated.addListener(function(active){
+  chrome.tabs.query({}, function(res){
+      let tabs = res
+      socket.emit('chrome-activated', {active:active, tabs:tabs});
   });
 });
 
