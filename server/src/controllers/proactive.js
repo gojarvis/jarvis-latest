@@ -15,6 +15,7 @@ class Proactive {
       this.io = io;
       this.context = context;
       this.deep = deep;
+      this.lastActiveUrl = '';
       this.graph = new graphUtils();
       this.heart = heartbeats.createHeart(1000);
 
@@ -23,7 +24,7 @@ class Proactive {
       this.metadata = new Meta(this.user);
 
 
-      this.heart.createEvent(60, function(heartbeat, last){
+      this.heart.createEvent(3, function(heartbeat, last){
         this.handleHeartbeat(heartbeat);
       }.bind(this));
 
@@ -41,6 +42,7 @@ class Proactive {
     handleHeartbeat(hb){
       let self = this;
       self.socket.emit('heartbeat', hb);
+
       self.recommend();
       self.deepContext();
       process.stdout.write('0');
@@ -93,14 +95,24 @@ class Proactive {
         console.error('No user loaded, cant get recommendations');
       }
       try {
+
+        let activeUrl = this.context.getActiveUrl();
+
+        //If the url is the same as before, do nothing
+
+        if (activeUrl.url === this.lastActiveUrl){
+          process.stdout.write('=');
+          return;
+        }
+
+        this.lastActiveUrl = activeUrl.url;
+
         let anHourAgo = moment().subtract(1, 'hour').format();
 
         let yesterday = moment().subtract(1, 'day').format();
         let yesterdayHour = moment().subtract(1, 'day').add(1, 'hour').format();
         let startOfDay = moment().startOf('day').format();
         let now = moment().format();
-
-        let activeUrl = this.context.getActiveUrl();
 
 
         let openwith = [];

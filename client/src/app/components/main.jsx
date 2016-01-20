@@ -324,6 +324,7 @@ class Main extends React.Component {
 
   handleRecommendation(recommendations) {
     console.log('Recommendations', recommendations);
+    // console.log(recommendations.openwith);
     this.setState({recommendations: recommendations.social, related: recommendations.openwith})
   }
 

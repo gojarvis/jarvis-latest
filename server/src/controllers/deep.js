@@ -46,15 +46,18 @@ class Deep{
 (url:Url)-[r:openwith]-(another:Url)
 where url.url = '${url}'
 and not another.url = '${url}'
-return r
-order by r.weight
+return distinct(another.url) as url, another.title as title, another.id as id , another.type as type, r
+order by r.weight desc
 limit 10
 `;
 
 
     let openwith = await graph.queryGraph(cypher);
-    let openwithUrls = await Promise.all(openwith.map(rel => self.getUrlById(rel.end)));
-    return openwithUrls;
+    // let openwithUrls = await Promise.all(openwith.map(entry => {
+    //   return { url: entry.url, title: entry.title, id: entry.id }
+    // });
+
+    return openwith;
 
   }
 
