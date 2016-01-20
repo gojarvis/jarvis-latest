@@ -62,6 +62,7 @@ class Main extends React.Component {
       related: [],
       relatedFiles: [],
       recommendations: [],
+      kwrelated: [],
       heart: '<#',
       heartValue: 0,
       slideIndex: 0
@@ -325,7 +326,7 @@ class Main extends React.Component {
   handleRecommendation(recommendations) {
     console.log('Recommendations', recommendations);
     // console.log(recommendations.openwith);
-    this.setState({recommendations: recommendations.social, related: recommendations.openwith})
+    this.setState({recommendations: recommendations.social, related: recommendations.openwith, kwrelated: recommendations.kwrelated})
   }
 
   netResultHandler(result) {
@@ -401,15 +402,17 @@ class Main extends React.Component {
           value={this.state.slideIndex}
         >
           <Tab label="Open With" value={0} />
-          <Tab label="Files" value={1} />
-          <Tab label="Social" value={2} />
+          <Tab label="Keywords" value={1} />
+          <Tab label="Files" value={2} />
+          <Tab label="Social" value={3} />
         </Tabs>
           <SwipeableViews
             index={this.state.slideIndex}
             onChangeIndex={this.handleChange}>
-            <Feedback type="svg" tick={this.state.heartValue} items={this.state.related}/>
-            <Feedback type="svg" tick={this.state.heartValue} items={this.state.relatedFiles}/>
-            <Feedback type="svg" tick={this.state.heartValue} items={this.state.recommendations}/>
+            <Feedback ref="related" type="svg" tick={this.state.heartValue} items={this.state.related}/>
+            <Feedback ref="kwrelated" type="svg" tick={this.state.heartValue} items={this.state.kwrelated}/>
+            <Feedback ref="relatedfiles" type="svg" tick={this.state.heartValue} items={this.state.relatedFiles}/>
+            <Feedback ref="recommendations" type="svg" tick={this.state.heartValue} items={this.state.recommendations}/>
           </SwipeableViews>
         </div>
 
