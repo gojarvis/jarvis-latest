@@ -22,11 +22,11 @@ graph.constraints.uniqueness.create('Url', 'url', function(err, constraint) {
   // console.log(constraint);
   // -> { type: 'UNIQUENESS', label: 'Person', property_keys: ['name'] }
 });
-
-graph.constraints.uniqueness.create('Keyword', 'text', function(err, constraint) {
-  // console.log(constraint);
-  // -> { type: 'UNIQUENESS', label: 'Person', property_keys: ['name'] }
-});
+// 
+// graph.constraints.uniqueness.create('Keyword', 'text', function(err, constraint) {
+//   // console.log(constraint);
+//   // -> { type: 'UNIQUENESS', label: 'Person', property_keys: ['name'] }
+// });
 
 let db = new PouchDB('sherpa');
 

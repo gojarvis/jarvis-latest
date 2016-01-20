@@ -115,8 +115,8 @@ return distinct(anotherUrl.url) as url, anotherUrl.title as title, anotherUrl.ty
 // limit 10`;
 
       try{
-        console.log('social=============>>>');
-        console.log(cypher);
+        // console.log('social=============>>>');
+        // console.log(cypher);
         let social = await graph.queryGraph(cypher);
 
         return social;

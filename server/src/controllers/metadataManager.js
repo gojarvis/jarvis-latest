@@ -9,7 +9,7 @@ import fs from 'fs';
 
 let graphUtils = new GraphDB();
 
-let alchemy_language = watson.alchemy_language({api_key: 'ab2b4727617c0d529641168272d1e661634feb72'});
+let alchemy_language = watson.alchemy_language({api_key: '90b037daf9e184f3f506be9f7667ce289b1392b0'});
 
 let graph = require("seraph")({
   user: 'neo4j', pass: 'sherpa', server: 'http://45.55.36.193:7474',
@@ -25,27 +25,31 @@ let graph = require("seraph")({
 class MetadataManager {
   constructor(userName) {
     this.user = userName
-
+    this.localCache = {};
   }
 
   async getSetKeywordsForUrl(urlNode) {
     let url = urlNode.url;
+
     // console.log(urlNode);
     if (!url.startsWith('http') || url.indexOf('localhost') != -1 || url.startsWith('https://www.google.com') || url.startsWith('http://www.facebook.com') || url.startsWith('http://www.google.com')) {
       return;
     }
 
     try {
-      if (_.isUndefined(urlNode.alchemy)) {
+      if ((_.isUndefined(urlNode.alchemy) || (!_.isUndefined(urlNode.alchemy) && urlNode.alchemy === 'failed')) && _.isUndefined(this.localCache[urlNode.url])) {
         try {
+          console.log('NO ALCHEMY FOR ', urlNode);
           let keywords = await this.getAlchemyKeyWords(url);
           let keywordNodes = await this.saveKeywords(keywords);
           let results = await this.updateNodeAndRelationships(urlNode, keywordNodes);
+          console.log('**** localCache'.red,this.localCache);
+          // console.log('------------'.blue);
+          // console.log('Final Results: '.red, results);
+          console.log('------------'.blue, 'keywords', keywords);
+          this.localCache[urlNode.url] = true;
 
-          console.log('------------'.blue);
-          console.log('Final Results: '.red, results);
-          console.log('------------'.blue);
-
+          let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'success');
           // let keywordsNodes = await this.saveKeywords(keywords);
           // console.log('keywordsNodes returned: '.red, keywordsNodes);
           // let wikidata = await Promise.all(keywordsNodes.map(keywordNode => this.ensureWikidata(keywordNode)))
@@ -53,7 +57,7 @@ class MetadataManager {
           // let relationship = await Promise.all(keywords.map(keywords => this.relateKeywordToUrl(keywords, urlNode)));
         } catch (err) {
           console.log('getSetKeywordsForUrl failed:', err);
-          let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'failed');
+          let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'error');
         }
       }
 
@@ -138,18 +142,16 @@ class MetadataManager {
 
       let ret = fixed.map(node => {
         let kw = keywords.find(keyword => {
-          console.log('!'.yellow, keyword, node.text)
+          // console.log('!'.yellow, keyword, node.text)
           // currently keyword.text is returning undefined, haven't investigated yet
-          return keyword.text === node.text;
+          return keyword.get('text') === node.text;
         });
 
-        if (!kw) {
-          throw new Error('kw returned false')
-        }
-
-        return {
-          relevance: kw.relevance,
-          node: node
+        if (kw) {
+          return {
+            relevance: kw.get('relevance'),
+            node: node
+          }
         }
       });
 
@@ -159,27 +161,37 @@ class MetadataManager {
 
   // take new keyword nodes and associate them with the urlNode
   async updateNodeAndRelationships(urlNode, keywordNodes) {
-    console.log('------------'.red);
-    console.log('UrlNode:', urlNode);
-    console.log('------------'.red);
-    console.log('keywordNodes:', keywordNodes);
-    console.log('------------'.red);
+    // console.log('------------'.red);
+    // console.log('UrlNode:', urlNode);
+    // console.log('------------'.red);
+    // console.log('keywordNodes:', keywordNodes);
+    // console.log('------------'.red);
 
     let txn = graph.batch();
 
     keywordNodes.forEach(kwObj => {
       let cypher = `
         START a=node(${kwObj.node.id}), b=node(${urlNode.id})
-        CREATE UNIQUE a-[r:related]-b
+        CREATE UNIQUE (a)-[r:related]-(b)
         SET r.weight = coalesce(r.weight, 0) + ${kwObj.relevance}`;
 
-      console.log('Create relationship cypher:', cypher);
+      txn.query(cypher, {}, (err, result) => {
+        if (err) {
+          console.log('?'.red, err);
+        }
+
+        console.log('!:'.blue, result);
+      });
     });
+
+
 
     let res = {};
     try {
-      let res = await this.doCommit(txn);
+      res = await this.doCommit(txn);
+      return res;
     } catch (e) {
+      console.log('CANT CREATE RELS');
       throw e;
     } finally {
       return res;
@@ -207,7 +219,7 @@ class MetadataManager {
       } catch (e) {
         reject(e);
       } finally {
-        //
+
       }
     });
   }
