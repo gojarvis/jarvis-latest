@@ -9,7 +9,7 @@ import fs from 'fs';
 
 let graphUtils = new GraphDB();
 
-let alchemy_language = watson.alchemy_language({api_key: 'ab2b4727617c0d529641168272d1e661634feb72'});
+let alchemy_language = watson.alchemy_language({api_key: '90b037daf9e184f3f506be9f7667ce289b1392b0'});
 
 let graph = require("seraph")({
   user: 'neo4j', pass: 'sherpa', server: 'http://45.55.36.193:7474',
@@ -138,18 +138,16 @@ class MetadataManager {
 
       let ret = fixed.map(node => {
         let kw = keywords.find(keyword => {
-          console.log('!'.yellow, keyword, node.text)
+          // console.log('!'.yellow, keyword, node.text)
           // currently keyword.text is returning undefined, haven't investigated yet
-          return keyword.text === node.text;
+          return keyword.get('text') === node.text;
         });
 
-        if (!kw) {
-          throw new Error('kw returned false')
-        }
-
-        return {
-          relevance: kw.relevance,
-          node: node
+        if (kw) {
+          return {
+            relevance: kw.get('relevance'),
+            node: node
+          }
         }
       });
 
@@ -159,26 +157,32 @@ class MetadataManager {
 
   // take new keyword nodes and associate them with the urlNode
   async updateNodeAndRelationships(urlNode, keywordNodes) {
-    console.log('------------'.red);
-    console.log('UrlNode:', urlNode);
-    console.log('------------'.red);
-    console.log('keywordNodes:', keywordNodes);
-    console.log('------------'.red);
+    // console.log('------------'.red);
+    // console.log('UrlNode:', urlNode);
+    // console.log('------------'.red);
+    // console.log('keywordNodes:', keywordNodes);
+    // console.log('------------'.red);
 
     let txn = graph.batch();
 
     keywordNodes.forEach(kwObj => {
       let cypher = `
         START a=node(${kwObj.node.id}), b=node(${urlNode.id})
-        CREATE UNIQUE a-[r:related]-b
+        CREATE UNIQUE (a)-[r:related]-(b)
         SET r.weight = coalesce(r.weight, 0) + ${kwObj.relevance}`;
 
-      console.log('Create relationship cypher:', cypher);
+      txn.query(cypher, {}, (err, result) => {
+        if (err) {
+          console.log('?'.red, err);
+        }
+
+        console.log('!:'.blue, result);
+      });
     });
 
     let res = {};
     try {
-      let res = await this.doCommit(txn);
+      res = await this.doCommit(txn);
     } catch (e) {
       throw e;
     } finally {
