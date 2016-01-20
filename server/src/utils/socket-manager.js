@@ -3,6 +3,7 @@ const FileSystemController = require('../controllers/filesystem');
 const TeachController = require('../controllers/teach');
 const ChromeController = require('../controllers/chrome');
 const AtomController = require('../controllers/atom');
+const SlackController = require('../controllers/slack');
 
 const Context = require('../controllers/contextManager');
 const History = require('../controllers/historyManager');
@@ -26,12 +27,17 @@ class SocketManager {
     //basic speech in/out
     this.wit = new WitController(socket, sid, context, history)
 
+    //Slack
+    this.slack = new SlackController(socket)
+    
+
     //Basic conversation
     this.teach = new TeachController(socket, sid, context, history)
 
     //Sensors (plugins)
     this.chrome = new ChromeController(socket, sid, io, context, history)
     this.atom = new AtomController(socket, sid, io, context, history)
+
 
     this.proactive = new Proactive(socket, sid, io, context, history, deep);
   }

@@ -62,6 +62,7 @@ class Main extends React.Component {
       related: [],
       relatedFiles: [],
       recommendations: [],
+      kwrelated: [],
       heart: '<#',
       heartValue: 0,
       slideIndex: 0
@@ -85,8 +86,8 @@ class Main extends React.Component {
       this.setState({voices: voices});
     }.bind(this);
 
-    // this.props.bindShortcut('space space', this.stopRecording);
-    // this.props.bindShortcut('enter enter', this.startRecording);
+    this.props.bindShortcut('space space', this.stopRecording);
+    this.props.bindShortcut('enter enter', this.startRecording);
 
   }
 
@@ -107,7 +108,6 @@ class Main extends React.Component {
       this.setState({witresult: result});
 
       this.state.socket.emit('ask', bestInputGuess.intent);
-      this.state.socket.emit('intent', bestInputGuess);
 
       if (this.state.topic) {
         console.log("topic is set, sending to conv");
@@ -206,11 +206,6 @@ class Main extends React.Component {
       self.netResultHandler(result)
     });
 
-    socket.on('intent-result', function (result) {
-      self.intentResultHandler(result)
-    });
-
-
     socket.on('conv-result', function (result) {
       self.convResultHandler(result)
     });
@@ -259,8 +254,7 @@ class Main extends React.Component {
     socket.emit('stop');
   }
 
-  handleChangeCommand(event) {
-    event.preventDefault();
+  handleChange(event) {
     this.setState({command: event.target.value})
 
   }
@@ -316,10 +310,12 @@ class Main extends React.Component {
   }
 
   handleRelated(related) {
+    console.log('related', related);
     this.setState({related: related});
   }
 
   handleRelatedFiles(relatedFiles) {
+    console.log('relatedFiles', relatedFiles);
     this.setState({relatedFiles: relatedFiles});
   }
 
@@ -328,7 +324,9 @@ class Main extends React.Component {
   }
 
   handleRecommendation(recommendations) {
-    this.setState({recommendations: recommendations.social, related: recommendations.openwith})
+    console.log('Recommendations', recommendations);
+    // console.log(recommendations.openwith);
+    this.setState({recommendations: recommendations.social, related: recommendations.openwith, kwrelated: recommendations.kwrelated})
   }
 
   netResultHandler(result) {
@@ -337,12 +335,6 @@ class Main extends React.Component {
     let pick = result[rnd];
     this.say(pick);
     this.setState({netResult: pick});
-  }
-
-  intentResultHandler(result) {
-    console.log(result);
-    this.say(result.speech);
-    this.setState({recommendations: result.recommendations});
   }
 
   convResultHandler(result) {
@@ -410,13 +402,17 @@ class Main extends React.Component {
           value={this.state.slideIndex}
         >
           <Tab label="Open With" value={0} />
-          <Tab label="Files" value={1} />
-          <Tab label="Social" value={2} />
+          <Tab label="Keywords" value={1} />
+          <Tab label="Files" value={2} />
+          <Tab label="Social" value={3} />
         </Tabs>
-          <SwipeableViews index={this.state.slideIndex}>
-            <Feedback type="svg" tick={this.state.heartValue} items={this.state.related}/>
-            <Feedback type="svg" tick={this.state.heartValue} items={this.state.relatedFiles}/>
-            <Feedback type="svg" tick={this.state.heartValue} items={this.state.recommendations}/>
+          <SwipeableViews
+            index={this.state.slideIndex}
+            onChangeIndex={this.handleChange}>
+            <Feedback ref="related" type="svg" tick={this.state.heartValue} items={this.state.related}/>
+            <Feedback ref="kwrelated" type="svg" tick={this.state.heartValue} items={this.state.kwrelated}/>
+            <Feedback ref="relatedfiles" type="svg" tick={this.state.heartValue} items={this.state.relatedFiles}/>
+            <Feedback ref="recommendations" type="svg" tick={this.state.heartValue} items={this.state.recommendations}/>
           </SwipeableViews>
         </div>
 
@@ -429,14 +425,13 @@ class Main extends React.Component {
           <Face recording={this.state.recording}></Face>
         </div>
         <div style={{
-            position: "absolute",
-            bottom: "100px"
-          }}>
+          display: "none"
+        }}>
           <TextField style={{
             margin: "10px",
             textAlign: "center",
             width: "90%"
-          }} hintText={this.state.hint} value={this.state.command} onKeyDown={this.handleKeyDown.bind(this)} onChange={this.handleChangeCommand.bind(this)}/>
+          }} hintText={this.state.hint} value={this.state.command} onKeyDown={this.handleKeyDown} onChange={this.handleChange}/>
           <div style={{
             margin: "10px",
             textAlign: "center",
@@ -473,13 +468,13 @@ class Main extends React.Component {
             margin: "10px",
             textAlign: "center",
             width: "90%"
-          }} hintText="Teach me a response" value={this.state.input} onKeyDown={this.handleKeyDownIn.bind(this)} onChange={this.handleChangeIn.bind(this)}/>
+          }} hintText="Teach me a response" value={this.state.input} onKeyDown={this.handleKeyDownIn} onChange={this.handleChangeIn}/>
 
           <TextField style={{
             margin: "10px",
             textAlign: "center",
             width: "90%"
-          }} hintText="What are we talking about?" value={this.state.topic} onKeyDown={this.handleKeyDownIn.bind(this)} onChange={this.handleChangeTopic.bind(this)}/>
+          }} hintText="What are we talking about?" value={this.state.topic} onKeyDown={this.handleKeyDownIn} onChange={this.handleChangeTopic}/>
         </div>
 
       </div>

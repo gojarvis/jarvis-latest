@@ -15,6 +15,7 @@ class Proactive {
       this.io = io;
       this.context = context;
       this.deep = deep;
+      this.lastActiveUrl = '';
       this.graph = new graphUtils();
       this.heart = heartbeats.createHeart(1000);
 
@@ -23,7 +24,7 @@ class Proactive {
       this.metadata = new Meta(this.user);
 
 
-      this.heart.createEvent(45, function(heartbeat, last){
+      this.heart.createEvent(3, function(heartbeat, last){
         this.handleHeartbeat(heartbeat);
       }.bind(this));
 
@@ -41,8 +42,9 @@ class Proactive {
     handleHeartbeat(hb){
       let self = this;
       self.socket.emit('heartbeat', hb);
+
       self.recommend();
-      self.deepContext();
+
       process.stdout.write('0');
     }
 
@@ -53,8 +55,8 @@ class Proactive {
           // console.log(urls);
           if (urls.length > 0) {
             let urlRelationships = Promise.all(urls.map(url => this.relateUrlToUrls(url,urls)))
-            let keywords = await Promise.all(urls.map(url => this.metadata.getSetKeywordsForUrl(url)));
 
+            let keywords = await Promise.all(urls.map(url => this.metadata.getSetKeywordsForUrl(url)));
           }
 
           if (files.length > 0){
@@ -93,6 +95,18 @@ class Proactive {
         console.error('No user loaded, cant get recommendations');
       }
       try {
+
+        let activeUrl = this.context.getActiveUrl();
+
+        //If the url is the same as before, do nothing
+
+        if (activeUrl.url === this.lastActiveUrl){
+          process.stdout.write('=');
+          return;
+        }
+
+        this.lastActiveUrl = activeUrl.url;
+
         let anHourAgo = moment().subtract(1, 'hour').format();
 
         let yesterday = moment().subtract(1, 'day').format();
@@ -100,14 +114,14 @@ class Proactive {
         let startOfDay = moment().startOf('day').format();
         let now = moment().format();
 
-        let activeUrl = this.context.getActiveUrl();
-
 
         let openwith = [];
         let social = [];
-        if (!_.isEmpty(activeUrl)){
+        let kwrelated = [];
+        if (!_.isEmpty(activeUrl) && !_.isUndefined(activeUrl)){
           social = await this.deep.getSocial(user.username, activeUrl);
           openwith = await this.deep.getOpenWith(activeUrl);
+          kwrelated = await this.deep.getKeywordRelated(activeUrl);
         }
         else{
           process.stdout.write('_');
@@ -119,16 +133,15 @@ class Proactive {
         let yesterdayThisHour = await this.deep.getHistorics(user.username, yesterday,yesterdayHour);
 
         let historics = {social,lastHour, yesterdayDay, yesterdayThisHour};
-        let recommendations = {
+
+
+
+        this.io.emit('recommendations', {
           historics: historics,
           social: social,
-          openwith: openwith
-        };
-
-        this.context.set('recommendations', recommendations);
-        // console.log(recommendations);
-        this.io.emit('recommendations', recommendations)
-        // this.socket.emit('speak', 'New recommendations are in, there are ' + openwith.length + 'relevant files');
+          openwith: openwith,
+          kwrelated: kwrelated
+        })
 
       } catch (e) {
           console.log('whoops', e);
@@ -142,7 +155,8 @@ class Proactive {
 
 
     async handleDeepconnect(){
-
+      let self = this;
+      self.deepContext();
       //Suggest clusters for tagging
       // let possibleClusters = await this.deep.updateClusters()
       // if (possibleClusters > 0){
