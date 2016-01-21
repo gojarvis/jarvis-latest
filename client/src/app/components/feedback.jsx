@@ -67,6 +67,7 @@ const styles = {
     boxShadow: `1px 2px 9px rgba(0,0,0,0.5)`,
     opacity: `1`,
     margin: 10,
+    marginBottom: 20,
     display: 'inline-block',
     width: '20%',
     overflow:'hidden'

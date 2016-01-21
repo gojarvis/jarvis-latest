@@ -396,7 +396,8 @@ class Main extends React.Component {
 
 
         <div style={{
-          width: '100%'
+          width: '100%',
+          height: '100%',
         }}>
         <Tabs
           onChange={this.handleSlideChange}
@@ -409,6 +410,7 @@ class Main extends React.Component {
         </Tabs>
           <SwipeableViews
             index={this.state.slideIndex}
+            style={{margin: 10}}
             >
             <Feedback ref="related" type="svg" tick={this.state.heartValue} items={this.state.related}/>
             <Feedback ref="kwrelated" type="svg" tick={this.state.heartValue} items={this.state.kwrelated}/>

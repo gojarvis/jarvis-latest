@@ -79,7 +79,8 @@ limit 10
 (another)-[:related]-(keyword:Keyword),
 (url)-[:related]-(keyword)
 where url.url = '${url}'
-return distinct(another.url) as url, another.title as title, another.type as type, keyword limit 10`
+and not another.url = '${url}'
+return distinct(another.url) as url, another.title as title, another.type as type limit 10`
 
     let kwrelated = await graph.queryGraph(cypher);
     return kwrelated;
@@ -98,6 +99,7 @@ return distinct(another.url) as url, another.title as title, another.type as typ
 where exists(url.title) and exists(target.title)
 and not user.username = anotherUser.username
 and url.url = '${activeUrl.url}'
+and user.username = '${username}'
 and not anotherUser.username = '${username}'
 with anotherUrl, s
 order by s.weight desc

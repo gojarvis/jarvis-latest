@@ -11,7 +11,8 @@ const STYLES = {
       margin: 0,
       fontFamily: 'Roboto',
       lineHeight: '20px',
-      fontSize: 13
+      fontSize: 13,
+      minHeight: '800px'
     },
     a: {
       color: COLORS.TEXT_LIGHT,

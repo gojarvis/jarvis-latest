@@ -57,6 +57,7 @@ class MetadataManager {
           // let relationship = await Promise.all(keywords.map(keywords => this.relateKeywordToUrl(keywords, urlNode)));
         } catch (err) {
           console.log('getSetKeywordsForUrl failed:', err);
+          this.localCache[urlNode.url] = true;
           let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'error');
         }
       }
