@@ -10,7 +10,8 @@ class Goals {
           query: [
             'urls-by-time',
             'keywords'
-          ]
+          ],
+          objectives: []
         },
         'social': {
           ask: [
