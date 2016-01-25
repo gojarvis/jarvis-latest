@@ -63,11 +63,10 @@ const styles = {
   },
   suggestion: {
     fontFamily: 'Roboto',
-    fontWeight: 400,
+    fontWeight: '400',
     boxShadow: `1px 2px 9px rgba(0,0,0,0.5)`,
     opacity: `1`,
-    margin: 10,
-    marginBottom: 20,
+    margin: '10px 10px 20px',
     display: 'inline-block',
     width: '20%',
     overflow:'hidden'

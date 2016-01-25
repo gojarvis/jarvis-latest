@@ -18,7 +18,9 @@ app.get('/', function(req, res){
 
 
 io.on('connection', function(socket){
-  var socketManager = new SocketManager(socket,io)
+  var socketManager = new SocketManager(socket,io);
+
+  GLOBAL._socket = socket;
 
   // app.get('/alexa', function(req,res){
   //   io.emit('speak', "AAlexa");

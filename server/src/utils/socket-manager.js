@@ -9,19 +9,20 @@ const Context = require('../controllers/contextManager');
 const History = require('../controllers/historyManager');
 const Proactive = require('../controllers/proactive');
 const Deep = require('../controllers/deep');
+const Conversations = require('../controllers/conversationsManager');
 
 //The context contains all the urls and files open right now
 //Access to the knowledge graph is gained via the context
-const userInfo = { username: 'roieki' };
+const userInfo = {
+  username: 'parties'
+};
 
 const history = new History(userInfo.username);
 const context = new Context(history, userInfo);
-const deep = new Deep(history,context);
-
-
+const deep = new Deep(history, context);
 
 class SocketManager {
-  constructor(socket,io){
+  constructor(socket, io) {
     let sid = 'GKvm4Sdf';
 
     //basic speech in/out
@@ -30,7 +31,6 @@ class SocketManager {
     //Slack
     // this.slack = new SlackController(socket)
 
-
     //Basic conversation
     this.teach = new TeachController(socket, sid, context, history)
 
@@ -38,8 +38,9 @@ class SocketManager {
     this.chrome = new ChromeController(socket, sid, io, context, history)
     this.atom = new AtomController(socket, sid, io, context, history)
 
-
     this.proactive = new Proactive(socket, sid, io, context, history, deep);
+
+    this.conversations = new Conversations(socket, sid, io, context, history, deep);
   }
 }
 module.exports = SocketManager;

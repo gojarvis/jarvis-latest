@@ -1,47 +1,62 @@
-import StateMachine from 'fsm-as-promised'
-import machine from 'machina'
-import { Map, List } from 'immutable';
+// import StateMachine from 'fsm-as-promised'
+// import machine from 'machina'
 import HistoryGoal from '../goals/history'
 import KnowledgeGoal from '../goals/knowledge'
 import SimilarActivityGoal from '../goals/similarActivity'
 import events from 'events'
-
+import imm, {Map, List} from 'immutable'
 
 let goals = Map({
-  'query_history': new HistoryGoal(),
-  'query_knowledge': new KnowledgeGoal(),
-  'query_similar_activity': new SimilarActivityGoal()
+  'query_history': HistoryGoal,
+  // 'query_knowledge': new KnowledgeGoal(),
+  // 'query_similar_activity': new SimilarActivityGoal()
 })
 
 class ConversationManager {
-  constructor(socket) {
+  constructor(socket, sid, io, context, history, deep) {
     this.socket = socket;
-    this.emitter = new events.EventEmitttr();
+    // this.emitter = new events.EventEmitter();
 
     this.state = Map({
       topic: 'neutral',
       outboundQuestion: '',
       inboundResponse: '',
-      currentGoal: ''
+      currentGoal: '',
       objectives: Map(),
-      parameters: Map(),
+      parameters: Map()
     });
 
     this.registerEvents();
 
   }
 
-  registerEvents(){
-    this.socket.on('ask-response', self.handleAskResponse)
+  registerEvents() {
+    this.socket.on('ask-response', this.handleAskResponse)
+
+    this.socket.on('user-intent', (message) => {
+      this.onIntent(message);
+      // this.socket.emit('net-result', this.ask(intent));
+    });
   }
 
-  onIntent(witResult){
-      let {intent, parameters, state} = self.parseWitResult(witResults);
-      let goal = this.resolveGoal(intent, state);
-      this.state.update('currentGoal', goal)
+  onIntent(message) {
+    let userIntent = this.parseWitResult(message.witResult);
+    let intent = userIntent.get('intent');
+    let goalObj = goals.get(intent);
+    let goal = new goalObj();
+    // this.state.update('currentGoal', goal)
   }
 
-  parseWitResult(result){
+  parseWitResult(result) {
+    // console.log('parseWitResult:', JSON.stringify(result, null, 2));
+    let res = imm.fromJS(result);
+    let parsedOutcomes = res.get('outcomes').map(item => {
+      return Map({confidence: item.get('confidence'), intent: item.get('intent'), entities: item.get('entities')});
+    });
+
+    console.log('parsedOutcomes:', JSON.stringify(parsedOutcomes.toJS(), null, 2));
+
+    return parsedOutcomes.first();
     // if (result && result.outcomes && result.outcomes.length > 0) {
     //   let bestInputGuess = result.outcomes[0];
     //   // this.respond(bestInputGuess)
@@ -49,25 +64,21 @@ class ConversationManager {
     // }
   }
 
-  resolveGoal(intent){
+  resolveGoal(intent) {
     let goal = goals.get(intent);
-    return goal
+    return goal;
   }
 
-
-
-
-  askUserForParameter(parameter, goalName){
-    let self = this;
-    self.state.update('outboundQuestion', parameter);
-    self.socket.emit('ask-parameter', {
+  askUserForParameter(parameter, goalName) {
+    this.state.update('outboundQuestion', parameter);
+    this.socket.emit('ask-parameter', {
       parameter: parameter,
       goalName: goalName
     })
   }
 
-  handleAskResponse(message){
-    let { resolvedParameter, goalName } = message;
+  handleAskResponse(message) {
+    let {resolvedParameter, goalName} = message;
     let goal = goals.get(goalName);
     goal.handleParameterFetched(resolvedParameter);
 
@@ -113,9 +124,7 @@ class ConversationManager {
   //
   // });
 
-
-
-
 }
 
-export default ConversationManager
+// export default ConversationManager
+module.exports = ConversationManager
