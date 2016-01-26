@@ -9,7 +9,7 @@ const objectives = {
     name: 'userName',
     humanName: 'User Name',
     resolvers: [
-      'getFromUserIntent', 'getFromUser'
+      'getFromUser'
     ],
     resolved: false,
     results: {}

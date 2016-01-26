@@ -14,10 +14,10 @@ class Goal {
     this.master.on('resolveObjective', this.resolveObjective.bind(this));
     this.master.on('resolveObjectives', this.resolveObjectives.bind(this));
     this.master.on('objectivesResolved', this.objectivesResolved.bind(this));
+    this.master.on('objectiveResolved', this.objectiveResolved.bind(this));
 
 
     this.resolvers = Map(resolvers).map((resolver, key) => {
-      console.log(resolver, typeof resolver);
       return new resolver(this.master)
     })
 
@@ -44,7 +44,7 @@ class Goal {
       this.master.emit('objectivesResolved');
       this.resolveObjectivesDone(this.objectives);
     } else {
-      this.objectives.forEach(item => {
+      this.objectives.map(item => {
         if (!item.resolved) {
           // resolve objective
           this.master.emit('resolveObjective', item);
@@ -60,28 +60,36 @@ class Goal {
   }
 
   resolveObjective(objective) {
-    console.log('resolveObjective'.green);
+    console.log('resolveObjective'.green, objective, this);
     // pass objective to resolver
 
-    let resolverKey = objective.resolvers.first();
+    let resolverKey = objective.get('resolvers').first();
+    console.log('resolver is being called:'.green, resolverKey);
     this.master.emit(resolverKey, objective);
 
-    this.master.on(`objective${objective.get('name')}Resolved`, this.objectiveResolved);
+    // this.master.on(`objective${objective.get('name')}Resolved`, this.objectiveResolved);
+    // console.log('MASTER!!', this.master);
   }
 
-  objectiveResolved(objective, results) {
+  objectiveResolved(message) {
+    let {objective, results} = message
+    console.log(objective, results);
     console.log('objectiveResolved'.green);
+    console.log('OBJECTIVES'.purple, this.objectives, objective.get('name').results);
     this.objectives = this.objectives
-      .updateIn([objective.get('name'), 'results'], results)
+
+      .setIn([objective.get('name'), 'results'], results)
       .setIn([objective.get('name'), 'resolved'], true);
+
+    console.log('UPDATED'.green, this.objectives.toJS());
   }
 
-  resolveObjective(objective) {
-    console.log('resolveObjective'.green);
-    if (objective.resolved) {
-      return objective;
-    }
-  }
+  // resolveObjective(objective) {
+  //   console.log('resolveObjective'.green);
+  //   if (objective.resolved) {
+  //     return objective;
+  //   }
+  // }
 
   handleParameterFetched() {}
 }
