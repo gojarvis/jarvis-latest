@@ -1,6 +1,7 @@
 // import StateMachine from 'fsm-as-promised'
 // import machine from 'machina'
 import HistoryGoal from '../goals/history'
+import GreetingGoal from '../goals/greeting'
 import KnowledgeGoal from '../goals/knowledge'
 import SimilarActivityGoal from '../goals/similarActivity'
 import events from 'events'
@@ -8,6 +9,7 @@ import imm, {Map, List} from 'immutable'
 
 let goals = Map({
   'query_history': HistoryGoal,
+  'greetings': GreetingGoal
   // 'query_knowledge': new KnowledgeGoal(),
   // 'query_similar_activity': new SimilarActivityGoal()
 })
@@ -42,7 +44,7 @@ class ConversationManager {
   onIntent(message) {
     let userIntent = this.parseWitResult(message.witResult);
     let intent = userIntent.get('intent');
-    let goalObj = goals.get(intent);
+    let goalObj = goals.get(intent);    
     let goal = new goalObj();
     // this.state.update('currentGoal', goal)
   }
