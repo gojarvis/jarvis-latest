@@ -29,14 +29,15 @@ class getFromUser {
 
   }
 
-  gotResponseFromUser(message){
+  gotResponseFromUser(message) {
     let {text} = message;
     let objective = this.objective;
-    this.master.emit(`objectiveResolved`, { objective: objective, results: `I heard you said ${text}`});
+    this.master.emit(`objectiveResolved`, {
+      objective: objective,
+      results: `I heard you say ${text}`,
+      raw: message
+    });
   }
-
-
-
 
 }
 

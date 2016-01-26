@@ -44,8 +44,8 @@ class ConversationManager {
   onIntent(message) {
     let userIntent = this.parseWitResult(message.witResult);
     let intent = userIntent.get('intent');
-    let goalObj = goals.get(intent);    
-    let goal = new goalObj();
+    let goalObj = goals.get(intent);
+    let goal = new goalObj(userIntent);
     // this.state.update('currentGoal', goal)
   }
 

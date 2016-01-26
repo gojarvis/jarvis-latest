@@ -5,17 +5,17 @@ import EventEmitter from 'events';
 import colors from 'colors';
 
 class Goal {
-  constructor(objectives, resolvers) {
+  constructor(objectives, resolvers, userIntent) {
     this.objectives = imm.fromJS(objectives);
+    this.userIntent = userIntent;
 
     this.socket = GLOBAL._socket;
 
     this.master = new EventEmitter();
     this.master.on('resolveObjective', this.resolveObjective.bind(this));
     this.master.on('resolveObjectives', this.resolveObjectives.bind(this));
-    this.master.on('objectivesResolved', this.objectivesResolved.bind(this));
     this.master.on('objectiveResolved', this.objectiveResolved.bind(this));
-
+    this.master.on('objectivesResolved', this.objectivesResolved.bind(this));
 
     this.resolvers = Map(resolvers).map((resolver, key) => {
       return new resolver(this.master)
@@ -60,11 +60,10 @@ class Goal {
   }
 
   resolveObjective(objective) {
+    let resolverKey = objective.get('resolvers').first();
     console.log('resolver is being called:'.green, resolverKey);
 
-    let resolverKey = objective.get('resolvers').first();
-    this.master.emit(resolverKey, objective);
-
+    this.master.emit(resolverKey, objective, this.userIntent);
   }
 
   objectiveResolved(message) {
@@ -73,7 +72,7 @@ class Goal {
       .setIn([objective.get('name'), 'results'], results)
       .setIn([objective.get('name'), 'resolved'], true);
 
-    console.log('Objective resolved'.green, this.objectives.toJS());
+    console.log('Objective resolved:'.green, this.objectives.toJS());
 
     this.socket.emit('speak', 'objective resolved');
   }

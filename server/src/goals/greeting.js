@@ -25,13 +25,13 @@ const resolvers = {
 };
 
 class GreetingGoal extends Goal {
-  constructor() {
-    super(objectives, resolvers);
+  constructor(userIntent) {
+    super(objectives, resolvers, userIntent);
     this.master = super.master;
   }
 
-  onObjectivesDone(){
-    console.log('objectives done');
+  onObjectivesDone(data) {
+    console.log('objectives done:', data);
   }
 
 }
