@@ -25,7 +25,6 @@ class GreetingGoal extends Goal {
   constructor() {
     super(objectives, resolvers);
     this.master = super.master;
-    console.log('MASTER',this.master);
   }
 
   onObjectivesDone(){
