@@ -11,6 +11,9 @@ const objectives = {
     resolvers: [
       'getFromUser'
     ],
+    question: {
+      text: "What is your name?"
+    },
     resolved: false,
     results: {}
   }

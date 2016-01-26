@@ -60,38 +60,25 @@ class Goal {
   }
 
   resolveObjective(objective) {
-    console.log('resolveObjective'.green, objective, this);
-    // pass objective to resolver
+    console.log('resolver is being called:'.green, resolverKey);
 
     let resolverKey = objective.get('resolvers').first();
-    console.log('resolver is being called:'.green, resolverKey);
     this.master.emit(resolverKey, objective);
 
-    // this.master.on(`objective${objective.get('name')}Resolved`, this.objectiveResolved);
-    // console.log('MASTER!!', this.master);
   }
 
   objectiveResolved(message) {
     let {objective, results} = message
-    console.log(objective, results);
-    console.log('objectiveResolved'.green);
-    console.log('OBJECTIVES'.purple, this.objectives, objective.get('name').results);
     this.objectives = this.objectives
-
       .setIn([objective.get('name'), 'results'], results)
       .setIn([objective.get('name'), 'resolved'], true);
 
-    console.log('UPDATED'.green, this.objectives.toJS());
+    console.log('Objective resolved'.green, this.objectives.toJS());
 
     this.socket.emit('speak', 'objective resolved');
   }
 
-  // resolveObjective(objective) {
-  //   console.log('resolveObjective'.green);
-  //   if (objective.resolved) {
-  //     return objective;
-  //   }
-  // }
+
 
   handleParameterFetched() {}
 }
