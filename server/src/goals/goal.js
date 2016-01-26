@@ -8,7 +8,7 @@ class Goal {
   constructor(objectives, resolvers) {
     this.objectives = imm.fromJS(objectives);
 
-
+    this.socket = GLOBAL._socket;
 
     this.master = new EventEmitter();
     this.master.on('resolveObjective', this.resolveObjective.bind(this));
@@ -82,6 +82,8 @@ class Goal {
       .setIn([objective.get('name'), 'resolved'], true);
 
     console.log('UPDATED'.green, this.objectives.toJS());
+
+    this.socket.emit('speak', 'objective resolved');
   }
 
   // resolveObjective(objective) {

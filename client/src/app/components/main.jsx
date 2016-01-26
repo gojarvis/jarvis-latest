@@ -65,7 +65,9 @@ class Main extends React.Component {
       kwrelated: [],
       heart: '<#',
       heartValue: 0,
-      slideIndex: 0
+      slideIndex: 0,
+      questionIsOpen: false,
+      questionTarget: ''
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -265,6 +267,16 @@ class Main extends React.Component {
       console.log('ask:', ask);
       this.setState({ask});
     })
+
+    socket.on('questionFromJarvis', function(question){
+      console.log('QUESTION', question);
+      self.setState({
+        questionIsOpen: true,
+        questionTarget: question.target
+      })
+
+      self.say(question.text);
+    });
   }
 
   stopHandler() {
@@ -282,10 +294,24 @@ class Main extends React.Component {
   handleKeyDown(event) {
     if (event.keyCode === ENTER_KEY) {
       event.preventDefault();
-      this.state.socket.emit('text', {
-        text: this.state.command,
-        topic: this.state.topic
-      });
+
+      if (this.state.questionIsOpen){
+        let questionTarget = this.state.questionTarget;
+        this.state.socket.emit(questionTarget, {
+          text: this.state.command
+        })
+
+        this.setState({
+          questionIsOpen: false
+        })
+      }
+
+      else{
+        this.state.socket.emit('text', {
+          text: this.state.command,
+          topic: this.state.topic
+        });
+      }
       this.setState({command: ""});
     }
   }

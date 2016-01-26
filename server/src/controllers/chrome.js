@@ -22,7 +22,7 @@ graph.constraints.uniqueness.create('Url', 'url', function(err, constraint) {
   // console.log(constraint);
   // -> { type: 'UNIQUENESS', label: 'Person', property_keys: ['name'] }
 });
-// 
+//
 // graph.constraints.uniqueness.create('Keyword', 'text', function(err, constraint) {
 //   // console.log(constraint);
 //   // -> { type: 'UNIQUENESS', label: 'Person', property_keys: ['name'] }
@@ -98,7 +98,8 @@ class ChromeController {
       // let joke = JSON.parse(res).value.joke;
       let wat = res;
       // console.log(joke);
-      self.socket.emit('speak', 'The number ' + rnd + ' is ' +  wat);
+      // self.socket.emit('speak', 'The number ' + rnd + ' is ' +  wat);
+      self.socket.emit('speak', 'Ready, sir');
     })
     .catch(function(err){
       console.log('no jokes for you', err);
