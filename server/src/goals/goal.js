@@ -7,14 +7,18 @@ import colors from 'colors';
 class Goal {
   constructor(objectives, resolvers) {
     this.objectives = imm.fromJS(objectives);
+    this.results = imm.fromJS(objectives);
+
+
 
     this.socket = GLOBAL._socket;
+    let m = new EventEmitter();
+    m.on('resolveObjective', this.resolveObjective.bind(this));
+    m.on('resolveObjectives', this.resolveObjectives.bind(this));
+    m.on('allObjectivesResolved', this.allObjectivesResolved.bind(this));
+    m.on('objectiveResolved', this.objectiveResolved.bind(this));
 
-    this.master = new EventEmitter();
-    this.master.on('resolveObjective', this.resolveObjective.bind(this));
-    this.master.on('resolveObjectives', this.resolveObjectives.bind(this));
-    this.master.on('objectivesResolved', this.objectivesResolved.bind(this));
-    this.master.on('objectiveResolved', this.objectiveResolved.bind(this));
+    this.master = m;
 
 
     this.resolvers = Map(resolvers).map((resolver, key) => {
@@ -22,7 +26,7 @@ class Goal {
     })
 
     this.resolveObjectives = this.resolveObjectives.bind(this);
-    this.objectivesResolved = this.objectivesResolved.bind(this);
+    this.allObjectivesResolved = this.allObjectivesResolved.bind(this);
     this.resolveObjective = this.resolveObjective.bind(this);
     this.objectiveResolved = this.objectiveResolved.bind(this);
     this.handleParameterFetched = this.handleParameterFetched.bind(this);
@@ -31,51 +35,45 @@ class Goal {
   }
 
   resolveObjectives() {
-    console.log('resolveObjectives'.green);
-    let areAllResolved = true;
-    console.log('?', this.objectives)
-    this.objectives.forEach(item => {
-      if (!item.resolved) {
-        areAllResolved = false;
-      }
-    });
-
-    if (areAllResolved) {
-      this.master.emit('objectivesResolved');
-      this.resolveObjectivesDone(this.objectives);
-    } else {
-      this.objectives.map(item => {
-        if (!item.resolved) {
-          // resolve objective
-          this.master.emit('resolveObjective', item);
-        }
-      })
+    if (this.objectives.count() > 0){
+      let focusObjectives = this.objectives.first();
+      this.master.emit('resolveObjective', focusObjectives);
     }
-
+    else {
+      this.allObjectivesResolved()
+    }
   }
 
-  objectivesResolved() {
-    console.log('objectivesResolved'.green);
-    // parse to human readable
+  allObjectivesResolved() {
+    console.log('All objectives resolved'.green);
+    console.log(this.results);
+    this.objectivesResolved()
   }
+
+
 
   resolveObjective(objective) {
-    console.log('resolver is being called:'.green, resolverKey);
-
     let resolverKey = objective.get('resolvers').first();
+    console.log('resolver is being called:'.green, resolverKey.toString().yellow);
     this.master.emit(resolverKey, objective);
 
   }
 
   objectiveResolved(message) {
     let {objective, results} = message
-    this.objectives = this.objectives
+    this.results = this.results
       .setIn([objective.get('name'), 'results'], results)
       .setIn([objective.get('name'), 'resolved'], true);
 
-    console.log('Objective resolved'.green, this.objectives.toJS());
+    // console.log('Objective resolved'.green, this.objectives.toJS());
 
-    this.socket.emit('speak', 'objective resolved');
+
+    let updatedObjectives = this.objectives.delete(objective.get('name'));
+    this.objectives = updatedObjectives;
+
+    this.resolveObjectives()
+    // this.master.emit('resolveObjectives');
+    // this.socket.emit('speak', 'objective resolved');
   }
 
 

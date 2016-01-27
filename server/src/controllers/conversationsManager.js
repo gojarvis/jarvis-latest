@@ -7,6 +7,8 @@ import SimilarActivityGoal from '../goals/similarActivity'
 import events from 'events'
 import imm, {Map, List} from 'immutable'
 
+
+
 let goals = Map({
   'query_history': HistoryGoal,
   'greetings': GreetingGoal
@@ -44,7 +46,7 @@ class ConversationManager {
   onIntent(message) {
     let userIntent = this.parseWitResult(message.witResult);
     let intent = userIntent.get('intent');
-    let goalObj = goals.get(intent);    
+    let goalObj = goals.get(intent);
     let goal = new goalObj();
     // this.state.update('currentGoal', goal)
   }

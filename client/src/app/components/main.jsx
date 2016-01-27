@@ -67,7 +67,10 @@ class Main extends React.Component {
       heartValue: 0,
       slideIndex: 0,
       questionIsOpen: false,
-      questionTarget: ''
+      questionTarget: '',
+      talking: false,
+      queue: []
+
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -93,8 +96,8 @@ class Main extends React.Component {
       this.setState({voices: voices});
     }.bind(this);
 
-    this.props.bindShortcut('space space', this.stopRecording);
-    this.props.bindShortcut('enter enter', this.startRecording);
+    // this.props.bindShortcut('space space', this.stopRecording);
+    // this.props.bindShortcut('enter enter', this.startRecording);
 
   }
 
@@ -182,8 +185,39 @@ class Main extends React.Component {
     msg.voice = voices.filter(function (voice) {
       return voice.name === 'Google UK English Male';
     })[0];
-    window.speechSynthesis.speak(msg);
-    this.setState({message: text});
+
+    msg.onend = function(e){
+      this.setState({talking: false})
+    }.bind(this)
+
+    msg.onstart = function(e){
+      this.setState({talking: true})
+      this.setState({message: text});
+    }.bind(this)
+
+
+    let talking = this.state.talking;
+    let queue = this.state.queue;
+
+    if (!talking){
+        window.speechSynthesis.speak(msg);
+        if (queue.length > 0){
+          this.popSpeachQueue();
+        }
+    }
+    else{
+        queue.push(text)
+    }
+
+
+  }
+
+  popSpeachQueue(){
+      let queue = this.state.queue;
+      let message = queue[0];
+      this.say(message);
+      let deququed = queue.shift()
+      this.setState({queue: dequeued})
   }
 
   hint(text) {

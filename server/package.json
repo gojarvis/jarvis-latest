@@ -8,6 +8,7 @@
     "nodemon": "nodemon index.js"
   },
   "dependencies": {
+    "async": "^1.5.2",
     "babel": "^6.1.18",
     "babel-core": "^6.2.1",
     "babel-plugin-syntax-async-functions": "^6.3.13",
@@ -36,6 +37,7 @@
     "influx": "^4.0.0",
     "ioredis": "^1.13.1",
     "keyword-extractor": "0.0.12",
+    "kue": "^0.10.5",
     "level-browserify": "^1.1.0",
     "levelgraph": "^1.1.0",
     "limdu": "^0.6.0",

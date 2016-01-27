@@ -65,16 +65,7 @@ class HistoryGoal {
         }
       })
     }
-    // this.master.emit('resolveObjectives')
-
-    // let objectives = goal.getObjectives()
-
-    //Async, resolves objectives.
-    //
-    // let resolvedObjectives = Promise.all(objective.map(obj => {
-    //   // create event emitter to wait for each resolver to complete
-    //   return this.resolveObjective(obj);
-    // }));
+    
   }
 
   objectivesResolved() {

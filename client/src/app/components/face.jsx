@@ -32,13 +32,13 @@ const Face = React.createClass({
     })
   },
   recordingEyes: function(){
-    this.setState({
-      eyes: {
-        right: "^",
-        left: "^",
-        mouth: "_______"
-      }
-    })
+    // this.setState({
+    //   eyes: {
+    //     right: "^",
+    //     left: "^",
+    //     mouth: "_______"
+    //   }
+    // })
   },
   blink: function(){
     let rnd = Math.random();
@@ -53,7 +53,7 @@ const Face = React.createClass({
           this.blink();
         }
         else{
-          this.recordingEyes();
+          // this.recordingEyes();
         }
         this.hum();
       }.bind(this))
@@ -64,10 +64,6 @@ const Face = React.createClass({
     return setTimeout(func, delay);
   },
 
-  doAndRepeat: function(delay, func) {
-    func();
-    return setInterval(func, delay);
-  },
   render(){
     let style = {
         face: {

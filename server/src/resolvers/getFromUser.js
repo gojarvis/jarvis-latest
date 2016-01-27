@@ -14,12 +14,14 @@ class getFromUser {
 
     this.get = this.get.bind(this)
 
+    this.gotResponseFromUser = this.gotResponseFromUser.bind(this);
+
   }
 
   async get(objective) {
     this.objective = objective;
     let text = objective.get('question').get('text');
-    console.log('QUESTION', text);
+    // console.log('QUESTION', text);
     let question = {
       text: text,
       target: 'answer_getFromUser'
@@ -32,7 +34,7 @@ class getFromUser {
   gotResponseFromUser(message){
     let {text} = message;
     let objective = this.objective;
-    this.master.emit(`objectiveResolved`, { objective: objective, results: `I heard you said ${text}`});
+    this.master.emit('objectiveResolved', { objective: objective, results: text});
   }
 
 
