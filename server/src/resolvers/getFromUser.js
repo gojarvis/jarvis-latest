@@ -6,7 +6,7 @@ class getFromUser {
     this.master = master;
     this.resolverName = 'getFromUser';
     this.objective = {};
-
+    console.log('MASTER'.red);
     this.master.on('getFromUser', this.get.bind(this));
     this.socket = GLOBAL._socket
 
@@ -18,7 +18,11 @@ class getFromUser {
 
   }
 
-  async get(objective) {
+  async get(message) {
+
+    let {objective} = message;
+    console.log('GOT objective', objective);
+
     this.objective = objective;
     let text = objective.get('question').get('text');
     // console.log('QUESTION', text);
@@ -26,7 +30,7 @@ class getFromUser {
       text: text,
       target: 'answer_getFromUser'
     }
-
+    console.log('GETTING', question);
     this.socket.emit('questionFromJarvis', question)
 
   }
@@ -34,7 +38,8 @@ class getFromUser {
   gotResponseFromUser(message){
     let {text} = message;
     let objective = this.objective;
-    this.master.emit('objectiveResolved', { objective: objective, results: text});
+    let target = this.target
+    this.master.emit('resolverDone', { objective: objective, results: text, resolverName: 'getFromUser', target: target});
   }
 
 

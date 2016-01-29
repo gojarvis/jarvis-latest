@@ -12,27 +12,54 @@ const objectives = {
     humanName: 'User Name',
     responseForm: ' your name is',
     resolvers: [
-      'getFromUser'
+      {
+        name: 'getFromUser',
+        requires: [],
+        params: {},
+        dependencies: [],
+        target: 'userName'
+      },
+      {
+        name: 'saveFact',
+        params: {
+          factType: 'user-fact',
+          subject: 'user',
+          data: '$userName', // marks the position of required in dependencies. Ask roie about this.
+          source: 'user'
+        },
+        dependencies: ['userName'],
+        target: 'fact'
+      }
     ],
     question: {
       text: "What is your name?"
     },
     resolved: false,
-    results: {}
-  },
-  userHobby: {
-    name: 'userHobby',
-    humanName: 'User Hobby',
-    responseForm: ' your hobby is',
-    resolvers: [
-      'getFromUser'
-    ],
-    question: {
-      text: "What is your hobby?"
-    },
-    resolved: false,
-    results: {}
+    results: {
+      'userName': '',
+      'fact': {}
+    }
   }
+  // userHobby: {
+  //   name: 'userHobby',
+  //   humanName: 'User Hobby',
+  //   responseForm: ' your hobby is',
+  //   resolvers: [
+  //     {
+  //       name: 'getFromUser',
+  //       requires: []
+  //     },
+  //     {
+  //       name: 'saveFact'
+  //       requires: ['userName']
+  //     }
+  //   ],
+  //   question: {
+  //     text: "What is your hobby?"
+  //   },
+  //   resolved: false,
+  //   results: {}
+  // }
 
 };
 
@@ -44,13 +71,12 @@ const resolvers = {
 class GreetingGoal extends Goal {
   //This kicks off the goal (look at goal.js) internally. maybe it shouldn't
   constructor() {
-    super(objectives, resolvers);
+    super(objectives);
     // this.master = super.master;
     this.master.on('allObjectivesResolved', this.objectiveResolved)
   }
 
   objectivesResolved(){
-    console.log('WHOOOHOHOHOHHO');
     // console.log(this.results);
     let message = 'Great. I learned ' + this.results.count() + ' facts about you. ';
     let parts = this.results.map(item => {
