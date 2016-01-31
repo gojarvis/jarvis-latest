@@ -9,7 +9,7 @@ var Fact = db.createModel("Fact", {
   timestamp: type.date(),
   subject: type.string(),
   factType: type.string(),
-  data: type.object(),
+  payload: type.string(),
   source: type.string()
 })
 
@@ -27,22 +27,40 @@ class saveFact {
 
   }
 
-  save(message) {
+  async save(message) {
     console.log('saveFACT', message);
+    let fact = message.params.toJS();
+    console.log('FACT'.green, fact);
 
-    // let {fact} = objective;
-    //
-    // try{
-    //   let fct = new Fact({timestamp: new Date(), factType: fact.type, subject: fact.subject, data: fact.data, source:fact.source})
-    //   fct.save().then(function(err,res){
-    //     console.log('Resolver saved fact');
-    //     this.master.emit('resolverDone', { objective: objective, results: res, resolverName: this.resolverName});
-    //   })
-    // }
-    // catch(e){
-    //   console.error('History Manager: error saving history event', e);
-    // }
+    let savedFact = await this.rethinkSave(fact);
+    this.master.emit('resolverDone', { objective: objective, results: savedFact, resolverName: this.resolverName});
 
+
+
+  }
+
+  rethinkSave(fact){
+    console.log('SAVEING IN RETHINK', fact.payload);
+    return new Promise(function(resolve, reject) {
+      try{
+        let fct = new Fact({timestamp: new Date(), factType: fact.type, subject: fact.subject, payload: fact.payload, source:fact.source})
+        fct.save().then(function(err,res){
+          console.log('Resolver saved fact');
+          if (err){
+            reject(err)
+          }
+          else{
+            resolve(res)
+          }
+
+        })
+      }
+      catch(e){
+
+        console.error('Fact Manager: error saving history event', e);
+        reject(err)
+      }
+    });
   }
 
   gotResponseFromUser(message){

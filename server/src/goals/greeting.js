@@ -23,8 +23,8 @@ const objectives = {
         name: 'saveFact',
         params: {
           factType: 'user-fact',
-          subject: 'user',
-          data: '$userName', // marks the position of required in dependencies. Ask roie about this.
+          subject: 'userName',
+          payload: '$userName', // marks the position of required in dependencies. Ask roie about this.
           source: 'user'
         },
         dependencies: ['userName'],

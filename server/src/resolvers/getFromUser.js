@@ -20,10 +20,11 @@ class getFromUser {
 
   async get(message) {
 
-    let {objective} = message;
+    let {objective, target} = message;
     console.log('GOT objective', objective);
 
     this.objective = objective;
+    this.target = target;
     let text = objective.get('question').get('text');
     // console.log('QUESTION', text);
     let question = {

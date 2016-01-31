@@ -12,6 +12,8 @@ class Goal {
     this.results = imm.fromJS(objectives);
     this.resolvers = List();
 
+    this.resultPool = Map();
+
     this.resolverExecuting = false;
     this.lastExecutedResolverIndex = 0;
 
@@ -145,26 +147,36 @@ class Goal {
     console.log('EXECUTING'.green, resolver);
 
     let params = resolver.get('params');
-    let populated = params.map((paramName, paramValue) => {
+    let populated = params.map((paramValue, paramName) => {
       //If the first char in the param is $, fetch it from the global results
+      console.log('PARAMS'.green, '|||'.yellow, paramName, paramValue);
       let populatedItem = Map();
       if (paramValue[0] === "$"){
         paramValue = paramValue.replace('$', '');
-        populatedItem = this.results.get(paramValue)
+        console.log('PARAMVALUE'.cyan, paramValue);
+
+        let targetValue = this.resultPool.get(paramValue)
+        console.log('TARGETVALUE'.rainbow, targetValue);
+        populatedItem =  targetValue;
+        console.log('FIILED'.rainbow, populatedItem);
       }
       else{
-        populatedItem = populatedItem.setIn(paramName, paramValue)
+        populatedItem =  paramValue
       }
+      console.log('populatedItem'.green, populatedItem);
       return populatedItem;
     })
 
+    console.log('FULL'.rainbow, populated);
 
+    let target = resolver.get('target');
     let message = {
       objective: objective,
-      params: populated
+      params: populated,
+      target: target
     };
 
-    console.log('EMITTING'.yellow, resolver.get('name'), message);
+    console.log('EMITTING'.yellow, resolver.get('name'));
 
     let resolverName = resolver.get('name');
     this.master.emit(resolverName, message);
@@ -176,9 +188,12 @@ class Goal {
   resolverDone(message){
 
     let { resolverName, objective, results, target } = message;
-    console.log('RESOLVER DONE'.green);
-    this.results.setIn('results', target, results);
-    console.log('SET RESULTS'.yellow, this.results.get('results'));
+
+    console.log('RESOLVER DONE'.green, target, results);
+
+    this.resultPool = this.resultPool.set(target, results);
+
+    console.log('SET RESULTS'.yellow, this.resultPool);
 
     if ( this.lastExecutedResolverIndex <= this.resolvers.count() ){
       this.lastExecutedResolverIndex += 1;

@@ -1,5 +1,6 @@
 const React = require('react');
 
+
 const Face = React.createClass({
   getInitialState: function(){
     return ({
@@ -84,15 +85,7 @@ const Face = React.createClass({
     return (
       <div>
 
-          <div style={style.container}>
-            <span style={style.face.eyes}>{this.state.eyes.left}</span>
-            <span style={style.face.mouth}>{this.state.mouth}</span>
-            <span style={style.face.eyes}>{this.state.eyes.right}</span>
-          </div>
 
-          <div style={{width: "100%", height: "40%", flexDirection: "row", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "40px"}}>
-            <span>{this.props.children}</span>
-          </div>
       </div>
     )
   },
