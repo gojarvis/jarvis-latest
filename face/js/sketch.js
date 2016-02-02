@@ -1,73 +1,63 @@
-var theta = 0,
-  nInt = 20,
-  nAmp = 0.5,
-  frms = 200;
-var save = false;
-var fc, maxV = 3;
-
-function setup() {
-  createCanvas(windowWidth, windowHeight-4);
+function setup(){
+  createCanvas(1200, 1200, WEBGL);
 }
 
-function draw() {
-  background('#000000');
-  createStuff();
-  fill(255);
-  textAlign(RIGHT);
-  text("(click mouse)", width-50,50);
-  theta += TWO_PI / frms;
-}
+function draw(){
+  background(1);
+  // rotateZ(frameCount * 0.01);
+  // rotateY(frameCount * 0.01);
 
-function createStuff() {
-  for (var j = 0; j < 5; j++) {
-    for (var i = 0; i < maxV; i++) {
-      noisyarc(TWO_PI / maxV * i, maxV, j);
+  var locY = (mouseY / height - 0.5) * (-2);
+  var locX = (mouseX / width - 0.5) * 2;
+
+
+  ambientLight(50);
+  directionalLight(200, 0, 0, 0.25, 0.25, 0.25);
+  pointLight(0, 0, 200, 0, 40, 40);
+  pointLight(200, 200, 0, -locX, -locY, 0);
+
+  // rotateX(locX)
+  // // rotateY(locY)
+  // for(var a = 1; a < 4; a++){
+  //   for(var b = 1; b < 4; b++){
+  //     for(var c = 1; c < 4; c++){
+  //       doDraw(a,b,c);
+  //     }
+  //   }
+  // }
+
+  doDraw(10, 10, 10);
+  orbitControl();
+
+  normalMaterial();
+
+  function doDraw(k,p,n){
+    for(var j = 0; j < n; j++){
+      var a = frameCount * 0.03 + j;
+      var b = frameCount * 0.03 + j;
+      var radius = sin(frameCount * 0.001) * cos(frameCount * 0.01) * a;
+      translate(sin(2 * a) * radius * sin(a), cos(b) * radius / 2 , cos(2 * a) * radius * sin(b));
+
+      push();
+      for(var i = 0; i < n; i++){
+        for(var s = 0; s < p; s++){
+          var a = frameCount * 0.03 + j;
+          var b = frameCount * 0.03 + i;
+          var radius = sin(frameCount * 0.005) * 40;
+          translate(cos(2 * a) * radius * sin(b), cos(2 * a) * radius * cos(b), cos(b) * radius / 2 );
+
+          // translate(sin(frameCount * 0.005 + j) * 100, sin(frameCount * 0.005 + j) * 100, i * 0.5);
+          rotateZ(frameCount * 0.002);
+          rotateX(frameCount * 0.002);
+          rotateY(frameCount * 0.002);
+          push();
+          sphere(3,3,3)
+          createVector(81, 159, 204)
+
+          pop();
+        }
+      }
+      pop();
     }
   }
-}
-
-
-function noisyarc(offSet, maxV, c) {
-  this.slices = 100;
-  this.rad = width/3;
-  push();
-  translate(width / 2, height / 2);
-  rotate(theta + offSet);
-  noFill();
-  beginShape();
-  this.v = map(sin(theta), -1, 1, 0, 5);
-  this.s = map(sin(theta), -1, 1, 255, 50);
-  this.segments = this.slices / (maxV + this.v);
-
-  for (var i = (this.segments - 1); i >= 1; i--) {
-    var a = TWO_PI / this.slices * i;
-    this.nVal = map(noise(cos(theta + a) * nInt + 1 * c, sin(a)), 0.0, 1.0, nAmp, 1.0); // map noise value to match the amplitude
-    this.x = cos(a) * rad * nVal;
-    this.y = sin(a) * rad * nVal;
-    stroke(255,200);
-    curveVertex(this.x, this.y);
-  }
-  this.px = cos(TWO_PI) * this.rad;
-  this.py = sin(TWO_PI) * this.rad;
-  curveVertex(this.px, this.py);
-  endShape();
-  pop();
-}
-
-function mouseClicked() {
-  noiseSeed(random(123456));
-  max = random(1, 6);
-  nInt = random(5, 10); // noise intensity
-  nAmp = random(.25,1); // noise amplitude
-  background(20);
-  createStuff();
-}
-
-function keyPressed() {
-  save = true;
-  fc = frameCount;
-}
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight-4);
 }
