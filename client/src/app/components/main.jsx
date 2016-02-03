@@ -508,7 +508,7 @@ class Main extends React.Component {
           <Face recording={this.state.recording}></Face>
         </div>
         <div style={{
-          display: "none"
+          display: "block"
         }}>
           <TextField style={{
             margin: "10px",

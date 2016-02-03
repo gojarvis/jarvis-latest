@@ -14,7 +14,6 @@ const objectives = {
     resolvers: [
       {
         name: 'getFromUser',
-        requires: [],
         params: {},
         dependencies: [],
         target: 'userName'
@@ -34,33 +33,8 @@ const objectives = {
     question: {
       text: "What is your name?"
     },
-    resolved: false,
-    results: {
-      'userName': '',
-      'fact': {}
-    }
+    resolved: false
   }
-  // userHobby: {
-  //   name: 'userHobby',
-  //   humanName: 'User Hobby',
-  //   responseForm: ' your hobby is',
-  //   resolvers: [
-  //     {
-  //       name: 'getFromUser',
-  //       requires: []
-  //     },
-  //     {
-  //       name: 'saveFact'
-  //       requires: ['userName']
-  //     }
-  //   ],
-  //   question: {
-  //     text: "What is your hobby?"
-  //   },
-  //   resolved: false,
-  //   results: {}
-  // }
-
 };
 
 const resolvers = {
@@ -74,6 +48,17 @@ class GreetingGoal extends Goal {
     super(objectives);
     // this.master = super.master;
     this.master.on('allObjectivesResolved', this.objectiveResolved)
+
+    // this.resultPool = Map();
+
+  }
+
+  execute(){
+    //Kicks off the goal
+    this.master.emit('resolveObjectives');
+
+    //Let's the executing party listen to events
+    return this.master
   }
 
   objectivesResolved(){
@@ -86,8 +71,8 @@ class GreetingGoal extends Goal {
     message += parts.join(' and ');
     message += ' . That is good to know!';
 
-
-    GLOBAL._socket.emit('speak', message);
+    this.master.emit('goalResolved');
+    // GLOBAL._socket.emit('speak', message);
   }
 
 }

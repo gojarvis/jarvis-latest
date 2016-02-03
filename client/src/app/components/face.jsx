@@ -13,7 +13,7 @@ const Face = React.createClass({
     })
   },
   componentDidMount: function(){
-    this.hum();
+    // this.hum();
   },
 
   closeEyes: function(){
@@ -51,7 +51,7 @@ const Face = React.createClass({
   hum: function(){
       this.wait(Math.floor(Math.random() * 4000) + 1000, function(){
         if (!this.props.recording){
-          this.blink();
+          // this.blink();
         }
         else{
           // this.recordingEyes();

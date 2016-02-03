@@ -1,103 +1,123 @@
 import imm from 'immutable';
-import {getFromUser, getFromUserIntent} from '../resolvers';
+import {getEventsByTime, getRelatedKeywords, getFromUserIntent, getFromUser} from '../resolvers';
 import EventEmitter from 'events';
 import colors from 'colors';
+import Goal from './goal'
 
-class HistoryGoal {
-  constructor() {
-    this.objectives = imm.fromJS({
-      startDate: {
-        name: 'startDate',
-        humanName: 'Start Date',
-        resolvers: [
-          'getFromUserIntent', 'getFromUser'
-        ],
-        resolved: false,
-        results: {}
+let socket = GLOBAL._socket;
+
+const objectives = {
+
+  startDate: {
+    name: 'startDate',
+    humanName: 'Start Date',
+    resolvers: [
+      {
+        name: 'getFromUserIntent',
+        dependencies: [],
+        params: {
+          path: ['entities', 'datetime', 'value']
+        },
+        target: 'startDate'
       },
-      endDate: {
-        name: 'endDate',
-        humanName: 'End Date',
-        resolvers: [
-          'getFromUserIntent', 'getFromUser'
-        ],
-        resolved: false,
-        results: {}
+      {
+        name: 'getFromUser',
+        dependencies: [],
+        params: {},
+        target: 'startDate'
       }
-    });
-
-    this.resolvers = {
-      'getFromUser': getFromUser,
-      'getFromUserIntent': getFromUserIntent
-    }
-
-    this.master = new EventEmitter();
-    this.master.on('resolveObjective', this.resolveObjective.bind(this));
-    this.master.on('resolveObjectives', this.resolveObjectives.bind(this));
-    this.master.on('objectivesResolved', this.objectivesResolved.bind(this));
-
-    this.resolveObjectives = this.resolveObjectives.bind(this);
-    this.objectivesResolved = this.objectivesResolved.bind(this);
-    this.resolveObjective = this.resolveObjective.bind(this);
-    this.objectiveResolved = this.objectiveResolved.bind(this);
-    this.handleParameterFetched = this.handleParameterFetched.bind(this);
-
-    this.master.emit('resolveObjectives');
-  }
-
-  resolveObjectives() {
-    console.log('resolveObjectives'.green);
-    let areAllResolved = true;
-    console.log('?', this.objectives)
-    this.objectives.forEach(item => {
-      if (!item.resolved) {
-        areAllResolved = false;
+    ],
+  },
+  endDate: {
+    name: 'endDate',
+    humanName: 'End Date',
+    resolvers: [
+      {
+        name: 'getFromUserIntent',
+        dependencies: [],
+        params: {
+          path: ['entities', 'datetime', 'value']
+        },
+        target: 'startDate'
+      },
+      {
+        name: 'getFromUser',
+        dependencies: [],
+        params: {},
+        target: 'startDate'
       }
-    });
+    ],
+    resolved: false,
 
-    if (areAllResolved) {
-      this.master.emit('objectivesResolved');
-    } else {
-      this.objectives.forEach(item => {
-        if (!item.resolved) {
-          // resolve objective
-          this.master.emit('resolveObjective', item);
+    target: 'endDate'
+  },
+  recentEvents: {
+    name: 'recentEvents',
+    humanName: 'Recent Events',
+    resolvers: [
+      {
+        name: 'getEventsByTime',
+        params: {
+          startDate: '$startDate',
+          endDate: '$endDate'
+        },
+        dependencies: ['startDate', 'endDate'],
+        target: 'recentItems'
+      }
+    ]
+  },
+  relatedKeywords: {
+    name: 'relatedKeywords',
+    resolvers: [
+      {
+        name: 'relatedItems',
+        params: {
+          source: '$recentItems',
+          relationship: 'related',
+          threshold: 10
         }
-      })
-    }
-    
+      }
+    ],
+    dependencies: ['recentItems'],
+    target: 'relatedKeywords'
+  }
+};
+
+const resolvers = {
+  'getFromUser': getFromUser,
+  'getFromUserIntent': getFromUserIntent,
+  'getEventsByTime': getEventsByTime,
+  'getRelatedKeywords': getRelatedKeywords
+};
+
+class HistoryGoal extends Goal {
+  //This kicks off the goal (look at goal.js) internally. maybe it shouldn't
+  constructor(parsedIntent) {
+    super(objectives, parsedIntent);
+
+    // this.master = super.master;
+    this.master.on('allObjectivesResolved', this.objectiveResolved)
+
+    // this.resultPool = Map();
+
   }
 
-  objectivesResolved() {
-    console.log('objectivesResolved'.green);
-    // parse to human readable
+
+
+  execute(){
+    //Kicks off the goal
+    this.master.emit('resolveObjectives');
+
+    //Let's the executing party listen to events
+    return this.master
   }
 
-  resolveObjective(objective) {
-    console.log('resolveObjective'.green);
-    // pass objective to resolver
+  objectivesResolved(){
 
-    let resolverKey = objective.resolvers.first();
-    this.master.emit(resolverKey, objective);
-
-    this.master.on(`objective${objective.get('name')}Resolved`, this.objectiveResolved);
+    this.master.emit('goalResolved');
+    // GLOBAL._socket.emit('speak', message);
   }
 
-  objectiveResolved(objective, results) {
-    console.log('objectiveResolved'.green);
-    this.objectives = this.objectives
-      .updateIn([objective.get('name'), 'results'], results)
-      .setIn([objective.get('name'), 'resolved'], true);
-  }
-
-  resolveObjective(objective) {
-    console.log('resolveObjective'.green);
-    if (objective.resolved) {
-      return objective;
-    }
-  }
-
-  handleParameterFetched() {}
 }
 
 module.exports = HistoryGoal;

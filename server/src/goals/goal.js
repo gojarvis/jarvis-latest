@@ -7,11 +7,12 @@ import async from 'async'
 import _ from 'lodash'
 
 class Goal {
-  constructor(objectives) {
+  constructor(objectives, parsedIntent) {
     this.objectives = imm.fromJS(objectives);
     this.results = imm.fromJS(objectives);
     this.resolvers = List();
 
+    this.parsedIntent = parsedIntent;
     this.resultPool = Map();
 
     this.resolverExecuting = false;
@@ -37,10 +38,16 @@ class Goal {
     this.handleParameterFetched = this.handleParameterFetched.bind(this);
     this.resolverDone = this.resolverDone.bind(this)
 
-    this.master.emit('resolveObjectives');
+    //moved this to the specific goal executing
+    // this.master.emit('resolveObjectives');
   }
 
   resolveObjectives() {
+
+    //Parse the intent, and
+
+
+
     if (this.objectives.count() > 0){
       let focusObjectives = this.objectives.first();
       this.master.emit('resolveObjective', focusObjectives);
@@ -59,7 +66,6 @@ class Goal {
     this.objectivesResolved()
   }
 
-
   initializeResolvers(resolvers){
     this.resolvers = resolvers;
 
@@ -72,17 +78,12 @@ class Goal {
     })
   }
 
-
   resolveObjective(objective) {
+
+
 
     //Initialize only the resolvers required for this objective
     this.initializeResolvers(objective.get('resolvers'))
-
-    //Now all resolvers are listening
-    // let index = this.lastExecutedResolverIndex;
-    // let currentResolver = this.listeningResolvers[index]
-    // console.log(currentResolver);
-
 
     //Kick off the resolver
     this.executeResolver(objective.get('resolvers').first(), objective)
@@ -183,8 +184,6 @@ class Goal {
 
   }
 
-
-
   resolverDone(message){
 
     let { resolverName, objective, results, target } = message;
@@ -229,8 +228,6 @@ class Goal {
     // this.master.emit('resolveObjectives');
     // this.socket.emit('speak', 'objective resolved');
   }
-
-
 
   handleParameterFetched() {}
 }

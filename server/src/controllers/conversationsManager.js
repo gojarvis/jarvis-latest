@@ -48,7 +48,15 @@ class ConversationManager {
     let intent = userIntent.get('intent');
     let goalObj = goals.get(intent);
     let goal = new goalObj();
-    // this.state.update('currentGoal', goal)
+    console.log(goal);
+    let goalExecutor = goal.execute();
+    // Single goal is executed
+
+    goalExecutor.on('goalResolved', function(){
+      console.log('Goal resolved');
+    })
+
+
   }
 
   parseWitResult(result) {
