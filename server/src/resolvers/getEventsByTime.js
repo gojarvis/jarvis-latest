@@ -1,5 +1,6 @@
 import Thinky from 'thinky'
 import EventEmitter from 'events';
+import r from 'rethinkdb'
 
 var db = Thinky();
 var type = db.type;
@@ -11,34 +12,35 @@ class getEventsByTime {
     this.master = master;
     this.resolverName = 'getEventsByTime';
 
-    this.master.on('getEventsByTime', this.getEventsByTime.bind(this));
+    this.master.on('getEventsByTime', this.getEvents.bind(this));
 
-    this.save = this.save.bind(this)
 
   }
 
-  async getEventsByTime(message) {
-    console.log('saveFACT', message);
+  async getEvents(message) {
     let params = message.params.toJS();
-    // console.log('FACT'.green, fact);
+    console.log('GETTING EVENTS'.magenta, fact);
 
     let recentEvents = await this.getRethinkEvents(params.startDate, params.endDate);
-
-    this.master.emit('resolverDone', { objective: objective, results: recentEvents, resolverName: this.resolverName});
+    console.log('RECENT', recentEvents);
+    // this.master.emit('resolverDone', { objective: objective, results: recentEvents, resolverName: this.resolverName});
 
 
 
   }
 
   getRethinkEvents(start, end){
-    console.log('SAVEING IN RETHINK', fact.payload);
+    console.log('START', start, 'END', end);
+    start = '2016-02-05T01:17:37.000-08:00';
+    end = '2015-02-05T01:17:37.000-08:00'
     return new Promise(function(resolve, reject) {
       try{
         //TODO:
+        return r.table('Event').filter(
+          r.row('timestamp').during(new Date(start), new Date(end), {leftBound: "open", rightBound: "open"}))
       }
       catch(e){
 
-        console.error('Fact Manager: error saving history event', e);
         reject(err)
       }
     });

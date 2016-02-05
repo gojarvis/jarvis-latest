@@ -44,11 +44,12 @@ class ConversationManager {
   }
 
   onIntent(message) {
-    let userIntent = this.parseWitResult(message.witResult);
-    let intent = userIntent.get('intent');
+    let parsedIntent = this.parseWitResult(message.witResult);
+    let intent = parsedIntent.get('intent');
     let goalObj = goals.get(intent);
-    let goal = new goalObj();
-    console.log(goal);
+    
+
+    let goal = new goalObj(parsedIntent);
     let goalExecutor = goal.execute();
     // Single goal is executed
 

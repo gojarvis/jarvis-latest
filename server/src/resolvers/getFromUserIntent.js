@@ -11,24 +11,15 @@ class getFromUserIntent {
 
   //needs to be a Map
   get(message) {
-    if (!message.isMap()){
-      console.error('intent is not a map');
-      return;
-    }
+    let {objective, target, params, intent}  = message;
 
-    let params = message.get('params');
-    let intent = message.get('intent');
-
-    let path = params.path;
-
+    // console.log('YO', objective, target, params, intent);
+    let path = params.get('path');
     //Extract the value from the intent
     let value = intent.getIn(path);
 
-
-    console.log('hello!', objective);
-
     // when done
-    // this.master.emit(`objective${paramaterName}Resolved`);
+    this.master.emit('resolverDone', { objective: objective, results: value, resolverName: 'getFromUserIntent', target: target});
   }
 
 

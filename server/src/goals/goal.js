@@ -8,12 +8,15 @@ import _ from 'lodash'
 
 class Goal {
   constructor(objectives, parsedIntent) {
+
     this.objectives = imm.fromJS(objectives);
     this.results = imm.fromJS(objectives);
     this.resolvers = List();
 
     this.parsedIntent = parsedIntent;
     this.resultPool = Map();
+    this.resultPool = this.resultPool.set('intent', parsedIntent);
+    // console.log('RESULT POOL'.yellow, this.resultPool);
 
     this.resolverExecuting = false;
     this.lastExecutedResolverIndex = 0;
@@ -29,7 +32,6 @@ class Goal {
     this.master = m;
 
 
-    this.numResolvers = this.resolvers.count();
 
     this.resolveObjectives = this.resolveObjectives.bind(this);
     this.allObjectivesResolved = this.allObjectivesResolved.bind(this);
@@ -49,8 +51,9 @@ class Goal {
 
 
     if (this.objectives.count() > 0){
-      let focusObjectives = this.objectives.first();
-      this.master.emit('resolveObjective', focusObjectives);
+      let focusObjective = this.objectives.first();
+      console.log('RESOLVE OBJ'.red, focusObjective);
+      this.master.emit('resolveObjective', focusObjective);
     }
     else {
       this.allObjectivesResolved()
@@ -59,7 +62,7 @@ class Goal {
 
   allObjectivesResolved() {
     console.log('All objectives resolved'.green);
-    console.log(this.results);
+    // console.log(this.results);
 
     //This should call the overriding function by the goal implementation
     //TODO: Make sure this function is always defined
@@ -68,6 +71,7 @@ class Goal {
 
   initializeResolvers(resolvers){
     this.resolvers = resolvers;
+    console.log('Initializaing resolvers'.rainbow, this.resolvers, this.resolvers.count());
 
     this.listeningResolvers = resolvers.map(resolver => {
 
@@ -76,12 +80,15 @@ class Goal {
         console.log('MATER'.green);
         return new ResolverClass(this.master);
     })
+
+    console.log('Initializained'.rainbow, this.listeningResolvers.count());
   }
 
   resolveObjective(objective) {
 
 
-
+    // console.log('OBJECTIVE'.magenta, objective);
+    // console.log('RESOLVERS'.magenta, objective.get('resolvers'));
     //Initialize only the resolvers required for this objective
     this.initializeResolvers(objective.get('resolvers'))
 
@@ -154,27 +161,30 @@ class Goal {
       let populatedItem = Map();
       if (paramValue[0] === "$"){
         paramValue = paramValue.replace('$', '');
-        console.log('PARAMVALUE'.cyan, paramValue);
+        // console.log('PARAMVALUE'.cyan, paramValue);
 
         let targetValue = this.resultPool.get(paramValue)
-        console.log('TARGETVALUE'.rainbow, targetValue);
+        // console.log('TARGETVALUE'.rainbow, targetValue);
         populatedItem =  targetValue;
-        console.log('FIILED'.rainbow, populatedItem);
+        // console.log('FIILED'.rainbow, populatedItem);
       }
       else{
         populatedItem =  paramValue
       }
-      console.log('populatedItem'.green, populatedItem);
+      // console.log('populatedItem'.green, populatedItem);
       return populatedItem;
     })
 
-    console.log('FULL'.rainbow, populated);
+    // console.log('FULL'.rainbow, populated);
 
+    let intent = this.resultPool.get('intent');
+    // console.log('INTENT'.green, this.resultPool, intent);
     let target = resolver.get('target');
     let message = {
       objective: objective,
       params: populated,
-      target: target
+      target: target,
+      intent: intent
     };
 
     console.log('EMITTING'.yellow, resolver.get('name'));
@@ -192,28 +202,24 @@ class Goal {
 
     this.resultPool = this.resultPool.set(target, results);
 
-    console.log('SET RESULTS'.yellow, this.resultPool);
+    // console.log('SET RESULTS'.yellow, this.resultPool);
+    this.lastExecutedResolverIndex += 1;
 
-    if ( this.lastExecutedResolverIndex <= this.resolvers.count() ){
-      this.lastExecutedResolverIndex += 1;
-      let nextResolver = this.resolvers.get(this.lastExecutedResolverIndex);
-      console.log('RESOLVERS'.red, nextResolver);
-
-      this.executeResolver(nextResolver)
-      console.log('resolver ', resolverName, ' is done');
+    if ( this.lastExecutedResolverIndex < this.resolvers.count() ){
+      console.log('should call next'.yellow);
+      // let nextResolver = this.resolvers.get(this.lastExecutedResolverIndex);
+      // this.executeResolver(nextResolver)
     }
+    //finished all resolver
     else{
       this.objectiveResolved(objective, results);
       console.log('Objective is resolved'.green);
     }
-
-
-
-
   }
 
-  objectiveResolved(message) {
-    let {objective, results} = message
+  objectiveResolved(objective, results) {
+    // let {objective, results} = message
+    // console.log('objectiveResolved', objective, results);
     this.results = this.results
       .setIn([objective.get('name'), 'results'], results)
       .setIn([objective.get('name'), 'resolved'], true);
@@ -221,10 +227,14 @@ class Goal {
     // console.log('Objective resolved'.green, this.objectives.toJS());
 
 
-    let updatedObjectives = this.objectives.delete(objective.get('name'));
+    let updatedObjectives = this.objectives.shift();
     this.objectives = updatedObjectives;
 
+
+    console.log('updatedObjectives'.red, this.objectives, 'deleted', objective.get('name') );
+
     this.resolveObjectives()
+
     // this.master.emit('resolveObjectives');
     // this.socket.emit('speak', 'objective resolved');
   }

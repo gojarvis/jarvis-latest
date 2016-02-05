@@ -45,7 +45,7 @@ const resolvers = {
 class GreetingGoal extends Goal {
   //This kicks off the goal (look at goal.js) internally. maybe it shouldn't
   constructor() {
-    super(objectives);
+    super(objectives, parsedIntent);
     // this.master = super.master;
     this.master.on('allObjectivesResolved', this.objectiveResolved)
 

@@ -6,9 +6,9 @@ import Goal from './goal'
 
 let socket = GLOBAL._socket;
 
-const objectives = {
+const objectives = [
 
-  startDate: {
+ {
     name: 'startDate',
     humanName: 'Start Date',
     resolvers: [
@@ -16,19 +16,13 @@ const objectives = {
         name: 'getFromUserIntent',
         dependencies: [],
         params: {
-          path: ['entities', 'datetime', 'value']
+          path: ['entities', 'datetime',  0, 'from', 'value']
         },
-        target: 'startDate'
-      },
-      {
-        name: 'getFromUser',
-        dependencies: [],
-        params: {},
         target: 'startDate'
       }
     ],
   },
-  endDate: {
+  {
     name: 'endDate',
     humanName: 'End Date',
     resolvers: [
@@ -36,22 +30,13 @@ const objectives = {
         name: 'getFromUserIntent',
         dependencies: [],
         params: {
-          path: ['entities', 'datetime', 'value']
+          path: ['entities', 'datetime',  0, 'to', 'value']
         },
-        target: 'startDate'
-      },
-      {
-        name: 'getFromUser',
-        dependencies: [],
-        params: {},
-        target: 'startDate'
+        target: 'endDate'
       }
-    ],
-    resolved: false,
-
-    target: 'endDate'
+    ]
   },
-  recentEvents: {
+ {
     name: 'recentEvents',
     humanName: 'Recent Events',
     resolvers: [
@@ -65,23 +50,8 @@ const objectives = {
         target: 'recentItems'
       }
     ]
-  },
-  relatedKeywords: {
-    name: 'relatedKeywords',
-    resolvers: [
-      {
-        name: 'relatedItems',
-        params: {
-          source: '$recentItems',
-          relationship: 'related',
-          threshold: 10
-        }
-      }
-    ],
-    dependencies: ['recentItems'],
-    target: 'relatedKeywords'
   }
-};
+];
 
 const resolvers = {
   'getFromUser': getFromUser,
@@ -93,11 +63,12 @@ const resolvers = {
 class HistoryGoal extends Goal {
   //This kicks off the goal (look at goal.js) internally. maybe it shouldn't
   constructor(parsedIntent) {
+    // console.log('IN HISTORY GOAL'.rainbow, parsedIntent);
     super(objectives, parsedIntent);
 
     // this.master = super.master;
     this.master.on('allObjectivesResolved', this.objectiveResolved)
-
+    console.log('ALL RESOLVED'.rainbow, this.resultPool);
     // this.resultPool = Map();
 
   }
