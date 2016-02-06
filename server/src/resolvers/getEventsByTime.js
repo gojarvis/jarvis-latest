@@ -20,16 +20,20 @@ class getEventsByTime {
 
     this.master.on('getEventsByTime', this.getEvents.bind(this));
 
-
+    this.getEvents = this.getEvents.bind(this);
   }
 
   async getEvents(message) {
-    let params = message.params.toJS();
+
+    let {objective,callback} = message;
+    let params = message.params;
+
     console.log('GETTING EVENTS'.rainbow, params);
 
     let recentEvents = await this.getUrls(params.startDate, params.endDate);
     console.log('RECENT - ', recentEvents.length);
-    this.master.emit('resolverDone', { objective: objective, results: recentEvents, resolverName: this.resolverName});
+
+    this.master.emit('resolverDone', { objective: objective, results: recentEvents, resolverName: this.resolverName, callback: callback});
 
 
 
