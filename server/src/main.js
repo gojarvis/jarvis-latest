@@ -2,10 +2,19 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var bodyParser = require('body-parser');
-
+var kue = require('kue');
+var ui = require('kue-ui');
 import SocketManager from './utils/socket-manager';
 
+ui.setup({
+    apiURL: '/api', // IMPORTANT: specify the api url
+    baseURL: '/kue', // IMPORTANT: specify the base url
+    updateInterval: 5000 // Optional: Fetches new data every 5000 ms
+});
 
+app.use('/api', kue.app);
+// Mount UI
+app.use('/kue', ui.app);
 
 
 app.use(bodyParser.json());

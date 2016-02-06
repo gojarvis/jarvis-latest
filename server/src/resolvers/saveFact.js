@@ -1,4 +1,4 @@
-
+import colors from 'colors';
 import Thinky from 'thinky'
 
 var db = Thinky();

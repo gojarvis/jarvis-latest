@@ -6,6 +6,10 @@ import colors from 'colors';
 import async from 'async'
 import _ from 'lodash'
 
+import kue from 'kue';
+
+let queue = kue.createQueue();
+
 class Goal {
   constructor(objectives, parsedIntent) {
 
@@ -23,7 +27,6 @@ class Goal {
 
     this.socket = GLOBAL._socket;
     let m = new EventEmitter();
-    m.on('resolveObjective', this.resolveObjective.bind(this));
     m.on('resolveObjectives', this.resolveObjectives.bind(this));
     m.on('allObjectivesResolved', this.allObjectivesResolved.bind(this));
     m.on('objectiveResolved', this.objectiveResolved.bind(this));
@@ -33,12 +36,13 @@ class Goal {
 
 
 
-    this.resolveObjectives = this.resolveObjectives.bind(this);
     this.allObjectivesResolved = this.allObjectivesResolved.bind(this);
-    this.resolveObjective = this.resolveObjective.bind(this);
     this.objectiveResolved = this.objectiveResolved.bind(this);
     this.handleParameterFetched = this.handleParameterFetched.bind(this);
     this.resolverDone = this.resolverDone.bind(this)
+
+
+
 
     //moved this to the specific goal executing
     // this.master.emit('resolveObjectives');
@@ -47,17 +51,11 @@ class Goal {
   resolveObjectives() {
 
     //Parse the intent, and
+    let objectiveJobs = await Promise.all(this.objectives.map(objective => {
+      return this.queueObjective(objective);
+    }))
 
 
-
-    if (this.objectives.count() > 0){
-      let focusObjective = this.objectives.first();
-      console.log('RESOLVE OBJ'.red, focusObjective);
-      this.master.emit('resolveObjective', focusObjective);
-    }
-    else {
-      this.allObjectivesResolved()
-    }
   }
 
   allObjectivesResolved() {
@@ -84,54 +82,32 @@ class Goal {
     console.log('Initializained'.rainbow, this.listeningResolvers.count());
   }
 
-  resolveObjective(objective) {
+  queueObjective(objective) {
 
-
-    // console.log('OBJECTIVE'.magenta, objective);
-    // console.log('RESOLVERS'.magenta, objective.get('resolvers'));
     //Initialize only the resolvers required for this objective
+    //They are just going to sit there and listen for events
     this.initializeResolvers(objective.get('resolvers'))
 
-    //Kick off the resolver
-    this.executeResolver(objective.get('resolvers').first(), objective)
 
+    //Here we add the objective to the queue
+    return new Promise(function(objective, reject) {
+      let objectiveName = objective.get('name');
+      let job = queue.create('objective', {
+          name: objectiveName,
+          message: objective.toJS()
 
+      }).save( function(err){
+         if( !err ) {
+           console.log('Queued objective ', objectiveName, job.id );
+           resolve({objectiveName: objectiveName, jobId: job.id})
+         }
+         else{
+           console.log('ERROR'.red, err);
+         }
+      });
+    });
 
-    // Prepare the data for the resolvers befor execution
-
-    // Execute resolvers one by one
-
-
-
-    // let resolvers = objective.get('resolvers').forEach(resolver => {
-    //   let dependencies = {};
-    //
-    //   if (resolver.get('requires').get('dependencies').count() > 0){
-    //       dependencies = this.getDependencies(resolver)
-    //   }
-    //
-    //   resolver = resolver.set('resources', dependencies);
-    //
-    //   let resolverName = resolver.get('name');
-    //   let resolverClass = Resolvers[resolverName]
-    //
-    //   let runner = new resolverClass(this.master);
-    //
-    //
-    //
-    // });
-
-    // let resolverKey = objective.get('resolvers').first();
-    //
-    //
-    // console.log('resolver is being called:'.green, resolverKey.toString().yellow);
-    //
-    // //Calls any resolvers listening on this key
-    // // this.master.emit(resolverKey, {
-    // //   target:
-    // // });
-
-
+    console.log('******** ****** ***** Done queuing objective ******** ****** ***** '.cyan);
   }
 
   getDependencies(resolver){
@@ -151,8 +127,8 @@ class Goal {
     }
   }
 
-  executeResolver(resolver, objective){
-    console.log('EXECUTING'.green, resolver);
+  async prepareResolver(resolver, objective){
+    console.log('Prepping Resolver: '.green, resolver.get('name'));
 
     let params = resolver.get('params');
     let populated = params.map((paramValue, paramName) => {
@@ -187,18 +163,38 @@ class Goal {
       intent: intent
     };
 
-    console.log('EMITTING'.yellow, resolver.get('name'));
+    console.log('Done prepping'.yellow, resolver.get('name'));
 
     let resolverName = resolver.get('name');
-    this.master.emit(resolverName, message);
+    let resolverJob = await queueResolver(resolverName, message)
+    return resolverJob
 
+  }
+
+  queueResolver(resolverName, message){
+    console.log('Adding '.yellow, resolverName.toString().green, ' to queue'.yellow);
+    return new Promise(function(resolve, reject) {
+      let job = queue.create('resolver', {
+          name: resolverName,
+          message: message
+
+      }).save( function(err){
+         if( !err ) {
+           console.log('Queued resolver ', resolverName, job.id );
+           resolve({resolverName: resolverName, jobId: job.id})
+         }
+         else{
+           console.log('ERROR'.red, err);
+         }
+      });
+    });
   }
 
   resolverDone(message){
 
     let { resolverName, objective, results, target } = message;
 
-    console.log('RESOLVER DONE'.green, target, results);
+    console.log('RESOLVER DONE'.magenta, target, results);
 
     this.resultPool = this.resultPool.set(target, results);
 
@@ -208,30 +204,32 @@ class Goal {
     if ( this.lastExecutedResolverIndex < this.resolvers.count() ){
       console.log('should call next'.yellow);
       // let nextResolver = this.resolvers.get(this.lastExecutedResolverIndex);
-      // this.executeResolver(nextResolver)
+      // this.queueResolver(nextResolver)
     }
     //finished all resolver
     else{
+
+      console.log('Objective is resolved: '.cyan, objective.get('name'));
       this.objectiveResolved(objective, results);
-      console.log('Objective is resolved'.green);
     }
   }
 
   objectiveResolved(objective, results) {
     // let {objective, results} = message
-    // console.log('objectiveResolved', objective, results);
-    this.results = this.results
-      .setIn([objective.get('name'), 'results'], results)
-      .setIn([objective.get('name'), 'resolved'], true);
+    console.log('objectiveResolved'.rainbow, objective.get('name'));
+    // this.results = this.results
+    //   .setIn([objective.get('name'), 'results'], results)
+    //   .setIn([objective.get('name'), 'resolved'], true);
 
     // console.log('Objective resolved'.green, this.objectives.toJS());
 
 
     let updatedObjectives = this.objectives.shift();
+    console.log('Remaining objectives'.red, this.objectives.toJS());
     this.objectives = updatedObjectives;
 
 
-    console.log('updatedObjectives'.red, this.objectives, 'deleted', objective.get('name') );
+    console.log('updatedObjectives'.red, 'Done With: '.yellow, objective.get('name') );
 
     this.resolveObjectives()
 

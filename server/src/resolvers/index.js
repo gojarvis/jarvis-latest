@@ -3,5 +3,6 @@ module.exports = {
   getFromUserIntent: require('./getFromUserIntent'),
   saveFact: require('./saveFact'),
   getEventsByTime: require('./getEventsByTime'),
-  getRelatedUrls: require('./getRelatedUrls')
+  getRelatedUrls: require('./getRelatedUrls'),
+  getRelatedItems: require('./getRelatedItems')
 }

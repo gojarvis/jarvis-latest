@@ -2,8 +2,13 @@ import Thinky from 'thinky'
 import EventEmitter from 'events';
 import r from 'rethinkdb'
 
-var db = Thinky();
-var type = db.type;
+let conn = {};
+
+let p = r.connect({db: 'test'});
+p.then(function(connection){
+  conn = connection;
+})
+
 
 let socket = GLOBAL._socket;
 
@@ -11,6 +16,7 @@ class getEventsByTime {
   constructor(master) {
     this.master = master;
     this.resolverName = 'getEventsByTime';
+    console.log('GETTING EVENT BY TIME');
 
     this.master.on('getEventsByTime', this.getEvents.bind(this));
 
@@ -19,30 +25,77 @@ class getEventsByTime {
 
   async getEvents(message) {
     let params = message.params.toJS();
-    console.log('GETTING EVENTS'.magenta, fact);
+    console.log('GETTING EVENTS'.rainbow, params);
 
-    let recentEvents = await this.getRethinkEvents(params.startDate, params.endDate);
-    console.log('RECENT', recentEvents);
-    // this.master.emit('resolverDone', { objective: objective, results: recentEvents, resolverName: this.resolverName});
+    let recentEvents = await this.getUrls(params.startDate, params.endDate);
+    console.log('RECENT - ', recentEvents.length);
+    this.master.emit('resolverDone', { objective: objective, results: recentEvents, resolverName: this.resolverName});
 
 
 
   }
 
   getRethinkEvents(start, end){
-    console.log('START', start, 'END', end);
-    start = '2016-02-05T01:17:37.000-08:00';
-    end = '2015-02-05T01:17:37.000-08:00'
     return new Promise(function(resolve, reject) {
-      try{
-        //TODO:
-        return r.table('Event').filter(
-          r.row('timestamp').during(new Date(start), new Date(end), {leftBound: "open", rightBound: "open"}))
-      }
-      catch(e){
 
-        reject(err)
-      }
+      r.table('Event').filter(
+        r.row('timestamp').during(new Date(start), new Date(end), {leftBound: "open", rightBound: "open"}))
+        .run(conn).then(function(cursor){
+
+          return cursor.toArray()
+        }).then(function(result){
+          // console.log('YAY!!!'.rainbow);
+          resolve(result)
+        })
+    });
+  }
+
+  getUrls(start, end){
+    return new Promise(function(resolve, reject) {
+      r.table('Event').filter({source: 'chrome'})
+        .filter(
+          r.row('timestamp').during(
+            new Date(start),
+            new Date(end),
+            {leftBound: "open", rightBound: "open"}))
+        .filter({ source: 'chrome'})
+        .filter(r.row('data').hasFields('url'))
+        .pluck({data: { url : "url" } })
+        .filter(r.row('data').hasFields('url'))
+        .group(function(item){return item('data')('url')('url')})
+        .ungroup()
+        .merge(function(row){ return {count: row('reduction').count()} })
+        .orderBy( r.desc('count') )
+        .pluck('count', 'group')
+        .run(conn).then(function(cursor){
+
+          return cursor.toArray()
+        }).then(function(result){
+          console.log('YAY!!!'.rainbow);
+          resolve(result)
+        })
+    });
+  }
+
+  getFiles(start, end){
+    return new Promise(function(resolve, reject) {
+      r.table('Event').filter(
+        r.row('timestamp').during(
+          new Date(start),
+          new Date(end), {leftBound: "open", rightBound: "open"}
+        ))
+        .filter({ source: 'atom'})
+        .group(function(item){ return item('data')('uri')})
+        .ungroup()
+        .merge(function(row){ return {count: row('reduction').count()} })
+        .orderBy( r.desc('count') )
+        .run(conn).then(function(cursor){
+
+          return cursor.toArray()
+        }).then(function(result){
+          console.log('YAY!!!'.rainbow);
+          resolve(result)
+        })
     });
   }
 }

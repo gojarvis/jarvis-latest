@@ -38,6 +38,7 @@
     "ioredis": "^1.13.1",
     "keyword-extractor": "0.0.12",
     "kue": "^0.10.5",
+    "kue-ui": "^0.1.0",
     "level-browserify": "^1.1.0",
     "levelgraph": "^1.1.0",
     "limdu": "^0.6.0",

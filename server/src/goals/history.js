@@ -7,7 +7,6 @@ import Goal from './goal'
 let socket = GLOBAL._socket;
 
 const objectives = [
-
  {
     name: 'startDate',
     humanName: 'Start Date',
@@ -48,6 +47,21 @@ const objectives = [
         },
         dependencies: ['startDate', 'endDate'],
         target: 'recentItems'
+      }
+    ]
+  },
+  {
+    name: 'relatedKeywords',
+    resolvers: [
+      {
+        name: 'getRelatedItems',
+        params: {
+          source: '$recentItems',
+          relationship: 'related',
+          threshold: 10
+        },
+        dependencies: ['recentItems'],
+        target: 'relatedKeywords'
       }
     ]
   }
