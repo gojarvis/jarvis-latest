@@ -47,17 +47,26 @@ class ConversationManager {
     let parsedIntent = this.parseWitResult(message.witResult);
     let intent = parsedIntent.get('intent');
     let goalObj = goals.get(intent);
-    
+
 
     let goal = new goalObj(parsedIntent);
-    let goalExecutor = goal.execute();
+    // console.log('GOAL', goal);
+    goal.initialize(this.onGoalDone)
+    // let goalExecutor = goal.execute();
     // Single goal is executed
 
-    goalExecutor.on('goalResolved', function(){
-      console.log('Goal resolved');
-    })
+    // goalExecutor.once('goalResolved', function(result){
+    //   console.log('Goal resolved', result);
+    //
+    //
+    // })
 
 
+  }
+
+  onGoalDone(results){
+    console.log('---------------Goal done back in covo');
+    console.log(results);
   }
 
   parseWitResult(result) {

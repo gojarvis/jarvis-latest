@@ -4,28 +4,39 @@ import Immutable from 'immutable';
 let socket = GLOBAL._socket;
 
 class getFromUserIntent {
-  constructor(master) {
-    this.master = master;
-    this.master.on('getFromUserIntent', this.get.bind(this));
+  constructor() {
 
   }
 
+  async execute(message){
+    let result = await this.get(message)
+    console.log('Resolver result', result);
+    return result
+  }
 
-  //needs to be a Map
   get(message) {
+    return new Promise(function(resolve, reject) {
+      try {
 
-    let {objective, target, params, intent, callback}  = message;
-    console.log('------>MESSAGE'.red, message, callback);
+        let {objective, target, params, intent}  = message;
 
-    params = Immutable.fromJS(params)
-    intent = Immutable.fromJS(intent)
-    // console.log('YO', objective, target, params, intent);
-    let path = params.get('path');
-    //Extract the value from the intent
-    let value = intent.getIn(path);
+        params = Immutable.fromJS(params)
+        intent = Immutable.fromJS(intent)
 
-    // when done
-    this.master.emit('resolverDone', { objective: objective, results: value, resolverName: 'getFromUserIntent', target: target, callback: callback});
+        let path = params.get('path');
+        //Extract the value from the intent
+        let value = intent.getIn(path);
+
+        // when done
+        let res = { objective: objective, results: value, resolverName: 'getFromUserIntent', target: target};
+        console.log('RES', res);
+        resolve(res);
+      } catch (e) {
+        console.log('ERROR', e);
+      } finally {
+
+      }
+    });
   }
 
 

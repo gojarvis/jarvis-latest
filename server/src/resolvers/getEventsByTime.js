@@ -1,6 +1,7 @@
 import Thinky from 'thinky'
 import EventEmitter from 'events';
 import r from 'rethinkdb'
+import _ from 'lodash'
 
 let conn = {};
 
@@ -13,29 +14,30 @@ p.then(function(connection){
 let socket = GLOBAL._socket;
 
 class getEventsByTime {
-  constructor(master) {
-    this.master = master;
+  constructor() {
     this.resolverName = 'getEventsByTime';
-    console.log('GETTING EVENT BY TIME');
+  }
 
-    this.master.on('getEventsByTime', this.getEvents.bind(this));
-
-    this.getEvents = this.getEvents.bind(this);
+  async execute(message){
+    return await this.getEvents(message, resolverDone)
   }
 
   async getEvents(message) {
 
-    let {objective,callback} = message;
-    let params = message.params;
+    let {objective, target, params} = message;
 
     console.log('GETTING EVENTS'.rainbow, params);
 
+    if (_.isUndefined(params.startDate) || _.isUndefined(params.endDate)){
+      console.log('NO params');
+      return;({ objective: objective, results: ['no results'], resolverName: this.resolverName, target: target})
+    }
+
     let recentEvents = await this.getUrls(params.startDate, params.endDate);
+
     console.log('RECENT - ', recentEvents.length);
 
-    this.master.emit('resolverDone', { objective: objective, results: recentEvents, resolverName: this.resolverName, callback: callback});
-
-
+    return({ objective: objective, results: recentEvents, resolverName: this.resolverName, target: target});
 
   }
 
