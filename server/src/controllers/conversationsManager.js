@@ -6,7 +6,7 @@ import KnowledgeGoal from '../goals/knowledge'
 import SimilarActivityGoal from '../goals/similarActivity'
 import events from 'events'
 import imm, {Map, List} from 'immutable'
-
+import Goal from '../goals/goal'
 
 
 let goals = Map({
@@ -46,12 +46,13 @@ class ConversationManager {
   onIntent(message) {
     let parsedIntent = this.parseWitResult(message.witResult);
     let intent = parsedIntent.get('intent');
-    let goalObj = goals.get(intent);
+    let objectives = goals.get(intent);
+    console.log('GOAL', Goal);
 
-
-    let goal = new goalObj(parsedIntent);
+    let goal = new Goal(objectives,parsedIntent);
     // console.log('GOAL', goal);
-    goal.initialize(this.onGoalDone)
+    goal.execute(this.onGoalDone)
+    console.log('Goal is done');
     // let goalExecutor = goal.execute();
     // Single goal is executed
 

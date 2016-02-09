@@ -20,7 +20,7 @@ class Goal{
       this.resultPool = imm.Map();
   }
 
-  async initialize(goalDone){
+  async execute(goalDone){
     //add objectives to queue
     console.log('initialize'.green);
     this.resultPool = imm.Map();
@@ -76,16 +76,13 @@ class Goal{
   async resolverProcessor(job, ctx, resolverDone){
     let message = job.data.message;
     let resolverName = job.data.resolverName;
-    console.log('Resolver Processor'.yellow, resolverName, message);
     let resolver = new Resolvers[resolverName]();
-
     let resolverResult = await resolver.execute(message);
     let {target, results} = resolverResult;
 
-    console.log('Done with resolver', results);
+    console.log('Done with resolver', resolverName);
     this.resultPool = this.resultPool.set(target, results)
     resolverDone()
-
   }
 
   async prepareResolver(resolver, objective, objectiveDone){

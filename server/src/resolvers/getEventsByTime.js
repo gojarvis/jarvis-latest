@@ -19,7 +19,10 @@ class getEventsByTime {
   }
 
   async execute(message){
-    return await this.getEvents(message, resolverDone)
+    console.log('Get Events!!!');
+    let result = await this.getEvents(message)
+    console.log('Get Events', result);
+    return result
   }
 
   async getEvents(message) {
