@@ -8,6 +8,7 @@ import events from 'events'
 import imm, {Map, List} from 'immutable'
 import Goal from '../goals/goal'
 
+let i = 0;
 
 let goals = Map({
   'query_history': HistoryGoal,
@@ -30,6 +31,9 @@ class ConversationManager {
       parameters: Map()
     });
 
+
+    this.onGoalDone = this.onGoalDone.bind(this);
+
     this.registerEvents();
 
   }
@@ -37,7 +41,7 @@ class ConversationManager {
   registerEvents() {
     this.socket.on('ask-response', this.handleAskResponse)
 
-    this.socket.on('user-intent', (message) => {
+    this.socket.once('user-intent', (message) => {
       this.onIntent(message);
       // this.socket.emit('net-result', this.ask(intent));
     });
@@ -49,25 +53,21 @@ class ConversationManager {
     let objectives = goals.get(intent);
     console.log('GOAL', Goal);
 
-    let goal = new Goal(objectives,parsedIntent);
+    let goal = new Goal();
     // console.log('GOAL', goal);
-    goal.execute(this.onGoalDone)
-    console.log('Goal is done');
-    // let goalExecutor = goal.execute();
-    // Single goal is executed
 
-    // goalExecutor.once('goalResolved', function(result){
-    //   console.log('Goal resolved', result);
-    //
-    //
-    // })
-
-
+    goal.execute(this.onGoalDone,objectives,parsedIntent)
   }
 
   onGoalDone(results){
-    console.log('---------------Goal done back in covo');
+    console.log('---------------Goal done back in covo--------->', i);
+    i++;
     console.log(results);
+
+    this.socket.once('user-intent', (message) => {
+      this.onIntent(message);
+      // this.socket.emit('net-result', this.ask(intent));
+    });
   }
 
   parseWitResult(result) {

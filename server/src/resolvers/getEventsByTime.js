@@ -19,9 +19,8 @@ class getEventsByTime {
   }
 
   async execute(message){
-    console.log('Get Events!!!');
+
     let result = await this.getEvents(message)
-    console.log('Get Events', result);
     return result
   }
 

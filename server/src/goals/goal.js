@@ -8,38 +8,45 @@ import Immutable from 'immutable'
 import kue from 'kue';
 import Resolvers from '../resolvers'
 
-let queue = kue.createQueue();
+
+let resultPool = imm.Map();
 
 class Goal{
-  constructor(objectives, parsedIntent){
-      this.objectives = imm.fromJS(objectives);
-      this.parsedIntent = imm.fromJS(parsedIntent);
-      this.objectiveIndex = 0;
-      this.resolverIndex = 0;
+  constructor(){
+    this.queue = kue.createQueue();
 
-      this.resultPool = imm.Map();
+    kue.Job.rangeByState( 'complete', 0, 1000, 'asc', function( err, jobs ) {
+      jobs.forEach( function( job ) {
+        job.remove( function(){
+          console.log( 'removed ', job.id );
+        });
+      });
+    });
   }
 
-  async execute(goalDone){
-    //add objectives to queue
-    console.log('initialize'.green);
-    this.resultPool = imm.Map();
+  async execute(goalDone, objectives, parsedIntent){
+    console.log('Executing'.green, parsedIntent);
+    this.objectives = imm.fromJS(objectives);
+    this.parsedIntent = imm.fromJS(parsedIntent);
+    resultPool = imm.Map();
+
     let objectiveJobs = await Promise.all(this.objectives.map(objective => {
       return this.queueObjective(objective);
     }))
     //
+    this.objectiveCounter = imm.fromJS(objectiveJobs);
 
     this.numObjectives = objectiveJobs.length;
 
     console.log('####### Done queuing objectives'.yellow, objectiveJobs.length);
 
-    queue.process('objective', function(job, ctx, done){
+    this.queue.process('objective', 1, function(job, ctx, done){
       this.objectiveProcessor(job, ctx, done);
     }.bind(this));
 
-    this.callGoalDone = function(){
-      console.log('Calling Goal done'.green);
-      goalDone(this.resultPool);
+    this.callGoalDone = () => {
+      console.log('Calling Goal done'.green, resultPool);
+      goalDone(resultPool);
     }
 
     console.log('Created '.green, objectiveJobs, ' jobs', objectiveJobs);
@@ -55,12 +62,12 @@ class Goal{
         return this.prepareResolver(resolver, objective, objectiveDone);
     }));
 
-    this.numResolvers = resolversJobs.length;
+    this.resolverCounter = imm.fromJS(resolversJobs);
 
     console.log('Created resolver jobs'.green, resolversJobs);
     console.log('******** ****** ***** Starting proccesing resolvers ******** ****** ***** '.green);
 
-    queue.process('resolver', function(job, ctx, resolverDone){
+    this.queue.process('resolver', 1, function(job, ctx, resolverDone){
       this.resolverProcessor(job,ctx,resolverDone)
     }.bind(this))
 
@@ -72,7 +79,6 @@ class Goal{
     }
   }
 
-
   async resolverProcessor(job, ctx, resolverDone){
     let message = job.data.message;
     let resolverName = job.data.resolverName;
@@ -80,9 +86,14 @@ class Goal{
     let resolverResult = await resolver.execute(message);
     let {target, results} = resolverResult;
 
-    console.log('Done with resolver', resolverName);
-    this.resultPool = this.resultPool.set(target, results)
-    resolverDone()
+    console.log('Done with resolver', resolverName, results);
+    resultPool = resultPool.set(target, results)
+
+    console.log('Set in results', resultPool);
+    setTimeout(()=>{
+      console.log('setTimeout'.magenta, resolverName);
+      resolverDone()
+    },4000)
   }
 
   async prepareResolver(resolver, objective, objectiveDone){
@@ -95,7 +106,7 @@ class Goal{
         paramValue = paramValue.replace('$', '');
         // console.log('PARAMVALUE'.cyan, paramValue);
 
-        let targetValue = this.resultPool.get(paramValue)
+        let targetValue = resultPool.get(paramValue)
         // console.log('TARGETVALUE'.rainbow, targetValue);
         populatedItem =  targetValue;
         // console.log('FIILED'.rainbow, populatedItem);
@@ -110,7 +121,7 @@ class Goal{
     // console.log('FULL'.rainbow, populated);
 
     let intent = this.parsedIntent;
-    // console.log('INTENT'.green, this.resultPool, intent);
+    // console.log('INTENT'.green, resultPool, intent);
     let target = resolver.get('target');
     let message = {
       objective: objective,
@@ -127,20 +138,20 @@ class Goal{
 
   }
 
-  handleObjectiveDone(job, result,){
-    this.objectiveIndex++;
-    console.log('@@@@@@@@@-------objective done'.yellow, this.objectiveIndex, this.numObjectives);
-    if (this.objectiveIndex === this.numObjectives){
-      this.objectiveIndex = 0;
+  handleObjectiveDone(job, result){
+    console.log('Objective done'.green, job.data);
+    this.objectiveCounter = this.objectiveCounter.pop();
+    console.log('@@@@@@@@@-------Objectives left:'.yellow, this.objectiveCounter.count());
+    if (this.objectiveCounter.isEmpty()){
       this.callGoalDone();
     }
   }
 
   handleResolverJobDone(job, result){
-    this.resolverIndex++;
-    console.log('@@@@@@@@@-------resolver done'.yellow, this.resolverIndex, this.numResolvers);
-    if (this.resolverIndex === this.numResolvers){
-      this.resolverIndex = 0;
+    console.log('Resolver name'.green, job.data);
+    this.resolverCounter = this.resolverCounter.pop();
+    console.log('@@@@@@@@@-------Resolvers left'.yellow, this.resolverCounter.count());
+    if (this.resolverCounter.isEmpty()){
       this.callObjectiveDone();
     }
   }
@@ -150,7 +161,7 @@ class Goal{
     return new Promise(function(resolve, reject) {
       let objectiveName = objective.get('name');
 
-      let job = queue.create('objective', {
+      let job = self.queue.create('objective', {
           name: objectiveName,
           message: objective
 
@@ -176,13 +187,13 @@ class Goal{
     let self = this;
     return new Promise(function(resolve, reject) {
 
-      console.log('Queueing resolver'.yellow, resolverName);
-      let job = queue.create('resolver', {
+      console.log('Queueing resolver'.yellow, resolverName, message);
+      let job = self.queue.create('resolver', {
           resolverName: resolverName,
           message: message
       })
 
-      job.on('complete', function(result){
+      job.once('complete', function(result){
         console.log('RESOLVER JOB COMPLETE');
         self.handleResolverJobDone(job, result)
       })

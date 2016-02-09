@@ -29,8 +29,9 @@ class getFromUserIntent {
 
         // when done
         let res = { objective: objective, results: value, resolverName: 'getFromUserIntent', target: target};
-        console.log('RES', res);
-        resolve(res);
+        setTimeout(()=>{
+          resolve(res);
+        },5000)
       } catch (e) {
         console.log('ERROR', e);
       } finally {
