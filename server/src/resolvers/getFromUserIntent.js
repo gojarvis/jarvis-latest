@@ -5,12 +5,12 @@ let socket = GLOBAL._socket;
 
 class getFromUserIntent {
   constructor() {
-
+    this.resolverName = 'getFromUserIntent';
   }
 
   async execute(message){
     let result = await this.get(message)
-    console.log('Resolver result', result);
+    console.log('Resolver', this.resolverName, 'result', result);
     return result
   }
 
@@ -19,6 +19,7 @@ class getFromUserIntent {
       try {
 
         let {objective, target, params, intent}  = message;
+        console.log('In INTENT!', params);
 
         params = Immutable.fromJS(params)
         intent = Immutable.fromJS(intent)
@@ -29,9 +30,7 @@ class getFromUserIntent {
 
         // when done
         let res = { objective: objective, results: value, resolverName: 'getFromUserIntent', target: target};
-        setTimeout(()=>{
-          resolve(res);
-        },5000)
+        resolve(res);
       } catch (e) {
         console.log('ERROR', e);
       } finally {

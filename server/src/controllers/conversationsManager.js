@@ -41,7 +41,7 @@ class ConversationManager {
   registerEvents() {
     this.socket.on('ask-response', this.handleAskResponse)
 
-    this.socket.once('user-intent', (message) => {
+    this.socket.on('user-intent', (message) => {
       this.onIntent(message);
       // this.socket.emit('net-result', this.ask(intent));
     });
@@ -51,7 +51,7 @@ class ConversationManager {
     let parsedIntent = this.parseWitResult(message.witResult);
     let intent = parsedIntent.get('intent');
     let objectives = goals.get(intent);
-    console.log('GOAL', Goal);
+
 
     let goal = new Goal();
     // console.log('GOAL', goal);

@@ -30,12 +30,8 @@ class getEventsByTime {
 
     console.log('GETTING EVENTS'.rainbow, params);
 
-    if (_.isUndefined(params.startDate) || _.isUndefined(params.endDate)){
-      console.log('NO params');
-      return;({ objective: objective, results: ['no results'], resolverName: this.resolverName, target: target})
-    }
 
-    let recentEvents = await this.getUrls(params.startDate, params.endDate);
+    let recentEvents = await this.getUrls(params.get('startDate'), params.get('endDate'));
 
     console.log('RECENT - ', recentEvents.length);
 
