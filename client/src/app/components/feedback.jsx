@@ -168,15 +168,7 @@ class Feedback extends React.Component {
     });
 
     return (
-      <Masonry
-          style={{...styles.segment}}
-          className={'my-gallery-class'} // default ''
-          elementType={'ul'} // default 'div'
-          options={masonryOptions} // default {}
-          disableImagesLoaded={false} // default false
-      >
-          {childElements}
-      </Masonry>
+      <div></div>
 
     )
   }

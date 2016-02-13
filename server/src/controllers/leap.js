@@ -17,9 +17,25 @@ class LeapController{
     let directionState = '';
     let directionChangeCursor = 0;
     let rest = false;
+    let i = 0;
 
     Leap.loop(controllerOptions, function(frame) {
+      let position = [100, 100, 100];
+      if (frame.hands.length > 0){
+        let hand = frame.hands[0];
+        position = hand.palmPosition;
+        // console.log(position);
+      }
 
+      self.socket.emit('faceIn', {
+        frame: i,
+        position: {
+          x: position[0],
+          y: position[1],
+          z: position[2]
+        }
+      })
+      i++;
       // Display Gesture object data
       if (frame.gestures.length > 0) {
           let direction = self.getSwipeDirection(frame);
@@ -27,25 +43,28 @@ class LeapController{
             directionState = direction;
             directionChangeCursor = frame.id;
             console.log(direction);
+
+            // self.ding(440,660)
+
             // if (typeof direction != 'undefined'){
             //   self.socket.emit('speak', 'You swiped ' + direction);
             // }
-            switch(direction){
-              case 'right':
-                // self.socket.emit('speak', 'Ok, done with this, for now.');
-                // sfx.play('')
-                self.ding()
-                break;
-              case 'left':
-                sfx.bottle()
-                break;
-              case 'up':
-                self.socket.emit('speak', 'I am listening');
-                break;
-              case 'down':
-                self.socket.emit('speak', 'Alright. Message recieved');
-                break;
-            }
+            // switch(direction){
+            //   case 'right':
+            //     // self.socket.emit('speak', 'Ok, done with this, for now.');
+            //     // sfx.play('')
+            //     self.ding(440,660)
+            //     break;
+            //   case 'left':
+            //     self.ding(660,880)
+            //     break;
+            //   case 'up':
+            //     self.ding(880,1100)
+            //     break;
+            //   case 'down':
+            //     self.ding(1100, 1320)
+            //     break;
+            // }
 
           }
 
@@ -60,9 +79,9 @@ class LeapController{
 
   }
 
-  ding(){
-    let sine1 = T("sin", {freq:440, mul:0.5});
-    let sine2 = T("sin", {freq:660, mul:0.5});
+  ding(val1,val2){
+    let sine1 = T("sin", {freq:val1, mul:0.5});
+    let sine2 = T("sin", {freq:val2, mul:0.5});
 
     T("perc", {r:500}, sine1, sine2).on("ended", function() {
       this.pause();

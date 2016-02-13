@@ -268,6 +268,10 @@ class Main extends React.Component {
       // self.handleRelated(related);
     });
 
+    // socket.on('faceIn', function (faceIn) {
+    //   self.handleFaceIn(faceIn);
+    // });
+
     socket.on('recommendations', function (recommendations) {
       self.handleRecommendation(recommendations);
     })
@@ -394,6 +398,10 @@ class Main extends React.Component {
     this.setState({related: related});
   }
 
+  handleFaceIn(faceIn) {
+    this.setState({faceIn: faceIn});
+  }
+
   handleRelatedFiles(relatedFiles) {
     console.log('relatedFiles', relatedFiles);
     this.setState({relatedFiles: relatedFiles});
@@ -505,7 +513,7 @@ class Main extends React.Component {
           margin: "0 auto",
           width: "100%"
         }}>
-          <Face recording={this.state.recording}></Face>
+          <Face faceIn={this.state.faceIn} recording={this.state.recording}></Face>
         </div>
         <div style={{
           display: "block"
