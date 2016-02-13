@@ -15,10 +15,10 @@ const STYLES = {
       minHeight: '800px'
     },
     a: {
-      color: COLORS.TEXT_LIGHT,
-      ':visited': {
-        color: COLORS.TEXT_DARK
-      }
+      // color: COLORS.FILE,
+      // ':visited': {
+      //   color: COLORS.TEXT_DARK
+      // }
     }
   }
 }

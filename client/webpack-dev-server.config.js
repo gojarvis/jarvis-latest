@@ -50,14 +50,12 @@ var config = {
         exclude: [nodeModulesPath]
       },
     ],
-    loaders: [
-      {
+    loaders: [{
         //React-hot loader and
         test: /\.(js|jsx)$/,  //All .js and .jsx files
         loaders: ['react-hot','babel-loader?optional=runtime&stage=0'], //react-hot is like browser sync and babel loads jsx and es6-7
         exclude: [nodeModulesPath]
-      },
-      {
+      }, {
         test: /masonry|imagesloaded|fizzy\-ui\-utils|desandro\-|outlayer|get\-size|doc\-ready|eventie|eventemitter/,
         loader: 'imports?define=>false&this=>window'
       }

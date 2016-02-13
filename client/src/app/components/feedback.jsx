@@ -4,6 +4,9 @@ import range from 'lodash.range';
 import _ from 'lodash';
 import Radium, { Style } from 'radium';
 import Masonry from 'react-masonry-component';
+import File from 'react-icons/lib/fa/File';
+import ThumbsUp from 'react-icons/lib/fa/thumbs-up';
+import ThumbsDown from 'react-icons/lib/fa/thumbs-down';
 
 function reinsert(arr, from, to) {
   const _arr = arr.slice(0);
@@ -37,11 +40,17 @@ const allColors = [
   '#C93A67',
 ];
 
+// const COLORS = {
+//   FILE  : 'rgb(182, 169, 220)',
+//   URL   : 'rgb(121, 194, 202)',
+//   TEXT  : '#3C3F42'
+// };
+
 const COLORS = {
-  FILE  : 'rgb(182, 169, 220)',
-  URL   : 'rgb(121, 194, 202)',
+  FILE  : 'rgb(255, 255, 255)',
+  URL   : 'rgb(255, 255, 255)',
   TEXT  : '#3C3F42'
-}
+};
 
 
 const [count, width, height] = [10, 300, 100];
@@ -54,11 +63,9 @@ const layout = range(count).map(n => {
 
 const styles = {
   title: {
-    width: '200px',
     display: 'flex',
     alignItems: 'center',
     fontSize: 14,
-    borderBottom: '1px solid black',
     maxWidth: '100%'
   },
   suggestion: {
@@ -68,14 +75,29 @@ const styles = {
     opacity: `1`,
     margin: '10px 10px 20px',
     display: 'inline-block',
-    width: '20%',
+    width: '80%',
     overflow:'hidden'
   },
   segment: {
     width: '100%'
   },
   text: {
-    margin: 10
+    borderTop: '1px solid',
+    borderColor: '#456990'
+  },
+  buttons: {
+    // text > buttons
+    padding: '10px 0',
+    borderBottom: '1px solid #456990',
+    display: 'flex',
+    justifyContent: 'space-around',
+  },
+  cardList: {
+    display: 'flex',
+    width: '100%',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center'
   }
 }
 
@@ -134,55 +156,57 @@ class Feedback extends React.Component {
     let masonryOptions = {
         transitionDuration: '0.7s'
     };
-    let childElements = this.props.items.map(item => {
+    let childElements = this.props.items.map((item, key) => {
       let text = '';
       let backgroundColor = '';
       switch(item.type){
         case 'url':
           text = item.url;
-
-          backgroundColor = COLORS.URL
+          backgroundColor = COLORS.URL;
           break;
         case 'file':
           text = _.last(item.uri.split("/"));
-
           backgroundColor = COLORS.FILE;
           break;
       }
 
-
-
       return (
         <div
+          className='card'
+          key={key}
           style={{...styles.suggestion, backgroundColor}}>
           <div style={styles.title}>
-            <div style={{margin: '10px 10px 5px', fontSize: 18}}>{item.title || 'Title!'}</div>
+            <div style={{flex: '0 0 30px', textAlign: 'center'}}><File /></div>
+            <div style={{flex: '1 1 auto', margin: '10px 10px 5px 0', fontSize: 18}}>
+              <a href={item.url}>{item.title || item.url}</a>
+            </div>
           </div>
           <div style={styles.text}>
-            <a href={item.url} target="_blank">
-              {text}
-            </a>
+            <div style={styles.buttons}>
+              <div style={{flex: '1', textAlign: 'center'}}>Click for Fun!</div>
+              <div style={{flex: '1', textAlign: 'center'}}><ThumbsUp /></div>
+              <div style={{flex: '1', textAlign: 'center'}}><ThumbsDown /></div>
+            </div>
+            <p>
+              <a href={item.url} target="_blank">
+                {text}
+              </a>
+            </p>
           </div>
         </div>
       );
     });
 
     return (
-      <Masonry
-          style={{...styles.segment}}
-          className={'my-gallery-class'} // default ''
-          elementType={'ul'} // default 'div'
-          options={masonryOptions} // default {}
-          disableImagesLoaded={false} // default false
-      >
-          {childElements}
-      </Masonry>
-
+      <div style={{width: '100%', height: '100%'}}>
+        <div style={styles.cardList}>{childElements}</div>
+        <pre>{JSON.stringify(this.props.items, null, 2)}</pre>
+      </div>
     )
   }
 }
 
-
+let buttonStyles = {}
 
 
 export default Radium(Feedback);
