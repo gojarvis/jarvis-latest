@@ -1,46 +1,48 @@
 import EventEmitter from 'events';
-let socket = GLOBAL._socket;
+import eventToPromise from 'event-to-promise'
+import colors from 'colors';
+
 
 class getFromUser {
   constructor(master) {
-    this.master = master;
     this.resolverName = 'getFromUser';
-    this.objective = {};
-    console.log('MASTER'.red);
-    this.master.on('getFromUser', this.get.bind(this));
     this.socket = GLOBAL._socket
 
-    this.socket.on('answer_getFromUser', this.gotResponseFromUser.bind(this))
-
     this.get = this.get.bind(this)
-
     this.gotResponseFromUser = this.gotResponseFromUser.bind(this);
 
   }
 
+  async execute(message){
+    let result = await this.get(message)
+    return result
+  }
+
   async get(message) {
 
-    let {objective, target} = message;
-    console.log('GOT objective', objective);
-
+    let {objective, target, params} = message;
     this.objective = objective;
     this.target = target;
-    let text = objective.get('question').get('text');
-    // console.log('QUESTION', text);
+
+    let text = params.get('question')
     let question = {
       text: text,
       target: 'answer_getFromUser'
     }
-    console.log('GETTING', question);
+
     this.socket.emit('questionFromJarvis', question)
+
+    let response = await eventToPromise(this.socket, 'answer_getFromUser')
+    let result = this.gotResponseFromUser(response);
+    return result;
 
   }
 
-  gotResponseFromUser(message){
-    let {text} = message;
+  gotResponseFromUser(response){
+    let {text} = response;
     let objective = this.objective;
     let target = this.target
-    this.master.emit('resolverDone', { objective: objective, results: text, resolverName: 'getFromUser', target: target});
+    return { objective: objective, results: text, resolverName: 'getFromUser', target: target};
   }
 
 

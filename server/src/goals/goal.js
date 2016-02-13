@@ -20,7 +20,7 @@ class Goal{
       name: 'objectives',
       processor: this.objectiveProcessor.bind(this),
       taskDone: this.objectiveDone,
-      allDone: this.allObjectivesDone
+      allDone: this.allObjectivesDone.bind(this)
     })
 
     this.resultPool = imm.Map();
@@ -106,20 +106,11 @@ class Goal{
     console.log('Resolver'.green, resolverName);
 
     let prepared = this.prepareResolver(resolverSpec, objective);
-    // console.log('Prepared'.magenta, prepared);
 
     let resolverResult = await resolver.execute(prepared);
     let {target, results} = resolverResult;
-    console.log('DONE resolver'.green, target, results, this.resultPool, this.resultPool.set(target, results));
-    // console.log('Done with resolver', resolverName, results);
     this.resultPool = this.resultPool.set(target, results)
-    //
-    console.log('AFTER'.yellow, this.resultPool);
-    // console.log('Set in results', resultPool);
-    // setTimeout(()=>{
-    //   console.log('setTimeout'.magenta, resolverName);
-    //   resolverDone()
-    // },4000)
+
 
     return results
   }
@@ -130,10 +121,11 @@ class Goal{
 
   async allObjectivesDone(){
     console.log('all objectives done'.rainbow);
+    console.log(this.resultPool.toJS());
   }
 
   async resolverDone(result){
-    console.log('Resolver done'.red, result);
+    // console.log('Resolver done'.red, result);
   }
 
   async allResolversDone(){

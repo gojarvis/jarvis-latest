@@ -30,6 +30,7 @@
     "immutable": "^3.7.6",
     "imports-loader": "^0.6.5",
     "jquery": "^2.1.4",
+    "leapjs": "^0.6.4",
     "lodash": "^3.10.1",
     "lodash.range": "^3.0.1",
     "material-ui": "^0.13.0",

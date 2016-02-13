@@ -41,7 +41,22 @@ const objectives = [
         target: 'recentItems'
       }
     ]
-  }
+  },
+  {
+     name: 'relatedKeywords',
+     humanName: 'Related Keywords',
+     resolvers: [
+       {
+         name: 'getRelatedItems',
+         params: {
+           source: '$recentItems',
+           threshold: 1
+         },
+         dependencies: ['recentItems'],
+         target: 'keywords'
+       }
+     ]
+   }
 ];
 
 module.exports = objectives;

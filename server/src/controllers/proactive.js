@@ -45,7 +45,7 @@ class Proactive {
 
       self.recommend();
 
-      process.stdout.write('0');
+      // process.stdout.write('0');
     }
 
     async deepContext(){
@@ -101,7 +101,7 @@ class Proactive {
         //If the url is the same as before, do nothing
 
         if (activeUrl.url === this.lastActiveUrl || _.isUndefined(activeUrl.url)){
-          process.stdout.write('=');
+          // process.stdout.write('=');
           return;
         }
 
@@ -124,7 +124,7 @@ class Proactive {
           kwrelated = await this.deep.getKeywordRelated(activeUrl);
         }
         else{
-          process.stdout.write('_');
+          // process.stdout.write('_');
         }
 
         //

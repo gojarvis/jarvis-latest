@@ -71,6 +71,7 @@ class getEventsByTime {
         .merge(function(row){ return {count: row('reduction').count()} })
         .orderBy( r.desc('count') )
         .pluck('count', 'group')
+        .limit(20)
         .run(conn).then(function(cursor){
 
           return cursor.toArray()

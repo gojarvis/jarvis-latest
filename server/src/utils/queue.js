@@ -30,11 +30,6 @@ class Queue{
 
   async process(){
     console.log('processing'.magenta, this.name, this.jobs.toJS());
-    // let results = await Promise.all(this.jobs.map(job => {
-    //   console.log('EXECUTING'.cyan, this.name, job.id);
-    //   return this.processTask(job)
-    // }))
-
     let results = OrderedSet();
     let jobs = this.jobs.toJS();
 
@@ -44,14 +39,6 @@ class Queue{
       console.log('Done');
     }
 
-
-
-    // this.jobs.forEach((job) =>{
-    //   let res = await processTask(job);
-    //   results = results.add(res);
-    // });
-
-
     console.log('Finished process'.green, results);
 
     this.allDone()
@@ -59,14 +46,6 @@ class Queue{
   }
 
   async processTask(job){
-    // let self = this;
-    // return new Promise(function(resolve, reject) {
-    //   self.processor(job).then(function(result){
-    //     console.log('Processor complete'.cyan, result);
-    //     self.jobDone(result)
-    //     resolve(result)
-    //   })
-    // });
     let result = await this.processor(job);
     this.jobDone(result);
     return result

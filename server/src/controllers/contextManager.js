@@ -200,7 +200,7 @@ class contextManager{
       // console.log('associated user with ', this.urls.length, 'urls');
     }
     else{
-      console.log('no urls to associate');
+      // console.log('no urls to associate');
     }
 
     if (!_.isEmpty(this.files)){

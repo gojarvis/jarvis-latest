@@ -7,6 +7,7 @@ const SlackController = require('../controllers/slack');
 
 const Context = require('../controllers/contextManager');
 const History = require('../controllers/historyManager');
+const Leap = require('../controllers/leap');
 const Proactive = require('../controllers/proactive');
 const Deep = require('../controllers/deep');
 const Conversations = require('../controllers/conversationsManager');
@@ -33,6 +34,7 @@ class SocketManager {
 
     //Basic conversation
     this.teach = new TeachController(socket, sid, context, history)
+    this.leap = new Leap(socket, sid, context, history)
 
     //Sensors (plugins)
     this.chrome = new ChromeController(socket, sid, io, context, history)
