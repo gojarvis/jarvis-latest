@@ -62,6 +62,8 @@ class Main extends React.Component {
       related: [],
       relatedFiles: [],
       recommendations: [],
+      faceMessage: {},
+      faceIn: {},
       kwrelated: [],
       heart: '<#',
       heartValue: 0,
@@ -402,6 +404,10 @@ class Main extends React.Component {
     this.setState({faceIn: faceIn});
   }
 
+  handleFaceMessage(faceMessage){
+    this.setState({faceMessage: faceMessage});
+  }
+
   handleRelatedFiles(relatedFiles) {
     console.log('relatedFiles', relatedFiles);
     this.setState({relatedFiles: relatedFiles});
@@ -479,96 +485,9 @@ class Main extends React.Component {
 
     return (
       <div style={containerStyle}>
-        <Style rules={STYLES.Main} />
+        <Face faceIn={this.state.faceIn} recording={this.state.recording}></Face>
 
-
-
-        <div style={{
-          width: '100%',
-          height: '100%',
-        }}>
-        <Tabs
-          onChange={this.handleSlideChange}
-          value={this.state.slideIndex}
-        >
-          <Tab label="Open With" value="0" />
-          <Tab label="Keywords" value="1" />
-          <Tab label="Files" value="2" />
-          <Tab label="Social" value="3" />
-        </Tabs>
-          <SwipeableViews
-            index={this.state.slideIndex}
-            style={{margin: '10px'}}
-            >
-            <Feedback ref="related" type="svg" tick={this.state.heartValue} items={this.state.related}/>
-            <Feedback ref="kwrelated" type="svg" tick={this.state.heartValue} items={this.state.kwrelated}/>
-            <Feedback ref="relatedfiles" type="svg" tick={this.state.heartValue} items={this.state.relatedFiles}/>
-            <Feedback ref="recommendations" type="svg" tick={this.state.heartValue} items={this.state.recommendations}/>
-          </SwipeableViews>
-        </div>
-
-        <div style={{
-          position: "absolute",
-          bottom: "50px",
-          margin: "0 auto",
-          width: "100%"
-        }}>
-          <Face faceIn={this.state.faceIn} recording={this.state.recording}></Face>
-        </div>
-        <div style={{
-          display: "block"
-        }}>
-          <TextField style={{
-            margin: "10px",
-            textAlign: "center",
-            width: "90%"
-          }} hintText={this.state.hint} value={this.state.command} onKeyDown={this.handleKeyDown} onChange={this.handleChange}/>
-          <div style={{
-            margin: "10px",
-            textAlign: "center",
-            fontSize: "12px"
-          }}>{this.state.intent}</div>
-          <div style={{
-            margin: "10px",
-            textAlign: "center",
-            fontSize: "12px"
-          }}>{this.state.topic}</div>
-          <div style={{
-            margin: "10px",
-            textAlign: "center",
-            fontSize: "20px"
-          }}>{this.state.message}</div>
-          <div style={{
-            margin: "10px",
-            textAlign: "center",
-            fontSize: "12px"
-          }}>{this.state.actionResult}</div>
-          <div style={{
-            margin: "10px",
-            textAlign: "center",
-            fontSize: "20px",
-            display: "none"
-          }}>{this.state.netResult}</div>
-          <div style={{
-            margin: "10px",
-            textAlign: "center",
-            fontSize: "15px"
-          }}>{this.state.convResult}</div>
-
-          <TextField style={{
-            margin: "10px",
-            textAlign: "center",
-            width: "90%"
-          }} hintText="Teach me a response" value={this.state.input} onKeyDown={this.handleKeyDownIn} onChange={this.handleChangeIn}/>
-
-          <TextField style={{
-            margin: "10px",
-            textAlign: "center",
-            width: "90%"
-          }} hintText="What are we talking about?" value={this.state.topic} onKeyDown={this.handleKeyDownIn} onChange={this.handleChangeTopic}/>
-        </div>
-
-      </div>
+    </div>
     );
   }
 

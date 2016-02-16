@@ -26,15 +26,15 @@ class LeapController{
         position = hand.palmPosition;
         // console.log(position);
       }
-
-      self.socket.emit('faceIn', {
+      let message = {
         frame: i,
         position: {
           x: position[0],
           y: position[1],
           z: position[2]
         }
-      })
+      };
+
       i++;
       // Display Gesture object data
       if (frame.gestures.length > 0) {
@@ -42,13 +42,16 @@ class LeapController{
           if (direction != directionState && (frame.id > directionChangeCursor + 90)){
             directionState = direction;
             directionChangeCursor = frame.id;
-            console.log(direction);
 
-            // self.ding(440,660)
+            if (typeof direction != 'undefined'){
+              // self.socket.emit('speak', 'You swiped ' + direction);
+              // self.socket.emit('faceMessage', {
+              //   direction: direction
+              // });
 
-            // if (typeof direction != 'undefined'){
-            //   self.socket.emit('speak', 'You swiped ' + direction);
-            // }
+
+              message.direction = direction;
+            }
             // switch(direction){
             //   case 'right':
             //     // self.socket.emit('speak', 'Ok, done with this, for now.');
@@ -62,7 +65,7 @@ class LeapController{
             //     self.ding(880,1100)
             //     break;
             //   case 'down':
-            //     self.ding(1100, 1320)
+            //     self.ding(220, 110)
             //     break;
             // }
 
@@ -75,6 +78,8 @@ class LeapController{
           }
       }
 
+
+      self.socket.emit('faceIn', message)
     });
 
   }
