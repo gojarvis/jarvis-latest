@@ -36,7 +36,7 @@ const Face = React.createClass({
     ]
 
     const s = function (p) {
-
+      p.socket = socket;
       p.position = { x: window.innerWidth / 2 - 100 , y: window.innerHeight - 30}
 
       p.setup = function () {
@@ -48,6 +48,9 @@ const Face = React.createClass({
         p.mainCanvas = p.createCanvas(window.innerWidth, window.innerHeight)
 
         socket.on('faceIn', (msg) => p.faceIn(msg))
+
+        socket.on('update', (msg) => p.handleUpdate(msg))
+
         let angle = 0;
         p.marker = 0;
 
@@ -74,12 +77,30 @@ const Face = React.createClass({
         p.inputBar.style('border-bottom: 1px solid rgba(0, 0, 0, 0.38)');
         p.inputBar.id('inputBar');
 
+        // p.inputBar.input(p.hanldeInputUpdate)
+
 
         p.selectedCard = 0
 
         p.cards = cardsObjs.map((card, index) => {
           return p.createCard(card.text, index)
         })
+
+      }
+
+      p.keyPressed = function(){
+        if (p.keyCode === p.ENTER){
+          let message = p.inputBar.value()
+          p.sendMessage(message)
+          p.inputBar.value('')
+        }
+      }
+
+      p.sendMessage = function(message){
+        p.socket.emit('text', {text: message});        
+      }
+
+      p.handleUpdate = function(msg){
 
       }
 

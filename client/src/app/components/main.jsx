@@ -263,6 +263,8 @@ class Main extends React.Component {
     });
 
     socket.on('speak', function (text) {
+      console.log('speaking', text, socket);
+
       self.say(text)
     });
 
