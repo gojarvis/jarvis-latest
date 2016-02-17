@@ -28,11 +28,7 @@ const Face = React.createClass({
     console.log('init');
 
     let cardsObjs = [
-      {text: "hello"},
-      {text: "jarvis"},
-      {text: "perfect"},
-      {text: "awesome"},
-      {text: "jabroni"},
+      {text: "Hello"},
     ]
 
     const s = function (p) {
@@ -47,7 +43,23 @@ const Face = React.createClass({
 
         p.mainCanvas = p.createCanvas(window.innerWidth, window.innerHeight)
 
-        socket.on('faceIn', (msg) => p.faceIn(msg))
+        socket.on('faceIn', (msg) => p.render(msg))
+
+        socket.on('questionFromJarvis', function(question){
+
+          p.questionIsOpen = true,
+          p.questionTarget = question.target
+
+          // self.say(question.text);
+        });
+
+        socket.on('question-result', (result) => {
+          p.cards = result.keywords.map((keyword, index) => {
+            return p.createCard(keyword, index)
+          })
+
+          p.renderStack();
+        })
 
         socket.on('update', (msg) => p.handleUpdate(msg))
 
@@ -82,9 +94,11 @@ const Face = React.createClass({
 
         p.selectedCard = 0
 
-        p.cards = cardsObjs.map((card, index) => {
-          return p.createCard(card.text, index)
-        })
+        // p.cards = cardsObjs.map((card, index) => {
+        //   return p.createCard(card.text, index)
+        // })
+
+
 
       }
 
@@ -97,7 +111,14 @@ const Face = React.createClass({
       }
 
       p.sendMessage = function(message){
-        p.socket.emit('text', {text: message});        
+        if (p.questionIsOpen){
+          p.socket.emit(p.questionTarget, {text: message});
+          p.questionIsOpen = false;
+        }
+        else{
+            p.socket.emit('text', {text: message});
+        }
+
       }
 
       p.handleUpdate = function(msg){
@@ -173,6 +194,7 @@ const Face = React.createClass({
         buttonSave.style('background-color: rgba(110, 226, 7, 0.168627)')
 
         buttonDismiss.mousePressed(() => {
+          console.log('remove', index);
           p.removeCard(index)
         })
 
@@ -180,6 +202,7 @@ const Face = React.createClass({
           p.saveCard(index)
         })
         // p.push()
+        card.msg = msg;
 
         return card;
       }
@@ -212,7 +235,18 @@ const Face = React.createClass({
       p.removeCard = function(index){
         let card = p.select("#card" + index)
         card.class('animated fadeOutRightBig')
+        console.log('before',p.cards.length, index, p.cards[index]);
         p.cards = p.cards.filter((card, i) => { return index !== i})
+        console.log('after',p.cards.length, p.cards[index]);
+        p.renderStack()
+      }
+
+      p.renderStack = function(){
+        let messages = p.cards.map((card, index) => card.message);
+
+        p.cards.map((card, index) => {
+          this.renderCard(card, index)
+        })
       }
 
       p.saveCard = function(index){
@@ -229,7 +263,7 @@ const Face = React.createClass({
         let cardElement = p.cards[index];
         // console.log(cardElement);
 
-
+        card.id("card" + index);
 
         let range = p.defineRange(cardX, cardY, p.cardWidth, p.cardHeight)
         let inRange = p.isInRange(p.cursor, range);
@@ -271,7 +305,7 @@ const Face = React.createClass({
         card.position(cardX, cardY)
       }
 
-      p.faceIn = function(msg){
+      p.render = function(msg){
           let {frame, position} = msg;
           // p.position = {
           //   x: position.x,
@@ -297,10 +331,10 @@ const Face = React.createClass({
           p.paintCursor(breath);
           p.frameId = frame;
 
-          //Render cards
-          p.cards.map((card, index) => {
-            this.renderCard(card, index)
-          })
+          // Render cards
+          // p.cards.map((card, index) => {
+          //   this.renderCard(card, index)
+          // })
 
 
 

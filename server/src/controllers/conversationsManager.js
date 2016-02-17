@@ -39,8 +39,6 @@ class ConversationManager {
   }
 
   registerEvents() {
-    this.socket.on('ask-response', this.handleAskResponse)
-
     this.socket.on('user-intent', (message) => {
       this.onIntent(message);
       // this.socket.emit('net-result', this.ask(intent));
@@ -51,23 +49,14 @@ class ConversationManager {
     let parsedIntent = this.parseWitResult(message.witResult);
     let intent = parsedIntent.get('intent');
     let objectives = goals.get(intent);
-
-
     let goal = new Goal();
-    // console.log('GOAL', goal);
-
     goal.execute(this.onGoalDone,objectives,parsedIntent)
   }
 
   onGoalDone(results){
-    console.log('---------------Goal done back in covo--------->', i);
-    i++;
+    console.log('---------------Goal done back in covo--------->');
     console.log(results);
-
-    this.socket.once('user-intent', (message) => {
-      this.onIntent(message);
-      // this.socket.emit('net-result', this.ask(intent));
-    });
+    this.socket.emit('question-result', results);
   }
 
   parseWitResult(result) {
@@ -92,60 +81,7 @@ class ConversationManager {
     return goal;
   }
 
-  askUserForParameter(parameter, goalName) {
-    this.state.update('outboundQuestion', parameter);
-    this.socket.emit('ask-parameter', {
-      parameter: parameter,
-      goalName: goalName
-    })
-  }
 
-  handleAskResponse(message) {
-    let {resolvedParameter, goalName} = message;
-    let goal = goals.get(goalName);
-    goal.handleParameterFetched(resolvedParameter);
-
-    // if (!_.isUndefined(this[cb])){
-    //
-    // }
-    // else{
-    //   console.log('error, could not resolved callback');
-    // }
-    //
-  }
-
-  //
-  // saveObjective(objective){
-  //   try{
-  //     let obj = new Objective({
-  //       created: new Date(),
-  //     })
-  //     return obj.save()
-  //   }
-  //   catch(e){
-  //     // console.error('History Manager: error saving history event', e);
-  //   }
-  // }
-
-  // import Thinky from 'thinky'
-  //
-  // let db = Thinky();
-  // let type = db.type;
-  //
-  // let Objective = db.createModel("Objective", {
-  //   id: type.string(),
-  //   created: type.date(),
-  //   name: type.string(),
-  //   parameters: [
-  //     {
-  //
-  //     }
-  //   ]
-  // })
-  //
-  // let Parameters = db.createModel("Parameter", {
-  //
-  // });
 
 }
 

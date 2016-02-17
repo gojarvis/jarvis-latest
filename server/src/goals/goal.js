@@ -32,7 +32,7 @@ class Goal{
 
     this.objectives = imm.fromJS(objectives);
     this.parsedIntent = imm.fromJS(parsedIntent);
-
+    this.goalDone = goalDone;
 
     let objectivesJobs = this.objectives.map(objective => {
       return this.objectivesQueue.queue(objective);
@@ -122,6 +122,7 @@ class Goal{
   async allObjectivesDone(){
     console.log('all objectives done'.rainbow);
     console.log(this.resultPool.toJS());
+    this.goalDone(this.resultPool);
   }
 
   async resolverDone(result){
