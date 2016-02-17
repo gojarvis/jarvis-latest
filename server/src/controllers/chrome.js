@@ -91,19 +91,19 @@ class ChromeController {
       self.saveSession();
     });
 
-
-    let rnd = _.random(0,1000);
-    request.get('http://numbersapi.com/'+rnd+'/trivia?notfound=floor&fragment')
-    .then(function(res){
-      // let joke = JSON.parse(res).value.joke;
-      let wat = res;
-      // console.log(joke);
-      // self.socket.emit('speak', 'The number ' + rnd + ' is ' +  wat);
-      self.socket.emit('speak', 'Ready, sir');
-    })
-    .catch(function(err){
-      console.log('no jokes for you', err);
-    });
+    self.socket.emit('speak', 'Ready, sir');
+    // let rnd = _.random(0,1000);
+    // request.get('http://numbersapi.com/'+rnd+'/trivia?notfound=floor&fragment')
+    // .then(function(res){
+    //   // let joke = JSON.parse(res).value.joke;
+    //   let wat = res;
+    //   // console.log(joke);
+    //   // self.socket.emit('speak', 'The number ' + rnd + ' is ' +  wat);
+    //   self.socket.emit('speak', 'Ready, sir');
+    // })
+    // .catch(function(err){
+    //   console.log('no jokes for you', err);
+    // });
   }
 
   async saveSession(){

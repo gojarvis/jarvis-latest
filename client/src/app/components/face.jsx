@@ -36,6 +36,11 @@ const Face = React.createClass({
         p.x = (window.innerWidth / 2) - (p.cardWidth /2) ;
         p.y = 100 ;
 
+        p.marker = 0;
+        p.transitionDuration = 50;
+        p.markerDone = 0;
+        p.transition = false;
+
         p.cards = [];
 
         p.mainCanvas = p.createCanvas(window.innerWidth, window.innerHeight)
@@ -47,10 +52,16 @@ const Face = React.createClass({
           p.questionIsOpen = true,
           p.questionTarget = question.target
 
+
+
           // self.say(question.text);
         });
 
         socket.on('question-result', (result) => {
+          p.marker = p.frameId;
+          p.markerDone = p.frameId + p.transitionDuration;
+
+
           p.cards = result.keywords.map((keyword, index) => {
             return p.createCard(keyword, index)
           })
@@ -231,13 +242,11 @@ const Face = React.createClass({
 
       p.removeCard = function(index){
         let card = p.select("#card-" + index)
-        card.removeClass('bounce')
-        card.class('animated fadeOutLeftBig')
+
+        card.class('animated fadeOutRightBig')
         // console.log('before',p.cards.length, index, p.cards[index]);
         p.cards[index].disabled = true;
-        console.log(p.cards);
-        // console.log('after',p.cards.length, p.cards[index]);
-        // p.renderStack()
+        p.cards = p.cards.filter(card => !card.disabled);
       }
 
       p.renderStack = function(){
@@ -260,6 +269,23 @@ const Face = React.createClass({
 
       p.renderCard = function(card, index){
         let cardX = p.x;
+
+
+        //TRANSITION
+        if (p.frameId > p.marker && p.frameId < p.markerDone){
+
+          p.delta = p.frameId - p.marker;
+
+          cardX = p.x;
+          card.class('animated bounceInUp')
+        }
+
+        if (p.frameId > p.markerDone){
+          // card.removeClasss('bounceInUp');
+          p.markerDone = 0;
+          p.marker = 0;
+        }
+
         let cardY = (p.cardHeight + 60) * (index + 1) - (p.cardHeight / 2);
 
         let cardElement = p.cards[index];
@@ -274,7 +300,7 @@ const Face = React.createClass({
 
         if (inRange){
           card.style('background: #FFFCE0')
-          card.class('animated pulse');
+          // card.class('animated pulse');
           p.activeCard = index;
         }
         else{
