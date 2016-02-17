@@ -25,11 +25,6 @@ const Face = React.createClass({
 
   init(socket){
 
-    console.log('init');
-
-    let cardsObjs = [
-      {text: "Hello"},
-    ]
 
     const s = function (p) {
       p.socket = socket;
@@ -41,9 +36,11 @@ const Face = React.createClass({
         p.x = (window.innerWidth / 2) - (p.cardWidth /2) ;
         p.y = 100 ;
 
+        p.cards = [];
+
         p.mainCanvas = p.createCanvas(window.innerWidth, window.innerHeight)
 
-        socket.on('faceIn', (msg) => p.render(msg))
+        // socket.on('faceIn', (msg) => p.render(msg))
 
         socket.on('questionFromJarvis', function(question){
 
@@ -58,7 +55,7 @@ const Face = React.createClass({
             return p.createCard(keyword, index)
           })
 
-          p.renderStack();
+          // p.renderStack();
         })
 
         socket.on('update', (msg) => p.handleUpdate(msg))
@@ -73,10 +70,10 @@ const Face = React.createClass({
         p.messageHeight = 200;
         p.messageWidth = 400;
 
-        p.inputWidth = window.innderWidth - 100;
+        p.inputWidth = 500;
 
         let inputPosition = {
-          x: 460,
+          x: window.innerWidth / 2 - (p.inputWidth / 2),
           y: 20
         };
 
@@ -194,12 +191,12 @@ const Face = React.createClass({
         buttonSave.style('background-color: rgba(110, 226, 7, 0.168627)')
 
         buttonDismiss.mousePressed(() => {
-          console.log('remove', index);
-          p.removeCard(index)
+          console.log('remove', p.activeCard);
+          p.removeCard(p.activeCard)
         })
 
         buttonSave.mousePressed(() => {
-          p.saveCard(index)
+          p.saveCard(p.activeCard)
         })
         // p.push()
         card.msg = msg;
@@ -233,18 +230,23 @@ const Face = React.createClass({
 
 
       p.removeCard = function(index){
-        let card = p.select("#card" + index)
-        card.class('animated fadeOutRightBig')
-        console.log('before',p.cards.length, index, p.cards[index]);
-        p.cards = p.cards.filter((card, i) => { return index !== i})
-        console.log('after',p.cards.length, p.cards[index]);
-        p.renderStack()
+        let card = p.select("#card-" + index)
+        card.removeClass('bounce')
+        card.class('animated fadeOutLeftBig')
+        // console.log('before',p.cards.length, index, p.cards[index]);
+        p.cards[index].disabled = true;
+        console.log(p.cards);
+        // console.log('after',p.cards.length, p.cards[index]);
+        // p.renderStack()
       }
 
       p.renderStack = function(){
-        let messages = p.cards.map((card, index) => card.message);
+        p.cardsQueue = {};
 
-        p.cards.map((card, index) => {
+        p.activeCards = p.cards.filter(card => !card.disabled)
+
+        p.activeCards.map((card, index) => {
+          p.cardsQueue[index] = card;
           this.renderCard(card, index)
         })
       }
@@ -263,34 +265,17 @@ const Face = React.createClass({
         let cardElement = p.cards[index];
         // console.log(cardElement);
 
-        card.id("card" + index);
+        card.id("card-" + index);
+        card.cid = index;
 
         let range = p.defineRange(cardX, cardY, p.cardWidth, p.cardHeight)
         let inRange = p.isInRange(p.cursor, range);
 
-        if (p.showMessage){
-          // console.log(p.incoming);
-          // console.log(range, position);
-          // console.log(index, inRange, range, p.position);
-          // card.class('animated slideInUp');
-          if (p.incoming === 'down' && card.isLocked){
-              card.dismissed = true;
-              card.isLocked = false
-
-          }
-          if (p.incoming === 'up' && inRange){
-            // card.isLocked = true;
-          }
-
-        }
-
 
         if (inRange){
           card.style('background: #FFFCE0')
-          // card.class('animated pulse');
-          // cardX = p.cursor.x - 20;
-          // cardY = p.cursor.y - 20;
-
+          card.class('animated pulse');
+          p.activeCard = index;
         }
         else{
           card.style('background: #FAF3DD')
@@ -305,71 +290,31 @@ const Face = React.createClass({
         card.position(cardX, cardY)
       }
 
-      p.render = function(msg){
-          let {frame, position} = msg;
-          // p.position = {
-          //   x: position.x,
-          //   y: position.y,
-          //   z: position.z,
-          // };
+      p.render = function(){
           p.noCursor();
 
-          //DO NOT REMOVE THIS NEXT LINE. It makes sure screen is cleared every render
           p.background(255);
-
 
           p.position = {
             x: p.mouseX,
-            y: p.mouseY,
-            z: position.z
+            y: p.mouseY
           };
 
+          let breath = p.sin(p.frameId / 30);
 
-          let breath = p.sin(frame / 30);
-
-          //Render cursor
           p.paintCursor(breath);
-          p.frameId = frame;
-
-          // Render cards
-          // p.cards.map((card, index) => {
-          //   this.renderCard(card, index)
-          // })
-
-
-
-
-          if (typeof msg.direction !== 'undefined'){
-              p.marker = p.frameId;
-              p.incoming = msg.direction;
-              p.fadeMarker = p.frameId + p.messageTime - parseInt(p.messageTime / 4);
-              p.messageFrameId = 1;
-              p.showMessage = true;
-              p.messageFade = false;
-          }
-          // console.log(p.showMessage);
-
-          if (p.showMessage){
-            // console.log('Showing message');
-            p.faceMessage()
-            p.messageFrameId++
-          }
-
-          if(p.frameId > p.marker + p.messageTime && p.showMessage){
-            p.showMessage = false;
-            p.messageFade = false;
-            p.messageFrameId = 1;
-            p.messageDone();
-          }
-
-          if(p.frameId < p.marker + p.messageTime && p.frameId > p.fadeMarker && p.showMessage){
-            p.messageFade = true;
-
-          }
+          p.renderStack();
+          p.frameId++;
         }
+
+
+      p.draw = function(){
+        p.render()
       }
 
-      new P5(s)
+    };
+
+    new P5(s)
   },
 
 
