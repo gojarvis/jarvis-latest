@@ -1,4 +1,4 @@
-# Sherpa
+# Jarvis
 
 1. Install and start Neo4j.
 2. Install and start Redis.
