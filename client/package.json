@@ -27,6 +27,7 @@
   "dependencies": {
     "chance": "^0.8.0",
     "faker": "^3.0.1",
+    "fs": "0.0.2",
     "immutable": "^3.7.6",
     "imports-loader": "^0.6.5",
     "jquery": "^2.1.4",
@@ -51,6 +52,7 @@
     "react-three": "^0.7.5",
     "redux": "^3.0.5",
     "redux-thunk": "^1.0.2",
+    "rita": "^1.1.27",
     "sentencer": "^0.1.4",
     "socket.io-client": "^1.3.7",
     "three": "^0.73.0",
