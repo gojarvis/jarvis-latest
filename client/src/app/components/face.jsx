@@ -33,37 +33,34 @@ const Face = React.createClass({
 
       p.setup = function () {
         p.cardHeight = 100;
-        p.cardWidth = 800;
+        p.cardWidth = window.innerWidth / 3;
+
+        p.zoomedInWidth = window.innerWidth / 1.3;
+        p.zoomedInHeight = window.innerHeight / 1.3;
+        p.zoomedCard = 0;
+
         p.stackX = (window.innerWidth / 2) - (p.cardWidth /2) ;
         p.stackY = 100 ;
 
         p.marker = 0;
-        p.transitionDuration = 60;
+        p.transitionDuration = 40;
         p.markerDone = 0;
         p.transition = false;
         p.activeTransitions = Map();
-        p.columnWidth = window.innerWidth / 7
-        p.columnsGrid = [
-          (p.columnWidth / 7) * 0,
-          (p.columnWidth / 7) * 1,
-          (p.columnWidth / 7) * 2,
-          (p.columnWidth / 7) * 3,
-          (p.columnWidth / 7) * 4,
-          (p.columnWidth / 7) * 5,
-          (p.columnWidth / 7) * 6,
-        ];
+        p.columnWidth = p.cardWidth;
+
+        p.columnsGrid = [];
+
+        let numColumns = parseInt(window.innerWidth / p.cardWidth);
+
+        for (let i=0; i < numColumns; i++) {
+          p.columnsGrid.push(p.columnWidth * i);
+        }
 
         p.stackPosition = parseInt(Math.floor(p.columnsGrid.length / 2));
 
 
 
-        p.singleColumnWidth = window.innerWidth / 5;
-        for (let i=0; i < 5; i++) {
-          p.columnsGrid.push({
-            start: i * p.singleColumnWidth,
-            end: (i + 1) * p.singleColumnWidth,
-          })
-        }
 
 
         p.cards = [];
@@ -167,97 +164,133 @@ const Face = React.createClass({
           let message = p.inputBar.value()
           p.sendMessage(message)
           p.inputBar.value('')
+          return false;
         }
 
         if (p.keyCode === p.LEFT_ARROW){
           p.startTransition('stacksLeft', p.moveStackLeft)
           if (p.stackPosition > 0){
             p.stackPosition--;
+            return false;
           }
         }
 
         if (p.keyCode === p.RIGHT_ARROW){
           p.startTransition('stacksRight', p.moveStackRight)
-          if (p.stackPosition < p.columnsGrid.length){
+          if (p.stackPosition < p.columnsGrid.length - 1){
             p.stackPosition++;
+            return false;
           }
         }
 
         if (p.keyCode === p.UP_ARROW){
-          p.startTransition('stacksLeft', p.zoomIn)
-
+          p.startTransition('zoomIn', p.zoomIn, p.zoomInComplete)
+          return false;
         }
+
+
       }
 
       p.zoomIn = function(){
         p.textSize(30);
         p.text('ACTIVE: ' + p.activeCard, 10, 60);
 
+        p.activeCards = p.activeCards.map((card, index ) => {
+          if (index === p.activeCard && p.activeTransition === 'zoomIn'){
+            p.zoomedCard = p.activeCard;
+            p.text('ZOOMED ' + p.zoomedCard, 10, 100);
+            card.zoomingIn = true;
+          }
+          else{
+            card.zoomingIn = false;
+          }
+          return card;
+        })
+      }
 
+      p.zoomInComplete = function(){
+
+        p.text('Done: ' + p.zoomedCard, 10, 60);
+        p.activeCards = p.activeCards.map((card, index ) => {
+          if (index === p.zoomedCard){
+            p.zoomedCard = p.activeCard;
+            card.zoomedIn = true;
+            card.zoomingIn = false;
+          }
+          else{
+            card.zoomedIn = false;
+
+          }
+          return card;
+        })
       }
 
       p.moveStackLeft = function(delta){
-        let target = p.columnsGrid[p.stackPosition];
+        let targetX = p.columnsGrid[p.stackPosition];
         // console.log(p.stackX, p.stackPosition, p.columnsGrid[p.stackPosition]);
-        if(p.stackX >= target && p.stackX > 0){
-
-            let dx = target - p.stackX;
-            p.stackX = p.stackX - dx  * 1.2
+        if(p.stackX >= targetX - p.columnWidth){
+          let dx = targetX - p.stackX;
+          p.stackX +=  dx / 5 * 0.5;
         }
         else{
-          // console.log('left', p.activeTransitions.toJS(), p.activeTransition);
-          // p.activeTransitions = p.activeTransitions.setIn([p.activeTransition, 'active'], false)
-          // p.activeTransition = '';
-
-          // p.text()
+          p.endTransition(p.activeTransition)
+          p.textSize(20);
+          p.text('done ' + delta, 10, 200);
         }
       }
 
       p.moveStackRight = function(delta){
-        let target = p.columnsGrid[p.stackPosition];
-        if(p.stackX <= (p.columnsGrid[p.stackPosition] + p.columnWidth)){
-            let dx = target - p.stackX;
-            p.stackX = p.stackX + dx  * 1.2
-            // p.stackX = p.stackX + (delta / 10) * 1.2
+        let targetX = p.columnsGrid[p.stackPosition];
+        if(p.stackX <= targetX){
+            let dx = p.columnsGrid[p.stackPosition] - p.stackX;
+            p.stackX +=  dx / 5 * 0.5;
         }
         else{
-          // console.log('right', p.activeTransitions.toJS());
-          // p.activeTransitions = p.activeTransitions.setIn([p.activeTransition, 'active'], false)
-          // p.activeTransition = '';
+          p.endTransition(p.activeTransition)
+          p.textSize(20);
+          p.text('right ' + delta, 10, 200);
 
         }
       }
 
-      p.startTransition = function(eventName, executor){
+      p.startTransition = function(eventName, executor, onComplete = ''){
         let marker = p.frameCount;
         let markerDone = marker + p.transitionDuration;
         let active = true;
-        p.activeTransitions = p.activeTransitions.set(eventName, {marker, markerDone, active, executor});
-        console.log('started', p.activeTransitions.toJS());
+        p.activeTransitions = p.activeTransitions.set(eventName, {marker, markerDone, active, executor, onComplete});
+      }
+
+      p.endTransition = function(transitionName){
+
+        let ac = p.activeTransitions.get(transitionName);
+        if (typeof(ac) !== 'undefined'){
+          ac.active = false;
+          p.activeTransitions = p.activeTransitions.set(p.activeTransition, ac)
+          p.activeTransition = '';
+        }
+
       }
 
       p.checkTransitions = function(){
-        // console.log(p.activeTransitions.first());
         p.activeTransitions.forEach((transition, name) => {
-          let delta = transition.markerDone - p.frameCount;
+          p.delta = transition.markerDone - p.frameCount;
+          p.passed = p.frameCount - transition.marker;
           p.fill('rgba(34, 140, 47, 0.73)')
           p.textSize(30);
           p.push()
           p.text(p.stackPosition + ' , ' + p.activeTransition, 30, 100);
           p.pop()
           if (transition.active){
-            p.rect(20, 20, 20, 20);
             if (p.frameCount > transition.marker && p.frameCount < transition.markerDone){
               transition.active = true;
-              transition.executor(delta)
+              transition.executor(p.delta)
               p.activeTransition = name;
             }
             else{
-              transition.active = false;
-              transition.marker = 0;
-              transition.markerDone = 0;
-              p.activeTransitions = p.activeTransitions.delete(name);
-              p.activeTransition = '';
+              p.endTransition(name)
+              if (typeof transition.onComplete === 'function'){
+                transition.onComplete();
+              }
             }
           }
         });
@@ -308,7 +341,7 @@ const Face = React.createClass({
         card.style('font-family: arial')
         card.style('font-size: 25px')
         card.style('text-align: center')
-
+        card.zoomingIn = false;
         card.id('card' + index)
 
         let cardContent = p.createDiv(msg);
@@ -413,13 +446,10 @@ const Face = React.createClass({
 
       p.renderCard = function(card, index){
         let cardX = p.stackX;
-
+        let cardY = (p.cardHeight + 60) * (index + 1) - (p.cardHeight / 2);
 
         //TRANSITION
         if (p.frameId > p.marker && p.frameId < p.markerDone){
-
-          p.delta = p.frameId - p.marker;
-
           cardX = p.stackX;
           card.class('animated bounceInUp')
         }
@@ -430,7 +460,32 @@ const Face = React.createClass({
           p.marker = 0;
         }
 
-        let cardY = (p.cardHeight + 60) * (index + 1) - (p.cardHeight / 2);
+        if (card.zoomedIn){
+          card.style('width', p.zoomedInWidth + 'px');
+          card.style('height', p.zoomedInHeight + 'px');
+          card.style('z-index', 999);
+          cardX = 40,
+          cardY = 40;
+        }
+        else{
+          card.style('width', p.cardWidth + 'px');
+          card.style('height', p.cardHeight + 'px');
+          card.style('z-index', 1)
+        }
+
+        if (card.zoomingIn){
+          let w = p.cardWidth + p.delta;
+
+          p.text('ZOOMING ' + p.passed, 10, 300);
+          card.style('background-color: red');
+          card.style('width', (p.cardWidth + p.passed *  (p.passed / 2)) + 'px');
+          card.style('height', (p.cardHeight + p.passed *  (p.passed / 2)) + 'px');
+          card.style('z-index', 999);
+
+          cardX = p.stackX - p.passed * 2;
+          cardY = (p.cardHeight + 60) * (index + 1) - (p.cardHeight / 2) - p.passed;
+        }
+
 
         let cardElement = p.cards[index];
         // console.log(cardElement);
@@ -450,6 +505,7 @@ const Face = React.createClass({
         else{
           card.style('background: white')
           card.style('box-shadow: 2px 0px 17px 0px rgba(78, 78, 67, 0.42)')
+          // p.activeCard = -1;
         }
 
         if (card.dismissed){
@@ -474,9 +530,11 @@ const Face = React.createClass({
           let breath = p.sin(p.frameId / 30);
 
           p.paintCursor(breath);
-          p.renderStack();
+
           p.frameId++;
           p.checkTransitions()
+
+          p.renderStack();
 
       }
 
