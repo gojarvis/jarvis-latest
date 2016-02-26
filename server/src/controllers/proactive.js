@@ -17,18 +17,18 @@ class Proactive {
       this.deep = deep;
       this.lastActiveUrl = '';
       this.graph = new graphUtils();
-      this.heart = heartbeats.createHeart(1000);
+      this.heart = heartbeats.createHeart(100);
 
       //I'm going to throw up on myself, but FUCK IT.
       this.user = this.context.get().user;
       this.metadata = new Meta(this.user);
 
 
-      this.heart.createEvent(100, function(heartbeat, last){
+      this.heart.createEvent(20, function(heartbeat, last){
         this.handleHeartbeat(heartbeat);
       }.bind(this));
 
-      this.heart.createEvent(100, function(heartbeat, last){
+      this.heart.createEvent(20, function(heartbeat, last){
         this.handleDeepconnect(heartbeat);
       }.bind(this));
 
@@ -41,7 +41,7 @@ class Proactive {
 
     handleHeartbeat(hb){
       let self = this;
-      self.socket.emit('heartbeat', hb);
+      // self.socket.emit('heartbeat', hb);
 
       self.recommend();
 
@@ -133,8 +133,12 @@ class Proactive {
         let yesterdayThisHour = await this.deep.getHistorics(user.username, yesterday,yesterdayHour);
 
         let historics = {social,lastHour, yesterdayDay, yesterdayThisHour};
+        console.log('HISTORICS', historics);
 
-
+        this.io.to('main').emit('console', `Found ${historics.social.length} historic recs`);
+        this.io.to('main').emit('console', `Found ${social.length} social recs`);
+        this.io.to('main').emit('console', `Found ${openwith.length} openwith recs`);
+        this.io.to('main').emit('console', `Found ${kwrelated.length} kwrelated recs`);
 
         this.io.emit('recommendations', {
           historics: historics,
@@ -151,7 +155,6 @@ class Proactive {
 
 
     }
-
 
 
     async handleDeepconnect(){

@@ -60,15 +60,14 @@ const Face = React.createClass({
         p.stackPosition = parseInt(Math.floor(p.columnsGrid.length / 2));
 
 
-
-
-
         p.cards = [];
 
 
         p.mainCanvas = p.createCanvas(window.innerWidth, window.innerHeight)
 
         // socket.on('faceIn', (msg) => p.render(msg))
+
+        // socket.join('main');
 
         socket.on('questionFromJarvis', function(question){
 
@@ -80,14 +79,14 @@ const Face = React.createClass({
           // self.say(question.text);
         });
 
-        let keywords = ['thanks',
-                     'graph',
-                     'neo4j',
-                     'open source'];
-
-        p.cards = keywords.map((keyword, index) => {
-          return p.createCard(keyword, index)
-        });
+        // let keywords = ['thanks',
+        //              'graph',
+        //              'neo4j',
+        //              'open source'];
+        //
+        // p.cards = keywords.map((keyword, index) => {
+        //   return p.createCard(keyword, index)
+        // });
 
         socket.on('question-result', (result) => {
           p.marker = p.frameId;
@@ -99,7 +98,33 @@ const Face = React.createClass({
           // p.renderStack();
         })
 
+        p.breathPlus = 0
+        socket.on('heartbeat', () => {
+          p.breathPlus += 3;
+          setTimeout(() => {
+            p.breathPlus = 0
+          },300)
+        });
+
         socket.on('update', (msg) => p.handleUpdate(msg))
+
+        p.consoleMessage = '--__________--';
+        p.consoleY = window.innerHeight - 120
+
+        socket.on('console', (msg) => {
+          p.consoleMessage += "\n" + msg;
+          p.consoleY -= 25;
+        });
+
+        socket.on('console-clear', (msg) => {
+          p.consoleMessage = '@__________@';
+          p.consoleY = window.innerHeight - 120;
+        })
+
+        socket.on('disconnect', ()=>{
+          p.consoleMessage = 'X__________X';
+          p.consoleY = window.innerHeight - 120;
+        })
 
         let angle = 0;
         p.marker = 0;
@@ -159,6 +184,13 @@ const Face = React.createClass({
 
       }
 
+      p.renderConsole = function(){
+        p.textSize(20);
+        p.textFont('Courier New');
+        p.text(p.consoleMessage, 40, p.consoleY);
+
+      }
+
       p.keyPressed = function(){
         if (p.keyCode === p.ENTER){
           let message = p.inputBar.value()
@@ -192,7 +224,7 @@ const Face = React.createClass({
       }
 
       p.zoomIn = function(){
-        p.textSize(30);
+        p.textSize(20);
         p.text('ACTIVE: ' + p.activeCard, 10, 60);
 
         p.activeCards = p.activeCards.map((card, index ) => {
@@ -409,7 +441,7 @@ const Face = React.createClass({
         let x = p.position.x;
         // let y = window.innerHeight - (p.position.y * 2)
         let y = p.position.y;
-        p.rect(x , y , 20 * breath, 20 * breath);
+        p.ellipse(x , y + (p.breathPlus * 10) , Math.abs(20 * breath), Math.abs(5 * breath * (5 + p.breathPlus)));
         p.text(t, 20,20);
         p.cursor = {
           x: x,
@@ -527,14 +559,16 @@ const Face = React.createClass({
             y: p.mouseY
           };
 
-          let breath = p.sin(p.frameId / 30);
+          p.breath = p.sin(Math.abs(p.frameId *  (p.breathPlus + 1) / 30));
 
-          p.paintCursor(breath);
+          p.paintCursor(p.breath);
 
           p.frameId++;
           p.checkTransitions()
 
           p.renderStack();
+
+          p.renderConsole()
 
       }
 

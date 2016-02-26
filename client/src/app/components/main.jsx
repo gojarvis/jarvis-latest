@@ -294,9 +294,9 @@ class Main extends React.Component {
       console.log(res);
     });
 
-    socket.on('heartbeat', function (hb) {
-      self.handleHeartbeat(hb)
-    });
+    // socket.on('heartbeat', function (hb) {
+    //   self.handleHeartbeat(hb)
+    // });
 
     socket.on('ask-parameter', function (message) {
       let { parameter, goalName } = message;

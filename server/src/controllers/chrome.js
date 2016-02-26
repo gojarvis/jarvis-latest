@@ -53,6 +53,7 @@ class ChromeController {
     self.socket.on('chrome-init', function(tabs){
       console.log('chrome-init');
       console.log("found ",   tabs.length, "tabs.");
+      self.io.to('main').emit('console', `found ${tabs.length} tabs.`);
       self.tabs = tabs;
       self.saveSession();
     });
@@ -77,7 +78,7 @@ class ChromeController {
     self.socket.on('chrome-updated', function(message){
       console.log('chrome-updated');
       let {active, tabs} = message;
-      // console.log('tabs', tabs);
+      self.io.to('main').emit('console', `Chrome tab updated.`);
       self.tabs = tabs;
       self.handleUpdated(active).then(function(){
 
@@ -91,7 +92,9 @@ class ChromeController {
       self.saveSession();
     });
 
-    self.socket.emit('speak', 'Ready, sir');
+    // self.socket.emit('speak', 'Ready, sir');
+    self.io.to('main').emit('speak', 'I am ready for action');
+    console.log('SOCKET', self.socket.id);
     // let rnd = _.random(0,1000);
     // request.get('http://numbersapi.com/'+rnd+'/trivia?notfound=floor&fragment')
     // .then(function(res){
@@ -186,6 +189,7 @@ class ChromeController {
   }
 
   async handleHighlighted(active){
+    let self = this;
     let activeTab = this.getActiveTab(active.tabIds[0])
 
     if (!activeTab[0]){
@@ -195,7 +199,7 @@ class ChromeController {
     this.context.setActiveUrl(activeUrl);
 
     this.history.saveEvent({type: 'highlighted', source: 'chrome', data: { url: activeUrl} }).then(function(res){
-      console.log('highlited chrome saved');
+      self.io.to('main').emit('console',`I noticed ${activeUrl.title}`);
     });
   }
 

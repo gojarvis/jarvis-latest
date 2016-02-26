@@ -18,6 +18,8 @@ r.connect( {host: 'localhost', port: 28015}, function(err, conn) {
     connection = conn;
 })
 
+
+
 let User = db.createModel("User", {
   id: type.string(),
   username: type.string(),
@@ -30,18 +32,21 @@ graph.constraints.uniqueness.create('Url', 'url', function(err, constraint) {
 graph.constraints.uniqueness.create('User', 'username', function(err, constraint) {});
 
 class contextManager{
-  constructor(history, userInfo){
+  constructor(history, userInfo, socket, io){
     this.user = {};
     this.urls = [];
     this.urlsArtifacts = [];
     this.tabs = [];
     this.files = [];
     this.activeUrl = {};
-    this.heart = heartbeats.createHeart(1000);
-    this.slowHeart = heartbeats.createHeart(1000);
+    this.heart = heartbeats.createHeart(100);
+    this.slowHeart = heartbeats.createHeart(100);
     this.history = history;
     this.recommendations = [];
+    this.socket = socket;
+    this.io = io;
     this.initContext(userInfo)
+
   }
 
   async initContext(userInfo){
@@ -50,13 +55,11 @@ class contextManager{
         user = await this.setUser(userInfo);
         this.user = user;
 
-        this.heart.createEvent(60, function(heartbeat, last){
-          this.handleHeartbeat(heartbeat);
-        }.bind(this));
+        this.heart.createEvent(10, (heartbeat, last) => {
+          this.handleHeartbeat(heartbeat)
+        });
 
-        this.slowHeart.createEvent(300, function(heartbeat, last){
-
-        }.bind(this));
+        this.io.to('main').emit('console', 'Context initialized');
     }
     catch(err){
       console.error('cannot initialize context',err);
@@ -185,7 +188,6 @@ class contextManager{
     console.log('related stuff', this.files.length, this.urls.length);
   }
 
-
   async relateUserToContext(){
     let self = this;
     // console.log(this.user);
@@ -215,14 +217,15 @@ class contextManager{
   }
 
   handleHeartbeat(heartbeat){
-    process.stdout.write('-');
+
+    // process.stdout.write('-');
+    this.socket.emit('heartbeat');
     this.saveContext();
   }
 
   handleSlowHeartbeat(heartbeat){
     this.history.saveEvent({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls} }).then(function(res){})
   }
-
 
   async saveContext(){
     let self = this;
@@ -243,8 +246,6 @@ class contextManager{
     }
     this.relateUserToContext();
   }
-
-
 
   async relateOneToMany(origin, others, relationship){
     let relationships = [];
@@ -336,9 +337,6 @@ class contextManager{
       });
     });
   }
-
-
-
 
   saveUrl(url, title){
     let self = this;

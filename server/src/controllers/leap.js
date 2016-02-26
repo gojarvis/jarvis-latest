@@ -1,7 +1,7 @@
 import Leap from 'leapjs'
 import sfx from 'sfx'
 
-let T = require("timbre");
+// let T = require("timbre");
 
 class LeapController{
 
@@ -85,12 +85,12 @@ class LeapController{
   }
 
   ding(val1,val2){
-    let sine1 = T("sin", {freq:val1, mul:0.5});
-    let sine2 = T("sin", {freq:val2, mul:0.5});
-
-    T("perc", {r:500}, sine1, sine2).on("ended", function() {
-      this.pause();
-    }).bang().play();
+    // let sine1 = T("sin", {freq:val1, mul:0.5});
+    // let sine2 = T("sin", {freq:val2, mul:0.5});
+    //
+    // T("perc", {r:500}, sine1, sine2).on("ended", function() {
+    //   this.pause();
+    // }).bang().play();
   }
 
   getSwipeDirection(frame){
