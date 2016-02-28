@@ -29,7 +29,8 @@ app.get('/', function(req, res){
 io.on('connection', function(socket){
   socket.join('main');
   GLOBAL._socket = socket;
-  var socketManager = new SocketManager(socket,io);  
+  var socketManager = new SocketManager(socket,io);
+  io.to('main').emit('speak', 'Ready, sir');
   // app.get('/alexa', function(req,res){
   //   io.emit('speak', "AAlexa");
   //   io.emit('speak', "");

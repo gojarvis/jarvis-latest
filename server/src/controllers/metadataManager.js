@@ -23,12 +23,14 @@ let graph = require("seraph")({
 // });
 
 class MetadataManager {
-  constructor(userName) {
+  constructor(userName, io) {
     this.user = userName
     this.localCache = {};
+    this.io = io;
   }
 
   async getSetKeywordsForUrl(urlNode) {
+    let self = this;
     let url = urlNode.url;
 
     // console.log(urlNode);
@@ -40,13 +42,20 @@ class MetadataManager {
       if ((_.isUndefined(urlNode.alchemy) || (!_.isUndefined(urlNode.alchemy) && urlNode.alchemy === 'failed')) && _.isUndefined(this.localCache[urlNode.url])) {
         try {
           console.log('NO ALCHEMY FOR ', urlNode);
+
+
           let keywords = await this.getAlchemyKeyWords(url);
+          self.io.to('main').emit('console', `Found some keywords`);
+          keywords.forEach((keyword)=>{
+            self.io.to('main').emit('console', `${keyword.text} | ${keyword.relevance}`)
+          })
           let keywordNodes = await this.saveKeywords(keywords);
           let results = await this.updateNodeAndRelationships(urlNode, keywordNodes);
           console.log('**** localCache'.red,this.localCache);
           // console.log('------------'.blue);
           // console.log('Final Results: '.red, results);
           console.log('------------'.blue, 'keywords', keywords);
+
           this.localCache[urlNode.url] = true;
 
           let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'success');

@@ -38,6 +38,7 @@ module.exports = AtomSherpa =
 
 
     @socket.emit 'give context'
+    @socket.emit 'atom-online'
 
   deactivate: ->
     @modalPanel.destroy()

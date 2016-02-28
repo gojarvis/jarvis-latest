@@ -15,7 +15,6 @@ const Face = React.createClass({
     })
   },
   componentDidMount: function(){
-    // this.hum();
     let socket = window.socket;
     this.init(socket);
     this.setState({socket: socket})
@@ -74,19 +73,7 @@ const Face = React.createClass({
           p.questionIsOpen = true,
           p.questionTarget = question.target
 
-
-
-          // self.say(question.text);
         });
-
-        // let keywords = ['thanks',
-        //              'graph',
-        //              'neo4j',
-        //              'open source'];
-        //
-        // p.cards = keywords.map((keyword, index) => {
-        //   return p.createCard(keyword, index)
-        // });
 
         socket.on('question-result', (result) => {
           p.marker = p.frameId;
@@ -108,11 +95,15 @@ const Face = React.createClass({
 
         socket.on('update', (msg) => p.handleUpdate(msg))
 
+        p.consoleMessages = [];
+
         p.consoleMessage = '--__________--';
-        p.consoleY = window.innerHeight - 120
+        p.consoleY = window.innerHeight - 10
 
         socket.on('console', (msg) => {
-          p.consoleMessage += "\n" + msg;
+          // p.consoleMessage += "\n" + msg;
+          p.consoleMessages.push(msg);
+          p.consoleMessage = p.consoleMessages.join("\n");
           p.consoleY -= 25;
         });
 
@@ -140,7 +131,7 @@ const Face = React.createClass({
 
         let inputPosition = {
           x: window.innerWidth / 2 - (p.inputWidth / 2),
-          y: window.innerHeight - 100
+          y: 40
         };
 
         p.inputBar = p.createInput('')
@@ -187,7 +178,7 @@ const Face = React.createClass({
       p.renderConsole = function(){
         p.textSize(20);
         p.textFont('Courier New');
-        p.text(p.consoleMessage, 40, p.consoleY);
+        p.text(p.consoleMessage, 40, p.consoleY, window.innerWidth - 10);
 
       }
 

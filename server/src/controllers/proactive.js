@@ -17,18 +17,18 @@ class Proactive {
       this.deep = deep;
       this.lastActiveUrl = '';
       this.graph = new graphUtils();
-      this.heart = heartbeats.createHeart(100);
+      this.heart = heartbeats.createHeart(1000);
 
       //I'm going to throw up on myself, but FUCK IT.
       this.user = this.context.get().user;
-      this.metadata = new Meta(this.user);
+      this.metadata = new Meta(this.user, io);
 
 
-      this.heart.createEvent(20, function(heartbeat, last){
+      this.heart.createEvent(120, function(heartbeat, last){
         this.handleHeartbeat(heartbeat);
       }.bind(this));
 
-      this.heart.createEvent(20, function(heartbeat, last){
+      this.heart.createEvent(120, function(heartbeat, last){
         this.handleDeepconnect(heartbeat);
       }.bind(this));
 
@@ -49,6 +49,8 @@ class Proactive {
     }
 
     async deepContext(){
+
+
         try{
           let urls = this.context.get().urls;
           let files = this.context.get().files;
@@ -57,6 +59,12 @@ class Proactive {
             let urlRelationships = Promise.all(urls.map(url => this.relateUrlToUrls(url,urls)))
 
             let keywords = await Promise.all(urls.map(url => this.metadata.getSetKeywordsForUrl(url)));
+            let kws = keywords.map((kw)=>{
+              return kw.text
+            });
+
+            let m = kws.join(',')
+            this.io.to('main').emit('console', m);
           }
 
           if (files.length > 0){
@@ -133,9 +141,9 @@ class Proactive {
         let yesterdayThisHour = await this.deep.getHistorics(user.username, yesterday,yesterdayHour);
 
         let historics = {social,lastHour, yesterdayDay, yesterdayThisHour};
-        console.log('HISTORICS', historics);
 
-        this.io.to('main').emit('console', `Found ${historics.social.length} historic recs`);
+
+        this.io.to('main').emit('console', `Found ${historics.lastHour.length} entries in the last hour`);
         this.io.to('main').emit('console', `Found ${social.length} social recs`);
         this.io.to('main').emit('console', `Found ${openwith.length} openwith recs`);
         this.io.to('main').emit('console', `Found ${kwrelated.length} kwrelated recs`);

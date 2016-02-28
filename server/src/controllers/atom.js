@@ -34,21 +34,25 @@ class AtomController {
   }
 
   registerEvents(){
-    // console.log('atom-online');
+    console.log('atom-online');
     var self = this;
-
+    // self.socket.join('main');
     self.socket.on('atom-open', function(msg){
-      // console.log('atom-open', msg);
+      console.log('atom-open', msg);
+    });
+
+    self.socket.on('atom-online', function(){
+      console.log('atom-online', msg);
     });
 
 
-    // self.socket.on('atom-connected', function(){
-    //   console.log('atom-connected');
-    // });
+    self.socket.on('atom-connected', function(){
+      console.log('atom-connected');
+    });
     //
-    // self.socket.on('atom-file-saved', function(msg){
-    //   console.log('atom-file-saved', msg);
-    // });
+    self.socket.on('atom-file-saved', function(msg){
+      console.log('atom-file-saved', msg);
+    });
 
     self.socket.on('atom-file-observed', function(msg){
       self.handleFileObserved(msg.uri);
@@ -196,10 +200,14 @@ class AtomController {
   }
 
   async handleFileHighlighted(uri){
+    let self = this;
+    console.log("FILE-HIGHLIGHTED", uri);
+    self.io.to('main').emit('console', `Highlighted file ${uri}`);
     let fileNode = await this.insertUniqueFile(uri)
     let otherNodes = this.tabs.filter(tab => tab.id !== fileNode.id);
     let rel = await this.relateOneToMany(fileNode, otherNodes, 'openwith');
-    // console.log('done relating', this.socket);
+
+
     this.context.addFileNode(fileNode);
 
     let relatedFiles = await this.getRelatedFiles(uri, 3);
@@ -208,17 +216,11 @@ class AtomController {
     let relatedFilesNodes = await Promise.all(relatedFiles.map(relation => this.getNodeById(relation.end)))
     let relatedUrlNodes = await Promise.all(relatedUrls.map(relation => this.getNodeById(relation.end)))
 
-    
-    let related = _.union(relatedFilesNodes,relatedUrlNodes)
-    // let relatedFilesFix = relatedFiles.map(item => {
-    //   // console.log(_.lodash(item.uri.split("/")));
-    //   // console.log(item);
-    //
-    // });
 
-    this.history.saveEvent({type: 'highlighted', source: 'atom', data: { nodeId: fileNode.id, uri: uri} }).then(function(res){
-      // console.log('highlited atom saved');
-    });
+    let related = _.union(relatedFilesNodes,relatedUrlNodes)
+
+    this.history.saveEvent({type: 'highlighted', source: 'atom', data: { nodeId: fileNode.id, uri: uri} })
+    .then(function(res){});
 
     return related
 

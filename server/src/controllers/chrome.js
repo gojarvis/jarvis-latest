@@ -41,7 +41,7 @@ class ChromeController {
     this.io = io;
     this.context = context;
     this.history = history;
-
+    this.socket.join('main');
     this.io.emit('load-tabs');
     this.registerEvents();
 
@@ -53,7 +53,7 @@ class ChromeController {
     self.socket.on('chrome-init', function(tabs){
       console.log('chrome-init');
       console.log("found ",   tabs.length, "tabs.");
-      self.io.to('main').emit('console', `found ${tabs.length} tabs.`);
+      self.io.to('main').emit('console', `Found ${tabs.length} tabs.`);
       self.tabs = tabs;
       self.saveSession();
     });
@@ -88,39 +88,14 @@ class ChromeController {
     });
 
     self.socket.on('heartbeat', function(hb){
-      console.log(".");
       self.saveSession();
     });
-
-    // self.socket.emit('speak', 'Ready, sir');
-    self.io.to('main').emit('speak', 'I am ready for action');
-    console.log('SOCKET', self.socket.id);
-    // let rnd = _.random(0,1000);
-    // request.get('http://numbersapi.com/'+rnd+'/trivia?notfound=floor&fragment')
-    // .then(function(res){
-    //   // let joke = JSON.parse(res).value.joke;
-    //   let wat = res;
-    //   // console.log(joke);
-    //   // self.socket.emit('speak', 'The number ' + rnd + ' is ' +  wat);
-    //   self.socket.emit('speak', 'Ready, sir');
-    // })
-    // .catch(function(err){
-    //   console.log('no jokes for you', err);
-    // });
   }
 
   async saveSession(){
     let self = this;
     this.context.updateTabs(self.tabs);
   }
-
-
-
-
-
-
-
-
 
   getUrl(url){
     let self = this;
@@ -182,8 +157,7 @@ class ChromeController {
 
   async handleUpdated(active){
     let activeTab = this.getActiveTab(active)
-    // let related = await this.getRelated(activeTab[0].url,10);
-    // let relatedUrls = await Promise.all(related.map(relation => this.getUrlById(relation.end)))
+
     this.context.setActiveUrl({url: activeTab.url, title: activeTab.title});
     // return relatedUrls
   }
@@ -202,28 +176,6 @@ class ChromeController {
       self.io.to('main').emit('console',`I noticed ${activeUrl.title}`);
     });
   }
-
-
-  async associateWithFiles(fileNode){
-    console.log('fileNode',fileNode);
-    console.log('urls',this.urls);
-  }
-
-  async getRelated(url, threshold){
-    let cypher = 'MATCH (n:Url)-[r:openwith]->(q:Url) WHERE n.url = "' + url +'" RETURN r ';
-    console.log(cypher);
-    let params = {url: url, threshold: threshold};
-
-    try{
-      let res = await this.queryGraph(cypher,params);
-      return res;
-    }
-    catch(err){
-      // console.log('failed to relate', err);
-    }
-  }
-
-
 
 }
 

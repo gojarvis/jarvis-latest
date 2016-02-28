@@ -2,7 +2,7 @@ import heartbeats from 'heartbeats'
 import Thinky from 'thinky'
 import _ from 'lodash';
 import watson from 'watson-developer-cloud';
-import r from 'rethinkdb'
+// import r from 'rethinkdb'
 var db = Thinky();
 var type = db.type;
 
@@ -12,11 +12,11 @@ let graph = require("seraph")({
   server: 'http://45.55.36.193:7474'
 });
 
-let connection = null;
-r.connect( {host: 'localhost', port: 28015}, function(err, conn) {
-    if (err) throw err;
-    connection = conn;
-})
+// let connection = null;
+// r.connect( {host: 'localhost', port: 28015}, function(err, conn) {
+//     if (err) throw err;
+//     connection = conn;
+// })
 
 
 
@@ -24,6 +24,10 @@ let User = db.createModel("User", {
   id: type.string(),
   username: type.string(),
 }, { pk: "username"})
+
+
+
+
 
 graph.constraints.uniqueness.create('Url', 'url', function(err, constraint) {
   // console.log(constraint);
