@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Cognitive Dynamics</title>
+    <!-- <link href="style.css" rel="stylesheet"/> -->
+    <link href='https://fonts.googleapis.com/css?family=Raleway:200,100,300,400,500' rel='stylesheet' type='text/css'>
+    <script src="https://cdn.firebase.com/js/client/2.4.1/firebase.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></script>
+    <!-- <script language="javascript" type="text/javascript" src="js/p5.js"></script> -->
+    <!-- <script language="javascript" type="text/javascript" src="js/addons/p5.dom.js"></script> -->
+    <style>
+      body {
+        height: 100vh;
+        width: 100vw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        font-family: Raleway;
+        font-weight: 100;
+      }
+      .parent {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+      .title {
+        font-size: 50px;
+      }
+      .sub {
+        font-size: 17px;
+      }
+
+      .email {
+        border: none;
+        width: 42vw;
+        text-align: center;
+        margin: 10px 0;
+        font-size: 14px;
+        font-weight: 100;
+
+        transition: all 1s ease;
+      }
+
+      .email:focus {
+        outline: none;
+        border-bottom: 1px solid #333333;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div class="parent">
+      <div class="title">Cognitive Dynamics</div>
+      <div class="sub">Next-Gen Developer Tools. Powered by AI.</div>
+      <input id="email" class="email" type="text" name="email" placeholder="Signup for updates" />
+    </div>
+
+    <script type="text/javascript">
+      var fb = new Firebase("https://cognitivedynamics.firebaseio.com/");
+      var emailsRefs = fb.child('emails');
+      var input = document.querySelector('#email');
+
+      $('#email').on('keydown', function(e) {
+        if(e.keyCode == 13) { // if enter
+          emailsRefs.push(input.value);
+          input.value = '';
+          e.preventDefault();
+        }
+      });
+    </script>
+  </body>
+</html>
