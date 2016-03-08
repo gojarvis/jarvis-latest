@@ -1,3 +1,4 @@
+'use strict'
 import imm from 'immutable';
 import {getFromUser, getFromUserIntent} from '../resolvers';
 import EventEmitter from 'events';

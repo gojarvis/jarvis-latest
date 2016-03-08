@@ -1,3 +1,5 @@
+'use strict'
+
 import imm from 'immutable';
 import {Map, List} from 'immutable';
 import EventEmitter from 'events';
@@ -9,8 +11,6 @@ import kue from 'kue';
 import Resolvers from '../resolvers'
 import Queue from '../utils/queue'
 
-
-console.log('RESOLVERS'.yellow, Resolvers);
 let resultPool = imm.Map();
 
 class Goal{

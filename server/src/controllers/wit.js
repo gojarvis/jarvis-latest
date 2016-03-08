@@ -1,3 +1,4 @@
+'use strict'
 const rec       = require('node-record-lpcm16'),
       request   = require('request');
 

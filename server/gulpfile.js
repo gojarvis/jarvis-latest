@@ -3,6 +3,7 @@
 // setup is now using Gulp. It works exactly how I expect it to and is WAY more concise.
 var gulp = require('gulp'),
     spawn = require('child_process').spawn,
+    gutil = require('gutil'),
     node;
 
 /**
@@ -42,7 +43,7 @@ process.on('exit', function() {
 
 process.on('SIGINT', function() {
   setTimeout(function() {
-    gutil.log(gutil.colors.red('Successfully closed ' + process.pid));
+    console.log('Application shutdown complete.');
     process.exit(1);
   }, 500);
 });

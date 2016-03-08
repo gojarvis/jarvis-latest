@@ -1,3 +1,4 @@
+'use strict'
 import brain from 'brain'
 import limdu from 'limdu'
 import Redis from 'ioredis'

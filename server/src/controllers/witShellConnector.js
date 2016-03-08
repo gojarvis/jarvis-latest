@@ -1,3 +1,4 @@
+'use strict'
 import exec from './nodeExec'
 
 class witShellConnector {

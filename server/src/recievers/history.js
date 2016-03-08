@@ -1,3 +1,4 @@
+'use strict'
 import GraphUtils from '../utils/graph';
 import r from 'rethinkdb'
 import moment from 'moment'
@@ -18,7 +19,7 @@ class HistoryReciever {
         recommendations: []
       };
 
-      
+
 
       console.log(response);
       resolve(response);

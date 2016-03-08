@@ -1,3 +1,4 @@
+'use strict'
 import Leap from 'leapjs'
 import sfx from 'sfx'
 

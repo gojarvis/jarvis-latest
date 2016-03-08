@@ -1,3 +1,4 @@
+'use strict'
 import Thinky from 'thinky'
 import EventEmitter from 'events';
 import r from 'rethinkdb'

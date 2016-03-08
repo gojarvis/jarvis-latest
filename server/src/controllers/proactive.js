@@ -24,7 +24,7 @@ class Proactive {
       this.metadata = new Meta(this.user, io);
 
 
-      this.heart.createEvent(120, function(heartbeat, last){
+      this.heart.createEvent(30, function(heartbeat, last){
         this.handleHeartbeat(heartbeat);
       }.bind(this));
 
@@ -41,16 +41,11 @@ class Proactive {
 
     handleHeartbeat(hb){
       let self = this;
-      // self.socket.emit('heartbeat', hb);
 
       self.recommend();
-
-      // process.stdout.write('0');
     }
 
     async deepContext(){
-
-
         try{
           let urls = this.context.get().urls;
           let files = this.context.get().files;
@@ -60,7 +55,12 @@ class Proactive {
 
             let keywords = await Promise.all(urls.map(url => this.metadata.getSetKeywordsForUrl(url)));
             let kws = keywords.map((kw)=>{
-              return kw.text
+              if (!_.isUndefined(kw)){
+                return kw.text
+              }
+              else{
+                return ''
+              }
             });
 
             let m = kws.join(',')
@@ -74,10 +74,6 @@ class Proactive {
           if (files.length > 0 && urls.length > 0){
             let fileRelationships = Promise.all(files.map(file => this.graph.relateOneToMany(file, urls, 'openwith')));
           }
-
-
-
-
         }
         catch(err){
           console.log('bad deep', err);
@@ -104,10 +100,11 @@ class Proactive {
       }
       try {
 
-        let activeUrl = this.context.getActiveUrl();
+        let activeUrl = this.context.getActiveUrl();        
 
-        //If the url is the same as before, do nothing
-
+        //
+        // //If the url is the same as before, do nothing
+        //
         if (activeUrl.url === this.lastActiveUrl || _.isUndefined(activeUrl.url)){
           // process.stdout.write('=');
           return;

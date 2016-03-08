@@ -1,3 +1,4 @@
+'use strict'
 var spawn = require('child_process').spawn;
 var worker = spawn('list-files', [], {
   cwd: './src/scripts/'

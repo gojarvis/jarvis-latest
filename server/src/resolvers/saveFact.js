@@ -1,3 +1,4 @@
+'use strict'
 import colors from 'colors';
 import Thinky from 'thinky'
 

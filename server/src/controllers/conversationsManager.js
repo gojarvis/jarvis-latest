@@ -1,3 +1,4 @@
+'use strict'
 // import StateMachine from 'fsm-as-promised'
 // import machine from 'machina'
 import HistoryGoal from '../goals/history'

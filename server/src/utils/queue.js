@@ -1,3 +1,5 @@
+'use strict'
+
 import imm from 'immutable';
 import {OrderedSet, Map, List} from 'immutable';
 import colors from 'colors';

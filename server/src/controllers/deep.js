@@ -1,3 +1,5 @@
+'use strict'
+
 import GraphDB from '../utils/graph'
 import r from 'rethinkdb'
 import Promise from 'bluebird';
@@ -6,10 +8,10 @@ import Promise from 'bluebird';
 let graph = new GraphDB();
 let connection = null;
 
-// r.connect( {host: 'localhost', port: 28015}, function(err, conn) {
-//     if (err) throw err;
-//     connection = conn;
-// })
+r.connect( {host: 'localhost', port: 28015}, function(err, conn) {
+    if (err) throw err;
+    connection = conn;
+})
 
 class Deep{
   constructor(history, context){
@@ -23,19 +25,6 @@ class Deep{
         resolve(node);
       });
     });
-  }
-
-  async updateClusters(){
-      //Find groups of clusters, and add "cluster-handle"
-      //node that will relate to the cluster.
-
-      //Find top ten urls
-
-      //Foreach, find most related URLs and files.
-
-      //Whenever checking a candidate cluster, make sure other memebers of
-      //top 10 are removed
-
   }
 
   async getOpenWith(urlNode){
@@ -131,6 +120,8 @@ return distinct(anotherUrl.url) as url, anotherUrl.title as title, anotherUrl.ty
 
   getHistorics(username,start,end){
     return new Promise(function(resolve, reject) {
+      console.log('CONN', connection);
+
       r.table('Event').filter(r.row('timestamp')
       .during(new Date(start), new Date(end), {leftBound: "open", rightBound: "closed"}))
       .filter({user: username}).run(connection).then(function(cursor){
@@ -140,17 +131,6 @@ return distinct(anotherUrl.url) as url, anotherUrl.title as title, anotherUrl.ty
       });
     });
   }
-
-
-
-
-
-
-
-  // let relatedUrls = await Promise.all(related.map(relation => this.getUrlById(relation.end)))
-
-
-
 
 }
 

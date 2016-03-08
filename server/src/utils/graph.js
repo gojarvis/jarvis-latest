@@ -1,3 +1,4 @@
+'use strict'
 //TODO: All graph methods should live in one place. Currently unused.
 import Redis from 'ioredis'
 let redis = new Redis();

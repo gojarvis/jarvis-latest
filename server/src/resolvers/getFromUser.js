@@ -1,3 +1,4 @@
+'use strict'
 import EventEmitter from 'events';
 import eventToPromise from 'event-to-promise'
 import colors from 'colors';

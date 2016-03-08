@@ -1,3 +1,4 @@
+'use strict'
 import heartbeats from 'heartbeats'
 import Thinky from 'thinky'
 import _ from 'lodash';
@@ -18,15 +19,10 @@ let graph = require("seraph")({
 //     connection = conn;
 // })
 
-
-
 let User = db.createModel("User", {
   id: type.string(),
   username: type.string(),
 }, { pk: "username"})
-
-
-
 
 
 graph.constraints.uniqueness.create('Url', 'url', function(err, constraint) {
@@ -43,8 +39,8 @@ class contextManager{
     this.tabs = [];
     this.files = [];
     this.activeUrl = {};
-    this.heart = heartbeats.createHeart(100);
-    this.slowHeart = heartbeats.createHeart(100);
+    this.heart = heartbeats.createHeart(1000);
+    this.slowHeart = heartbeats.createHeart(1000);
     this.history = history;
     this.recommendations = [];
     this.socket = socket;

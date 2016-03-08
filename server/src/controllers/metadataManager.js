@@ -1,3 +1,4 @@
+'use strict'
 import request from 'request-promise'
 import watson from 'watson-developer-cloud';
 import GraphDB from '../utils/graph';

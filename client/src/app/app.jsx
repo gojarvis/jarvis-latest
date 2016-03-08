@@ -5,9 +5,31 @@
   let Main = require('./components/main.jsx'); // Our custom react component
 
   // let Face = require('./components/face.jsx'); // Our custom react component
-  let io = require('socket.io-client')
+  // let io = require('socket.io-client')
   //
-  let socket = io.connect('localhost:3000', {reconnect: true});
+  // let socket = io.connect('localhost:3000', {reconnect: true});
+
+  let socket = socketCluster.connect();
+
+  socket.on('error', function (err) {
+    throw 'Socket error - ' + err;
+  });
+
+  socket.on('connect', function () {
+    console.log('CONNECTED');
+  });
+
+  let sampleChannel = socket.subscribe('sample');
+
+  sampleChannel.on('subscribeFail', function (err) {
+    console.log('Failed to subscribe to the sample channel due to error: ' + err);
+  });
+
+  sampleChannel.watch(function (num) {
+    console.log('Sample channel message:', num);
+  });
+
+  
 
 
   //Needed for React Developer Tools

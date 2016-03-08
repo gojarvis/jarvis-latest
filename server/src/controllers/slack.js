@@ -1,3 +1,4 @@
+'use strict'
 import Botkit from 'botkit'
 
 let slackToken = 'xoxb-18928714965-rWRulI1O6h55r2sM140EpEqX'

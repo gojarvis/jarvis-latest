@@ -1,3 +1,4 @@
+'use strict'
 import Q from 'q'
 let spawn = require('child_process').spawn;
 

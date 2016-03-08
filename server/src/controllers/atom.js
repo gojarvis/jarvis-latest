@@ -1,3 +1,5 @@
+'use strict'
+
 import level from 'level-browserify'
 import levelgraph from 'levelgraph'
 import Redis from 'ioredis'

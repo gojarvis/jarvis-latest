@@ -42,14 +42,16 @@ class ChromeController {
     this.context = context;
     this.history = history;
     this.socket.join('main');
-    this.io.emit('load-tabs');
+
     this.registerEvents();
 
   }
 
   registerEvents(){
     var self = this;
+    this.io.to('main').emit('load-tabs');
 
+    console.log('REGISTER EVENTS');
     self.socket.on('chrome-init', function(tabs){
       console.log('chrome-init');
       console.log("found ",   tabs.length, "tabs.");
@@ -70,7 +72,7 @@ class ChromeController {
       let {active, tabs} = msg;
 
       self.handleHighlighted(active).then(function(related){
-          self.io.emit('related', related)
+          self.io.to('main').emit('related', related)
       });
     });
 

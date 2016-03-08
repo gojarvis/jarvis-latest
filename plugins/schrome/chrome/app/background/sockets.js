@@ -4,7 +4,7 @@ import heartbeats from 'heartbeats'
 let heart = heartbeats.createHeart(1000);
 
 
-let socket = io.connect('http://localhost:3000', {reconnect: true});
+let socket = io.connect('http://localhost:3000/main', {reconnect: true});
 let tabs = [];
 
 
@@ -17,6 +17,7 @@ socket.on('load-tabs', function(){
 //Initialize tabs
 chrome.tabs.query({}, function(res){
     tabs = res
+    console.log('SOCKET', socket);
     socket.emit('chrome-init', res);
 });
 
