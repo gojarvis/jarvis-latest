@@ -24,15 +24,17 @@ const userInfo = {
 
 
 class SocketManager {
-  constructor(socket) {
-    // let sessionIn = 'GKvm4Sdf';
+  constructor(scServer) {
+    this.sessionIn = 'GKvm4Sdf';
 
 
     console.log('Here we are');
-    // const context = new Context(history, userInfo, socket, io);
     // const deep = new Deep(history, context, socket, io);
     //
-    // const history = new History(userInfo.username, socket, io);
+    const history = new History(userInfo.username);
+    const context = new Context(history, userInfo, scServer);
+
+
     //
     // //basic speech in/out
     // this.wit = new WitController(socket, sessionIn, context, history, io)

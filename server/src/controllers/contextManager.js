@@ -32,7 +32,7 @@ graph.constraints.uniqueness.create('Url', 'url', function(err, constraint) {
 graph.constraints.uniqueness.create('User', 'username', function(err, constraint) {});
 
 class contextManager{
-  constructor(history, userInfo, socket, io){
+  constructor(history, userInfo, scServer){
     this.user = {};
     this.urls = [];
     this.urlsArtifacts = [];
@@ -43,9 +43,9 @@ class contextManager{
     this.slowHeart = heartbeats.createHeart(1000);
     this.history = history;
     this.recommendations = [];
-    this.socket = socket;
-    this.io = io;
     this.initContext(userInfo)
+
+    this.scServer = scServer;
 
   }
 
@@ -55,11 +55,12 @@ class contextManager{
         user = await this.setUser(userInfo);
         this.user = user;
 
+        this.scServer.exchange.publish('main', 'Context initalized');
+
         this.heart.createEvent(10, (heartbeat, last) => {
           this.handleHeartbeat(heartbeat)
         });
 
-        this.io.to('main').emit('console', 'Context initialized');
     }
     catch(err){
       console.error('cannot initialize context',err);
@@ -219,7 +220,6 @@ class contextManager{
   handleHeartbeat(heartbeat){
 
     // process.stdout.write('-');
-    this.socket.emit('heartbeat');
     this.saveContext();
   }
 

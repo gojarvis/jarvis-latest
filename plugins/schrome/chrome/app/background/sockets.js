@@ -1,13 +1,21 @@
-import io from 'socket.io-client'
+// import io from 'socket.io-client'
 import heartbeats from 'heartbeats'
+import socketCluster from 'socketcluster-client'
+
 
 let heart = heartbeats.createHeart(1000);
 
+let options = {
+  port: 3000,
+  hostname: 'localhost'
+}
+// let socket = io.connect('http://localhost:3000/main', {reconnect: true});
+let socket = socketCluster.connect(options);
 
-let socket = io.connect('http://localhost:3000/main', {reconnect: true});
+socket.subscribe('main');
 let tabs = [];
 
-
+//
 socket.on('load-tabs', function(){
   chrome.tabs.query({}, function(res){
       tabs = res

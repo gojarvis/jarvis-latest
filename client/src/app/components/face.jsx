@@ -20,15 +20,19 @@ const Face = React.createClass({
     this.init(socket);
     this.setState({socket: socket})
 
-    let sampleChannel = socket.subscribe('sample');
+    let mainChannel = socket.subscribe('main');
 
-    sampleChannel.on('subscribeFail', function (err) {
-      console.log('Failed to subscribe to the sample channel due to error: ' + err);
+    mainChannel.watch(function(msg){
+      console.log(msg);
     });
 
-    sampleChannel.watch(function (num) {
-      console.log('Sample channel message:', num);
-    });
+    // sampleChannel.on('subscribeFail', function (err) {
+    //   console.log('Failed to subscribe to the sample channel due to error: ' + err);
+    // });
+    //
+    // sampleChannel.watch(function (num) {
+    //   console.log('Sample channel message:', num);
+    // });
 
     // socket.on('rand', function (data) {
     //   console.log('RANDOM SS: ' + data.rand);
