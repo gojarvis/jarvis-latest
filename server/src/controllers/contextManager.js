@@ -3,8 +3,6 @@ import Thinky from 'thinky'
 import _ from 'lodash';
 import watson from 'watson-developer-cloud';
 import r from 'rethinkdb'
-var db = Thinky();
-var type = db.type;
 
 let graph = require("seraph")({
   user: 'neo4j',
@@ -12,25 +10,36 @@ let graph = require("seraph")({
   server: 'http://45.55.36.193:7474'
 });
 
-let connection = null;
-r.connect( {host: 'localhost', port: 28015}, function(err, conn) {
-    if (err) throw err;
-    connection = conn;
-})
-
-let User = db.createModel("User", {
-  id: type.string(),
-  username: type.string(),
-}, { pk: "username"})
-
-graph.constraints.uniqueness.create('Url', 'url', function(err, constraint) {
-  // console.log(constraint);
-  // -> { type: 'UNIQUENESS', label: 'Person', property_keys: ['name'] }
-});
-graph.constraints.uniqueness.create('User', 'username', function(err, constraint) {});
-
+// var db = Thinky();
 class contextManager{
   constructor(history, userInfo){
+
+    var db = GLOBAL.db;
+    var type = db.type;
+
+    let connection = null;
+    // r.connect( {host: 'localhost', port: 28015}, function(err, conn) {
+    //     if (err) throw err;
+    //     connection = conn;
+    // })
+
+    let User = db.createModel("User", {
+      id: type.string(),
+      username: type.string(),
+    }, { pk: "username"})
+
+    graph.constraints.uniqueness.create('Url', 'url', function(err, constraint) {
+      // console.log(constraint);
+      // -> { type: 'UNIQUENESS', label: 'Person', property_keys: ['name'] }
+    });
+    graph.constraints.uniqueness.create('User', 'username', function(err, constraint) {});
+
+
+
+
+
+
+
     this.user = {};
     this.urls = [];
     this.urlsArtifacts = [];

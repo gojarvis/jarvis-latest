@@ -4,9 +4,9 @@
 // console.log(thinky, type);
 
 
-import Thinky from 'thinky'
+// import Thinky from 'thinky'
 
-var db = Thinky();
+var db = GLOBAL.db;
 var type = db.type;
 
 var Event = db.createModel("Event", {

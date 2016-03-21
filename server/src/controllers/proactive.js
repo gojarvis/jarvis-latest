@@ -24,7 +24,7 @@ class Proactive {
       this.metadata = new Meta(this.user);
 
 
-      this.heart.createEvent(100, function(heartbeat, last){
+      this.heart.createEvent(30, function(heartbeat, last){
         this.handleHeartbeat(heartbeat);
       }.bind(this));
 
@@ -67,9 +67,6 @@ class Proactive {
             let fileRelationships = Promise.all(files.map(file => this.graph.relateOneToMany(file, urls, 'openwith')));
           }
 
-
-
-
         }
         catch(err){
           console.log('bad deep', err);
@@ -95,11 +92,10 @@ class Proactive {
         console.error('No user loaded, cant get recommendations');
       }
       try {
-
+        console.log('recommending');
         let activeUrl = this.context.getActiveUrl();
 
         //If the url is the same as before, do nothing
-
         if (activeUrl.url === this.lastActiveUrl || _.isUndefined(activeUrl.url)){
           // process.stdout.write('=');
           return;
@@ -133,7 +129,6 @@ class Proactive {
         let yesterdayThisHour = await this.deep.getHistorics(user.username, yesterday,yesterdayHour);
 
         let historics = {social,lastHour, yesterdayDay, yesterdayThisHour};
-
 
 
         this.io.emit('recommendations', {

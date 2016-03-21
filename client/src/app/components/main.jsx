@@ -276,9 +276,9 @@ class Main extends React.Component {
     //   self.handleFaceIn(faceIn);
     // });
 
-    socket.on('recommendations', function (recommendations) {
-      self.handleRecommendation(recommendations);
-    })
+    // socket.on('recommendations', function (recommendations) {
+    //   self.handleRecommendation(recommendations);
+    // })
 
     socket.on('related-files', function (related) {
       self.handleRelatedFiles(related);
@@ -419,11 +419,11 @@ class Main extends React.Component {
     this.setState({actionResult: result});
   }
 
-  handleRecommendation(recommendations) {
-    console.log('Recommendations', recommendations);
-    // console.log(recommendations.openwith);
-    this.setState({recommendations: recommendations.social, related: recommendations.openwith, kwrelated: recommendations.kwrelated})
-  }
+  // handleRecommendation(recommendations) {
+  //   console.log('Recommendations', recommendations);
+  //   // console.log(recommendations.openwith);
+  //   this.setState({recommendations: recommendations.social, related: recommendations.openwith, kwrelated: recommendations.kwrelated})
+  // }
 
   netResultHandler(result) {
     console.log(result);

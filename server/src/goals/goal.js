@@ -10,7 +10,7 @@ import Resolvers from '../resolvers'
 import Queue from '../utils/queue'
 
 
-console.log('RESOLVERS'.yellow, Resolvers);
+// console.log('RESOLVERS'.yellow, Resolvers);
 let resultPool = imm.Map();
 
 class Goal{

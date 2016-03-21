@@ -99,6 +99,10 @@ const Face = React.createClass({
           // p.renderStack();
         })
 
+        socket.on('recommendations', function (recommendations) {
+          console.log('recommendations!!', recommendations);
+        })
+
         socket.on('update', (msg) => p.handleUpdate(msg))
 
         let angle = 0;

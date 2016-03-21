@@ -6,14 +6,12 @@ import Promise from 'bluebird';
 let graph = new GraphDB();
 let connection = null;
 
-r.connect( {host: 'localhost', port: 28015}, function(err, conn) {
-    if (err) throw err;
-    connection = conn;
-})
+
 
 class Deep{
   constructor(history, context){
     this.context = context;
+    this.connection = GLOBAL.rethinkdbConnection
 
   }
 
@@ -103,7 +101,7 @@ and user.username = '${username}'
 and not anotherUser.username = '${username}'
 with anotherUrl, s
 order by s.weight desc
-return distinct(anotherUrl.url) as url, anotherUrl.title as title, anotherUrl.type as type`;
+return distinct(anotherUrl.url) as url, anotherUrl.title as title, anotherUrl.type as type limit 10`;
 //
 //
 // `match
@@ -130,10 +128,11 @@ return distinct(anotherUrl.url) as url, anotherUrl.title as title, anotherUrl.ty
   }
 
   getHistorics(username,start,end){
+    let self = this;
     return new Promise(function(resolve, reject) {
       r.table('Event').filter(r.row('timestamp')
       .during(new Date(start), new Date(end), {leftBound: "open", rightBound: "closed"}))
-      .filter({user: username}).run(connection).then(function(cursor){
+      .filter({user: username}).run(self.connection).then(function(cursor){
         return cursor.toArray();
       }).then(function(result){
         resolve(result);

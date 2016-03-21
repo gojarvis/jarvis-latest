@@ -1,14 +1,8 @@
-import Thinky from 'thinky'
 import EventEmitter from 'events';
 import r from 'rethinkdb'
 import _ from 'lodash'
 
-let conn = {};
 
-let p = r.connect({db: 'test'});
-p.then(function(connection){
-  conn = connection;
-})
 
 
 let socket = GLOBAL._socket;
@@ -16,6 +10,7 @@ let socket = GLOBAL._socket;
 class getEventsByTime {
   constructor() {
     this.resolverName = 'getEventsByTime';
+    this.conn = GLOBAL.rethinkdbConnection
   }
 
   async execute(message){
@@ -40,11 +35,12 @@ class getEventsByTime {
   }
 
   getRethinkEvents(start, end){
+    var self = this;
     return new Promise(function(resolve, reject) {
 
       r.table('Event').filter(
         r.row('timestamp').during(new Date(start), new Date(end), {leftBound: "open", rightBound: "open"}))
-        .run(conn).then(function(cursor){
+        .run(self.conn).then(function(cursor){
 
           return cursor.toArray()
         }).then(function(result){
@@ -55,6 +51,7 @@ class getEventsByTime {
   }
 
   getUrls(start, end){
+    var self = this;
     return new Promise(function(resolve, reject) {
       r.table('Event').filter({source: 'chrome'})
         .filter(
@@ -72,7 +69,7 @@ class getEventsByTime {
         .orderBy( r.desc('count') )
         .pluck('count', 'group')
         .limit(20)
-        .run(conn).then(function(cursor){
+        .run(self.conn).then(function(cursor){
 
           return cursor.toArray()
         }).then(function(result){
@@ -83,6 +80,7 @@ class getEventsByTime {
   }
 
   getFiles(start, end){
+    var self = this;
     return new Promise(function(resolve, reject) {
       r.table('Event').filter(
         r.row('timestamp').during(
@@ -94,7 +92,7 @@ class getEventsByTime {
         .ungroup()
         .merge(function(row){ return {count: row('reduction').count()} })
         .orderBy( r.desc('count') )
-        .run(conn).then(function(cursor){
+        .run(self.conn).then(function(cursor){
 
           return cursor.toArray()
         }).then(function(result){
