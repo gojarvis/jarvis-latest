@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Cognitive Dynamics</title>
+    <link href="style.css" rel="stylesheet"/>
+    <link
+      href='https://fonts.googleapis.com/css?family=Raleway:200,100,300,400,500'
+      rel='stylesheet'
+      type='text/css'>
+    <script language="javascript" type="text/javascript" src="js/p5.js"></script>
+    <script language="javascript" type="text/javascript" src="js/addons/p5.dom.js"></script>
+    <style>
+      body {
+        height: 100vh;
+        width: 100vw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        font-family: Raleway;
+        font-weight: 100;
+      }
+      .parent {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+      .title {
+        font-size: 50px;
+      }
+      .sub {
+        font-size: 17px;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div class="parent">
+      <div class="title">Cognitive Dynamics</div>
+      <div class="sub">Next-Gen Developer Tools. Powered by AI.</div>
+    </div>
+  </body>
+</html>
