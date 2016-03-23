@@ -11,8 +11,7 @@ let connection = null;
 class Deep{
   constructor(history, context){
     this.context = context;
-    this.connection = GLOBAL.rethinkdbConnection
-
+    this.connection = GLOBAL.rethinkdbConnection    
   }
 
   getUrlById(id){

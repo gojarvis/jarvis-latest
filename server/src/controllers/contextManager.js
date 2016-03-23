@@ -14,7 +14,7 @@ let graph = require("seraph")({
 class contextManager{
   constructor(history, userInfo){
 
-    var db = GLOBAL.db;
+    var db = GLOBAL.thinky;
     var type = db.type;
 
     let connection = null;

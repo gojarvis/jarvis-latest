@@ -10,10 +10,10 @@ import r from 'rethinkdb'
 
 
 var db = require('thinky')();
-GLOBAL.db = db;
+GLOBAL.thinky = db;
 
 setTimeout(()=>{
-  var SocketManager =  require('./utils/socket-manager');
+
 
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
@@ -28,6 +28,8 @@ setTimeout(()=>{
 
     GLOBAL.rethinkdbConnection = connection;
 
+    var SocketManager =  require('./utils/socket-manager');
+    // console.log(GLOBAL.rethinkdbConnection);
     io.on('connection', function(socket){
       GLOBAL._socket = socket;
 

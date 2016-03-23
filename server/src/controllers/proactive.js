@@ -94,9 +94,11 @@ class Proactive {
       try {
         console.log('recommending');
         let activeUrl = this.context.getActiveUrl();
-
+        console.log(activeUrl, this.lastActiveUrl);
         //If the url is the same as before, do nothing
-        if (activeUrl.url === this.lastActiveUrl || _.isUndefined(activeUrl.url)){
+        //|| _.isUndefined(activeUrl.url)
+
+        if (activeUrl.url === this.lastActiveUrl){
           // process.stdout.write('=');
           return;
         }
@@ -130,6 +132,13 @@ class Proactive {
 
         let historics = {social,lastHour, yesterdayDay, yesterdayThisHour};
 
+
+        console.log({
+          historics: historics,
+          social: social,
+          openwith: openwith,
+          kwrelated: kwrelated
+        });
 
         this.io.emit('recommendations', {
           historics: historics,
