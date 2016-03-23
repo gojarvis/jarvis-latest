@@ -80,14 +80,14 @@ const Face = React.createClass({
           // self.say(question.text);
         });
 
-        let keywords = ['thanks',
-                     'graph',
-                     'neo4j',
-                     'open source'];
-
-        p.cards = keywords.map((keyword, index) => {
-          return p.createCard(keyword, index)
-        });
+        // let keywords = ['thanks',
+        //              'graph',
+        //              'neo4j',
+        //              'open source'];
+        //
+        // p.cards = keywords.map((keyword, index) => {
+        //   return p.createCard(keyword, index)
+        // });
 
         socket.on('question-result', (result) => {
           p.marker = p.frameId;
@@ -100,7 +100,7 @@ const Face = React.createClass({
         })
 
         socket.on('recommendations', function (recommendations) {
-          console.log('recommendations!!', recommendations);
+          p.hanldeRecommendations(recommendations)
         })
 
         socket.on('update', (msg) => p.handleUpdate(msg))
@@ -161,6 +161,13 @@ const Face = React.createClass({
 
 
 
+      }
+
+      p.hanldeRecommendations = function(recommendations){
+        let openwith = recommendations.openwith;
+        p.cards = openwith.map((item, index) => {
+          return p.createCard(item.title, index)
+        });
       }
 
       p.keyPressed = function(){
