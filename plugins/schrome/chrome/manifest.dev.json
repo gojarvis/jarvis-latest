@@ -1,8 +1,8 @@
 {
   "version": "0.0.0",
-  "name": "react-chrome-extension-example",
+  "name": "Jarvis Watcher",
   "manifest_version": 2,
-  "description": "Example for react-chrome-extension-boilerplate",
+  "description": "Jarvis Chrome Extension",
   "browser_action": {
     "default_title": "React Chrome Extension Example",
     "default_popup": "popup.html"
@@ -10,8 +10,7 @@
   "icons": {
     "16": "img/icon-16.png",
     "48": "img/icon-48.png",
-    "128": "img/icon-128.png",
-    "scalable": "icon-large.svg"
+    "128": "img/icon-128.png"
   },
   "background": {
     "page": "background.html"

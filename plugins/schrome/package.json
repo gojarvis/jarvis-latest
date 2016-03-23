@@ -1,7 +1,7 @@
 {
-  "name": "react-chrome-extension-boilerplate",
-  "version": "0.6.0",
-  "description": "Boilerplate for Chrome extension React.js project",
+  "name": "Jarvis Watcher",
+  "version": "0.1.0",
+  "description": "Jarvis Chrome Extension",
   "scripts": {
     "start": "gulp",
     "dev": "gulp",
