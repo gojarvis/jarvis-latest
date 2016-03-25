@@ -43,7 +43,13 @@ module.exports = (pwd, shell, args, options={}) ->
     emit('terminal-plus:exit')
     callback()
 
+  cmd = '';
   process.on 'message', ({event, cols, rows, text}={}) ->
     switch event
       when 'resize' then ptyProcess.resize(cols, rows)
-      when 'input' then ptyProcess.write(text)
+      when 'input'
+        cmd = cmd + text
+        if encodeURI(text).indexOf('%0D') >= 0
+          emit('terminal-plus:command', cmd)
+          cmd = ''
+        ptyProcess.write(text)

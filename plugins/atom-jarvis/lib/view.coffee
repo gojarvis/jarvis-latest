@@ -4,6 +4,9 @@
 Pty = require.resolve './process'
 Terminal = require 'term.js'
 InputDialog = null
+io = require 'socket.io-client'
+socket = io.connect('http://localhost:3000', {reconnect: true});
+
 
 path = require 'path'
 os = require 'os'
@@ -131,6 +134,9 @@ class TerminalPlusView extends View
   attachListeners: ->
     @ptyProcess.on "terminal-plus:data", (data) =>
       @terminal.write data
+
+    @ptyProcess.on "terminal-plus:command", (cmd) =>
+      socket.emit('atom-cmd', cmd)
 
     @ptyProcess.on "terminal-plus:exit", =>
       @destroy() if atom.config.get('terminal-plus.toggles.autoClose')

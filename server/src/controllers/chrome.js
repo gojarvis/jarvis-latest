@@ -50,6 +50,10 @@ class ChromeController {
   registerEvents(){
     var self = this;
 
+    self.socket.on('atom-cmd', function(data) {
+      console.log('CMD:', data);
+    })
+
     self.socket.on('chrome-init', function(tabs){
       console.log('chrome-init');
       console.log("found ",   tabs.length, "tabs.");
