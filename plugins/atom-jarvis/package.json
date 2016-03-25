@@ -1,0 +1,27 @@
+{
+  "name": "terminal-plus",
+  "main": "./lib/terminal-plus",
+  "version": "0.14.5",
+  "description": "A terminal package for Atom, complete with themes and more.",
+  "author": "Jeremy Ebneyamin",
+  "keywords": [
+    "terminal-plus",
+    "terminal",
+    "plus",
+    "panel",
+    "tty"
+  ],
+  "homepage": "https://atom.io/packages/terminal-plus",
+  "repository": "https://github.com/jeremyramin/terminal-plus",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.2.0"
+  },
+  "dependencies": {
+    "atom-space-pen-views": "^2.1.0",
+    "pty.js": "git+https://github.com/jeremyramin/pty.js.git#28f2667",
+    "socket.io": "^1.4.5",
+    "term.js": "git+https://github.com/jeremyramin/term.js.git",
+    "underscore": "^1.8.3"
+  }
+}
