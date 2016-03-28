@@ -32,8 +32,8 @@ const Face = React.createClass({
       p.position = { x: window.innerWidth / 2 - 100 , y: window.innerHeight - 30}
 
       p.setup = function () {
-        p.cardHeight = 100;
-        p.cardWidth = window.innerWidth / 3;
+        p.cardHeight = 80;
+        p.cardWidth = window.innerWidth / 5;
 
         p.zoomedInWidth = window.innerWidth / 1.3;
         p.zoomedInHeight = window.innerHeight / 1.3;
@@ -47,14 +47,16 @@ const Face = React.createClass({
         p.markerDone = 0;
         p.transition = false;
         p.activeTransitions = Map();
-        p.columnWidth = p.cardWidth;
+        p.padding = 80;
+        p.columnWidth = p.cardWidth + p.padding;
 
         p.columnsGrid = [];
 
         let numColumns = parseInt(window.innerWidth / p.cardWidth);
 
         for (let i=0; i < numColumns; i++) {
-          p.columnsGrid.push(p.columnWidth * i);
+          let colWid = (p.columnWidth * i) + 30;
+          p.columnsGrid.push(colWid);
         }
 
         p.stackPosition = parseInt(Math.floor(p.columnsGrid.length / 2));
@@ -80,21 +82,46 @@ const Face = React.createClass({
           // self.say(question.text);
         });
 
-        // let keywords = ['thanks',
-        //              'graph',
-        //              'neo4j',
-        //              'open source'];
-        //
-        // p.cards = keywords.map((keyword, index) => {
+        let keywords = ['thanks',
+                     'graph',
+                     'neo4j',
+                     'open source'];
+
+        p.cards = keywords.map((keyword, index) => {
+          return p.createCard(keyword, index)
+        });
+
+
+
+      //   let social = ['thanks',
+      //                'graph',
+      //                'neo4j',
+      //                'open source'];
+       //
+      //  let historics = ['future',
+      //               'becomes',
+      //               'history',
+      //               'very',
+      //               'quickly'];
+
+        p.recs = [];
+
+        // p.recs[0] = social.map((keyword, index) => {
         //   return p.createCard(keyword, index)
         // });
+        //
+        // p.recs[1] = historics.map((keyword, index) => {
+        //   return p.createCard(keyword, index)
+        // });
+
+
 
         socket.on('question-result', (result) => {
           p.marker = p.frameId;
           p.markerDone = p.frameId + p.transitionDuration;
-          p.cards = result.keywords.map((keyword, index) => {
-            return p.createCard(keyword, index)
-          })
+          // p.cards = result.keywords.map((keyword, index) => {
+          //   return p.createCard(keyword, index)
+          // })
 
           // p.renderStack();
         })
@@ -165,9 +192,19 @@ const Face = React.createClass({
 
       p.hanldeRecommendations = function(recommendations){
         let openwith = recommendations.openwith;
-        p.cards = openwith.map((item, index) => {
+        p.recs[0] = openwith.map((item, index) => {
           return p.createCard(item.title, index)
         });
+
+        p.recs[1] = social.map((item, index) => {
+          return p.createCard(item.title, index)
+        });
+
+
+
+
+
+
       }
 
       p.keyPressed = function(){
@@ -343,14 +380,14 @@ const Face = React.createClass({
         let cardHeight = p.cardHeight;
         let cardWidth = p.cardWidth;
         let card = p.createDiv('')
-        card.style('border: 1px solid rgba(0, 0, 0, 0.17)')
+        card.style('border: 1px solid rgba(0, 0, 0, 0.1)')
         card.style('padding: 1px solid #ccccc')
         card.style('width: ' + cardWidth + 'px')
         card.style('height: ' + cardHeight + 'px')
-        card.style('box-shadow: 2px 0px 17px 0px rgba(78, 78, 67, 0.42)')
+        // card.style('box-shadow: 2px 0px 4px 0px rgba(78, 78, 67, 0.82)')
         card.style('padding: 10px')
         card.style('font-family: arial')
-        card.style('font-size: 25px')
+        card.style('font-size: 15px')
         card.style('text-align: center')
         card.zoomingIn = false;
         card.id('card' + index)
@@ -437,14 +474,19 @@ const Face = React.createClass({
         p.cards = p.cards.filter(card => !card.disabled);
       }
 
-      p.renderStack = function(){
-        p.cardsQueue = {};
+      p.renderStacks = function(){
+        p.renderStack(0, p.recs[0]);
+        p.renderStack(1, p.recs[1]);
+      }
 
-        p.activeCards = p.cards.filter(card => !card.disabled)
+      p.renderStack = function(stackPosition, cards){
+        // console.log('Rendering',cards);
+        let stackX = p.columnsGrid[stackPosition] + 40;
+        // console.log('STACKX', stackPosition);
+        let activeCards = cards.filter(card => !card.disabled)
 
-        p.activeCards.map((card, index) => {
-          p.cardsQueue[index] = card;
-          this.renderCard(card, index)
+        activeCards.map((card, index) => {
+          this.renderCard(card, index, stackX)
         })
       }
 
@@ -455,8 +497,8 @@ const Face = React.createClass({
       }
 
 
-      p.renderCard = function(card, index){
-        let cardX = p.stackX;
+      p.renderCard = function(card, index, stackX){
+        let cardX = stackX;
         let cardY = (p.cardHeight + 60) * (index + 1) - (p.cardHeight / 2);
 
         //TRANSITION
@@ -510,12 +552,12 @@ const Face = React.createClass({
 
         if (inRange){
           card.style('background: white')
-          card.style('box-shadow: 2px 0px 19px 0px rgba(78, 78, 67, 0.52)')
+          card.style('box-shadow: 2px 0px 19px 0px rgba(78, 78, 67, 0.22)')
           p.activeCard = index;
         }
         else{
           card.style('background: white')
-          card.style('box-shadow: 2px 0px 17px 0px rgba(78, 78, 67, 0.42)')
+          card.style('box-shadow: 2px 0px 17px 0px rgba(78, 78, 67, 0.12)')
           // p.activeCard = -1;
         }
 
@@ -545,7 +587,7 @@ const Face = React.createClass({
           p.frameId++;
           p.checkTransitions()
 
-          p.renderStack();
+          p.renderStacks();
 
       }
 
