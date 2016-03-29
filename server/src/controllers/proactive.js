@@ -92,17 +92,18 @@ class Proactive {
         console.error('No user loaded, cant get recommendations');
       }
       try {
-        console.log('recommending');
+
         let activeUrl = this.context.getActiveUrl();
-        console.log(activeUrl, this.lastActiveUrl);
         //If the url is the same as before, do nothing
         //|| _.isUndefined(activeUrl.url)
 
-        if (activeUrl.url === this.lastActiveUrl){
+        if (activeUrl.url === this.lastActiveUrl || _.isUndefined(activeUrl.url) || activeUrl.url === 'http://localhost:8888/'){
           // process.stdout.write('=');
           return;
         }
 
+        // console.log(activeUrl, this.lastActiveUrl);
+        // console.log('recommending');
         this.lastActiveUrl = activeUrl.url;
 
         let anHourAgo = moment().subtract(1, 'hour').format();
@@ -123,6 +124,7 @@ class Proactive {
         }
         else{
           // process.stdout.write('_');
+          return;
         }
 
         //
@@ -130,15 +132,7 @@ class Proactive {
         let yesterdayDay = await this.deep.getHistorics(user.username, yesterday,now);
         let yesterdayThisHour = await this.deep.getHistorics(user.username, yesterday,yesterdayHour);
 
-        let historics = {social,lastHour, yesterdayDay, yesterdayThisHour};
-
-
-        console.log({
-          historics: historics,
-          social: social,
-          openwith: openwith,
-          kwrelated: kwrelated
-        });
+        let historics = {lastHour, yesterdayDay, yesterdayThisHour};
 
         this.io.emit('recommendations', {
           historics: historics,

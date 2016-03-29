@@ -82,14 +82,14 @@ const Face = React.createClass({
           // self.say(question.text);
         });
 
-        let keywords = ['thanks',
-                     'graph',
-                     'neo4j',
-                     'open source'];
-
-        p.cards = keywords.map((keyword, index) => {
-          return p.createCard(keyword, index)
-        });
+        // let keywords = ['thanks',
+        //              'graph',
+        //              'neo4j',
+        //              'open source'];
+        //
+        // p.cards = keywords.map((keyword, index) => {
+        //   return p.createCard(keyword, index)
+        // });
 
 
 
@@ -165,27 +165,11 @@ const Face = React.createClass({
         p.faceContainer = p.createDiv('');
 
 
-        // // p.face = p.rect(10,10, 10,10);
-        //
-        // p.face.parent(p.bottomBar);
 
         p.faceContainer.parent(p.bottomBar);
         p.inputBar.parent(p.bottomBar);
         p.selectedCard = 0
         p.bottomBar.position(inputPosition.x, inputPosition.y);
-
-        // p.cards = cardsObjs.map((card, index) => {
-        //   return p.createCard(card.text, index)
-        // })
-
-
-
-
-        // let words = rita.tokenize("The elephant took a bite!");
-        // for (let i=0, j = words.length; i<j; i++) {
-        //     p.text(words[i], 50, 50 + i*20);
-        // }
-
 
 
       }
@@ -196,7 +180,18 @@ const Face = React.createClass({
           return p.createCard(item.title, index)
         });
 
+        let social = recommendations.social;
         p.recs[1] = social.map((item, index) => {
+          return p.createCard(item.title, index)
+        });
+
+        let historics = recommendations.historics.yesterdayDay;
+        p.recs[2] = historics.map((item, index) => {
+          return p.createCard(item.title, index)
+        });
+
+        let kwrelated = recommendations.kwrelated;
+        p.recs[3] = kwrelated.map((item, index) => {
           return p.createCard(item.title, index)
         });
 
@@ -475,12 +470,23 @@ const Face = React.createClass({
       }
 
       p.renderStacks = function(){
-        p.renderStack(0, p.recs[0]);
-        p.renderStack(1, p.recs[1]);
+        if (!_.isEmpty(p.recs[0])) p.renderStack(0, p.recs[0]);
+        if (!_.isEmpty(p.recs[1])) p.renderStack(1, p.recs[1]);
+        if (!_.isEmpty(p.recs[2])) p.renderStack(2, p.recs[2]);
+        if (!_.isEmpty(p.recs[3])) p.renderStack(3, p.recs[3]);
+
+        // p.renderStack(1, p.recs[1]);
+        // p.renderStack(3,p.cards);
       }
 
       p.renderStack = function(stackPosition, cards){
         // console.log('Rendering',cards);
+
+        if (_.isEmpty(cards)) {
+          // console.log('No cards');
+          return;
+        }
+
         let stackX = p.columnsGrid[stackPosition] + 40;
         // console.log('STACKX', stackPosition);
         let activeCards = cards.filter(card => !card.disabled)
