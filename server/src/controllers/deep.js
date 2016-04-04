@@ -11,7 +11,7 @@ let connection = null;
 class Deep{
   constructor(history, context){
     this.context = context;
-    this.connection = GLOBAL.rethinkdbConnection    
+    this.connection = GLOBAL.rethinkdbConnection
   }
 
   getUrlById(id){
@@ -57,6 +57,18 @@ limit 10
 
     return openwith;
 
+  }
+
+  async getRelatedToAUser() {
+    let cypher =
+    `match
+(url:Url)-[r:openwith]-(another:Url),
+(keyword:Keyword)-[s:related]->(url),
+(keyword)-[t:related]->(another),
+(url)-[u:touched]-(user:User)
+return user, u, url, another, r, keyword, s, t
+order by r.weight desc
+limit 30`;
   }
 
 
