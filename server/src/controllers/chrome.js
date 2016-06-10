@@ -10,11 +10,7 @@ import MetaInspector from 'node-metainspector';
 
 import request from 'request-promise'
 
-let graph = require("seraph")({
-  user: 'neo4j',
-  pass: 'sherpa',
-  server: 'http://45.55.36.193:7474'
-});
+let graph = require("seraph")({user: 'neo4j', pass: 'sherpa', server: 'http://45.55.36.193:7474'});
 
 let graphAsync = Promise.promisifyAll(graph);
 
@@ -30,34 +26,38 @@ graph.constraints.uniqueness.create('Url', 'url', function(err, constraint) {
 
 let db = new PouchDB('sherpa');
 
-
 class ChromeController {
-  constructor(socket, sid,io, context, history){
-    this.socket = socket;
+  constructor(socket, sid, io, context, history) {
+    this.nsp = this.socket = io.of('/chrome');
+    // this.socket = socket;
     this.tabs = [];
     this.urls = [];
     this.activeTab = {};
     this.sid = sid;
-    this.io = io;
+    // this.io = io;
     this.context = context;
     this.history = history;
 
-    this.io.emit('load-tabs');
+    // this.io.emit('load-tabs');
     this.registerEvents();
 
   }
 
-  registerEvents(){
+  registerEvents() {
     var self = this;
 
-    self.socket.on('chrome-init', function(tabs){
+    self.socket.on('connection', function(socket) {
+      console.log('chrome client connected');
+    });
+
+    self.socket.on('chrome-init', function(tabs) {
       console.log('chrome-init');
-      console.log("found ",   tabs.length, "tabs.");
+      console.log("found ", tabs.length, "tabs.");
       self.tabs = tabs;
       self.saveSession();
     });
 
-    self.socket.on('chrome-created', function(msg){
+    self.socket.on('chrome-created', function(msg) {
       let {active, tabs} = msg;
       console.log('chrome-created', tabs.length);
       self.tabs = tabs;
@@ -65,28 +65,25 @@ class ChromeController {
       self.saveSession();
     });
 
-    self.socket.on('chrome-highlighted', function(msg){
+    self.socket.on('chrome-highlighted', function(msg) {
       let {active, tabs} = msg;
 
-      self.handleHighlighted(active).then(function(related){
-          self.io.emit('related', related)
+      self.handleHighlighted(active).then(function(related) {
+        self.io.emit('related', related)
       });
     });
 
-
-    self.socket.on('chrome-updated', function(message){
+    self.socket.on('chrome-updated', function(message) {
       console.log('chrome-updated');
       let {active, tabs} = message;
       // console.log('tabs', tabs);
       self.tabs = tabs;
-      self.handleUpdated(active).then(function(){
-
-      });
+      self.handleUpdated(active).then(function() {});
 
       self.saveSession();
     });
 
-    self.socket.on('heartbeat', function(hb){
+    self.socket.on('heartbeat', function(hb) {
       console.log(".");
       self.saveSession();
     });
@@ -106,52 +103,52 @@ class ChromeController {
     // });
   }
 
-  async saveSession(){
+  async saveSession() {
     let self = this;
     this.context.updateTabs(self.tabs);
   }
 
-
-
-
-
-
-
-
-
-  getUrl(url){
+  getUrl(url) {
     let self = this;
     return new Promise(function(resolve, reject) {
-      graph.find({type: 'url', url: url}, function(err, node){
-        node = node ? node[0] : {type: 'url', url: url};
-        if (err) reject(err)
+      graph.find({
+        type: 'url',
+        url: url
+      }, function(err, node) {
+        node = node
+          ? node[0]
+          : {
+            type: 'url',
+            url: url
+          };
+        if (err)
+          reject(err)
         else {
           resolve(node);
-          if (node && !node.keywords || node.keywords.length === 0){
+          if (node && !node.keywords || node.keywords.length === 0) {
             self.fetchUrlMetaData(url);
           }
         }
-
 
       });
     });
   }
 
-  getActiveTab(id){
+  getActiveTab(id) {
     return this.tabs.filter(tab => tab.id === id)
   }
 
-
-  getUrlById(id){
+  getUrlById(id) {
     return new Promise(function(resolve, reject) {
       // console.log('ID', id);
-      graph.read(id, function(err,node){
-        node = node ? node : {}
+      graph.read(id, function(err, node) {
+        node = node
+          ? node
+          : {}
         if (err) {
           console.log(err);
           reject(err)
-        }
-        else {
+        } else {
           console.log('found url by id', node);
           resolve(node);
         }
@@ -159,25 +156,35 @@ class ChromeController {
     });
   }
 
-  getKeywordByText(keyword){
+  getKeywordByText(keyword) {
     return new Promise(function(resolve, reject) {
-      graph.find({type: 'keyword', text: keyword}, function(err, keywords){
-        if (err) reject (err)
-        else resolve(keywords[0])
+      graph.find({
+        type: 'keyword',
+        text: keyword
+      }, function(err, keywords) {
+        if (err)
+          reject(err)
+        else
+          resolve(keywords[0])
       })
     });
   }
 
-  getUrlNodeByUrl(url){
+  getUrlNodeByUrl(url) {
     return new Promise(function(resolve, reject) {
-      graph.find({type: 'url', url: url}, function(err, urls){
-        if (err) reject (err)
-        else resolve(urls[0])
+      graph.find({
+        type: 'url',
+        url: url
+      }, function(err, urls) {
+        if (err)
+          reject(err)
+        else
+          resolve(urls[0])
       })
     });
   }
 
-  async handleUpdated(active){
+  async handleUpdated(active) {
     let activeTab = this.getActiveTab(active)
     // let related = await this.getRelated(activeTab[0].url,10);
     // let relatedUrls = await Promise.all(related.map(relation => this.getUrlById(relation.end)))
@@ -185,47 +192,51 @@ class ChromeController {
     // return relatedUrls
   }
 
-  async handleHighlighted(active){
+  async handleHighlighted(active) {
     let activeTab = this.getActiveTab(active.tabIds[0])
 
-    if (!activeTab[0]){
+    if (!activeTab[0]) {
       return [];
     }
-    let activeUrl = { url: activeTab[0].url, title: activeTab[0].title};
-
+    let activeUrl = {
+      url: activeTab[0].url,
+      title: activeTab[0].title
+    };
 
     this.context.setActiveUrl(activeUrl);
 
-    this.history.saveEvent({type: 'highlighted', source: 'chrome', data: { url: activeUrl} }).then(function(res){
+    this.history.saveEvent({
+      type: 'highlighted',
+      source: 'chrome',
+      data: {
+        url: activeUrl
+      }
+    }).then(function(res) {
       // console.log('highlited chrome saved');
     });
   }
 
-
-  async associateWithFiles(fileNode){
-    console.log('fileNode',fileNode);
-    console.log('urls',this.urls);
+  async associateWithFiles(fileNode) {
+    console.log('fileNode', fileNode);
+    console.log('urls', this.urls);
   }
 
-  async getRelated(url, threshold){
-    let cypher = 'MATCH (n:Url)-[r:openwith]->(q:Url) WHERE n.url = "' + url +'" RETURN r ';
+  async getRelated(url, threshold) {
+    let cypher = 'MATCH (n:Url)-[r:openwith]->(q:Url) WHERE n.url = "' + url + '" RETURN r ';
     console.log(cypher);
-    let params = {url: url, threshold: threshold};
+    let params = {
+      url: url,
+      threshold: threshold
+    };
 
-    try{
-      let res = await this.queryGraph(cypher,params);
+    try {
+      let res = await this.queryGraph(cypher, params);
       return res;
-    }
-    catch(err){
+    } catch (err) {
       // console.log('failed to relate', err);
     }
   }
 
-
-
 }
-
-
-
 
 module.exports = ChromeController

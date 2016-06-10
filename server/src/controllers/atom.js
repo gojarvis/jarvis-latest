@@ -208,7 +208,7 @@ class AtomController {
     let relatedFilesNodes = await Promise.all(relatedFiles.map(relation => this.getNodeById(relation.end)))
     let relatedUrlNodes = await Promise.all(relatedUrls.map(relation => this.getNodeById(relation.end)))
 
-    
+
     let related = _.union(relatedFilesNodes,relatedUrlNodes)
     // let relatedFilesFix = relatedFiles.map(item => {
     //   // console.log(_.lodash(item.uri.split("/")));
