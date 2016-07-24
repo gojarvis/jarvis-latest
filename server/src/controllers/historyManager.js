@@ -32,6 +32,11 @@ class HistoryManager{
       console.error('History Manager: error saving history event', e);
     }
   }
+
+  //TODO
+  getGroupedEventByType(eventType, grouping){
+
+  }
 }
 
 module.exports = HistoryManager;

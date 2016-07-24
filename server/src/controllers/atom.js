@@ -8,12 +8,14 @@ import PouchDB from 'pouchdb';
 import _ from 'lodash';
 import keywordExtractor from 'keyword-extractor';
 import MetaInspector from 'node-metainspector';
+import config from 'config';
 
+let dbConfig = config.get('graph');
 
 let graph = require("seraph")({
-  user: 'neo4j',
-  pass: 'sherpa',
-  server: 'http://45.55.36.193:7474'
+  user: dbConfig.user,
+  pass: dbConfig.pass,
+  server: dbConfig.server
 });
 
 let graphAsync = Promise.promisifyAll(graph);
@@ -208,7 +210,7 @@ class AtomController {
     let relatedFilesNodes = await Promise.all(relatedFiles.map(relation => this.getNodeById(relation.end)))
     let relatedUrlNodes = await Promise.all(relatedUrls.map(relation => this.getNodeById(relation.end)))
 
-    
+
     let related = _.union(relatedFilesNodes,relatedUrlNodes)
     // let relatedFilesFix = relatedFiles.map(item => {
     //   // console.log(_.lodash(item.uri.split("/")));

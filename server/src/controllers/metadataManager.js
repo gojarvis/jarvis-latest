@@ -12,7 +12,7 @@ let graphUtils = new GraphDB();
 let alchemy_language = watson.alchemy_language({api_key: '90b037daf9e184f3f506be9f7667ce289b1392b0'});
 
 let graph = require("seraph")({
-  user: 'neo4j', pass: 'sherpa', server: 'http://45.55.36.193:7474',
+  user: 'neo4j', pass: 'sherpa', server: 'http://localhost:7474',
   // server: 'http://localhost:7474',
 });
 

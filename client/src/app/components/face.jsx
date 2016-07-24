@@ -175,6 +175,7 @@ const Face = React.createClass({
       }
 
       p.hanldeRecommendations = function(recommendations){
+
         let openwith = recommendations.openwith;
         p.recs[0] = openwith.map((item, index) => {
           return p.createCard(item.title, index)
@@ -186,6 +187,10 @@ const Face = React.createClass({
         });
 
         let historics = recommendations.historics.yesterdayDay;
+        historics = historics.map(item => {
+          return item.data.url
+        });
+        
         p.recs[2] = historics.map((item, index) => {
           return p.createCard(item.title, index)
         });

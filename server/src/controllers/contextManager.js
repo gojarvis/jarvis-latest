@@ -7,7 +7,7 @@ import r from 'rethinkdb'
 let graph = require("seraph")({
   user: 'neo4j',
   pass: 'sherpa',
-  server: 'http://45.55.36.193:7474'
+  server: 'http://localhost:7474'
 });
 
 // var db = Thinky();
@@ -34,12 +34,6 @@ class contextManager{
     });
     graph.constraints.uniqueness.create('User', 'username', function(err, constraint) {});
 
-
-
-
-
-
-
     this.user = {};
     this.urls = [];
     this.urlsArtifacts = [];
@@ -59,7 +53,7 @@ class contextManager{
         user = await this.setUser(userInfo);
         this.user = user;
 
-        this.heart.createEvent(60, function(heartbeat, last){
+        this.heart.createEvent(10, function(heartbeat, last){
           this.handleHeartbeat(heartbeat);
         }.bind(this));
 
@@ -99,7 +93,7 @@ class contextManager{
   getSaveUserInGraph(user){
     return new Promise(function(resolve, reject) {
       graph.find(user, function(err, node){
-        if (err){
+        if (err || !node.length){
           console.log('user doesnt exist, saving', user);
           graph.save(user, "User", function(err, node){
             if (err){
@@ -107,13 +101,13 @@ class contextManager{
               reject(err);
             }
             else{
-              console.log('USER SAVED', node, node[0]);
-              resolve(node[0]);
+              console.log('USER SAVED', node);
+              resolve(node);
             }
           })
         }
         else{
-          console.log('user found')
+          console.log('user found', err, node);
           resolve(node[0])
         }
       })
@@ -270,7 +264,7 @@ class contextManager{
   async relateNodes(origin, target, relationship){
 
     let cypher = 'START a=node({origin}), b=node({target}) '
-                +'CREATE UNIQUE a-[r:'+relationship+']-b '
+                +'CREATE UNIQUE (a)-[r:'+relationship+']-(b) '
                 +'SET r.weight = coalesce(r.weight, 0) + 1';
     let params = {origin: origin.id, target: target.id, relationship: relationship};
 
@@ -283,7 +277,7 @@ class contextManager{
 
     catch(err){
       let cypher = 'START a=node('+origin.id+'), b=node('+target.id+') '
-                  +'CREATE UNIQUE a-[r:'+relationship+']-b '
+                  +'CREATE UNIQUE (a)-[r:'+relationship+']-(b) '
                   +'SET r.weight = coalesce(r.weight, 0) + 1';
 
       // console.log('failed', err, cypher);
@@ -295,7 +289,7 @@ class contextManager{
   //Creates a bi-directional relationship between nodes
   async associateNodes(origin, target, relationship){
     let cypher = 'START a=node({origin}), b=node({target}) '
-                +'CREATE UNIQUE a<-[r:'+relationship+']->b '
+                +'CREATE UNIQUE (a)<-[r:'+relationship+']->(b) '
                 +'SET r.weight = coalesce(r.weight, 0) + 1';
     let params = {origin: origin.id, target: target.id, relationship: relationship};
 
@@ -308,10 +302,10 @@ class contextManager{
 
     catch(err){
       let cypher = 'START a=node('+origin.id+'), b=node('+target.id+') '
-                  +'CREATE UNIQUE a-[r:'+relationship+']-b '
+                  +'CREATE UNIQUE (a)-[r:'+relationship+']-(b) '
                   +'SET r.weight = coalesce(r.weight, 0) + 1';
 
-      // console.log('failed', err, cypher);
+      console.log('failed', err, cypher);
     }
 
     return res

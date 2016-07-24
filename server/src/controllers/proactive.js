@@ -24,7 +24,7 @@ class Proactive {
       this.metadata = new Meta(this.user);
 
 
-      this.heart.createEvent(30, function(heartbeat, last){
+      this.heart.createEvent(10, function(heartbeat, last){
         this.handleHeartbeat(heartbeat);
       }.bind(this));
 
@@ -32,23 +32,16 @@ class Proactive {
         this.handleDeepconnect(heartbeat);
       }.bind(this));
 
-      this.registerEvents()
-    }
 
-    registerEvents(){
-      let self = this;
     }
 
     handleHeartbeat(hb){
       let self = this;
       self.socket.emit('heartbeat', hb);
-
       self.recommend();
-
-      // process.stdout.write('0');
     }
 
-    async deepContext(){
+    async relateContextToItself(){
         try{
           let urls = this.context.get().urls;
           let files = this.context.get().files;
@@ -85,6 +78,27 @@ class Proactive {
       return singleRelationships;
     }
 
+    // async recommend(){
+    //   let user = this.context.get().user;
+    //
+    //   if (_.isEmpty(user)){
+    //     console.error('No user loaded, cant get recommendations');
+    //   }
+    //   try {
+    //
+    //     let activeUrl = this.context.getActiveUrl();
+    //     //If URL did not change
+    //     if (activeUrl.url === this.lastActiveUrl || _.isUndefined(activeUrl.url) || activeUrl.url === 'http://localhost:8888/'){
+    //       // process.stdout.write('=');
+    //       return;
+    //     }
+    //   } catch (e) {
+    //       console.log('whoops', e);
+    //   } finally {
+    //
+    //   }
+    // }
+
     async recommend(){
       let user = this.context.get().user;
 
@@ -94,16 +108,14 @@ class Proactive {
       try {
 
         let activeUrl = this.context.getActiveUrl();
-        //If the url is the same as before, do nothing
-        //|| _.isUndefined(activeUrl.url)
 
-        if (activeUrl.url === this.lastActiveUrl || _.isUndefined(activeUrl.url) || activeUrl.url === 'http://localhost:8888/'){
-          // process.stdout.write('=');
+        //If the url is the same as before, do nothing
+
+        if (activeUrl.url === this.lastActiveUrl || _.isUndefined(activeUrl.url)){
+          process.stdout.write('=');
           return;
         }
 
-        // console.log(activeUrl, this.lastActiveUrl);
-        // console.log('recommending');
         this.lastActiveUrl = activeUrl.url;
 
         let anHourAgo = moment().subtract(1, 'hour').format();
@@ -123,8 +135,7 @@ class Proactive {
           kwrelated = await this.deep.getKeywordRelated(activeUrl);
         }
         else{
-          // process.stdout.write('_');
-          return;
+          process.stdout.write('_');
         }
 
         //
@@ -132,8 +143,15 @@ class Proactive {
         let yesterdayDay = await this.deep.getHistorics(user.username, yesterday,now);
         let yesterdayThisHour = await this.deep.getHistorics(user.username, yesterday,yesterdayHour);
 
-        let historics = {lastHour, yesterdayDay, yesterdayThisHour};
+        let historics = {social,lastHour, yesterdayDay, yesterdayThisHour};
 
+
+        console.log('RECOMMENDING', {
+          historics: historics,
+          social: social,
+          openwith: openwith,
+          kwrelated: kwrelated
+        });
         this.io.emit('recommendations', {
           historics: historics,
           social: social,
@@ -150,33 +168,64 @@ class Proactive {
 
     }
 
-
-
     async handleDeepconnect(){
       let self = this;
-      self.deepContext();
-      //Suggest clusters for tagging
-      // let possibleClusters = await this.deep.updateClusters()
-      // if (possibleClusters > 0){
-      //   this.socket.emit('possible-clusters', possibleClusters)
-      // }
-      //
-      // let relevantFiles = await this.relevantFiles()
-      // if (relevantFiles > 0){
-      //   this.socket.emit('relevant-files', relevantFiles)
-      // }
-      //
-      // let relevantUrls = await this.relevantFiles()
-      // if (relevantUrls > 0){
-      //   this.socket.emit('relevant-urls', relevantUrls)
-      // }
+      self.relateContextToItself();
+      self.updateUserPools();
+      self.updateOverallPools();
+    }
+
+    async getUserUrlsByTime(){
+
+    }
+
+    async getUserFilesByTime(){}
+
+    async getRelatedUrl(entry, minWeight){
+      //Search Neo4j for URLs that are related to the Entry with at least minWeight weight
+    }
+
+    async updateUserPools(){
+      let self = this;
+
+      //Get The user's URLs, Files, and Commands by time.
+      //This should also include URLs based on time, as well as "overall"
+      let userUrlsByTime = await self.getUserUrlsByTime()
+
+      let userFilesByTime = await self.getUserFilesByTime()
+
+      let userCommandsByTime = await self.getUserCommandsByTime()
+
+      //Get urls that are highly related to files and commands
+      let weight = 100;
+
+      //Insert URLs to DB
+      let urlsDB = await self.updateURLs()
+      //Iterate over the URLs, and find all of their keywords
+
+      //Get a list of unique URLs from the database
+      let urls = await self.getUniqueUrls(urlsDB)
+
+      //Create list of all Keywords
+      let userCurrentKeywordSpace = self.getKeywordsForUrls(urls);
+
+      //Insert Keywords to DB, count and sort by desc frequency of keyword
+
+
+      //Search which URLs are related to top keywords
+
+      //Search which Files and Commands are related to top URLs (--> keywords)
+
+      //Search for repeating URLs in user's own history
+
 
 
     }
 
-    async getFrame(){
-      //https://www.youtube.com/watch?v=2o2xBOQeB7Q
+    async updateOverallPools(){
+
     }
+
 
 
 

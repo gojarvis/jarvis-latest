@@ -1,0 +1,10 @@
+{
+  "graph": {
+    "user": "neo4j",
+    "pass": "sherpa",
+    "server": "http://localhost:7474"
+  },
+  "user": {
+    "username": "roieki"
+  }
+}

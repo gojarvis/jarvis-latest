@@ -10,11 +10,13 @@ const History = require('../controllers/historyManager');
 const Proactive = require('../controllers/proactive');
 const Deep = require('../controllers/deep');
 const Conversations = require('../controllers/conversationsManager');
-
+import config from 'config';
 //The context contains all the urls and files open right now
 //Access to the knowledge graph is gained via the context
+let userConfig = config.get('user');
+
 const userInfo = {
-  username: 'parties'
+  username: userConfig.username
 };
 
 const history = new History(userInfo.username);

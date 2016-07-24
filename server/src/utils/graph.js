@@ -1,14 +1,17 @@
 //TODO: All graph methods should live in one place. Currently unused.
 import Redis from 'ioredis'
+import config from 'config';
 let redis = new Redis();
 let pipeline = redis.pipeline();
 
+let dbConfig = config.get('graph');
 
 let graph = require("seraph")({
-  user: 'neo4j',
-  pass: 'sherpa',
-  server: 'http://45.55.36.193:7474'
+  user: dbConfig.user,
+  pass: dbConfig.pass,
+  server: dbConfig.server
 });
+
 
 
 class GraphDB{
