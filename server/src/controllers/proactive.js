@@ -5,9 +5,6 @@ import moment from 'moment'
 import Meta from './metadataManager';
 import graphUtils from '../utils/graph';
 
-
-
-
 class Proactive {
     constructor(socket, sid, io, context, history, deep){
       this.socket = socket;
@@ -22,7 +19,6 @@ class Proactive {
       //I'm going to throw up on myself, but FUCK IT.
       this.user = this.context.get().user;
       this.metadata = new Meta(this.user);
-
 
       this.heart.createEvent(10, function(heartbeat, last){
         this.handleHeartbeat(heartbeat);
