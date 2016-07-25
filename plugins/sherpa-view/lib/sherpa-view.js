@@ -39,18 +39,19 @@ export default {
   },
 
   showPanel(){
-    var zoomba = document.createElement('div');
-    zoomba.innerHTML = '<span class="sherpa-panel"><iframe id="sviewport" class="sherpa-viewport" src="http://localhost:8888"></iframe></span>';
-    // zoomba.textContent('Hello');
+    var el = document.createElement('div');
+    el.innerHTML = '<span class="sherpa-panel"><iframe id="sviewport" class="sherpa-viewport" src="http://localhost:8888"></iframe></span>';
+    // el.textContent('Hello');
     atom.workspace.addRightPanel({
-      item: zoomba
+      item: el
     });
+
     document.getElementById('sviewport').style.height = document.body.scrollHeight +'px';
 
   },
 
   toggle() {
-    console.log('SherpaView was toggled!');
+
     return (
       this.modalPanel.isVisible() ?
       this.modalPanel.hide() :
