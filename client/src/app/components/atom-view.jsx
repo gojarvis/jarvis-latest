@@ -1,45 +1,44 @@
-import { createClass, createElement, PropTypes } from 'react';
-import { assetPath, assetCache } from '../assets.js';
-import { find } from 'lodash';
-import * as THREE from 'three';
-import { Mesh } from 'react-three';
+import React from 'react';
+import imm from 'immutable';
+import Radium, { Style } from 'radium';
+import { STYLES, COLORS } from '../styles';
+import {mouseTrap} from 'react-mousetrap';
 
 
-let boxgeometry = new THREE.BoxGeometry(10,10,10);
 
-let boxmaterialcache = [];
-function lookupmaterial(materialname) {
-  let material = find(boxmaterialcache, function(x) { return x.name === materialname;});
-  if (typeof material !== "undefined") { return material; }
+class AtomView extends React.Component {
+  constructor(){
+    super();
+  }
+  componentWillMount() {
 
-  // not found. create a new material for the given texture
-  let texturemap = THREE.ImageUtils.loadTexture( assetPath(materialname) );
-  let newmaterial = new THREE.MeshBasicMaterial( { map: texturemap } );
-  newmaterial.name = materialname;
+  }
 
-  boxmaterialcache.push(newmaterial);
-  return newmaterial;
+  componentDidMount() {
+
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+
+  }
+
+  render(){
+    let items = [0,1,2,3,4,5,6,7,8,9,10];
+    let cards = items.map( index => {
+      return (
+        <div style={{width: "90vw", backgroundColor: "rgba(80, 195, 210, 0.67)", padding: "13px", margin: "0 auto", marginBottom: "15px"}}>
+          Hello {index}
+        </div>
+      )
+    })
+    return(
+      <div style={{ fontFamily: "arial", height: "100vh", backgroundColor: "rgb(40, 44, 52)"}}>
+        <div style={{padding: "10px"}}>
+          {cards}
+        </div>
+      </div>
+    )
+  }
 }
 
-export let ClickableCube = createClass({
-  displayName: 'ClickableCube',
-  propTypes: {
-    position: PropTypes.instanceOf(THREE.Vector3),
-    quaternion: PropTypes.instanceOf(THREE.Quaternion),
-    materialname: PropTypes.string.isRequired,
-    shared: PropTypes.bool
-  },
-  render: function() {
-    let boxmaterial = lookupmaterial(this.props.materialname);
-    let cubeprops = Object.assign({}, this.props, {
-      geometry: boxgeometry,
-      material: boxmaterial,
-      //geometry: assetCache['cyclopsGeometry'],
-      //material: assetCache['cyclopsMaterial'],
-      scale: 3
-    });
-    return createElement(Mesh, cubeprops);
-  }
-});
-
-export default ClickableCube;
+export default mouseTrap(Radium(AtomView));
