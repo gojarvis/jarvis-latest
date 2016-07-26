@@ -39,24 +39,25 @@ class AtomController {
     // console.log('atom-online');
     var self = this;
 
-    self.socket.on('atom-open', function(msg){
-      // console.log('atom-open', msg);
-    });
-
-
-    // self.socket.on('atom-connected', function(){
-    //   console.log('atom-connected');
+    // self.socket.on('atom-open', function(msg){
+    //   console.log('atom-open', msg);
     // });
+
+
+    self.socket.on('atom-connected', function(){
+      console.log('atom-connected');
+    });
     //
     // self.socket.on('atom-file-saved', function(msg){
     //   console.log('atom-file-saved', msg);
     // });
 
-    self.socket.on('atom-file-observed', function(msg){
-      self.handleFileObserved(msg.uri);
-    })
+    // self.socket.on('atom-file-observed', function(msg){
+    //   self.handleFileObserved(msg.uri);
+    // })
     //
     self.socket.on('atom-highlighted', function(msg){
+      console.log('highlight');
       self.handleFileHighlighted(msg.uri).then(function(related){
         self.io.emit('related-files', related);
       });
@@ -73,27 +74,27 @@ class AtomController {
   }
 
   async saveSession(tabs){
-    // let graphNodes = [];
-    // this.tabs = tabs;
-    // try {
-    //   graphNodes = await Promise.all(tabs.map(tab => this.saveFile(tab.uri)));
-    //   if (graphNodes.length > 0){
-    //
-    //   }
-    // }
-    // catch(err) {
-    //   //already exists
-    //   graphNodes = await Promise.all(tabs.map(tab => this.getFile(tab.uri)));
-    // }
-    //
-    // this.urls = graphNodes;
-    //
-    // let relationshipsTop = await Promise.all(graphNodes.map(node =>{
-    //   let origin = node;
-    //   let others = graphNodes.filter(node => node.id !== origin.id);
-    //   let relationship = 'openwith';
-    //   return this.relateOneToMany(origin,others,relationship)
-    // }));
+    let graphNodes = [];
+    this.tabs = tabs;
+    try {
+      graphNodes = await Promise.all(tabs.map(tab => this.saveFile(tab.uri)));
+      if (graphNodes.length > 0){
+
+      }
+    }
+    catch(err) {
+      //already exists
+      graphNodes = await Promise.all(tabs.map(tab => this.getFile(tab.uri)));
+    }
+
+    this.urls = graphNodes;
+
+    let relationshipsTop = await Promise.all(graphNodes.map(node =>{
+      let origin = node;
+      let others = graphNodes.filter(node => node.id !== origin.id);
+      let relationship = 'openwith';
+      return this.relateOneToMany(origin,others,relationship)
+    }));
   }
 
   async relateOneToMany(origin, others, relationship){
@@ -219,7 +220,7 @@ class AtomController {
     // });
 
     this.history.saveEvent({type: 'highlighted', source: 'atom', data: { nodeId: fileNode.id, uri: uri} }).then(function(res){
-      // console.log('highlited atom saved');
+      console.log('highlighted atom saved');
     });
 
     return related

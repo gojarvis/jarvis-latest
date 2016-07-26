@@ -53,7 +53,7 @@ class contextManager{
         user = await this.setUser(userInfo);
         this.user = user;
 
-        this.heart.createEvent(10, function(heartbeat, last){
+        this.heart.createEvent(15, function(heartbeat, last){
           this.handleHeartbeat(heartbeat);
         }.bind(this));
 
@@ -137,7 +137,7 @@ class contextManager{
 
   updateFiles(files){
     this.files = files;
-    // console.log('context updated files', this.files);
+    console.log('context updated files', this.files);
   }
 
   addFileNode(fileNode){
@@ -149,13 +149,15 @@ class contextManager{
     }
   }
 
-  async updateActivity(){
+  async updateUserActivity(){
+
     let activeUrl = this.getActiveUrl();
     let urlNode = await this.getUrlNodeByUrl(activeUrl.url);
 
-
-
+    //Mark URL as touched
     let rel = this.relateNodes(this.user, urlNode, 'touched');
+
+
 
   }
 
@@ -173,19 +175,35 @@ class contextManager{
   setActiveUrl(url){
     this.activeUrl = url;
 
-    this.updateActivity();
+
+    this.updateUserActivity();
   }
 
   getActiveUrl(){
     return this.activeUrl;
   }
 
-  async relateUrlsToFiles(){
-    // console.log(this.urls,this.files)
-    let urlToFiles = await Promise.all(this.urls.map(url => this.relateOneToMany(url, this.files, 'openwith')));
-    let filesToUrls = await Promise.all(this.files.map(file => this.relateOneToMany(file, this.urls, 'openwith')));
+  async relateUrlsToFiles(urls, files){
+    console.log('relateUrlsToFiles', urls,files);
+    let urlToFiles = await Promise.all(urls.map(url => this.relateOneToMany(url, files, 'openwith')));
+    let filesToUrls = await Promise.all(files.map(file => this.relateOneToMany(file, urls, 'openwith')));
 
-    console.log('related stuff', this.files.length, this.urls.length);
+    console.log('related stuff', files.length, urls.length);
+  }
+
+  async relateUrlsToUrls(urls){
+    // console.log(this.urls,this.files)
+
+    //This will create a relationship with each URL and evrey url in the same context (including itself, TODO: Fix that)
+
+    //TODO: otherUrls = > filter url from urls
+    _.forEach(urls, async function(url){
+      let others = urls.filter(node => node.id !== url.id);
+      let urlToUrls = await Promise.all(urls.map(url => this.relateOneToMany(url, others, 'openwith')));
+    });
+
+
+    console.log('related urls', urls);
   }
 
 
@@ -200,7 +218,7 @@ class contextManager{
 
     if (!_.isEmpty(this.urls)){
       let userToUrls = await this.relateOneToMany(this.user, this.urls, 'touched')
-      // console.log('associated user with ', this.urls.length, 'urls');
+      console.log('associated user with ', this.urls.length, 'urls');
     }
     else{
       // console.log('no urls to associate');
@@ -209,7 +227,7 @@ class contextManager{
     if (!_.isEmpty(this.files)){
       // console.log('assoc files', this.files);
       let userToFiles = await this.relateOneToMany(this.user, this.files, 'touched')
-      // console.log('associated user with ', this.files.length, 'files');
+      console.log('associated user with ', this.files.length, 'files');
 
     }
     else{
@@ -218,7 +236,7 @@ class contextManager{
   }
 
   handleHeartbeat(heartbeat){
-    process.stdout.write('-');
+    process.stdout.write('-*-');
     this.saveContext();
   }
 
@@ -226,25 +244,33 @@ class contextManager{
     this.history.saveEvent({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls} }).then(function(res){})
   }
 
-
   async saveContext(){
     let self = this;
+    //Save URL nodes
     try {
       let urlsArtifacts = this.urlsArtifacts;
       let files = this.files;
-
+      console.log('FILES', files.length);
+      console.log('urlsArtifacts',urlsArtifacts);
       let urls = await Promise.all(urlsArtifacts.map(urlsArtifact => self.saveUrl(urlsArtifact.url, urlsArtifact.title)))
+      console.log('saved urls', urls);
       this.urls = urls;
+
+
+      if (files.length > 0 ){
+        this.relateUrlsToFiles(urls, files);
+      }
+      this.relateUrlsToUrls(urls);
+
+      this.relateUserToContext();
+
     } catch (e) {
       console.error('something went wrong when creating a context', e);
     } finally {
 
     }
 
-    if (this.files.length > 0 ){
-      this.relateUrlsToFiles(urls, files);
-    }
-    this.relateUserToContext();
+
   }
 
 
@@ -334,14 +360,11 @@ class contextManager{
 
   getFileCount(){
     return new Promise(function(resolve, reject) {
-      graph.query('MATCH (n:Url) RETURN count(n)', function(err, result){
+      graph.query('MATCH (n:File) RETURN count(n)', function(err, result){
         if (err) reject(err)
       });
     });
   }
-
-
-
 
   saveUrl(url, title){
     let self = this;
@@ -365,7 +388,7 @@ class contextManager{
 
 
           } finally {
-
+            console.log('wat');
           }
         }
 

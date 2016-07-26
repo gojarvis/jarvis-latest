@@ -139,7 +139,10 @@ class Proactive {
         let yesterdayDay = await this.deep.getHistorics(user.username, yesterday,now);
         let yesterdayThisHour = await this.deep.getHistorics(user.username, yesterday,yesterdayHour);
 
-        let historics = {social,lastHour, yesterdayDay, yesterdayThisHour};
+        // let historics = {lastHour, yesterdayDay, yesterdayThisHour};
+        let historics = {
+
+        };
 
 
         console.log('RECOMMENDING', {

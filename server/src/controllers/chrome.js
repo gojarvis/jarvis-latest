@@ -114,14 +114,6 @@ class ChromeController {
     this.context.updateTabs(self.tabs);
   }
 
-
-
-
-
-
-
-
-
   getUrl(url){
     let self = this;
     return new Promise(function(resolve, reject) {
@@ -205,24 +197,6 @@ class ChromeController {
   }
 
 
-  async associateWithFiles(fileNode){
-    console.log('fileNode',fileNode);
-    console.log('urls',this.urls);
-  }
-
-  async getRelated(url, threshold){
-    let cypher = 'MATCH (n:Url)-[r:openwith]->(q:Url) WHERE n.url = "' + url +'" RETURN r ';
-    console.log(cypher);
-    let params = {url: url, threshold: threshold};
-
-    try{
-      let res = await this.queryGraph(cypher,params);
-      return res;
-    }
-    catch(err){
-      // console.log('failed to relate', err);
-    }
-  }
 
 
 
