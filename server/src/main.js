@@ -22,6 +22,10 @@ setTimeout(()=>{
     res.sendfile('client/src/www/index.html');
   });
 
+  app.post('/health', function(req,res){
+    res.json({'foo' : 'bar'});
+  });
+
 
   let p = r.connect({db: 'test'});
   p.then(function(connection){
