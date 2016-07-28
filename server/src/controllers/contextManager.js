@@ -202,7 +202,7 @@ class contextManager{
     });
 
 
-    console.log('related urls', urls);
+    // console.log('related urls', urls);
   }
 
 
@@ -249,10 +249,10 @@ class contextManager{
     try {
       let urlsArtifacts = this.urlsArtifacts;
       let files = this.files;
-      console.log('FILES', files.length);
-      console.log('urlsArtifacts',urlsArtifacts);
+      // console.log('FILES', files.length);
+      // console.log('urlsArtifacts',urlsArtifacts);
       let urls = await Promise.all(urlsArtifacts.map(urlsArtifact => self.saveUrl(urlsArtifact.url, urlsArtifact.title)))
-      console.log('saved urls', urls);
+      console.log('saved urls', urls.length);
       this.urls = urls;
 
 
@@ -271,8 +271,6 @@ class contextManager{
 
 
   }
-
-
 
   async relateOneToMany(origin, others, relationship){
     let relationships = [];

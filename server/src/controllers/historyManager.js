@@ -19,15 +19,17 @@ var Event = db.createModel("Event", {
 })
 
 class HistoryManager{
-  constructor(socket, userName){
+  constructor(socket, io, userName){
     this.user = userName;
     this.socket = socket;
+    this.io = io;
   }
 
   saveEvent(event){
     try{
       let ev = new Event({timestamp: new Date(), eventType: event.type, source: event.source, data: event.data, user:this.user});
-      this.socket.emit('system-event', ev);
+      console.log('system-event', ev);
+      this.io.emit('system-event', ev);
       return ev.save()
     }
     catch(e){

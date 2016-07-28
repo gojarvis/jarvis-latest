@@ -24,7 +24,7 @@ class Proactive {
         this.handleHeartbeat(heartbeat);
       }.bind(this));
 
-      this.heart.createEvent(100, function(heartbeat, last){
+      this.heart.createEvent(30, function(heartbeat, last){
         this.handleDeepconnect(heartbeat);
       }.bind(this));
 
@@ -34,7 +34,7 @@ class Proactive {
     handleHeartbeat(hb){
       let self = this;
       self.socket.emit('heartbeat', hb);
-      self.recommend();
+      // self.recommend();
     }
 
     async relateContextToItself(){
@@ -145,18 +145,13 @@ class Proactive {
         };
 
 
-        console.log('RECOMMENDING', {
-          historics: historics,
-          social: social,
-          openwith: openwith,
-          kwrelated: kwrelated
-        });
-        this.io.emit('recommendations', {
-          historics: historics,
-          social: social,
-          openwith: openwith,
-          kwrelated: kwrelated
-        })
+        //
+        // this.io.emit('recommendations', {
+        //   historics: historics,
+        //   social: social,
+        //   openwith: openwith,
+        //   kwrelated: kwrelated
+        // })
 
       } catch (e) {
           console.log('whoops', e);

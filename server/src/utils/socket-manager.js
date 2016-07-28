@@ -25,7 +25,7 @@ let context = {};
 class SocketManager {
   constructor(socket, io) {
     let sid = 'GKvm4Sdf';
-    var history = new History(socket, userInfo.username);
+    var history = new History(socket,io, userInfo.username);
 
     if (_.isUndefined(context.user)){
         context = new Context(history, userInfo);

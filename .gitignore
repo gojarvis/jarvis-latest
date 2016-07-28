@@ -1,10 +1,4 @@
 node_modules
 npm-debug.log
-server/sherpa/000441.ldb
-server/sherpa/000443.ldb
-server/sherpa/000448.ldb
-server/sherpa/000451.ldb
-server/sherpa/000452.log
-server/sherpa/CURRENT
-server/sherpa/LOG
-server/sherpa/LOG.old
+server/sherpa/*
+
