@@ -5,7 +5,7 @@ var bodyParser = require('body-parser');
 var kue = require('kue');
 var ui = require('kue-ui');
 import r from 'rethinkdb'
-
+var graphController = require('./controllers/graph.js')
 
 
 
@@ -25,6 +25,8 @@ setTimeout(()=>{
   app.post('/health', function(req,res){
     res.json({'foo' : 'bar'});
   });
+
+  app.post('/query', graphController.query);
 
 
   let p = r.connect({db: 'test'});

@@ -27,7 +27,7 @@ class HistoryManager{
   saveEvent(event){
     try{
       let ev = new Event({timestamp: new Date(), eventType: event.type, source: event.source, data: event.data, user:this.user});
-      socket.emit('system-event', ev);
+      this.socket.emit('system-event', ev);
       return ev.save()
     }
     catch(e){
