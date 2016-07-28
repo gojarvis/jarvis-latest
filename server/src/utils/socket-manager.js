@@ -19,13 +19,14 @@ const userInfo = {
   username: userConfig.username
 };
 
-const history = new History(userInfo.username);
 const context = new Context(history, userInfo);
 const deep = new Deep(history, context);
 
 class SocketManager {
   constructor(socket, io) {
     let sid = 'GKvm4Sdf';
+    var history = new History(socket, userInfo.username);
+
 
     // basic speech in/out
     this.wit = new WitController(socket, sid, context, history)
