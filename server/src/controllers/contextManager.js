@@ -1,5 +1,4 @@
 import heartbeats from 'heartbeats'
-import Thinky from 'thinky'
 import _ from 'lodash';
 import watson from 'watson-developer-cloud';
 import r from 'rethinkdb'

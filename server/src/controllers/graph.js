@@ -18,14 +18,22 @@ function queryGraph(cypher, params={}){
 
 let graphController = {
   query: async function(req, res){
-
-    let nodeId = getNodeIdFromResource()
+    let nodeId = req.param('nodeId');
+    console.log(req.params.nodeId);
+// let nodeId = getNodeIdFromResource()
     let cypher = `
-      start p=node(${nodeId}) match p-[r]-s return p, type(r), r.weight, s
+      start startNode=node(${nodeId}) match (startNode)-[relationship]-(endNode) return startNode, type(relationship) as relationshipType, relationship.weight, endNode
     `
-    
-    let result = await queryGraph(cypher);
-    res.json(result);
+
+    try{
+      let result = await queryGraph(cypher);
+      res.json(result);
+    }
+    catch(error){
+      console.error('Query to graph failed', cypher);
+      res.json({'error': error});
+
+    }
   }
 }
 

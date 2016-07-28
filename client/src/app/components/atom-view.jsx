@@ -9,8 +9,13 @@ import {mouseTrap} from 'react-mousetrap';
 class AtomView extends React.Component {
   constructor(){
     super();
+
+    this.socket = window.socket
   }
   componentWillMount() {
+    this.socket.on('system-event', msg => {
+      console.log('system-event', msg);
+    })
 
   }
 

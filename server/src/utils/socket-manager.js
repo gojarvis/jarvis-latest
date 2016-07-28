@@ -11,6 +11,7 @@ const Proactive = require('../controllers/proactive');
 const Deep = require('../controllers/deep');
 const Conversations = require('../controllers/conversationsManager');
 import config from 'config';
+import _ from 'lodash';
 //The context contains all the urls and files open right now
 //Access to the knowledge graph is gained via the context
 let userConfig = config.get('user');
@@ -19,12 +20,17 @@ const userInfo = {
   username: userConfig.username
 };
 
+let context = {};
+
 class SocketManager {
   constructor(socket, io) {
     let sid = 'GKvm4Sdf';
     var history = new History(socket, userInfo.username);
 
-    const context = new Context(history, userInfo);
+    if (_.isUndefined(context.user)){
+        context = new Context(history, userInfo);
+    }
+
     const deep = new Deep(history, context);
 
     // basic speech in/out
