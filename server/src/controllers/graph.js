@@ -22,7 +22,7 @@ let graphController = {
     console.log(req.params.nodeId);
 // let nodeId = getNodeIdFromResource()
     let cypher = `
-      start startNode=node(${nodeId}) match (startNode)-[relationship]-(endNode) return startNode, type(relationship) as relationshipType, relationship.weight as relationshipWeight, endNode
+      start startNode=node(${nodeId}) match (startNode)-[relationship]-(endNode) return startNode, type(relationship) as relationshipType, relationship.weight as relationshipWeight, endNode order by relationshipWeight desc
     `
 
     try{
