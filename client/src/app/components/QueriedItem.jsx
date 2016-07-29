@@ -49,6 +49,8 @@ class QueriedItem extends React.Component {
         openWithClass = '';
         break;
     }
+    let weightBar = item.relationshipWeight * 10 * 60;
+    let weightBarString = weightBar + "vw"
 
     return (
       <div
@@ -57,7 +59,12 @@ class QueriedItem extends React.Component {
         onClick={() => this.props.onClick(nodeId)}>
         <IconText icon={iconClass}>
           <IconText icon={openWithClass} iconColor={iconColor}>
-            {title.slice(0, 35)}
+            <div style={{display: "flex", flexWrap: "nowrap"}}>
+              <div style={{alignSelf: "flex-start", flexGrow: "4", marginRight: "40px" }}>{title.slice(0, 35)}</div>
+              <div style={{alignSelf: "flex-end", backgroundColor: "rgb(187, 187, 187)", width: "60vh", display: "inline-block"}}>
+                <span style={{width: weightBar, backgroundColor: "rgba(6, 150, 38, 0.8)", display: "inline-block", height: "8px"}}></span>
+              </div>
+            </div>
           </IconText>
         </IconText>
       </div>
@@ -70,6 +77,7 @@ const _styles = {
     color: 'rgba(0, 0, 0, 1)',
     padding: 5,
     margin: 10,
+    cursor: "pointer"
   }
 }
 

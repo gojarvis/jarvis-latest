@@ -34,7 +34,7 @@ let graphController = {
       let normalizedWeight = normalizedSumCypherResult[0].normalizedSumWeight
 
       let cypher = `
-        start startNode=node(${nodeId}) match (${startNodeString})-[${relationshipCypherVariableString}]-(${endNodeString}) return startNode, type(relationship) as relationshipType, log(relationship.weight)/${normalizedWeight} as relationshipWeight, endNode order by relationshipWeight desc
+        start startNode=node(${nodeId}) match (${startNodeString})-[${relationshipCypherVariableString}]-(${endNodeString}) return startNode, type(relationship) as relationshipType, log(relationship.weight)/${normalizedWeight} as relationshipWeight, endNode order by relationshipWeight desc limit 15
       `
 
       try{
