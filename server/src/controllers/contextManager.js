@@ -150,8 +150,6 @@ class contextManager{
     //Mark URL as touched
     let rel = this.relateNodes(this.user, urlNode, 'touched');
 
-
-
   }
 
   updateTabs(tabs){
@@ -186,16 +184,44 @@ class contextManager{
 
   async relateUrlsToUrls(urls){
     //This will create a relationship with each URL and evrey url in the same context (including itself, TODO: Fix that)
-
+    console.log("relateUrlsToUrls");
     //TODO: otherUrls = > filter url from urls
-    _.forEach(urls, async function(url){
-      let others = urls.filter(node => node.id !== url.id);
-      console.log('Relate URLS to URLS', url, others.length);
-      let urlToUrls = await Promise.all(urls.map(url => this.relateOneToMany(url, others, 'openwith')));
-      console.log('URLS TO URLS', urlToUrls);
-    });
+
+    let urlToUrlsRelationships =[];
+    try{
+      urlToUrlsRelationships = await Promise.all(urls.map(url => this.relateUrlToOthers(url, urls)));
+    }
+    catch(e){
+      console.log('error relating urls to urls', e);
+    }
+    finally{
+      return urlToUrlsRelationships;
+    }
+
+    // _.forEach(urls, async function(url){
+    //   let others = urls.filter(node => node.id !== url.id);
+    //   console.log('RUU-------->', url.title, others);
+    //   let urlToUrlsRelationships = await Promise.all(urls.map(url => this.relateOneToMany(url, others, 'openwith')));
+    //   relationships.push(urlToUrlsRelationships);
+    //
+    // }.bind(this));
+
 
     // console.log('related urls', urls);
+  }
+
+  async relateUrlToOthers(url, urls){
+    let others = urls.filter(node => node.id !== url.id);
+    let innerUrlToUrlsRelationships = [];
+    try{
+      innerUrlToUrlsRelationships = await Promise.all(urls.map(url => this.relateOneToMany(url, others, 'openwith')));
+    }
+    catch(e){
+      console.log(err);
+    }
+    finally{
+      return innerUrlToUrlsRelationships
+    }
   }
 
 
@@ -245,14 +271,13 @@ class contextManager{
       // console.log('FILES', files.length);
       // console.log('urlsArtifacts',urlsArtifacts);
       let urls = await Promise.all(urlsArtifacts.map(urlsArtifact => self.saveUrl(urlsArtifact.url, urlsArtifact.title)))
-      console.log('saved urls', urls.length);
+      // console.log('saved urls', urls.length);
       this.urls = urls;
-
 
       if (files.length > 0 ){
         this.relateUrlsToFiles(urls, files);
       }
-      this.relateUrlsToUrls(urls);
+      let urlsRels = await this.relateUrlsToUrls(urls);
 
       this.relateUserToContext();
 
@@ -265,25 +290,29 @@ class contextManager{
 
   }
 
-  async relateOneToMany(origin, others, relationship){
+  async relateOneToMany(origin, others, relationship){    
     let relationships = [];
     try {
       relationships = await Promise.all(others.map(target => this.relateNodes(origin, target, relationship)));
+      return relationships;
     }
     catch(err){
       console.log('failed to relate one to many', err);
     }
+    finally{
 
-    return relationships;
+      return relationships;
+    }
+
+
   }
 
   async relateNodes(origin, target, relationship){
-
+    // console.log('RELATE NODES', origin, target);
     let cypher = 'START a=node({origin}), b=node({target}) '
                 +'CREATE UNIQUE (a)-[r:'+relationship+']-(b) '
                 +'SET r.weight = coalesce(r.weight, 0) + 1';
     let params = {origin: origin.id, target: target.id, relationship: relationship};
-
     let res = {};
 
     try{

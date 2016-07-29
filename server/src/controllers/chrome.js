@@ -183,10 +183,13 @@ class ChromeController {
 
   async handleHighlighted(active){
     let activeTab = this.getActiveTab(active.tabIds[0])
-    let activeTabTitle = activeTab[0].title;
-
+    let activeTabTitle = '';
+    console.log('ACTIVE TAB', activeTab);
     if (!activeTab[0]){
       return [];
+    }
+    else{
+      activeTabTitle = activeTab[0].title;
     }
     let activeUrl = { url: activeTab[0].url, title: activeTabTitle};
 
