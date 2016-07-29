@@ -26,7 +26,7 @@ class AtomView extends React.Component {
     this.socket.on('system-event', msg => {
       console.log('STATE', self.state);
       let eventTicker = self.state.eventTicker;
-
+      if (eventTicker.length > 5) eventTicker.pop();
       eventTicker.unshift(msg);
 
       self.setState({
@@ -58,10 +58,10 @@ class AtomView extends React.Component {
     let queriedItems = this.state.items.map((item , index) => {
       let color = "rgba(80, 195, 210, 0.67)" ;
       let title = !_.isUndefined(item.endNode.title) ? item.endNode.title : item.endNode.address;
-
+      let nodeId = item.endNode.id;
       return (
-        <div style={{...LOCAL_STYLES.queriedItemsList, backgroundColor: color}}>
-          {item.relationshipType} | {title} | {item.relationshipWeight}
+        <div style={{ backgroundColor: color, width: "100%", padding: "20px", margin: "10px"}} onClick={() => this.handleEventTickerItemClick(nodeId)}>
+           {item.relationshipType} | {title} | {item.relationshipWeight}
         </div>
       )
     })
