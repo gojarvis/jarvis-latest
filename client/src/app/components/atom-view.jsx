@@ -9,7 +9,6 @@ import _ from 'lodash';
 let eventTicker = [];
 import {EventTickerList} from './EventTicker';
 import QueriedItem from './QueriedItem.jsx';
-import {File, Browser} from './Icons';
 
 class AtomView extends React.Component {
   constructor(){
@@ -68,13 +67,13 @@ class AtomView extends React.Component {
     let focusedItem = <div>Loading...</div>;
     if (this.state.items.length) {
       let focusedNode = this.state.items[0].startNode;
-      let Icon = <span style={{fontSize: "50px"}}>Icon</span>;
+      let iconClass;
       switch(focusedNode.type) {
         case 'file':
-          Icon = File;
+          iconClass = 'fa fa-file-o fa-lg';
           break;
         case 'url':
-          Icon = Browser;
+          iconClass = 'fa fa-bookmark-o fa-lg';
           break;
       }
 
@@ -82,8 +81,8 @@ class AtomView extends React.Component {
 
       focusedItem = (
         <div style={LOCAL_STYLES.focusedItem}>
-          <div style={{...FB.base}}>
-            <Icon />
+          <div style={{...FB.base, margin: '0 5px'}}>
+            <div style={{...FB.base, ...FB.justify.center, ...FB.align.center}}><span className={iconClass} /></div>
             <span style={{padding: 10}}>{focusedNode.title}</span>
           </div>
 
