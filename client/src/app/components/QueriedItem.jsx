@@ -23,13 +23,13 @@ class QueriedItem extends React.Component {
 
     let labelColor;
     switch(item.relationshipType){
-      'openwith':
+      case 'openwith':
         labelColor = 'rgb(210, 126, 33)';
         break;
-      'touched':
+      case 'touched':
         labelColor = 'rgb(33, 174, 210)';
         break;
-      'related':
+      case 'related':
         labelColor = 'rgb(202, 33, 210)';
         break;
     }
