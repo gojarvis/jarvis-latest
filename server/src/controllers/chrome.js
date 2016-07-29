@@ -182,7 +182,7 @@ class ChromeController {
   }
 
   async handleHighlighted(active){
-    let activeTab = this.getActiveTab(active.tabIds[0])    
+    let activeTab = this.getActiveTab(active.tabIds[0])
     let activeTabTitle = activeTab[0].title;
 
     if (!activeTab[0]){
@@ -190,10 +190,12 @@ class ChromeController {
     }
     let activeUrl = { url: activeTab[0].url, title: activeTabTitle};
 
+    let node = await this.getUrlNodeByUrl(activeTab[0].url);
+
 
     this.context.setActiveUrl(activeUrl);
 
-    this.history.saveEvent({type: 'highlighted', source: 'chrome', data: { address: activeUrl, title: activeTab[0].url} }).then(function(res){
+    this.history.saveEvent({type: 'highlighted', source: 'chrome', data: { nodeId: node.id, address: activeUrl.url, title: activeTab[0].url} }).then(function(res){
 
     });
   }

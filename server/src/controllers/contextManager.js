@@ -190,7 +190,9 @@ class contextManager{
     //TODO: otherUrls = > filter url from urls
     _.forEach(urls, async function(url){
       let others = urls.filter(node => node.id !== url.id);
+      console.log('Relate URLS to URLS', url, others.length);
       let urlToUrls = await Promise.all(urls.map(url => this.relateOneToMany(url, others, 'openwith')));
+      console.log('URLS TO URLS', urlToUrls);
     });
 
     // console.log('related urls', urls);
@@ -208,7 +210,7 @@ class contextManager{
 
     if (!_.isEmpty(this.urls)){
       let userToUrls = await this.relateOneToMany(this.user, this.urls, 'touched')
-      console.log('associated user with ', this.urls.length, 'urls');
+      // console.log('associated user with ', this.urls.length, 'urls');
     }
     else{
       // console.log('no urls to associate');
@@ -217,7 +219,7 @@ class contextManager{
     if (!_.isEmpty(this.files)){
       // console.log('assoc files', this.files);
       let userToFiles = await this.relateOneToMany(this.user, this.files, 'touched')
-      console.log('associated user with ', this.files.length, 'files');
+      // console.log('associated user with ', this.files.length, 'files');
 
     }
     else{
@@ -294,7 +296,7 @@ class contextManager{
                   +'CREATE UNIQUE (a)-[r:'+relationship+']-(b) '
                   +'SET r.weight = coalesce(r.weight, 0) + 1';
 
-      // console.log('failed', err, cypher);
+      console.log('failed', err, cypher);
     }
 
     return res
