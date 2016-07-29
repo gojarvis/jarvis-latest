@@ -85,7 +85,7 @@ class AtomView extends React.Component {
       focusedItem = (
         <div style={LOCAL_STYLES.focusedItem}>
           <IconText icon={iconClass}>
-            {focusedNode.title}
+            {focusedNode.title || focusedNode.address.split('/').filter(item => item !== '').slice(-1).pop()}
           </IconText>
 
           <IconText icon='external-link'>
