@@ -1,6 +1,5 @@
 import React from 'react';
-import File from '../Icons/File';
-import Browser from '../Icons/Browser';
+import {File, Browser} from '../Icons';
 
 class EventTickerItem extends React.Component {
   constructor(...args) {

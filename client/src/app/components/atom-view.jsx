@@ -8,7 +8,8 @@ let agent = require('superagent-promise')(require('superagent'), Promise);
 import _ from 'lodash';
 let eventTicker = [];
 import {EventTickerList} from './EventTicker';
-import QueriedItem from './QueriedItem.jsx'
+import QueriedItem from './QueriedItem.jsx';
+import {File, Browser} from './Icons';
 
 class AtomView extends React.Component {
   constructor(){
@@ -64,6 +65,43 @@ class AtomView extends React.Component {
       )
     })
 
+    let focusedItem = <div>Loading...</div>;
+    if (this.state.items.length) {
+      let focusedNode = this.state.items[0].startNode;
+      let Icon = <span>Icon</span>;
+      switch(focusedNode.type) {
+        case 'file':
+          Icon = File;
+          break;
+        case 'url':
+          Icon = Browser;
+          break;
+      }
+
+      let filters = ['All', 'Files', 'URLs'];
+
+      focusedItem = (
+        <div style={LOCAL_STYLES.focusedItem}>
+          <div style={{...FB.base}}>
+            <Icon />
+            <span style={{padding: 10}}>{focusedNode.title}</span>
+          </div>
+
+          <div style={LOCAL_STYLES.filterButtons}>
+            {filters.map((filter, index) => {
+              return (
+                <div
+                  key={index}
+                  style={LOCAL_STYLES.filterButton}>
+                  {filter}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )
+    }
+
     return(
       <div style={{width: "100%"}}>
 
@@ -75,6 +113,8 @@ class AtomView extends React.Component {
             itemStyle={LOCAL_STYLES.eventTickerItem} />
 
           <div>
+            {focusedItem}
+            <hr />
             {queriedItems}
           </div>
         </div>
@@ -90,12 +130,18 @@ const FB = {
     row: { flexDirection: "row" },
     column: { flexDirection: "column" }
   },
+  align: {
+    center: { alignItems: 'center' },
+  },
   justify: {
     start: { justifyContent: "flex-start" },
     end: { justifyContent: "flex-end" },
     center: { justifyContent: "center" },
     between: { justifyContent: "space-between" },
     around: { justifyContent: "space-around" },
+  },
+  flex: {
+    equal: { flex: '1' },
   }
 }
 
@@ -106,6 +152,18 @@ const LOCAL_STYLES = {
   eventTickerItem: { minWidth: 100, background: '#000', color: '#fff', padding: 10, margin: 10, display: "inline-block",},
   queriedItemsList: { padding: "20px", margin: "10px"},
   queriedItem: {},
+  focusedItem: {
+    color: '#fff',
+  },
+  filterButton: {
+    ...FB.base,
+    ...FB.justify.center,
+    ...FB.flex.equal,
+  },
+  filterButtons: {
+    ...FB.base,
+    ...FB.justify.between,
+  },
 };
 
 export default mouseTrap(Radium(AtomView));
