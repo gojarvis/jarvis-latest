@@ -5,7 +5,8 @@ import Browser from './Icons/Browser';
 class QueriedItem extends React.Component {
   render() {
     let {item} = this.props;
-    let color = "rgba(80, 195, 210, 0.67)" ;
+
+    let color = "rgba(80, 195, 210, " + item.relationshipWeight + ")";
     let title = item.endNode.address ?
       item.endNode.address.split('/').filter((item) => item !== "").slice(-1).pop() :
       item.endNode.title || '<No Title or Address>';
@@ -26,7 +27,7 @@ class QueriedItem extends React.Component {
         title={JSON.stringify(item, null, 2)}
         style={{ backgroundColor: color, color: '#fff', padding: "20px", margin: "10px"}}
         onClick={() => this.props.onClick(nodeId)}>
-         {icon} {item.relationshipType} | {title} | {item.relationshipWeight}
+         {icon} {item.relationshipType} | {title} 
       </div>
     )
   }
