@@ -21,14 +21,27 @@ class QueriedItem extends React.Component {
         break;
     }
 
+    let labelColor;
+    switch(item.relationshipType){
+      'openwith':
+        labelColor = 'rgb(210, 126, 33)';
+        break;
+      'touched':
+        labelColor = 'rgb(33, 174, 210)';
+        break;
+      'related':
+        labelColor = 'rgb(202, 33, 210)';
+        break;
+    }
+
     let nodeId = item.endNode.id;
     return (
       <div
         title={JSON.stringify(item, null, 2)}
         style={{ backgroundColor: color, color: 'rgba(0, 0, 0, 1)', padding: "20px", margin: "10px"}}
         onClick={() => this.props.onClick(nodeId)}>
-         <span style={{fontSize: "60px"}}>{icon}</span>
-         <span style={{ backgroundColor: 'blue', fontSize: "10px", padding: "10px" ,margin: "6px", color: "#fff"}}>{item.relationshipType}</span>
+         <span>{icon}</span>
+         <span style={{ width: "100px", backgroundColor: labelColor, padding: "10px" ,margin: "6px", color: "#fff", borderRadius: "5px"}}>{item.relationshipType}</span>
          <span>{title}</span>
       </div>
     )
