@@ -6,7 +6,7 @@ class IconText extends Component {
     return (
       <div style={{...FB.base, ...FB.align.center}}>
         <span style={{color: this.props.iconColor, margin: 10, flexBasis: 20}} className={'fa fa-lg fa-' + this.props.icon} />
-        <span>{this.props.children}</span>
+        <span style={{flex: '1'}}>{this.props.children}</span>
       </div>
     );
   }

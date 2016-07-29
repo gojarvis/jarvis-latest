@@ -60,8 +60,8 @@ class QueriedItem extends React.Component {
         <IconText icon={iconClass}>
           <IconText icon={openWithClass} iconColor={iconColor}>
             <div style={{display: "flex", flexWrap: "nowrap"}}>
-              <div style={{alignSelf: "flex-start", flexGrow: "4", marginRight: "40px" }}>{title.slice(0, 35)}</div>
-              <div style={{alignSelf: "flex-end", backgroundColor: "rgb(187, 187, 187)", width: "60vh", display: "inline-block"}}>
+              <div style={{flexGrow: "4", marginRight: "40px" }}>{title.slice(0, 35)}</div>
+              <div style={{backgroundColor: "rgb(187, 187, 187)", width: "60vh"}}>
                 <span style={{width: weightBar, backgroundColor: "rgba(6, 150, 38, 0.8)", display: "inline-block", height: "8px"}}></span>
               </div>
             </div>
