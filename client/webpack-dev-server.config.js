@@ -13,7 +13,12 @@ var config = {
   ],
   //Config options on how to interpret requires imports
   resolve: {
-    extensions: ["", ".js", ".jsx"]
+    extensions: ["", ".js", ".jsx"],
+    alias: {
+      'styles': path.join(__dirname, '/src/app/styles'),
+      'components': path.join(__dirname, '/src/app/components'),
+      'conversations': path.join(__dirname, '/src/app/conversations')
+    }
     //node_modules: ["web_modules", "node_modules"]  (Default Settings)
   },
   //Server Configuration options

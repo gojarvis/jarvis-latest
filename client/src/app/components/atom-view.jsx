@@ -9,6 +9,9 @@ import _ from 'lodash';
 let eventTicker = [];
 import {EventTickerList} from './EventTicker';
 import QueriedItem from './QueriedItem.jsx';
+import FB from 'styles/flexbox';
+import COMMON from 'styles/common';
+import IconText from './IconText';
 
 class AtomView extends React.Component {
   constructor(){
@@ -70,10 +73,10 @@ class AtomView extends React.Component {
       let iconClass;
       switch(focusedNode.type) {
         case 'file':
-          iconClass = 'fa fa-file-o fa-lg';
+          iconClass = 'file-o';
           break;
         case 'url':
-          iconClass = 'fa fa-bookmark-o fa-lg';
+          iconClass = 'bookmark-o';
           break;
       }
 
@@ -81,10 +84,21 @@ class AtomView extends React.Component {
 
       focusedItem = (
         <div style={LOCAL_STYLES.focusedItem}>
-          <div style={{...FB.base, margin: '0 5px'}}>
-            <div style={{...FB.base, ...FB.justify.center, ...FB.align.center}}><span className={iconClass} /></div>
-            <span style={{padding: 10}}>{focusedNode.title}</span>
-          </div>
+          <IconText icon={iconClass}>
+            {focusedNode.title}
+          </IconText>
+
+          <IconText icon='external-link'>
+            {(() => {
+              if (focusedNode.type === 'url') {
+                return (
+                  <a style={{color: '#fff'}} target="_blank" href={focusedNode.address}>{focusedNode.address}</a>
+                )
+              } else {
+                return <span>{focusedNode.address}</span>
+              }
+            })()}
+          </IconText>
 
           <div style={LOCAL_STYLES.filterButtons}>
             {filters.map((filter, index) => {
@@ -120,27 +134,6 @@ class AtomView extends React.Component {
 
       </div>
     )
-  }
-}
-
-const FB = {
-  base: { display: "flex" },
-  direction: {
-    row: { flexDirection: "row" },
-    column: { flexDirection: "column" }
-  },
-  align: {
-    center: { alignItems: 'center' },
-  },
-  justify: {
-    start: { justifyContent: "flex-start" },
-    end: { justifyContent: "flex-end" },
-    center: { justifyContent: "center" },
-    between: { justifyContent: "space-between" },
-    around: { justifyContent: "space-around" },
-  },
-  flex: {
-    equal: { flex: '1' },
   }
 }
 

@@ -11,13 +11,13 @@ class QueriedItem extends React.Component {
       item.endNode.address.split('/').filter((item) => item !== "").slice(-1).pop() :
       item.endNode.title || '<No Title or Address>';
 
-    let icon;
+    let iconClass;
     switch(item.endNode.type) {
       case 'file':
-        icon = <File />;
+        iconClass = 'file-o';
         break;
       case 'url':
-        icon = <Browser />;
+        iconClass = 'bookmark';
         break;
     }
 
@@ -40,7 +40,7 @@ class QueriedItem extends React.Component {
         title={JSON.stringify(item, null, 2)}
         style={{ backgroundColor: color, color: 'rgba(0, 0, 0, 1)', padding: "20px", margin: "10px"}}
         onClick={() => this.props.onClick(nodeId)}>
-         <span>{icon}</span>
+         <span className={'fa fa-lg fa-' + iconClass}></span>
          <span style={{ width: "100px", backgroundColor: labelColor, padding: "10px" ,margin: "6px", color: "#fff", borderRadius: "5px"}}>{item.relationshipType}</span>
          <span>{title}</span>
       </div>
