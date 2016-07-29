@@ -68,7 +68,7 @@ class AtomView extends React.Component {
     let focusedItem = <div>Loading...</div>;
     if (this.state.items.length) {
       let focusedNode = this.state.items[0].startNode;
-      let Icon = <span>Icon</span>;
+      let Icon = <span style={{fontSize: "50px"}}>Icon</span>;
       switch(focusedNode.type) {
         case 'file':
           Icon = File;

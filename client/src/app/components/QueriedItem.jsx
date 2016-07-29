@@ -6,7 +6,7 @@ class QueriedItem extends React.Component {
   render() {
     let {item} = this.props;
 
-    let color = "rgba(80, 195, 210, " + item.relationshipWeight + ")";
+    let color = "rgba(255, 255, 255, " + item.relationshipWeight + ")";
     let title = item.endNode.address ?
       item.endNode.address.split('/').filter((item) => item !== "").slice(-1).pop() :
       item.endNode.title || '<No Title or Address>';
@@ -25,9 +25,11 @@ class QueriedItem extends React.Component {
     return (
       <div
         title={JSON.stringify(item, null, 2)}
-        style={{ backgroundColor: color, color: '#fff', padding: "20px", margin: "10px"}}
+        style={{ backgroundColor: color, color: 'rgba(0, 0, 0, 1)', padding: "20px", margin: "10px"}}
         onClick={() => this.props.onClick(nodeId)}>
-         {icon} {item.relationshipType} | {title} 
+         <span style={{fontSize: "60px"}}>{icon}</span>
+         <span style={{ backgroundColor: 'blue', fontSize: "10px", padding: "10px" ,margin: "6px", color: "#fff"}}>{item.relationshipType}</span>
+         <span>{title}</span>
       </div>
     )
   }
