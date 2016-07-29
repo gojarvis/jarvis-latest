@@ -68,7 +68,7 @@ class QueriedItem extends React.Component {
 const _styles = {
   container: {
     color: 'rgba(0, 0, 0, 1)',
-    padding: 20,
+    padding: 5,
     margin: 10,
   }
 }
