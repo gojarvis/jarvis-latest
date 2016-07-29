@@ -77,10 +77,6 @@ class contextManager{
     }
   }
 
-  set(field, value){
-    this[field]  = value;
-  }
-
   async setUser(user){
     let graphUser = await this.getSaveUserInGraph(user)
 
@@ -140,9 +136,7 @@ class contextManager{
   }
 
   addFileNode(fileNode){
-    // console.log('adding file to context', fileNode);
-    let file = this.files.filter(file => file.uri === fileNode.uri);
-    // console.log('file',file.length);
+    let file = this.files.filter(file => file.address === fileNode.address);
     if (file.length === 0){
       this.files.push(fileNode);
     }
@@ -183,16 +177,14 @@ class contextManager{
   }
 
   async relateUrlsToFiles(urls, files){
-    console.log('relateUrlsToFiles', urls,files);
+    // console.log('relateUrlsToFiles', urls,files);
     let urlToFiles = await Promise.all(urls.map(url => this.relateOneToMany(url, files, 'openwith')));
     let filesToUrls = await Promise.all(files.map(file => this.relateOneToMany(file, urls, 'openwith')));
 
-    console.log('related stuff', files.length, urls.length);
+    // console.log('related stuff', files.length, urls.length);
   }
 
   async relateUrlsToUrls(urls){
-    // console.log(this.urls,this.files)
-
     //This will create a relationship with each URL and evrey url in the same context (including itself, TODO: Fix that)
 
     //TODO: otherUrls = > filter url from urls
@@ -200,7 +192,6 @@ class contextManager{
       let others = urls.filter(node => node.id !== url.id);
       let urlToUrls = await Promise.all(urls.map(url => this.relateOneToMany(url, others, 'openwith')));
     });
-
 
     // console.log('related urls', urls);
   }
@@ -373,7 +364,7 @@ class contextManager{
         }
         else{
           try {
-            graph.save({type: 'url', url: url, keywords: '', title: title}, 'Url', function(err, result){
+            graph.save({type: 'url', address: url, keywords: '', title: title}, 'Url', function(err, result){
               console.log(err, result);
               node = result;
 
@@ -397,7 +388,7 @@ class contextManager{
   getUrl(url){
     let self = this;
     return new Promise(function(resolve, reject) {
-      graph.find({type: 'url', url: url}, function(err, node){
+      graph.find({type: 'url', address: url}, function(err, node){
         node = node ? node[0] : false;
         if (err) reject(err)
         else {

@@ -29,7 +29,7 @@ class MetadataManager {
   }
 
   async getSetKeywordsForUrl(urlNode) {
-    let url = urlNode.url;
+    let url = urlNode.address;
 
     // console.log(urlNode);
     if (!url.startsWith('http') || url.indexOf('localhost') != -1 || url.startsWith('https://www.google.com') || url.startsWith('http://www.facebook.com') || url.startsWith('http://www.google.com')) {
@@ -37,7 +37,7 @@ class MetadataManager {
     }
 
     try {
-      if ((_.isUndefined(urlNode.alchemy) || (!_.isUndefined(urlNode.alchemy) && urlNode.alchemy === 'failed')) && _.isUndefined(this.localCache[urlNode.url])) {
+      if ((_.isUndefined(urlNode.alchemy) || (!_.isUndefined(urlNode.alchemy) && urlNode.alchemy === 'failed')) && _.isUndefined(this.localCache[urlNode.address])) {
         try {
           console.log('NO ALCHEMY FOR ', urlNode);
           let keywords = await this.getAlchemyKeyWords(url);
@@ -47,7 +47,7 @@ class MetadataManager {
           // console.log('------------'.blue);
           // console.log('Final Results: '.red, results);
           console.log('------------'.blue, 'keywords', keywords);
-          this.localCache[urlNode.url] = true;
+          this.localCache[urlNode.address] = true;
 
           let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'success');
           // let keywordsNodes = await this.saveKeywords(keywords);
@@ -57,7 +57,7 @@ class MetadataManager {
           // let relationship = await Promise.all(keywords.map(keywords => this.relateKeywordToUrl(keywords, urlNode)));
         } catch (err) {
           console.log('getSetKeywordsForUrl failed:', err);
-          this.localCache[urlNode.url] = true;
+          this.localCache[urlNode.address] = true;
           let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'error');
         }
       }
@@ -91,7 +91,7 @@ class MetadataManager {
     // save wiki data
 
     // update url node to fetched
-    let urlUpdateCypher = `MERGE (n:Url { url: ${urlNode.url}, alchemy: 'fetched' }) RETURN n;`
+    let urlUpdateCypher = `MERGE (n:Url { url: ${urlNode.address}, alchemy: 'fetched' }) RETURN n;`
     let updatedUrlNode = txn.query(urlUpdateCypher, {});
 
     // relate keywords to node

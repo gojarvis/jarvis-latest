@@ -63,13 +63,13 @@ class Proactive {
     }
 
     async relateUrlToUrls(url, urls){
-      let others = urls.filter(item => item.url !== url.url);
+      let others = urls.filter(item => item.address !== url.address);
       let singleRelationships = await this.graph.relateOneToMany(url, others, 'openwith');
       return singleRelationships;
     }
 
     async relateFileToFiles(file, files){
-      let others = files.filter(file => file.uri !== file.uri);
+      let others = files.filter(file => file.address !== file.address);
       let singleRelationships = await this.graph.relateOneToMany(file, others, 'openwith');
       return singleRelationships;
     }
@@ -169,11 +169,6 @@ class Proactive {
       self.updateOverallPools();
     }
 
-    async getUserUrlsByTime(){
-
-    }
-
-    async getUserFilesByTime(){}
 
     async getRelatedUrl(entry, minWeight){
       //Search Neo4j for URLs that are related to the Entry with at least minWeight weight
@@ -216,9 +211,6 @@ class Proactive {
 
     }
 
-    async updateOverallPools(){
-
-    }
 
 
 

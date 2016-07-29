@@ -3,7 +3,7 @@ import levelgraph from 'levelgraph'
 import serialize from 'serialization'
 import model from 'seraph-model';
 import Promise from 'bluebird';
-import PouchDB from 'pouchdb';
+// import PouchDB from 'pouchdb';
 import _ from 'lodash';
 import keywordExtractor from 'keyword-extractor';
 import MetaInspector from 'node-metainspector';
@@ -21,7 +21,7 @@ let graph = require("seraph")({
 
 let graphAsync = Promise.promisifyAll(graph);
 
-graph.constraints.uniqueness.create('Url', 'url', function(err, constraint) {
+graph.constraints.uniqueness.create('Url', 'address', function(err, constraint) {
   // console.log(constraint);
   // -> { type: 'UNIQUENESS', label: 'Person', property_keys: ['name'] }
 });
@@ -31,7 +31,7 @@ graph.constraints.uniqueness.create('Url', 'url', function(err, constraint) {
 //   // -> { type: 'UNIQUENESS', label: 'Person', property_keys: ['name'] }
 // });
 
-let db = new PouchDB('sherpa');
+// let db = new PouchDB('sherpa');
 
 
 class ChromeController {
@@ -70,7 +70,7 @@ class ChromeController {
 
     self.socket.on('chrome-highlighted', function(msg){
       let {active, tabs} = msg;
-
+      self.tabs = tabs;
       self.handleHighlighted(active).then(function(related){
           self.io.emit('related', related)
       });
@@ -117,8 +117,8 @@ class ChromeController {
   getUrl(url){
     let self = this;
     return new Promise(function(resolve, reject) {
-      graph.find({type: 'url', url: url}, function(err, node){
-        node = node ? node[0] : {type: 'url', url: url};
+      graph.find({type: 'url', address: url}, function(err, node){
+        node = node ? node[0] : {type: 'url', address: url};
         if (err) reject(err)
         else {
           resolve(node);
@@ -165,7 +165,7 @@ class ChromeController {
 
   getUrlNodeByUrl(url){
     return new Promise(function(resolve, reject) {
-      graph.find({type: 'url', url: url}, function(err, urls){
+      graph.find({type: 'url', address: url}, function(err, urls){
         if (err) reject (err)
         else resolve(urls[0])
       })
@@ -174,6 +174,7 @@ class ChromeController {
 
   async handleUpdated(active){
     let activeTab = this.getActiveTab(active)
+    // console.log('ACTIVE TAB', activeTab);
     // let related = await this.getRelated(activeTab[0].url,10);
     // let relatedUrls = await Promise.all(related.map(relation => this.getUrlById(relation.end)))
     this.context.setActiveUrl({url: activeTab.url, title: activeTab.title});
@@ -181,18 +182,19 @@ class ChromeController {
   }
 
   async handleHighlighted(active){
-    let activeTab = this.getActiveTab(active.tabIds[0])
+    let activeTab = this.getActiveTab(active.tabIds[0])    
+    let activeTabTitle = activeTab[0].title;
 
     if (!activeTab[0]){
       return [];
     }
-    let activeUrl = { url: activeTab[0].url, title: activeTab[0].title};
+    let activeUrl = { url: activeTab[0].url, title: activeTabTitle};
 
 
     this.context.setActiveUrl(activeUrl);
 
-    this.history.saveEvent({type: 'highlighted', source: 'chrome', data: { url: activeUrl} }).then(function(res){
-      // console.log('highlited chrome saved');
+    this.history.saveEvent({type: 'highlighted', source: 'chrome', data: { address: activeUrl, title: activeTab[0].url} }).then(function(res){
+
     });
   }
 
