@@ -138,7 +138,7 @@ class AtomView extends React.Component {
 }
 
 const LOCAL_STYLES = {
-  container: { fontFamily: "arial", height: "100vh", backgroundColor: "rgb(40, 44, 52)", },
+  container: { fontFamily: "arial", minHeight: "100vh", backgroundColor: "rgb(40, 44, 52)", },
   eventTickerList: { ...FB.base, ...FB.justify.start, minHeight: "100px", overflowY: "hidden", overflowX: "scroll", },
   __oldEventTickerItem: {width: "5vw", padding: "13px", margin: "10px", marginBottom: "15px", display: "inline-block",},
   eventTickerItem: { minWidth: 100, background: '#000', color: '#fff', padding: 10, margin: 10, display: "inline-block",},

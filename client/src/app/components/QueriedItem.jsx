@@ -1,6 +1,7 @@
 import React from 'react';
-import File from './Icons/File';
-import Browser from './Icons/Browser';
+import File from 'components/Icons/File';
+import Browser from 'components/Icons/Browser';
+import IconText from 'components/IconText';
 
 class QueriedItem extends React.Component {
   render() {
@@ -40,9 +41,10 @@ class QueriedItem extends React.Component {
         title={JSON.stringify(item, null, 2)}
         style={{ backgroundColor: color, color: 'rgba(0, 0, 0, 1)', padding: "20px", margin: "10px"}}
         onClick={() => this.props.onClick(nodeId)}>
-         <span className={'fa fa-lg fa-' + iconClass}></span>
-         <span style={{ width: "100px", backgroundColor: labelColor, padding: "10px" ,margin: "6px", color: "#fff", borderRadius: "5px"}}>{item.relationshipType}</span>
-         <span>{title}</span>
+        <IconText icon={iconClass}>
+          <span style={{ width: "100px", backgroundColor: labelColor, padding: "10px" ,margin: "6px", color: "#fff", borderRadius: "5px"}}>{item.relationshipType}</span>
+          <span>{title.slice(0, 35)}</span>
+        </IconText>
       </div>
     )
   }
