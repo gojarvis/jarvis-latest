@@ -1,4 +1,5 @@
 import React from 'react';
+import EventTickerItem from './EventTickerItem';
 
 class EventTickerList extends React.Component {
   constructor(...args) {
@@ -8,13 +9,32 @@ class EventTickerList extends React.Component {
   static get defaultProps() {
     return {
       items: [],
+      style: {},
     }
   }
 
   render() {
     return (
-      <div>
-        Not yet implemented
+      <div style={this.props.style}>
+        {this.props.items.map((item, index) => {
+          let color = "rgba(80, 195, 210, 0.67)" ;
+
+          if (index === 0) {
+            color = "green"
+          }
+          else{
+            let opacity = (100 - index * 9.90) / 100;
+            color = "rgba(80, 195, 210, " + opacity + ")" ;
+          }
+
+          return (
+            <EventTickerItem
+              key={index}
+              item={item}
+              onClick={this.props.itemOnClick}
+              style={{...this.props.itemStyle, backgroundColor: color}} />
+          )
+        })}
       </div>
     );
   }
