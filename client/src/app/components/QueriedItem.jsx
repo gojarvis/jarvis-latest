@@ -22,31 +22,54 @@ class QueriedItem extends React.Component {
         break;
     }
 
-    let labelColor;
+    let iconColor;
     switch(item.relationshipType){
       case 'openwith':
-        labelColor = 'rgb(210, 126, 33)';
+        iconColor = 'rgb(210, 126, 33)';
         break;
       case 'touched':
-        labelColor = 'rgb(33, 174, 210)';
+        iconColor = 'rgb(33, 174, 210)';
         break;
       case 'related':
-        labelColor = 'rgb(202, 33, 210)';
+        iconColor = 'rgb(202, 33, 210)';
         break;
     }
 
     let nodeId = item.endNode.id;
+
+    let openWithClass;
+    switch (item.relationshipType) {
+      case 'openwith':
+        openWithClass = 'folder-open';
+        break;
+      case 'touched':
+        openWithClass = 'hand-pointer-o';
+        break;
+      default:
+        openWithClass = '';
+        break;
+    }
+
     return (
       <div
         title={JSON.stringify(item, null, 2)}
-        style={{ backgroundColor: color, color: 'rgba(0, 0, 0, 1)', padding: "20px", margin: "10px"}}
+        style={{..._styles.container, backgroundColor: color}}
         onClick={() => this.props.onClick(nodeId)}>
         <IconText icon={iconClass}>
-          <span style={{ width: "100px", backgroundColor: labelColor, padding: "10px" ,margin: "6px", color: "#fff", borderRadius: "5px"}}>{item.relationshipType}</span>
-          <span>{title.slice(0, 35)}</span>
+          <IconText icon={openWithClass} iconColor={iconColor}>
+            {title.slice(0, 35)}
+          </IconText>
         </IconText>
       </div>
     )
+  }
+}
+
+const _styles = {
+  container: {
+    color: 'rgba(0, 0, 0, 1)',
+    padding: 20,
+    margin: 10,
   }
 }
 

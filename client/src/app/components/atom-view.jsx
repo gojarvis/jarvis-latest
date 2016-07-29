@@ -73,7 +73,7 @@ class AtomView extends React.Component {
       let iconClass;
       switch(focusedNode.type) {
         case 'file':
-          iconClass = 'file-o';
+          iconClass = 'file-code-o';
           break;
         case 'url':
           iconClass = 'bookmark-o';
