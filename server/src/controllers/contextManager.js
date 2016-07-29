@@ -106,7 +106,6 @@ class contextManager{
           resolve(node[0])
         }
       })
-
     });
   }
 
@@ -114,7 +113,6 @@ class contextManager{
     return new Promise(function(resolve, reject) {
        let user = new User(userInfo);
        user.save().then(function(err,res){
-        //  console.log(err,res);
          if (err) {
            User.get(userInfo).then(function(err,res){
              if (err){
@@ -290,7 +288,7 @@ class contextManager{
 
   }
 
-  async relateOneToMany(origin, others, relationship){    
+  async relateOneToMany(origin, others, relationship){
     let relationships = [];
     try {
       relationships = await Promise.all(others.map(target => this.relateNodes(origin, target, relationship)));

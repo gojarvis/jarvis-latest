@@ -19,21 +19,37 @@ function queryGraph(cypher, params={}){
 let graphController = {
   query: async function(req, res){
     let nodeId = req.param('nodeId');
-    console.log(req.params.nodeId);
-// let nodeId = getNodeIdFromResource()
-    let cypher = `
-      start startNode=node(${nodeId}) match (startNode)-[relationship]-(endNode) return startNode, type(relationship) as relationshipType, relationship.weight as relationshipWeight, endNode order by relationshipWeight desc
-    `
+    let relationshipType = req.param('relationshipType') || false;
+    let relationshipCypherVariableString = relationshipType ? 'relationship:' + relationshipType : 'relationship'
+
+    let normalizedSumCypher = `start startNode=node(${nodeId}) match (startNode)-[${relationshipCypherVariableString}]-(endNode) return log(sum(relationship.weight)) as normalizedSumWeight`;
 
     try{
-      let result = await queryGraph(cypher);
-      res.json(result);
+      let normalizedSumCypherResult = await queryGraph(normalizedSumCypher);
+      let normalizedWeight = normalizedSumCypherResult[0].normalizedSumWeight
+
+      let cypher = `
+        start startNode=node(${nodeId}) match (startNode)-[${relationshipCypherVariableString}]-(endNode) return startNode, type(relationship) as relationshipType, log(relationship.weight)/${normalizedWeight} as relationshipWeight, endNode order by relationshipWeight desc
+      `
+
+      try{
+        let result = await queryGraph(cypher);
+        res.json(result);
+      }
+      catch(error){
+        console.error('Query to graph failed', cypher);
+        res.json({'error': error});
+
+      }
     }
     catch(error){
       console.error('Query to graph failed', cypher);
       res.json({'error': error});
 
     }
+
+
+
   }
 }
 
