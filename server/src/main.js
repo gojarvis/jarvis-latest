@@ -10,7 +10,7 @@ var graphController = require('./controllers/graph.js')
 
 
 var db = require('thinky')();
-GLOBAL.thinky = db;
+global.thinky = db;
 
 setTimeout(()=>{
 
@@ -26,7 +26,7 @@ setTimeout(()=>{
 
 
   app.get('/', function(req, res){
-    res.sendfile('client/src/www/index.html');
+    res.sendFile('client/src/www/index.html');
   });
 
   app.post('/health', function(req,res){
@@ -39,12 +39,12 @@ setTimeout(()=>{
   let p = r.connect({db: 'test'});
   p.then(function(connection){
 
-    GLOBAL.rethinkdbConnection = connection;
+    global.rethinkdbConnection = connection;
 
     var SocketManager =  require('./utils/socket-manager');
-    // console.log(GLOBAL.rethinkdbConnection);
+    // console.log(global.rethinkdbConnection);
     io.on('connection', function(socket){
-      GLOBAL._socket = socket;
+      global._socket = socket;
 
       var socketManager = new SocketManager(socket,io);
 

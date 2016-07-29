@@ -1,2 +1,2 @@
 #!/bin/sh
-pm2 start sherpa.json
+./node_modules/.bin/pm2 start sherpa.json

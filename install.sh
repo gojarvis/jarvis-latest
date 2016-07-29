@@ -8,4 +8,4 @@ cd ../plugins/atom && npm i && apm link &&
 echo "\nBuilding chrome plugin\n"
 cd ../schrome && npm i &&
 echo "\nInstalling sherpa view\n"
-cd ../sherpa-view && npm i
+cd ../sherpa-view && npm i && apm link
