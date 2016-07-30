@@ -80,10 +80,9 @@ class AtomView extends React.Component {
           break;
       }
 
-      let filters = ['All', 'Files', 'URLs'];
-
       focusedItem = (
         <div style={LOCAL_STYLES.focusedItem}>
+          <span>Focused Item</span>
           <IconText icon={iconClass}>
             {(focusedNode.title || focusedNode.address).split('/').filter(item => item !== '').slice(-1).pop()}
           </IconText>
@@ -99,21 +98,10 @@ class AtomView extends React.Component {
               }
             })()}
           </IconText>
-
-          <div style={LOCAL_STYLES.filterButtons}>
-            {filters.map((filter, index) => {
-              return (
-                <div
-                  key={index}
-                  style={LOCAL_STYLES.filterButton}>
-                  {filter}
-                </div>
-              )
-            })}
-          </div>
         </div>
       )
     }
+    let filters = ['All', 'Files', 'URLs'];
 
     return(
       <div style={{width: "100%"}}>
@@ -127,6 +115,18 @@ class AtomView extends React.Component {
 
           <div>
             {focusedItem}
+            <hr />
+            <div style={LOCAL_STYLES.filterButtons}>
+              {filters.map((filter, index) => {
+                return (
+                  <div
+                    key={index}
+                    style={LOCAL_STYLES.filterButton}>
+                    {filter}
+                  </div>
+                )
+              })}
+            </div>
             <hr />
             {queriedItems}
           </div>
@@ -143,6 +143,7 @@ const LOCAL_STYLES = {
     fontFamily: "arial",
     minHeight: "100vh",
     backgroundColor: "rgb(40, 44, 52)",
+    color: '#fff',
   },
   eventTickerList: {
     ...FB.base,
@@ -171,7 +172,6 @@ const LOCAL_STYLES = {
   },
   queriedItem: {},
   focusedItem: {
-    color: '#fff',
   },
   filterButton: {
     ...FB.base,
