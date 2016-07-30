@@ -67,7 +67,7 @@ class AtomView extends React.Component {
       )
     })
 
-    let focusedItem = <div>Loading...</div>;
+    let focusedItem = <div />;
     if (this.state.items.length) {
       let focusedNode = this.state.items[0].startNode;
       let iconClass;
@@ -137,12 +137,38 @@ class AtomView extends React.Component {
   }
 }
 
+// TODO: pull these out to separate file
 const LOCAL_STYLES = {
-  container: { fontFamily: "arial", minHeight: "100vh", backgroundColor: "rgb(40, 44, 52)", },
-  eventTickerList: { ...FB.base, ...FB.justify.start, minHeight: "100px", overflowY: "hidden", overflowX: "scroll", },
-  __oldEventTickerItem: {width: "5vw", padding: "13px", margin: "10px", marginBottom: "15px", display: "inline-block",},
-  eventTickerItem: { minWidth: 100, background: '#000', color: '#fff', padding: 10, margin: 10, display: "inline-block",},
-  queriedItemsList: { padding: "20px", margin: "10px"},
+  container: {
+    fontFamily: "arial",
+    minHeight: "100vh",
+    backgroundColor: "rgb(40, 44, 52)",
+  },
+  eventTickerList: {
+    ...FB.base,
+    ...FB.justify.start,
+    minHeight: 70,
+    overflowY: "hidden",
+    overflowX: "scroll",
+  },
+  __oldEventTickerItem: {
+    width: "5vw",
+    padding: "13px",
+    margin: "10px",
+    marginBottom: "15px",
+    display: "inline-block",
+  },
+  eventTickerItem: {
+    minWidth: 100,
+    background: '#000',
+    color: '#fff',
+    padding: 10,
+    margin: 10,
+  },
+  queriedItemsList: {
+    padding: "20px",
+    margin: "10px"
+  },
   queriedItem: {},
   focusedItem: {
     color: '#fff',

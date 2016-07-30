@@ -1,6 +1,7 @@
 import React from 'react';
 import {File, Browser} from '../Icons';
 import IconText from 'components/IconText';
+import FB from 'styles/flexbox';
 
 class EventTickerItem extends React.Component {
   constructor(...args) {
@@ -37,17 +38,24 @@ class EventTickerItem extends React.Component {
     return (
       <div
         onClick={() => this.props.onClick(this.props.item.data.nodeId)}
-        style={this.props.style}
+        style={{...this.props.style, ...STYLES.container}}
         title={JSON.stringify(this.props.item, null, 2)}>
-        <div target="{this.props.item.address}">
-          <IconText icon={iconClass}>            
-              {title.slice(0, 35)}
-          </IconText>
-        </div>
-        <div style={{fontSize: 10}} nodeId={this.props.item.data.nodeId}>{this.props.item.data.nodeId}</div>
+        <span className={'fa fa-lg fa-' + iconClass} style={{marginRight: 15}} />
+        <span style={{marginRight: 15}}>{title.slice(0, 35)}</span>
+        <span nodeId={this.props.item.data.nodeId}>{this.props.item.data.nodeId}</span>
       </div>
     );
   }
+}
+
+const STYLES = {
+  container: {
+    ...FB.base,
+    ...FB.justify.center,
+    ...FB.align.center,
+    borderRadius: 4,
+    cursor: 'pointer',
+  },
 }
 
 export default EventTickerItem;

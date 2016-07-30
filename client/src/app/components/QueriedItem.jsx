@@ -77,7 +77,8 @@ const _styles = {
     color: 'rgba(0, 0, 0, 1)',
     padding: 5,
     margin: 10,
-    cursor: "pointer"
+    cursor: "pointer",
+    borderRadius: 4,
   }
 }
 
