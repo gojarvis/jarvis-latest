@@ -49,7 +49,6 @@ class AtomView extends React.Component {
   }
 
   async handleEventTickerItemClick(nodeId){
-    console.log('HEllo', nodeId);
     let result = await agent.post('http://localhost:3000/query', {nodeId:nodeId});
 
     this.setState({
@@ -151,6 +150,7 @@ const LOCAL_STYLES = {
     minHeight: 70,
     overflowY: "hidden",
     overflowX: "scroll",
+    paddingTop: "20px"
   },
   __oldEventTickerItem: {
     width: "5vw",

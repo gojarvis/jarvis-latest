@@ -55,6 +55,8 @@ const STYLES = {
     ...FB.align.center,
     borderRadius: 4,
     cursor: 'pointer',
+    whiteSpace: "nowrap",
+    overflowY: "hidden"
   },
 }
 
