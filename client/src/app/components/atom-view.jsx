@@ -12,11 +12,11 @@ import QueriedItem from './QueriedItem.jsx';
 import FB from 'styles/flexbox';
 import COMMON from 'styles/common';
 import IconText from './IconText';
+import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/lib/card';
 
 class AtomView extends React.Component {
   constructor(){
     super();
-
     this.socket = window.socket;
     this.state = {
       eventTicker: [],
@@ -30,7 +30,7 @@ class AtomView extends React.Component {
     this.socket.on('system-event', msg => {
       console.log('STATE', self.state);
       let eventTicker = self.state.eventTicker;
-      if (eventTicker.length > 5) eventTicker.pop();
+      // if (eventTicker.length > 5) eventTicker.pop();
       eventTicker.unshift(msg);
 
       self.setState({
@@ -50,6 +50,26 @@ class AtomView extends React.Component {
 
   async handleEventTickerItemClick(nodeId){
     let result = await agent.post('http://localhost:3000/query', {nodeId:nodeId});
+
+    this.setState({
+      items: result.body
+    })
+  }
+
+  async handleFilter(eventType){
+    let nodeId = this.state.items[0].startNode.id;
+    let params = {nodeId:nodeId};
+    let type;
+    switch (eventType){
+      case 'Files':
+        type = 'File';
+        params.endNodeType = 'File';
+        break;
+      case 'URLs':
+        params.endNodeType =  'Url'
+        break;
+    }
+    let result = await agent.post('http://localhost:3000/query', params);
 
     this.setState({
       items: result.body
@@ -80,24 +100,25 @@ class AtomView extends React.Component {
       }
 
       focusedItem = (
-        <div style={LOCAL_STYLES.focusedItem}>
-          <span>Focused Item</span>
-          <IconText icon={iconClass}>
-            {(focusedNode.title || focusedNode.address).split('/').filter(item => item !== '').slice(-1).pop()}
-          </IconText>
+        <Card style={LOCAL_STYLES.focusedItem} zDepth={5}>
+          <div>
+            <IconText icon={iconClass}>
+              {(focusedNode.title || focusedNode.address).split('/').filter(item => item !== '').slice(-1).pop()}
+            </IconText>
 
-          <IconText icon='external-link'>
-            {(() => {
-              if (focusedNode.type === 'url') {
-                return (
-                  <a style={{color: '#fff'}} target="_blank" href={focusedNode.address}>{focusedNode.address}</a>
-                )
-              } else {
-                return <span>{focusedNode.address}</span>
-              }
-            })()}
-          </IconText>
-        </div>
+            <IconText icon='external-link'>
+              {(() => {
+                if (focusedNode.type === 'url') {
+                  return (
+                    <a style={{color: '#fff'}} target="_blank" href={focusedNode.address}>{focusedNode.address}</a>
+                  )
+                } else {
+                  return <span>{focusedNode.address}</span>
+                }
+              })()}
+            </IconText>
+          </div>
+        </Card>
       )
     }
     let filters = ['All', 'Files', 'URLs'];
@@ -120,7 +141,9 @@ class AtomView extends React.Component {
                 return (
                   <div
                     key={index}
-                    style={LOCAL_STYLES.filterButton}>
+                    style={LOCAL_STYLES.filterButton}
+                    onClick={()=>this.handleFilter(filter)}
+                    >
                     {filter}
                   </div>
                 )
@@ -161,10 +184,6 @@ const LOCAL_STYLES = {
   },
   eventTickerItem: {
     minWidth: 100,
-    background: '#000',
-    color: '#fff',
-    padding: 10,
-    margin: 10,
   },
   queriedItemsList: {
     padding: "20px",
@@ -172,6 +191,9 @@ const LOCAL_STYLES = {
   },
   queriedItem: {},
   focusedItem: {
+    margin: "10px",
+    padding: "10px",
+    color: "black"
   },
   filterButton: {
     ...FB.base,

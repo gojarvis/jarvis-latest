@@ -32,8 +32,9 @@ class EventTickerList extends React.Component {
             <EventTickerItem
               key={index}
               item={item}
+              index={index}
               onClick={this.props.itemOnClick}
-              style={{...this.props.itemStyle, backgroundColor: color}} />
+              style={{...this.props.itemStyle, backgroundColor: "grey"}} />
           )
         })}
       </div>

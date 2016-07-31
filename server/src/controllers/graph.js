@@ -22,12 +22,13 @@ let graphController = {
     let relationshipType = req.param('relationshipType') || false;
     let startNodeType = req.param('startNodeType') || false;
     let endNodeType = req.param('endNodeType') || false;
-
+    console.log('endNodeType', endNodeType);
     let relationshipCypherVariableString = relationshipType ? 'relationship:' + relationshipType : 'relationship'
     let startNodeString = startNodeType ? 'startNode:' + startNodeType : 'startNode'
     let endNodeString = endNodeType ? 'endNode:' + endNodeType : 'endNode'
 
     let normalizedSumCypher = `start startNode=node(${nodeId}) match (${startNodeString})-[${relationshipCypherVariableString}]-(${endNodeString}) return log(sum(relationship.weight)) as normalizedSumWeight`;
+    console.log(normalizedSumCypher);
 
     try{
       let normalizedSumCypherResult = await queryGraph(normalizedSumCypher);
@@ -36,7 +37,7 @@ let graphController = {
       let cypher = `
         start startNode=node(${nodeId}) match (${startNodeString})-[${relationshipCypherVariableString}]-(${endNodeString}) return startNode, type(relationship) as relationshipType, log(relationship.weight)/${normalizedWeight} as relationshipWeight, endNode order by relationshipWeight desc limit 15
       `
-
+      console.log('CYPHER', cypher);
       try{
         let result = await queryGraph(cypher);
         res.json(result);

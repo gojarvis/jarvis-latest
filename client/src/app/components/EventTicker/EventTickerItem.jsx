@@ -3,10 +3,34 @@ import {File, Browser} from '../Icons';
 import IconText from 'components/IconText';
 import FB from 'styles/flexbox';
 
+import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/lib/card';
+import FlatButton from 'material-ui/lib/flat-button';
+import Toggle from 'material-ui/lib/toggle';
+import moment from 'moment';
 class EventTickerItem extends React.Component {
   constructor(...args) {
     super(...args);
+    this.state = {
+      expanded: false,
+    };
   }
+
+  handleExpandChange = (expanded) => {
+    this.setState({expanded: expanded});
+  };
+
+  handleToggle = (event, toggle) => {
+    this.setState({expanded: toggle});
+  };
+
+  handleExpand = () => {
+    this.setState({expanded: true});
+  };
+
+  handleReduce = () => {
+    this.setState({expanded: false});
+  };
+
 
   render() {
     let item = this.props.item;
@@ -19,7 +43,7 @@ class EventTickerItem extends React.Component {
         iconClass = 'bookmark';
         break;
     }
-    console.log(this.props);
+
 
     let title = this.props.item.data.title ?
       this.props.item.data.title.split('/').filter(item => item !== '').slice(-1).pop() :
@@ -35,14 +59,27 @@ class EventTickerItem extends React.Component {
         icon = <File />;
         break;
     }
+
+    let momentText = moment(this.props.item.timestamp).fromNow();
+    console.log(this.props.item.timestamp);
+
+
     return (
-      <div
-        onClick={() => this.props.onClick(this.props.item.data.nodeId)}
-        style={{...this.props.style, ...STYLES.container}}
-        title={JSON.stringify(this.props.item, null, 2)}>
-        <span className={'fa fa-lg fa-' + iconClass} style={{marginRight: 15}} />
-        <span style={{marginRight: 15}}>{title.slice(0, 35)}</span>
-        <span nodeId={this.props.item.data.nodeId}>{this.props.item.data.nodeId}</span>
+      <div>
+        <div style={{...this.props.style, ...STYLES.container}} onClick={() => this.props.onClick(this.props.item.data.nodeId)}>
+          <Card zDepth={4} style={{minWidth: "150px"}}>
+             <CardText >
+               <h3><span>{title.slice(0,35)}</span></h3>
+               <div style={{fontSize: "12px"}}>
+                 <div><span className={'fa fa-lg fa-' + iconClass} style={{marginRight: 15, fontSize: "13px"}} />{item.source}</div>
+                 <div style={{float: "right", color: "grey"}}>{momentText}</div>
+               </div>
+             </CardText>
+           </Card>
+
+        </div>
+
+
       </div>
     );
   }
@@ -55,8 +92,7 @@ const STYLES = {
     ...FB.align.center,
     borderRadius: 4,
     cursor: 'pointer',
-    whiteSpace: "nowrap",
-    overflowY: "hidden"
+    margin: '5px',
   },
 }
 
