@@ -34,13 +34,15 @@ class EventTickerItem extends React.Component {
 
   render() {
     let item = this.props.item;
-    let iconClass;
+    let iconClass, iconColor;
     switch(item.source) {
       case 'atom':
-        iconClass = 'file-o';
+        iconClass = 'file';
+        iconColor = '#FF3F81';
         break;
       case 'chrome':
         iconClass = 'bookmark';
+        iconColor = '#00BBD5';
         break;
     }
 
@@ -71,7 +73,7 @@ class EventTickerItem extends React.Component {
              <CardText style={{...FB.base, flexDirection: 'column'}}>
                <span style={STYLES.title}>{title.slice(0,35)}</span>
                <div style={{...FB.base, fontSize: "12px"}}>
-                 <div><span className={'fa fa-lg fa-' + iconClass} style={{marginRight: 15, fontSize: "13px"}} />{item.source}</div>
+                 <div><span className={'fa fa-lg fa-' + iconClass} style={{marginRight: 15, fontSize: "13px", color: iconColor}} />{item.source}</div>
                  <div style={{float: "right", color: "grey"}}>{momentText}</div>
                </div>
              </CardText>

@@ -13,6 +13,7 @@ import FB from 'styles/flexbox';
 import COMMON from 'styles/common';
 import IconText from './IconText';
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/lib/card';
+import RaisedButton from 'material-ui/lib/raised-button';
 
 class AtomView extends React.Component {
   constructor(){
@@ -89,20 +90,22 @@ class AtomView extends React.Component {
     let focusedItem = <div />;
     if (this.state.items.length) {
       let focusedNode = this.state.items[0].startNode;
-      let iconClass;
+      let iconClass, iconColor;
       switch(focusedNode.type) {
         case 'file':
-          iconClass = 'file-code-o';
+          iconClass = 'file';
+          iconColor = '#FF3F81';
           break;
         case 'url':
-          iconClass = 'bookmark-o';
+          iconClass = 'bookmark';
+          iconColor = '#00BBD5';
           break;
       }
 
       focusedItem = (
         <Card style={LOCAL_STYLES.focusedItem} zDepth={5}>
           <div>
-            <IconText icon={iconClass}>
+            <IconText icon={iconClass} iconColor={iconColor}>
               {(focusedNode.title || focusedNode.address).split('/').filter(item => item !== '').slice(-1).pop()}
             </IconText>
 
@@ -139,13 +142,12 @@ class AtomView extends React.Component {
             <div style={LOCAL_STYLES.filterButtons}>
               {filters.map((filter, index) => {
                 return (
-                  <div
+                  <RaisedButton
                     key={index}
-                    style={LOCAL_STYLES.filterButton}
-                    onClick={()=>this.handleFilter(filter)}
-                    >
-                    {filter}
-                  </div>
+                    label={filter}
+                    primary={index === 1}
+                    secondary={index === 2}
+                    onClick={()=>this.handleFilter(filter)} />
                 )
               })}
             </div>
@@ -173,7 +175,6 @@ const LOCAL_STYLES = {
     minHeight: 70,
     overflowY: "hidden",
     overflowX: "scroll",
-    paddingTop: "20px"
   },
   __oldEventTickerItem: {
     width: "5vw",
@@ -202,7 +203,7 @@ const LOCAL_STYLES = {
   },
   filterButtons: {
     ...FB.base,
-    ...FB.justify.between,
+    ...FB.justify.around,
   },
 };
 

@@ -14,13 +14,18 @@ class QueriedItem extends React.Component {
       item.endNode.address.split('/').filter((item) => item !== "").slice(-1).pop() :
       item.endNode.title || '<No Title or Address>';
 
-    let iconClass;
+    let iconClass, typeIconColor;
     switch(item.endNode.type) {
       case 'file':
-        iconClass = 'file-o';
+        iconClass = 'file';
+        typeIconColor = '#FF3F81';
         break;
       case 'url':
         iconClass = 'bookmark';
+        typeIconColor = '#00BBD5';
+        break;
+      default:
+        typeIconColor = '#000';
         break;
     }
 
@@ -59,7 +64,7 @@ class QueriedItem extends React.Component {
         title={JSON.stringify(item, null, 2)}
         style={{..._styles.container, backgroundColor: color}}
         onClick={() => this.props.onClick(nodeId)}>
-        <IconText icon={iconClass}>
+        <IconText icon={iconClass} iconColor={typeIconColor}>
           <IconText icon={openWithClass} iconColor={iconColor}>
             <div style={{...FB.base, flexWrap: "nowrap", ...FB.align.center}}>
               <div style={{flexGrow: "4", marginRight: "40px", overflow: "hidden", whiteSpace: "nowrap" }}>{title.slice(0, 20)}</div>
