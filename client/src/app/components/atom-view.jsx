@@ -120,15 +120,6 @@ class AtomView extends React.Component {
 
             <IconText icon='external-link'>
               {(() => {
-                // if (focusedNode.type === 'url') {
-                //   return (
-                //
-                //     <span onClick={() => this.externalLinkClick(focusedNode.address, focusedNode.type)}>{focusedNode.address}</span>
-                //   )
-                // } else {
-                //   return <span>{focusedNode.address}</span>
-                // }
-
                 return <span onClick={() => this.externalLinkClick(focusedNode.address, focusedNode.type)}>{focusedNode.address}</span>
               })()}
             </IconText>

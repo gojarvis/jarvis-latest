@@ -52,7 +52,7 @@ class contextManager{
         user = await this.setUser(userInfo);
         this.user = user;
 
-        this.heart.createEvent(15, function(heartbeat, last){
+        this.heart.createEvent(30, function(heartbeat, last){
           this.handleHeartbeat(heartbeat);
         }.bind(this));
 

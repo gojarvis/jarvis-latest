@@ -80,8 +80,9 @@ class ChromeController {
     self.socket.on('chrome-updated', function(message){
       console.log('chrome-updated');
       let {active, tabs} = message;
-      // console.log('tabs', tabs);
       self.tabs = tabs;
+      let activeTab = tabs.filter(item => item.active);
+      // console.log('ACTIVE TAB', activeTab);
       self.handleUpdated(active).then(function(){
 
       });
@@ -175,16 +176,27 @@ class ChromeController {
   async handleUpdated(active){
     let activeTab = this.getActiveTab(active)
     // console.log('ACTIVE TAB', activeTab);
-    // let related = await this.getRelated(activeTab[0].url,10);
-    // let relatedUrls = await Promise.all(related.map(relation => this.getUrlById(relation.end)))
-    this.context.setActiveUrl({url: activeTab.url, title: activeTab.title});
+
+
+    let node = await this.getUrlNodeByUrl(activeTab[0].url);
+    if (this.context.activeUrl.url !== activeTab[0].url){
+      this.context.setActiveUrl({url: activeTab[0].url, title: activeTab[0].title});
+      this.history.saveEvent({type: 'highlighted', source: 'chrome', data: { nodeId: node.id, address: activeTab[0].url, title: activeTab[0].title} }).then(function(res){
+
+      });
+    }
+
+
+
+
     // return relatedUrls
   }
 
   async handleHighlighted(active){
+    console.log('ACTIVE', active);
     let activeTab = this.getActiveTab(active.tabIds[0])
     let activeTabTitle = '';
-    console.log('ACTIVE TAB', activeTab);
+    // console.log('ACTIVE TAB', activeTab);
     if (!activeTab[0]){
       return [];
     }
@@ -198,7 +210,7 @@ class ChromeController {
 
     this.context.setActiveUrl(activeUrl);
 
-    this.history.saveEvent({type: 'highlighted', source: 'chrome', data: { nodeId: node.id, address: activeUrl.url, title: activeTab[0].url} }).then(function(res){
+    this.history.saveEvent({type: 'highlighted', source: 'chrome', data: { nodeId: node.id, address: activeUrl.url, title: activeTab[0].title} }).then(function(res){
 
     });
   }
