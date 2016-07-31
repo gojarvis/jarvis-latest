@@ -65,21 +65,18 @@ class EventTickerItem extends React.Component {
 
 
     return (
-      <div>
+      <div style={{flex: '0 1 auto'}}>
         <div style={{...this.props.style, ...STYLES.container}} onClick={() => this.props.onClick(this.props.item.data.nodeId)}>
           <Card zDepth={4} style={{minWidth: "150px"}}>
-             <CardText >
-               <h3><span>{title.slice(0,35)}</span></h3>
-               <div style={{fontSize: "12px"}}>
+             <CardText style={{...FB.base, flexDirection: 'column'}}>
+               <span style={STYLES.title}>{title.slice(0,35)}</span>
+               <div style={{...FB.base, fontSize: "12px"}}>
                  <div><span className={'fa fa-lg fa-' + iconClass} style={{marginRight: 15, fontSize: "13px"}} />{item.source}</div>
                  <div style={{float: "right", color: "grey"}}>{momentText}</div>
                </div>
              </CardText>
            </Card>
-
         </div>
-
-
       </div>
     );
   }
@@ -93,6 +90,9 @@ const STYLES = {
     borderRadius: 4,
     cursor: 'pointer',
     margin: '5px',
+  },
+  title: {
+    fontSize: 20,
   },
 }
 

@@ -2,6 +2,8 @@ import React from 'react';
 import File from 'components/Icons/File';
 import Browser from 'components/Icons/Browser';
 import IconText from 'components/IconText';
+import LinearProgress from 'material-ui/lib/linear-progress';
+import FB from 'styles/flexbox';
 
 class QueriedItem extends React.Component {
   render() {
@@ -59,11 +61,9 @@ class QueriedItem extends React.Component {
         onClick={() => this.props.onClick(nodeId)}>
         <IconText icon={iconClass}>
           <IconText icon={openWithClass} iconColor={iconColor}>
-            <div style={{display: "flex", flexWrap: "nowrap"}}>
+            <div style={{...FB.base, flexWrap: "nowrap", ...FB.align.center}}>
               <div style={{flexGrow: "4", marginRight: "40px", overflow: "hidden", whiteSpace: "nowrap" }}>{title.slice(0, 20)}</div>
-              <div style={{backgroundColor: "rgb(187, 187, 187)", width: "15vh", marginRight: "10px"}}>
-                <span style={{width: weightBar, backgroundColor: "rgba(6, 150, 38, 0.8)", display: "inline-block", height: "8px"}}></span>
-              </div>
+              <div style={{width: '15vw'}}><LinearProgress mode="determinate" value={item.relationshipWeight * 100} /></div>
             </div>
           </IconText>
         </IconText>

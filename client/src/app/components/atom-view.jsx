@@ -110,7 +110,7 @@ class AtomView extends React.Component {
               {(() => {
                 if (focusedNode.type === 'url') {
                   return (
-                    <a style={{color: '#fff'}} target="_blank" href={focusedNode.address}>{focusedNode.address}</a>
+                    <a target="_blank" href={focusedNode.address}>{focusedNode.address}</a>
                   )
                 } else {
                   return <span>{focusedNode.address}</span>
