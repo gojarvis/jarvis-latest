@@ -6,7 +6,7 @@ var kue = require('kue');
 var ui = require('kue-ui');
 import r from 'rethinkdb'
 var graphController = require('./controllers/graph.js')
-
+var childProc = require('child_process');
 
 
 var db = require('thinky')();
@@ -27,6 +27,24 @@ setTimeout(()=>{
 
   app.get('/', function(req, res){
     res.sendFile('client/src/www/index.html');
+  });
+
+  app.post('/open', function(req, res){
+    let address = req.param('address');
+    let type = req.param('type');
+    let cmd;
+    switch(type){
+      case 'url':
+        cmd = 'open -a "Google Chrome" ' + address;
+        break;
+      case 'file':
+        cmd = 'open -a "Atom" ' + address;
+      break;
+    }
+
+    childProc.exec(cmd, function(){});
+
+
   });
 
   app.post('/health', function(req,res){

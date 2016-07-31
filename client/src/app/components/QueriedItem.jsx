@@ -68,7 +68,7 @@ class QueriedItem extends React.Component {
           <IconText icon={openWithClass} iconColor={iconColor}>
             <div style={{...FB.base, flexWrap: "nowrap", ...FB.align.center}}>
               <div style={{flexGrow: "4", marginRight: "40px", overflow: "hidden", whiteSpace: "nowrap" }}>{title.slice(0, 20)}</div>
-              <div style={{width: '15vw'}}><LinearProgress mode="determinate" value={item.relationshipWeight * 100} /></div>
+              <div style={{width: '25vw', marginRight: "2vw"}}><LinearProgress mode="determinate" value={item.relationshipWeight * 100} /></div>
             </div>
           </IconText>
         </IconText>

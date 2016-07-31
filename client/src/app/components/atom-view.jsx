@@ -77,6 +77,15 @@ class AtomView extends React.Component {
     })
   }
 
+  async externalLinkClick(address, type){
+
+    let params = {
+      address : address,
+      type: type
+    };
+    let result = await agent.post('http://localhost:3000/open', params);
+  }
+
   render(){
     console.log('Items' , this.state.items);
     let queriedItems = this.state.items.map((item , index) => {
@@ -111,13 +120,16 @@ class AtomView extends React.Component {
 
             <IconText icon='external-link'>
               {(() => {
-                if (focusedNode.type === 'url') {
-                  return (
-                    <a target="_blank" href={focusedNode.address}>{focusedNode.address}</a>
-                  )
-                } else {
-                  return <span>{focusedNode.address}</span>
-                }
+                // if (focusedNode.type === 'url') {
+                //   return (
+                //
+                //     <span onClick={() => this.externalLinkClick(focusedNode.address, focusedNode.type)}>{focusedNode.address}</span>
+                //   )
+                // } else {
+                //   return <span>{focusedNode.address}</span>
+                // }
+
+                return <span onClick={() => this.externalLinkClick(focusedNode.address, focusedNode.type)}>{focusedNode.address}</span>
               })()}
             </IconText>
           </div>
