@@ -12,7 +12,9 @@ class QueriedItem extends React.Component {
     let color = "rgba(255, 255, 255, " + item.relationshipWeight + ")";
     let title = item.endNode.address ?
       item.endNode.address.split('/').filter((item) => item !== "").slice(-1).pop() :
-      item.endNode.title || '<No Title or Address>';
+      item.endNode.title ? item.endNode.title :
+        item.endNode.text ? item.endNode.text  : 'No title or address' 
+
 
     let iconClass, typeIconColor;
     switch(item.endNode.type) {
@@ -23,6 +25,11 @@ class QueriedItem extends React.Component {
       case 'url':
         iconClass = 'bookmark';
         typeIconColor = '#00BBD5';
+        break;
+
+      case 'keyword':
+        iconClass = 'aspect-ratio';
+        typeIconColor = '#607D8B';
         break;
       default:
         typeIconColor = '#000';

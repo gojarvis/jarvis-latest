@@ -8,8 +8,9 @@ import colors from 'colors';
 import fs from 'fs';
 
 let graphUtils = new GraphDB();
+//9afdfd3783da57ff673da2316105c8e52f411576
 
-let alchemy_language = watson.alchemy_language({api_key: '90b037daf9e184f3f506be9f7667ce289b1392b0'});
+let alchemy_language = watson.alchemy_language({api_key: 'ab2b4727617c0d529641168272d1e661634feb72'});
 
 let graph = require("seraph")({
   user: 'neo4j', pass: 'sherpa', server: 'http://localhost:7474',

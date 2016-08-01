@@ -69,6 +69,9 @@ class AtomView extends React.Component {
       case 'URLs':
         params.endNodeType =  'Url'
         break;
+      case 'Keywords':
+        params.endNodeType =  'Keyword'
+        break;
     }
     let result = await agent.post('http://localhost:3000/query', params);
 
@@ -127,7 +130,7 @@ class AtomView extends React.Component {
         </Card>
       )
     }
-    let filters = ['All', 'Files', 'URLs'];
+    let filters = ['All', 'Files', 'URLs', 'Keywords'];
 
     return(
       <div style={{width: "100%"}}>

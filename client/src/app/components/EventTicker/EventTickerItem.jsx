@@ -67,14 +67,14 @@ class EventTickerItem extends React.Component {
 
 
     return (
-      <div style={{flex: '0 1 auto'}}>
+      <div style={{flex: "1 auto"}}>
         <div style={{...this.props.style, ...STYLES.container}} onClick={() => this.props.onClick(this.props.item.data.nodeId)}>
-          <Card zDepth={4} style={{minWidth: "150px"}}>
-             <CardText style={{...FB.base, flexDirection: 'column'}}>
-               <span style={STYLES.title}>{title.slice(0,35)}</span>
-               <div style={{...FB.base, fontSize: "12px"}}>
-                 <div><span className={'fa fa-lg fa-' + iconClass} style={{marginRight: 15, fontSize: "13px", color: iconColor}} />{item.source}</div>
-                 <div style={{float: "right", color: "grey"}}>{momentText}</div>
+          <Card zDepth={4} style={{height: "120px", minWidth: "220px"}}>
+             <CardText style={{...FB.base, flexDirection: 'column', display: "flex", justifyContent: "space-between"}}>
+               <div style={STYLES.title}>{title.slice(0,35)}</div>
+               <div style={{...FB.base, fontSize: "12px", alignSelf: "stretch", marginBottom: 0}}>
+                 <div style={{marginRight: "5px"}}><span className={'fa fa-lg fa-' + iconClass} style={{marginRight: 15, fontSize: "13px", color: iconColor}} />{item.source} |</div>
+                 <div style={{color: "grey"}}>{momentText}</div>
                </div>
              </CardText>
            </Card>
@@ -95,6 +95,7 @@ const STYLES = {
   },
   title: {
     fontSize: 20,
+    alignSelf: "flex-start"
   },
 }
 

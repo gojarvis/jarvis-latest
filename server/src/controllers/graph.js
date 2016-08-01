@@ -32,7 +32,9 @@ let graphController = {
 
     try{
       let normalizedSumCypherResult = await queryGraph(normalizedSumCypher);
-      let normalizedWeight = normalizedSumCypherResult[0].normalizedSumWeight
+      let normalizedWeight = parseFloat(normalizedSumCypherResult[0].normalizedSumWeight);
+
+      normalizedWeight = (normalizedWeight > 0) ? normalizedWeight : 1;
 
       let cypher = `
         start startNode=node(${nodeId}) match (${startNodeString})-[${relationshipCypherVariableString}]-(${endNodeString}) return startNode, type(relationship) as relationshipType, log(relationship.weight)/${normalizedWeight} as relationshipWeight, endNode order by relationshipWeight desc limit 15
