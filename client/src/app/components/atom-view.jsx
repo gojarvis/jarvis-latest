@@ -52,11 +52,15 @@ class AtomView extends React.Component {
 
   }
 
+
+
   async handleEventTickerItemClick(nodeId){
     let result = await agent.post('http://localhost:3000/query', {nodeId:nodeId});
-    this.setState({
-      items: result.body
-    })
+    setTimeout( () => {
+      this.setState({
+        items: result.body
+      })
+    }, 200)
   }
 
   async handleFilter(eventType){
@@ -162,7 +166,7 @@ class AtomView extends React.Component {
             <hr />
               <CSSTransitionGroup
                 transitionName='query-item'
-                transitionEnterTimeout={1000}
+                transitionEnterTimeout={2000}
                 transitionLeaveTimeout={0}
                 component='div'
                 className='query-item-list'>

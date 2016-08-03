@@ -11,11 +11,20 @@ let graphUtils = new GraphDB();
 //9afdfd3783da57ff673da2316105c8e52f411576
 
 let alchemy_language = watson.alchemy_language({api_key: 'ab2b4727617c0d529641168272d1e661634feb72'});
+import config from 'config';
+
+let dbConfig = config.get('graph');
 
 let graph = require("seraph")({
-  user: 'neo4j', pass: 'sherpa', server: 'http://localhost:7474',
-  // server: 'http://localhost:7474',
+  user: dbConfig.user,
+  pass: dbConfig.pass,
+  server: dbConfig.server
 });
+
+// let graph = require("seraph")({
+//   user: 'neo4j', pass: 'sherpa', server: 'http://104.236.57.246:7474',
+//   // server: 'http://localhost:7474',
+// });
 
 // we don't want to create constraints on our objects, as it throws an error when we try to MERGE
 // graph.constraints.uniqueness.create('Keyword', 'text', function (err, constraint) {

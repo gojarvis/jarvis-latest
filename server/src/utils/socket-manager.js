@@ -34,13 +34,13 @@ class SocketManager {
     const deep = new Deep(history, context);
 
     // basic speech in/out
-    this.wit = new WitController(socket, sid, context, history)
+    // this.wit = new WitController(socket, sid, context, history)
 
     //Slack
     // this.slack = new SlackController(socket)
 
     //Basic conversation
-    this.teach = new TeachController(socket, sid, context, history)
+    // this.teach = new TeachController(socket, sid, context, history)
     // this.leap = new Leap(socket, sid, context, history)
 
     //Sensors (plugins)
@@ -49,7 +49,7 @@ class SocketManager {
 
     this.proactive = new Proactive(socket, sid, io, context, history, deep);
 
-    this.conversations = new Conversations(socket, sid, io, context, history, deep);
+    // this.conversations = new Conversations(socket, sid, io, context, history, deep);
   }
 }
 module.exports = SocketManager;

@@ -2,11 +2,14 @@ import heartbeats from 'heartbeats'
 import _ from 'lodash';
 import watson from 'watson-developer-cloud';
 import r from 'rethinkdb'
+import config from 'config';
+
+let dbConfig = config.get('graph');
 
 let graph = require("seraph")({
-  user: 'neo4j',
-  pass: 'sherpa',
-  server: 'http://localhost:7474'
+  user: dbConfig.user,
+  pass: dbConfig.pass,
+  server: dbConfig.server
 });
 
 // var db = Thinky();
@@ -51,6 +54,7 @@ class contextManager{
     try{
         user = await this.setUser(userInfo);
         this.user = user;
+        console.log('USER', user);
 
         this.heart.createEvent(30, function(heartbeat, last){
           this.handleHeartbeat(heartbeat);
@@ -59,6 +63,8 @@ class contextManager{
         this.slowHeart.createEvent(300, function(heartbeat, last){
 
         }.bind(this));
+
+        return user;
     }
     catch(err){
       console.error('cannot initialize context',err);
