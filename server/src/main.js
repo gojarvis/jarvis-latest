@@ -7,6 +7,11 @@ var ui = require('kue-ui');
 import r from 'rethinkdb'
 var graphController = require('./controllers/graph.js')
 var childProc = require('child_process');
+import config from 'config';
+
+let dbConfig = config.get('graph');
+let userConfig = config.get('user');
+let projectsPath = userConfig.projectsPath;
 
 
 var db = require('thinky')();
@@ -38,7 +43,7 @@ setTimeout(()=>{
         cmd = 'open -a "Google Chrome" ' + address;
         break;
       case 'file':
-        cmd = 'open -a "Atom" ' + address;
+        cmd = 'open -a "Atom" ' + projectsPath + address;
       break;
     }
     console.log('Executing', cmd);
