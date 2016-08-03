@@ -41,7 +41,7 @@ setTimeout(()=>{
         cmd = 'open -a "Atom" ' + address;
       break;
     }
-
+    console.log('Executing', cmd);
     childProc.exec(cmd, function(){});
 
 

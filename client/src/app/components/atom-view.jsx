@@ -14,6 +14,8 @@ import COMMON from 'styles/common';
 import IconText from './IconText';
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/lib/card';
 import RaisedButton from 'material-ui/lib/raised-button';
+import CSSTransitionGroup from 'react-addons-css-transition-group';
+require('./QueriedItems.css');
 
 class AtomView extends React.Component {
   constructor(){
@@ -158,7 +160,15 @@ class AtomView extends React.Component {
               })}
             </div>
             <hr />
-            {queriedItems}
+              <CSSTransitionGroup
+                transitionName='query-item'
+                transitionEnterTimeout={500}
+                transitionLeaveTimeout={300}
+                component='div'
+                className='query-item-list'>
+                {queriedItems}
+              </CSSTransitionGroup>
+
           </div>
         </div>
 

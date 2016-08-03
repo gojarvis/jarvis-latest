@@ -64,9 +64,7 @@ class EventTickerItem extends React.Component {
     }
 
     let momentText = moment(this.props.item.timestamp).fromNow();
-    console.log(this.props.item.timestamp);
-
-
+    
     return (
       <div>
         <div style={{...this.props.style, ...STYLES.container}} onClick={() => this.props.onClick(this.props.item.data.nodeId)}>

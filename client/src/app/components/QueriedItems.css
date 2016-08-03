@@ -1,0 +1,32 @@
+.query-item-list {
+  /*display: flex;
+  justify-content: flex-start;
+  align-items: center;*/
+}
+
+.query-item-enter {
+  opacity: 0.01;
+}
+
+.query-item-enter.query-item-enter-active {
+  opacity: 1;
+  transition: opacity 500ms ease-in;
+}
+
+.query-item-leave {
+  opacity: 1;
+}
+
+.query-item-leave.query-item-leave-active {
+  opacity: 0.01;
+  transition: opacity 300ms ease-in;
+}
+
+.query-item-appear {
+  opacity: 0.01;
+}
+
+.query-item-appear.query-item-appear-active {
+  opacity: 1;
+  transition: opacity .5s ease-in;
+}
