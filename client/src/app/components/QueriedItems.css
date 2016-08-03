@@ -5,28 +5,25 @@
 }
 
 .query-item-enter {
-  opacity: 0.01;
+  transform: translate3d(100%, 0, 0);
 }
 
 .query-item-enter.query-item-enter-active {
-  opacity: 1;
-  transition: opacity 500ms ease-in;
+  transition: transform 600ms ease-in;
+  transform: translate3d(0%, 0, 0);
+  animation-delay: 1s;
 }
 
 .query-item-leave {
-  opacity: 1;
+  transform: translate(0%);
 }
 
 .query-item-leave.query-item-leave-active {
-  opacity: 0.01;
-  transition: opacity 300ms ease-in;
+  transition: transform 600ms ease-in-out;
+  transform: translate(-100%, 0);
 }
 
-.query-item-appear {
-  opacity: 0.01;
-}
-
-.query-item-appear.query-item-appear-active {
-  opacity: 1;
-  transition: opacity .5s ease-in;
+.query-item-stagger {
+  transition-delay: 10s;
+  transition-duration: 0s;
 }

@@ -17,6 +17,7 @@ import RaisedButton from 'material-ui/lib/raised-button';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
 require('./QueriedItems.css');
 
+
 class AtomView extends React.Component {
   constructor(){
     super();
@@ -53,7 +54,6 @@ class AtomView extends React.Component {
 
   async handleEventTickerItemClick(nodeId){
     let result = await agent.post('http://localhost:3000/query', {nodeId:nodeId});
-
     this.setState({
       items: result.body
     })
@@ -162,8 +162,8 @@ class AtomView extends React.Component {
             <hr />
               <CSSTransitionGroup
                 transitionName='query-item'
-                transitionEnterTimeout={500}
-                transitionLeaveTimeout={300}
+                transitionEnterTimeout={1000}
+                transitionLeaveTimeout={0}
                 component='div'
                 className='query-item-list'>
                 {queriedItems}
