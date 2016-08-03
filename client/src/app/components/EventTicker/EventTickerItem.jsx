@@ -7,6 +7,7 @@ import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'mat
 import FlatButton from 'material-ui/lib/flat-button';
 import Toggle from 'material-ui/lib/toggle';
 import moment from 'moment';
+
 class EventTickerItem extends React.Component {
   constructor(...args) {
     super(...args);
