@@ -183,7 +183,7 @@ class MetadataManager {
     keywordNodes.forEach(kwObj => {
       let cypher = `
         START a=node(${kwObj.node.id}), b=node(${urlNode.id})
-        CREATE UNIQUE (a)-[r:related]-(b)
+        CREATE UNIQUE (a)-[r:related]->(b)
         SET r.weight = coalesce(r.weight, 0) + ${kwObj.relevance}`;
 
       txn.query(cypher, {}, (err, result) => {

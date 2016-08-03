@@ -192,8 +192,7 @@ class ChromeController {
     // return relatedUrls
   }
 
-  async handleHighlighted(active){
-    console.log('ACTIVE', active);
+  async handleHighlighted(active){    
     let activeTab = this.getActiveTab(active.tabIds[0])
     let activeTabTitle = '';
     // console.log('ACTIVE TAB', activeTab);

@@ -18,6 +18,9 @@ let graph = require("seraph")({
   server: dbConfig.server
 });
 
+let userConfig = config.get('user');
+let projectsPath = userConfig.projectsPath;
+
 let graphAsync = Promise.promisifyAll(graph);
 
 graph.constraints.uniqueness.create('File', 'address', function(err, constraint) {});
@@ -143,8 +146,10 @@ class AtomController {
 
   saveFile(address){
     let self = this;
+    let trimmedAddress = address.replace(projectsPath, '');
+    console.log('TRIMMED ADDRESS', trimmedAddress);
     return new Promise(function(resolve, reject) {
-      graph.save({type: 'file', address: address}, 'File', function(err, node){
+      graph.save({type: 'file', address: trimmedAddress}, 'File', function(err, node){
         node = node ? node : {type: 'file', address: address};
         if (err) {
           console.log('err', err);
@@ -280,7 +285,8 @@ class AtomController {
   }
 
   async insertUniqueFile(address){
-    let fileNode = await this.getAndSave(address);
+    let trimmedAddress = address.replace(projectsPath, '');
+    let fileNode = await this.getAndSave(trimmedAddress);
     // console.log("found", fileNode.address);
     let tab = this.tabs.filter(tab => tab.address === fileNode.address);
     if (tab.length == 0){
