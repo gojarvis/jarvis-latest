@@ -5,7 +5,7 @@ var bodyParser = require('body-parser');
 var kue = require('kue');
 var ui = require('kue-ui');
 import r from 'rethinkdb'
-var graphController = require('./controllers/graph.js')
+var graphController = require('./controllers/graph')
 var childProc = require('child_process');
 import config from 'config';
 
@@ -33,6 +33,8 @@ setTimeout(()=>{
   app.get('/', function(req, res){
     res.sendFile('client/src/www/index.html');
   });
+
+  app.get('/users', graphController.getUsers);
 
   app.post('/open', function(req, res){
     let address = req.param('address');

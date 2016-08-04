@@ -17,6 +17,17 @@ function queryGraph(cypher, params={}){
 }
 
 let graphController = {
+  getUsers: async function(req, res) {
+    let cypher = `match (n:User) return n`;
+    try {
+      let result = await queryGraph(cypher);
+      res.json(result);
+    } catch (e) {
+      console.error('Query to graph for users failed', cypher);
+      res.json({'error': e});
+    }
+  },
+
   query: async function(req, res){
     let nodeId = req.param('nodeId');
     let relationshipType = req.param('relationshipType') || false;
@@ -27,7 +38,10 @@ let graphController = {
     let startNodeString = startNodeType ? 'startNode:' + startNodeType : 'startNode'
     let endNodeString = endNodeType ? 'endNode:' + endNodeType : 'endNode'
 
-    let normalizedSumCypher = `start startNode=node(${nodeId}) match (${startNodeString})-[${relationshipCypherVariableString}]-(${endNodeString}) return log(sum(relationship.weight)) as normalizedSumWeight`;
+    let normalizedSumCypher = `
+      start startNode=node(${nodeId})
+      match (${startNodeString})-[${relationshipCypherVariableString}]-(${endNodeString})
+      return log(sum(relationship.weight)) as normalizedSumWeight`;
     console.log(normalizedSumCypher);
 
     try{
@@ -37,7 +51,9 @@ let graphController = {
       normalizedWeight = (normalizedWeight > 0) ? normalizedWeight : 1;
 
       let cypher = `
-        start startNode=node(${nodeId}) match (${startNodeString})-[${relationshipCypherVariableString}]-(${endNodeString}) return startNode, type(relationship) as relationshipType, log(relationship.weight)/${normalizedWeight} as relationshipWeight, endNode order by relationshipWeight desc limit 15
+        start startNode=node(${nodeId})
+        match (${startNodeString})-[${relationshipCypherVariableString}]-(${endNodeString})
+        return startNode, type(relationship) as relationshipType, log(relationship.weight)/${normalizedWeight} as relationshipWeight, endNode order by relationshipWeight desc limit 15
       `
       console.log('CYPHER', cypher);
       try{
