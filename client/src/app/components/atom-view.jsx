@@ -33,7 +33,7 @@ class AtomView extends React.Component {
   componentWillMount() {
     let self = this;
     this.socket.on('system-event', msg => {
-      console.log('STATE', self.state);
+      // console.log('STATE', self.state);
       let eventTicker = self.state.eventTicker;
       // if (eventTicker.length > 5) eventTicker.pop();
       eventTicker.unshift(msg);
@@ -88,13 +88,14 @@ class AtomView extends React.Component {
   }
 
   async handleUserFilter(user) {
+    let nodeId = this.state.items[0].startNode.id;
     let params = {
-      startUserNodeId: 83408,
-      endUserNodeIds: user.id,
+      nodeId: nodeId,
+      endUserNodeIds: [user.id],
       users: [user.id],
     };
     let result = await agent.post('http://localhost:3000/query', params);
-
+    console.log('RESULT', result.body);
     this.setState({
       items: result.body
     });
@@ -110,7 +111,7 @@ class AtomView extends React.Component {
   }
 
   render(){
-    console.log('Items' , this.state.items);
+    // console.log('Items' , this.state.items);
     let queriedItems = this.state.items.map((item , index) => {
       return (
         <QueriedItem
@@ -179,7 +180,7 @@ class AtomView extends React.Component {
                 )
               })}
             </div>
-            <UserList users={users} onClick={this.handleUserFilter} />
+            <UserList users={users} onClick={this.handleUserFilter.bind(this) } />
             <hr />
               <CSSTransitionGroup
                 transitionName='query-item'

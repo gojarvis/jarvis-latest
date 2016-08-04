@@ -4,7 +4,7 @@ import FB from 'styles/flexbox';
 
 let UserList = (props) => {
   let {users} = props;
-
+  
   return (
     <div style={{...FB.base, ...FB.justify.start}}>
       {users.map((item, index) => {
