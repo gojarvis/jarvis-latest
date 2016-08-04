@@ -25,7 +25,20 @@ class AtomView extends React.Component {
     this.socket = window.socket;
     this.state = {
       eventTicker: [],
-      items: []
+      items: [],
+      filters: [
+        { key: "files", selected: false, label: "Files" },
+        { key: "urls", selected: false, label: "URLs" },
+        { key: "keywords", selected: false, label: "Keywords" },
+      ],
+      users: [
+        {username: 'parties', id: 83408, selected: false}, {username: 'roieki', id: 83258, selected: false}
+      ],
+      params: {
+        nodeId: -1,
+        endNodeType: false,
+        endUserNodeIds: false
+      }
     }
 
   }
@@ -64,41 +77,80 @@ class AtomView extends React.Component {
     }, 200)
   }
 
-  async handleFilter(eventType){
+  async handleFilter(clickedFilter){
     let nodeId = this.state.items[0].startNode.id;
-    let params = {nodeId};
-    let type;
-    switch (eventType){
-      case 'Files':
-        type = 'File';
-        params.endNodeType = 'File';
-        break;
-      case 'URLs':
-        params.endNodeType =  'Url'
-        break;
-      case 'Keywords':
-        params.endNodeType =  'Keyword'
-        break;
-    }
-    let result = await agent.post('http://localhost:3000/query', params);
+    let newParams = this.state.params;
+    newParams.nodeId = nodeId;
+    newParams.endNodeType = false;
+
+    let oldFilters = this.state.filters;
+    // let selectedFilter = this.state.filters.filter((filter) => filter.key = clickedFilter.key);
+    let newFilters = this.state.filters.map((filter) => {
+      if (filter.key === clickedFilter.key) {
+        filter.selected = !filter.selected;
+        if (filter.selected){
+          switch (filter.key){
+            case 'files':
+              newParams.endNodeType = 'File';
+              break;
+            case 'urls':
+              newParams.endNodeType =  'Url'
+              break;
+            case 'keywords':
+              newParams.endNodeType =  'Keyword'
+              break;
+          }
+        }
+      }
+      else{
+        filter.selected = false
+      }
+      return filter
+    })
 
     this.setState({
-      items: result.body
-    })
+      filters: newFilters,
+      params: newParams
+    });
+
+
+    this.query(newParams);
+
   }
 
-  async handleUserFilter(user) {
-    let nodeId = this.state.items[0].startNode.id;
-    let params = {
-      nodeId: nodeId,
-      endUserNodeIds: [user.id],
-      users: [user.id],
-    };
+  async query(params){
+    console.log('PARAMS', params);
     let result = await agent.post('http://localhost:3000/query', params);
     console.log('RESULT', result.body);
     this.setState({
       items: result.body
     });
+  }
+
+  async handleUserFilter(selectedUser) {
+    console.log(selectedUser, this.state.users);
+    let newUserFilters = this.state.users.map((user) => {
+      if (user.username === selectedUser.username){
+        user.selected = !user.selected;
+      }
+      return user;
+    })
+
+    let userIds = [];
+    _.forEach(newUserFilters, (item)=>{
+      if (item.selected) userIds.push(item.id)
+    })
+
+    // let userIds = newUserFilters.map((item) => {if (item.selected ) { return item.id } });
+
+    if (userIds.length === 0) userIds = false;
+    let newParams = this.state.params;
+    newParams.endUserNodeIds = userIds;
+    this.setState({
+      params: newParams
+    })
+    this.query(newParams);
+
   }
 
   async externalLinkClick(address, type){
@@ -151,7 +203,7 @@ class AtomView extends React.Component {
         </Card>
       )
     }
-    let filters = ['All', 'Files', 'URLs', 'Keywords'];
+    let filters = ['All', 'Files', 'URLs'];
     let users = [{username: 'parties', id: 83408}, {username: 'roieki', id: 83258}];
 
     return(
@@ -168,19 +220,25 @@ class AtomView extends React.Component {
             {focusedItem}
             <hr />
             <div style={LOCAL_STYLES.filterButtons}>
-              {filters.map((filter, index) => {
+              {this.state.filters.map((filter, index) => {
+                let zIndex = 5, selected;
+                if (filter.selected) {
+                  zIndex = 0
+
+                }
                 return (
                   <RaisedButton
                     key={index}
-                    label={filter}
-                    primary={index === 1}
-                    secondary={index === 2}
+                    label={filter.label}
+                    primary={filter.selected}
+                    secondary={!filter.selected}
+                    zIndex={zIndex}
                     onClick={()=>this.handleFilter(filter)}
                     style={{flex: '1 1 auto', margin: 10}} />
                 )
               })}
             </div>
-            <UserList users={users} onClick={this.handleUserFilter.bind(this) } />
+            <UserList users={this.state.users} onClick={this.handleUserFilter.bind(this) } />
             <hr />
               <CSSTransitionGroup
                 transitionName='query-item'

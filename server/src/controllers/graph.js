@@ -9,7 +9,7 @@ let graph = require("seraph")({
 
 function queryGraph(cypher, params={}){
   return new Promise(function(resolve, reject) {
-    // console.log('Executing::::', cypher);
+    
     graph.query(cypher, params, function(err, result){
       if (err) reject(err)
       else resolve(result)
@@ -54,7 +54,7 @@ let graphController = {
 
 
     if (startUserNodeId && (!endUserNodeIds || endUserNodeIds.length === 0)){
-      cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]-(${startNodeString})-[${relationshipCypherVariableString}]-(endNode) where ID(startNode) = ${nodeId}`
+      cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]-(${startNodeString})-[${relationshipCypherVariableString}]-(${endNodeString}) where ID(startNode) = ${nodeId}`
       cypher += ` and ID(startUserNode) = ${startUserNodeId}`
       normalizedSumCypher = cypher + ` return avg(${relationshipCypherVariableString}.weight) as normalizedSumWeight`;
       normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
@@ -63,7 +63,7 @@ let graphController = {
 
     }
     if (startUserNodeId && endUserNodeIds && endUserNodeIds.length > 0){
-      cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]-(${startNodeString})-[${'startUserRel_' + relationshipCypherVariableString}]-(endNode)-[${'endUserRel_' + relationshipCypherVariableString}]-(endUserNode:User) where ID(startNode) = ${nodeId}`
+      cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]-(${startNodeString})-[${'startUserRel_' + relationshipCypherVariableString}]-(${endNodeString})-[${'endUserRel_' + relationshipCypherVariableString}]-(endUserNode:User) where ID(startNode) = ${nodeId}`
       cypher += ` and ID(startUserNode) = ${startUserNodeId}`
       cypher += ` and ID(endUserNode) in [${endUserNodeIds.join(',')}]`
 
@@ -73,7 +73,7 @@ let graphController = {
       cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, collect(distinct endNode)[0] as endNode order by relationshipWeight desc`
     }
     if (!startUserNodeId && endUserNodeIds && endUserNodeIds.length > 0){
-      cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]-(${startNodeString})-[${'startUserRel_' + relationshipCypherVariableString}]-(endNode)-[${'endUserRel_' + relationshipCypherVariableString}]-(endUserNode:User) where ID(startNode) = ${nodeId}`
+      cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]-(${startNodeString})-[${'startUserRel_' + relationshipCypherVariableString}]-(${endNodeString})-[${'endUserRel_' + relationshipCypherVariableString}]-(endUserNode:User) where ID(startNode) = ${nodeId}`
       cypher += ` and ID(endUserNode) in [${endUserNodeIds.join(',')}]`
 
       normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
@@ -95,6 +95,7 @@ let graphController = {
       }
 
       try{
+
         let result = await queryGraph(cypher);
         res.json(result);
       }
