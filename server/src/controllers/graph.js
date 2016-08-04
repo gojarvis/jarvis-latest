@@ -54,7 +54,7 @@ let graphController = {
 
 
     if (startUserNodeId && (!endUserNodeIds || endUserNodeIds.length === 0)){
-      cypher = `match (startUserNode:User)-[t:touched]-(${startNodeString})-[${relationshipCypherVariableString}]-(endNode) where ID(startNode) = ${nodeId}`
+      cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]-(${startNodeString})-[${relationshipCypherVariableString}]-(endNode) where ID(startNode) = ${nodeId}`
       cypher += ` and ID(startUserNode) = ${startUserNodeId}`
       normalizedSumCypher = cypher + ` return avg(${relationshipCypherVariableString}.weight) as normalizedSumWeight`;
       normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
@@ -63,7 +63,7 @@ let graphController = {
 
     }
     if (startUserNodeId && endUserNodeIds && endUserNodeIds.length > 0){
-      cypher = `match (startUserNode:User)-[t:touched]-(${startNodeString})-[${'startUserRel_' + relationshipCypherVariableString}]-(endNode)-[${'endUserRel_' + relationshipCypherVariableString}]-(endUserNode:User) where ID(startNode) = ${nodeId}`
+      cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]-(${startNodeString})-[${'startUserRel_' + relationshipCypherVariableString}]-(endNode)-[${'endUserRel_' + relationshipCypherVariableString}]-(endUserNode:User) where ID(startNode) = ${nodeId}`
       cypher += ` and ID(startUserNode) = ${startUserNodeId}`
       cypher += ` and ID(endUserNode) in [${endUserNodeIds.join(',')}]`
 
@@ -73,7 +73,7 @@ let graphController = {
       cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, collect(distinct endNode)[0] as endNode order by relationshipWeight desc`
     }
     if (!startUserNodeId && endUserNodeIds && endUserNodeIds.length > 0){
-      cypher = `match (startUserNode:User)-[t:touched]-(${startNodeString})-[${'startUserRel_' + relationshipCypherVariableString}]-(endNode)-[${'endUserRel_' + relationshipCypherVariableString}]-(endUserNode:User) where ID(startNode) = ${nodeId}`
+      cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]-(${startNodeString})-[${'startUserRel_' + relationshipCypherVariableString}]-(endNode)-[${'endUserRel_' + relationshipCypherVariableString}]-(endUserNode:User) where ID(startNode) = ${nodeId}`
       cypher += ` and ID(endUserNode) in [${endUserNodeIds.join(',')}]`
 
       normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
@@ -90,7 +90,7 @@ let graphController = {
 
 
         cypher = `
-          start startNode=node(${nodeId}) match (${startNodeString})-[${relationshipCypherVariableString}]-(${endNodeString}) return startNode, type(relationship) as relationshipType, log(relationship.weight)/${normalizedWeight} as relationshipWeight, endNode order by relationshipWeight desc limit 15
+          start startNode=node(${nodeId}) match (${startNodeString})-[${relationshipCypherVariableString}]-(${endNodeString}) return collect(distinct startNode)[0] as startNode, collect(distinct type(relationship))[0] as relationshipType, log(relationship.weight)/${normalizedWeight} as relationshipWeight, collect(distinct endNode)[0] as endNode order by relationshipWeight desc limit 15
         `
       }
 
