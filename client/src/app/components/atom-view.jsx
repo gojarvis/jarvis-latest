@@ -88,7 +88,11 @@ class AtomView extends React.Component {
   }
 
   async handleUserFilter(user) {
-    let params = {users: [user]};
+    let params = {
+      startUserNodeId: 83408,
+      endUserNodeIds: user.id,
+      users: [user.id],
+    };
     let result = await agent.post('http://localhost:3000/query', params);
 
     this.setState({
@@ -147,7 +151,7 @@ class AtomView extends React.Component {
       )
     }
     let filters = ['All', 'Files', 'URLs', 'Keywords'];
-    let users = [{username: 'parties', id: '1'}, {username: 'roieki', id: '2'}];
+    let users = [{username: 'parties', id: 83408}, {username: 'roieki', id: 83258}];
 
     return(
       <div style={{width: "100%"}}>
