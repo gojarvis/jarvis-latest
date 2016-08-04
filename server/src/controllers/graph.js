@@ -16,10 +16,18 @@ function queryGraph(cypher, params={}){
   });
 }
 
-
-
-
 let graphController = {
+  getUsers: async function(req, res) {
+    let cypher = `match (n:User) return n`;
+    try {
+      let result = await queryGraph(cypher);
+      res.json(result);
+    } catch (e) {
+      console.error('Query to graph for users failed', cypher);
+      res.json({'error': e});
+    }
+  },
+
   query: async function(req, res){
     let nodeId = req.param('nodeId');
     let relationshipType = req.param('relationshipType') || false;
@@ -97,6 +105,8 @@ let graphController = {
 
 
   }
+
+
 }
 
 

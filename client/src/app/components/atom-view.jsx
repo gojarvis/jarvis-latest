@@ -15,6 +15,7 @@ import IconText from './IconText';
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/lib/card';
 import RaisedButton from 'material-ui/lib/raised-button';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
+import UserList from 'components/UserList';
 require('./QueriedItems.css');
 
 
@@ -65,7 +66,7 @@ class AtomView extends React.Component {
 
   async handleFilter(eventType){
     let nodeId = this.state.items[0].startNode.id;
-    let params = {nodeId:nodeId};
+    let params = {nodeId};
     let type;
     switch (eventType){
       case 'Files':
@@ -84,6 +85,19 @@ class AtomView extends React.Component {
     this.setState({
       items: result.body
     })
+  }
+
+  async handleUserFilter(user) {
+    let params = {
+      startUserNodeId: 83408,
+      endUserNodeIds: user.id,
+      users: [user.id],
+    };
+    let result = await agent.post('http://localhost:3000/query', params);
+
+    this.setState({
+      items: result.body
+    });
   }
 
   async externalLinkClick(address, type){
@@ -137,6 +151,7 @@ class AtomView extends React.Component {
       )
     }
     let filters = ['All', 'Files', 'URLs', 'Keywords'];
+    let users = [{username: 'parties', id: 83408}, {username: 'roieki', id: 83258}];
 
     return(
       <div style={{width: "100%"}}>
@@ -159,10 +174,12 @@ class AtomView extends React.Component {
                     label={filter}
                     primary={index === 1}
                     secondary={index === 2}
-                    onClick={()=>this.handleFilter(filter)} />
+                    onClick={()=>this.handleFilter(filter)}
+                    style={{flex: '1 1 auto', margin: 10}} />
                 )
               })}
             </div>
+            <UserList users={users} onClick={this.handleUserFilter} />
             <hr />
               <CSSTransitionGroup
                 transitionName='query-item'
