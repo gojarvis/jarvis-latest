@@ -199,7 +199,7 @@ class AtomView extends React.Component {
 
             <IconText icon='external-link'>
               {(() => {
-                return <span onClick={() => this.externalLinkClick(focusedNode.address, focusedNode.type)}>{focusedNode.address}</span>
+                return <span style={{cursor: 'pointer'}} onClick={() => this.externalLinkClick(focusedNode.address, focusedNode.type)}>{focusedNode.address}</span>
               })()}
             </IconText>
           </div>
@@ -216,7 +216,6 @@ class AtomView extends React.Component {
           <EventTickerList
             items={this.state.eventTicker}
             itemOnClick={this.handleEventTickerItemClick.bind(this)}
-            style={LOCAL_STYLES.eventTickerList}
             itemStyle={LOCAL_STYLES.eventTickerItem} />
 
           <div>
@@ -261,13 +260,6 @@ const LOCAL_STYLES = {
     minHeight: "100vh",
     backgroundColor: "rgb(40, 44, 52)",
     color: '#fff',
-  },
-  eventTickerList: {
-    ...FB.base,
-    ...FB.justify.start,
-    minHeight: 70,
-    overflowY: "hidden",
-    overflowX: "scroll",
   },
   __oldEventTickerItem: {
     width: "5vw",

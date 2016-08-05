@@ -90,7 +90,7 @@ const STYLES = {
     ...FB.align.center,
     borderRadius: 4,
     cursor: 'pointer',
-    margin: '5px',
+    margin: "10px 0 10px 10px",
   },
   title: {
     fontSize: 20,

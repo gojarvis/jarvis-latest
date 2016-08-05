@@ -2,6 +2,7 @@ import React from 'react';
 import Radium from 'radium';
 import EventTickerItem from './EventTickerItem';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
+import FB from 'styles/flexbox';
 require('./EventTicker.css');
 
 class EventTickerList extends React.Component {
@@ -39,7 +40,7 @@ class EventTickerList extends React.Component {
     });
 
     return (
-      <div style={this.props.style}>
+      <div style={styles.eventTickerList}>
         <CSSTransitionGroup
           transitionName='example'
           transitionEnterTimeout={500}
@@ -52,6 +53,16 @@ class EventTickerList extends React.Component {
       </div>
     );
   }
+}
+
+const styles = {
+  eventTickerList: {
+    ...FB.base,
+    ...FB.justify.start,
+    minHeight: 70,
+    overflowY: "hidden",
+    overflowX: "scroll",
+  },
 }
 
 export default EventTickerList;
