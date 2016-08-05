@@ -2,7 +2,7 @@
   "graph": {
     "user": "neo4j",
     "pass": "sherpa",
-    "server": "http://104.236.57.246:7474"
+    "server": "http://104.131.111.80:7474"
   },
   "user": {
     "username": "roieki",

@@ -20,7 +20,6 @@ class QueriedItem extends React.Component {
     if (endNode.type === 'file') {
       let addr = endNode.address.split('/');
       title = '../' + addr.slice(Math.max(addr.length - 3, 1)).join('/');
-      console.log('? title ?', title);
     } else if (endNode.type === 'url') {
       title = endNode.address.split('/').filter((item) => item !== "").slice(-1).pop().slice(0, 20);
     }
