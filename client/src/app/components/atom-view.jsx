@@ -16,6 +16,8 @@ import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'mat
 import RaisedButton from 'material-ui/lib/raised-button';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
 import UserList from 'components/UserList';
+import FlipMove from 'react-flip-move';
+
 require('./QueriedItems.css');
 
 
@@ -27,6 +29,7 @@ class AtomView extends React.Component {
       eventTicker: [],
       items: [],
       filters: [
+        { key: "", selected: false, label: "All" },
         { key: "files", selected: false, label: "Files" },
         { key: "urls", selected: false, label: "URLs" },
         { key: "keywords", selected: false, label: "Keywords" },
@@ -240,15 +243,9 @@ class AtomView extends React.Component {
             </div>
             <UserList users={this.state.users} onClick={this.handleUserFilter.bind(this) } />
             <hr />
-              <CSSTransitionGroup
-                transitionName='query-item'
-                transitionEnterTimeout={2000}
-                transitionLeaveTimeout={0}
-                component='div'
-                className='query-item-list'>
-                {queriedItems}
-              </CSSTransitionGroup>
-
+            <FlipMove>
+              {queriedItems}
+            </FlipMove>
           </div>
         </div>
 
