@@ -19,12 +19,6 @@ class contextManager{
     var db = GLOBAL.thinky;
     var type = db.type;
 
-    let connection = null;
-    // r.connect( {host: 'localhost', port: 28015}, function(err, conn) {
-    //     if (err) throw err;
-    //     connection = conn;
-    // })
-
     let User = db.createModel("User", {
       id: type.string(),
       username: type.string(),

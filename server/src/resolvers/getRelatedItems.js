@@ -1,4 +1,3 @@
-import Thinky from 'thinky'
 import EventEmitter from 'events';
 import r from 'rethinkdb'
 import colors from 'colors';

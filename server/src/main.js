@@ -12,9 +12,11 @@ import config from 'config';
 let dbConfig = config.get('graph');
 let userConfig = config.get('user');
 let projectsPath = userConfig.projectsPath;
+let rethinkConfig = config.get('rethink');
 
-
-var db = require('thinky')();
+var db = require('thinky')({
+  host: rethinkConfig.host
+});
 global.thinky = db;
 
 setTimeout(()=>{
@@ -61,7 +63,7 @@ setTimeout(()=>{
   app.post('/query', graphController.query);
 
 
-  let p = r.connect({db: 'test'});
+  let p = r.connect({host: rethinkConfig.host, db: rethinkConfig.db});
   p.then(function(connection){
 
     global.rethinkdbConnection = connection;
