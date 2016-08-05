@@ -29,7 +29,7 @@ class AtomView extends React.Component {
       eventTicker: [],
       items: [],
       filters: [
-        { key: "", selected: false, label: "All" },
+        { key: "", selected: true, label: "All" },
         { key: "files", selected: false, label: "Files" },
         { key: "urls", selected: false, label: "URLs" },
         { key: "keywords", selected: false, label: "Keywords" },
@@ -75,8 +75,12 @@ class AtomView extends React.Component {
     let result = await agent.post('http://localhost:3000/query', {nodeId:nodeId});
     setTimeout( () => {
       this.setState({
-        items: result.body
-      })
+        items: []
+      }, () => {
+        this.setState({
+          items: result.body
+        });
+      });
     }, 200)
   }
 
@@ -126,7 +130,11 @@ class AtomView extends React.Component {
     let result = await agent.post('http://localhost:3000/query', params);
     console.log('RESULT', result.body);
     this.setState({
-      items: result.body
+      items: []
+    }, () => {
+      this.setState({
+        items: result.body
+      });
     });
   }
 
