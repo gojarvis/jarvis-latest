@@ -5,9 +5,6 @@ import moment from 'moment'
 import Meta from './metadataManager';
 import graphUtils from '../utils/graph';
 
-
-
-
 class Proactive {
     constructor(socket, sid, io, context, history, deep){
       this.socket = socket;
@@ -23,32 +20,24 @@ class Proactive {
       this.user = this.context.get().user;
       this.metadata = new Meta(this.user);
 
-
-      this.heart.createEvent(3, function(heartbeat, last){
+      this.heart.createEvent(10, function(heartbeat, last){
         this.handleHeartbeat(heartbeat);
       }.bind(this));
 
-      this.heart.createEvent(100, function(heartbeat, last){
+      this.heart.createEvent(30, function(heartbeat, last){
         this.handleDeepconnect(heartbeat);
       }.bind(this));
 
-      this.registerEvents()
-    }
 
-    registerEvents(){
-      let self = this;
     }
 
     handleHeartbeat(hb){
       let self = this;
       self.socket.emit('heartbeat', hb);
-
-      self.recommend();
-
-      process.stdout.write('0');
+      // self.recommend();
     }
 
-    async deepContext(){
+    async relateContextToItself(){
         try{
           let urls = this.context.get().urls;
           let files = this.context.get().files;
@@ -67,9 +56,6 @@ class Proactive {
             let fileRelationships = Promise.all(files.map(file => this.graph.relateOneToMany(file, urls, 'openwith')));
           }
 
-
-
-
         }
         catch(err){
           console.log('bad deep', err);
@@ -77,16 +63,37 @@ class Proactive {
     }
 
     async relateUrlToUrls(url, urls){
-      let others = urls.filter(item => item.url !== url.url);
+      let others = urls.filter(item => item.address !== url.address);
       let singleRelationships = await this.graph.relateOneToMany(url, others, 'openwith');
       return singleRelationships;
     }
 
     async relateFileToFiles(file, files){
-      let others = files.filter(file => file.uri !== file.uri);
+      let others = files.filter(file => file.address !== file.address);
       let singleRelationships = await this.graph.relateOneToMany(file, others, 'openwith');
       return singleRelationships;
     }
+
+    // async recommend(){
+    //   let user = this.context.get().user;
+    //
+    //   if (_.isEmpty(user)){
+    //     console.error('No user loaded, cant get recommendations');
+    //   }
+    //   try {
+    //
+    //     let activeUrl = this.context.getActiveUrl();
+    //     //If URL did not change
+    //     if (activeUrl.url === this.lastActiveUrl || _.isUndefined(activeUrl.url) || activeUrl.url === 'http://localhost:8888/'){
+    //       // process.stdout.write('=');
+    //       return;
+    //     }
+    //   } catch (e) {
+    //       console.log('whoops', e);
+    //   } finally {
+    //
+    //   }
+    // }
 
     async recommend(){
       let user = this.context.get().user;
@@ -132,16 +139,19 @@ class Proactive {
         let yesterdayDay = await this.deep.getHistorics(user.username, yesterday,now);
         let yesterdayThisHour = await this.deep.getHistorics(user.username, yesterday,yesterdayHour);
 
-        let historics = {social,lastHour, yesterdayDay, yesterdayThisHour};
+        // let historics = {lastHour, yesterdayDay, yesterdayThisHour};
+        let historics = {
+
+        };
 
 
-
-        this.io.emit('recommendations', {
-          historics: historics,
-          social: social,
-          openwith: openwith,
-          kwrelated: kwrelated
-        })
+        //
+        // this.io.emit('recommendations', {
+        //   historics: historics,
+        //   social: social,
+        //   openwith: openwith,
+        //   kwrelated: kwrelated
+        // })
 
       } catch (e) {
           console.log('whoops', e);
@@ -152,33 +162,56 @@ class Proactive {
 
     }
 
-
-
     async handleDeepconnect(){
       let self = this;
-      self.deepContext();
-      //Suggest clusters for tagging
-      // let possibleClusters = await this.deep.updateClusters()
-      // if (possibleClusters > 0){
-      //   this.socket.emit('possible-clusters', possibleClusters)
-      // }
-      //
-      // let relevantFiles = await this.relevantFiles()
-      // if (relevantFiles > 0){
-      //   this.socket.emit('relevant-files', relevantFiles)
-      // }
-      //
-      // let relevantUrls = await this.relevantFiles()
-      // if (relevantUrls > 0){
-      //   this.socket.emit('relevant-urls', relevantUrls)
-      // }
+      self.relateContextToItself();
+      self.updateUserPools();
+      self.updateOverallPools();
+    }
+
+
+    async getRelatedUrl(entry, minWeight){
+      //Search Neo4j for URLs that are related to the Entry with at least minWeight weight
+    }
+
+    async updateUserPools(){
+      let self = this;
+
+      //Get The user's URLs, Files, and Commands by time.
+      //This should also include URLs based on time, as well as "overall"
+      let userUrlsByTime = await self.getUserUrlsByTime()
+
+      let userFilesByTime = await self.getUserFilesByTime()
+
+      let userCommandsByTime = await self.getUserCommandsByTime()
+
+      //Get urls that are highly related to files and commands
+      let weight = 100;
+
+      //Insert URLs to DB
+      let urlsDB = await self.updateURLs()
+      //Iterate over the URLs, and find all of their keywords
+
+      //Get a list of unique URLs from the database
+      let urls = await self.getUniqueUrls(urlsDB)
+
+      //Create list of all Keywords
+      let userCurrentKeywordSpace = self.getKeywordsForUrls(urls);
+
+      //Insert Keywords to DB, count and sort by desc frequency of keyword
+
+
+      //Search which URLs are related to top keywords
+
+      //Search which Files and Commands are related to top URLs (--> keywords)
+
+      //Search for repeating URLs in user's own history
+
 
 
     }
 
-    async getFrame(){
-      //https://www.youtube.com/watch?v=2o2xBOQeB7Q
-    }
+
 
 
 

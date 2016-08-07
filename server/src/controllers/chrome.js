@@ -1,34 +1,35 @@
-import level from 'level-browserify'
-import levelgraph from 'levelgraph'
 import serialize from 'serialization'
 import model from 'seraph-model';
 import Promise from 'bluebird';
-import PouchDB from 'pouchdb';
+// import PouchDB from 'pouchdb';
 import _ from 'lodash';
 import keywordExtractor from 'keyword-extractor';
 import MetaInspector from 'node-metainspector';
 
 import request from 'request-promise'
+import config from 'config';
+
+let dbConfig = config.get('graph');
 
 let graph = require("seraph")({
-  user: 'neo4j',
-  pass: 'sherpa',
-  server: 'http://45.55.36.193:7474'
+  user: dbConfig.user,
+  pass: dbConfig.pass,
+  server: dbConfig.server
 });
 
 let graphAsync = Promise.promisifyAll(graph);
 
-graph.constraints.uniqueness.create('Url', 'url', function(err, constraint) {
+graph.constraints.uniqueness.create('Url', 'address', function(err, constraint) {
   // console.log(constraint);
   // -> { type: 'UNIQUENESS', label: 'Person', property_keys: ['name'] }
 });
-// 
+//
 // graph.constraints.uniqueness.create('Keyword', 'text', function(err, constraint) {
 //   // console.log(constraint);
 //   // -> { type: 'UNIQUENESS', label: 'Person', property_keys: ['name'] }
 // });
 
-let db = new PouchDB('sherpa');
+// let db = new PouchDB('sherpa');
 
 
 class ChromeController {
@@ -67,7 +68,7 @@ class ChromeController {
 
     self.socket.on('chrome-highlighted', function(msg){
       let {active, tabs} = msg;
-
+      self.tabs = tabs;
       self.handleHighlighted(active).then(function(related){
           self.io.emit('related', related)
       });
@@ -77,8 +78,9 @@ class ChromeController {
     self.socket.on('chrome-updated', function(message){
       console.log('chrome-updated');
       let {active, tabs} = message;
-      // console.log('tabs', tabs);
       self.tabs = tabs;
+      let activeTab = tabs.filter(item => item.active);
+      // console.log('ACTIVE TAB', activeTab);
       self.handleUpdated(active).then(function(){
 
       });
@@ -91,18 +93,19 @@ class ChromeController {
       self.saveSession();
     });
 
-
-    let rnd = _.random(0,1000);
-    request.get('http://numbersapi.com/'+rnd+'/trivia?notfound=floor&fragment')
-    .then(function(res){
-      // let joke = JSON.parse(res).value.joke;
-      let wat = res;
-      // console.log(joke);
-      self.socket.emit('speak', 'The number ' + rnd + ' is ' +  wat);
-    })
-    .catch(function(err){
-      console.log('no jokes for you', err);
-    });
+    self.socket.emit('speak', 'Ready, sir');
+    // let rnd = _.random(0,1000);
+    // request.get('http://numbersapi.com/'+rnd+'/trivia?notfound=floor&fragment')
+    // .then(function(res){
+    //   // let joke = JSON.parse(res).value.joke;
+    //   let wat = res;
+    //   // console.log(joke);
+    //   // self.socket.emit('speak', 'The number ' + rnd + ' is ' +  wat);
+    //   self.socket.emit('speak', 'Ready, sir');
+    // })
+    // .catch(function(err){
+    //   console.log('no jokes for you', err);
+    // });
   }
 
   async saveSession(){
@@ -110,19 +113,11 @@ class ChromeController {
     this.context.updateTabs(self.tabs);
   }
 
-
-
-
-
-
-
-
-
   getUrl(url){
     let self = this;
     return new Promise(function(resolve, reject) {
-      graph.find({type: 'url', url: url}, function(err, node){
-        node = node ? node[0] : {type: 'url', url: url};
+      graph.find({type: 'url', address: url}, function(err, node){
+        node = node ? node[0] : {type: 'url', address: url};
         if (err) reject(err)
         else {
           resolve(node);
@@ -169,7 +164,7 @@ class ChromeController {
 
   getUrlNodeByUrl(url){
     return new Promise(function(resolve, reject) {
-      graph.find({type: 'url', url: url}, function(err, urls){
+      graph.find({type: 'url', address: url}, function(err, urls){
         if (err) reject (err)
         else resolve(urls[0])
       })
@@ -178,45 +173,46 @@ class ChromeController {
 
   async handleUpdated(active){
     let activeTab = this.getActiveTab(active)
-    // let related = await this.getRelated(activeTab[0].url,10);
-    // let relatedUrls = await Promise.all(related.map(relation => this.getUrlById(relation.end)))
-    this.context.setActiveUrl({url: activeTab.url, title: activeTab.title});
+    // console.log('ACTIVE TAB', activeTab);
+
+
+    let node = await this.getUrlNodeByUrl(activeTab[0].url);
+    if (this.context.activeUrl.url !== activeTab[0].url){
+      this.context.setActiveUrl({url: activeTab[0].url, title: activeTab[0].title});
+      this.history.saveEvent({type: 'highlighted', source: 'chrome', data: { nodeId: node.id, address: activeTab[0].url, title: activeTab[0].title} }).then(function(res){
+
+      });
+    }
+
+
+
+
     // return relatedUrls
   }
 
   async handleHighlighted(active){
     let activeTab = this.getActiveTab(active.tabIds[0])
-
+    let activeTabTitle = '';
+    // console.log('ACTIVE TAB', activeTab);
     if (!activeTab[0]){
       return [];
     }
-    let activeUrl = { url: activeTab[0].url, title: activeTab[0].title};
+    else{
+      activeTabTitle = activeTab[0].title;
+    }
+    let activeUrl = { url: activeTab[0].url, title: activeTabTitle};
+
+    let node = await this.getUrlNodeByUrl(activeTab[0].url);
+
+
     this.context.setActiveUrl(activeUrl);
 
-    this.history.saveEvent({type: 'highlighted', source: 'chrome', data: { url: activeUrl} }).then(function(res){
-      console.log('highlited chrome saved');
+    this.history.saveEvent({type: 'highlighted', source: 'chrome', data: { nodeId: node.id, address: activeUrl.url, title: activeTab[0].title} }).then(function(res){
+
     });
   }
 
 
-  async associateWithFiles(fileNode){
-    console.log('fileNode',fileNode);
-    console.log('urls',this.urls);
-  }
-
-  async getRelated(url, threshold){
-    let cypher = 'MATCH (n:Url)-[r:openwith]->(q:Url) WHERE n.url = "' + url +'" RETURN r ';
-    console.log(cypher);
-    let params = {url: url, threshold: threshold};
-
-    try{
-      let res = await this.queryGraph(cypher,params);
-      return res;
-    }
-    catch(err){
-      // console.log('failed to relate', err);
-    }
-  }
 
 
 

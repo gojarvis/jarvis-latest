@@ -1,0 +1,27 @@
+{
+  "name": "jarvis-latest",
+  "version": "1.0.0",
+  "description": "1. Install and start Neo4j. 2. Install and start Redis. 3. Install and start Rethinkdb 4. Install pm2 globally with `npm i -g pm2` 5. Execute ./install.sh (TODO) 6. To start, execute ./start.sh 7. To stop, execute ./stop.sh",
+  "main": "index.js",
+  "scripts": {
+    "start": "./start.sh",
+    "stop": "./stop.sh",
+    "restart": "pm2 restart all",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gojarvis/jarvis-latest.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gojarvis/jarvis-latest/issues"
+  },
+  "homepage": "https://github.com/gojarvis/jarvis-latest#readme",
+  "dependencies": {
+    "nodemon": "^1.10.0",
+    "pm2": "^1.1.3"
+  }
+}

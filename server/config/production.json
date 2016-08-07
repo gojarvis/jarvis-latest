@@ -1,0 +1,14 @@
+{
+  "graph": {
+    "user": "neo4j",
+    "pass": "sherpa",
+    "server": "http://104.131.67.195:7474"
+  },
+  "rethink": {
+    "host": "104.131.111.80",
+    "db": "test"
+  },
+  "user": {
+    "username": "parties"
+  }
+}

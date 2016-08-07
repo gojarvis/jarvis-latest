@@ -13,7 +13,7 @@ module.exports = AtomSherpa =
   name: null
 
   activate: (state) ->
-    @socket.emit 'set cwd', '/home/parties/code/gojarvis/'
+    # @socket.emit 'set cwd', '/home/parties/code/gojarvis/'
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
 
@@ -23,10 +23,10 @@ module.exports = AtomSherpa =
     @subscriptions.add atom.workspace.onDidDestroyPaneItem (context) => @handleClose 'close', {uri: context.item.getURI()}, { }
     @subscriptions.add atom.workspace.observeTextEditors (editor) => @handleEditor editor
     @subscriptions.add atom.workspace.onDidChangeActivePaneItem (item) => @handleHighlighted item
-    @subscriptions.add @socket.on 'run cmd', (cmd) => @runCommand cmd
-    @subscriptions.add @socket.on 'list files', (files) => console.log 'P.onFiles:', files
-    @subscriptions.add @socket.on 'name', (name) => @handleName name
-    @subscriptions.add @socket.on 'context', (context) => @handleContext context
+    # @subscriptions.add @socket.on 'run cmd', (cmd) => @runCommand cmd
+    # @subscriptions.add @socket.on 'list files', (files) => console.log 'P.onFiles:', files
+    # @subscriptions.add @socket.on 'name', (name) => @handleName name
+    # @subscriptions.add @socket.on 'context', (context) => @handleContext context
 
     atom.packages.onDidActivateInitialPackages =>
       createStatusEntry = =>
@@ -37,7 +37,7 @@ module.exports = AtomSherpa =
     # @subscriptions.add atom.workspace.onDidAddPaneItem (context) => @emitEvent('tab open', {uri: context.item.getURI()})
 
 
-    @socket.emit 'give context'
+    # @socket.emit 'give context'
 
   deactivate: ->
     @modalPanel.destroy()
@@ -71,7 +71,7 @@ module.exports = AtomSherpa =
   handleEditor: (editor) ->
     @socket.emit('atom-file-observed', {uri: editor.getURI()});
     @subscriptions.add editor.onDidSave (event) => @emitEvent 'atom-file-saved', {uri: editor.getURI()}
-    @subscriptions.add editor.onDidChangeSelectionRange (event) => @emitEvent 'atom-selection', {uri: editor.getURI(), selection: event.selection}
+    # @subscriptions.add editor.onDidChangeSelectionRange (event) => @emitEvent 'atom-selection', {uri: editor.getURI(), selection: event.selection}
 
   handleHighlighted: (item) ->
     if item.getPath

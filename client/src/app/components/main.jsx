@@ -65,8 +65,15 @@ class Main extends React.Component {
       kwrelated: [],
       heart: '<#',
       heartValue: 0,
-      slideIndex: 0
+      slideIndex: 0,
+      questionIsOpen: false,
+      questionTarget: ''
     };
+
+    this.handleChange = this.handleChange.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.handleChangeIn = this.handleChangeIn.bind(this);
+    this.handleKeyDownIn = this.handleKeyDownIn.bind(this);
   }
 
   getChildContext() {
@@ -107,7 +114,10 @@ class Main extends React.Component {
       this.setState({intent: bestInputGuess.intent});
       this.setState({witresult: result});
 
-      this.state.socket.emit('ask', bestInputGuess.intent);
+      this.state.socket.emit('user-intent', {
+        witResult: result,
+        topic: this.state.topic
+      });
 
       if (this.state.topic) {
         console.log("topic is set, sending to conv");
@@ -245,6 +255,28 @@ class Main extends React.Component {
     socket.on('heartbeat', function (hb) {
       self.handleHeartbeat(hb)
     });
+
+    socket.on('ask-parameter', function (message) {
+      let { parameter, goalName } = message;
+
+      // parameter { name: 'parameter name', status: ['unresolved', 'resolved'], value: 'question text', type: ['text', 'query'] }
+      let ask = {
+        parameter, goalName
+      };
+
+      console.log('ask:', ask);
+      this.setState({ask});
+    })
+
+    socket.on('questionFromJarvis', function(question){
+      console.log('QUESTION', question);
+      self.setState({
+        questionIsOpen: true,
+        questionTarget: question.target
+      })
+
+      self.say(question.text);
+    });
   }
 
   stopHandler() {
@@ -262,10 +294,24 @@ class Main extends React.Component {
   handleKeyDown(event) {
     if (event.keyCode === ENTER_KEY) {
       event.preventDefault();
-      this.state.socket.emit('text', {
-        text: this.state.command,
-        topic: this.state.topic
-      });
+
+      if (this.state.questionIsOpen){
+        let questionTarget = this.state.questionTarget;
+        this.state.socket.emit(questionTarget, {
+          text: this.state.command
+        })
+
+        this.setState({
+          questionIsOpen: false
+        })
+      }
+
+      else{
+        this.state.socket.emit('text', {
+          text: this.state.command,
+          topic: this.state.topic
+        });
+      }
       this.setState({command: ""});
     }
   }
@@ -365,7 +411,7 @@ class Main extends React.Component {
 
   render() {
     let containerStyle = {
-      margin: '0px',
+      margin: '10px',
       paddingTop: '0px'
     };
     let standardActions = [
@@ -393,8 +439,6 @@ class Main extends React.Component {
       <div style={containerStyle}>
         <Style rules={STYLES.Main} />
 
-
-
         <div style={{
           width: '100%',
           height: '100%',
@@ -410,7 +454,7 @@ class Main extends React.Component {
         </Tabs>
           <SwipeableViews
             index={this.state.slideIndex}
-            style={{margin: 10}}
+            style={{margin: '10px'}}
             >
             <Feedback ref="related" type="svg" tick={this.state.heartValue} items={this.state.related}/>
             <Feedback ref="kwrelated" type="svg" tick={this.state.heartValue} items={this.state.kwrelated}/>
@@ -428,7 +472,7 @@ class Main extends React.Component {
           <Face recording={this.state.recording}></Face>
         </div>
         <div style={{
-          display: "none"
+          display: "block"
         }}>
           <TextField style={{
             margin: "10px",
@@ -466,7 +510,6 @@ class Main extends React.Component {
             textAlign: "center",
             fontSize: "15px"
           }}>{this.state.convResult}</div>
-
           <TextField style={{
             margin: "10px",
             textAlign: "center",

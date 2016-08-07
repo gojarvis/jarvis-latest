@@ -1,0 +1,29 @@
+.query-item-list {
+  /*display: flex;
+  justify-content: flex-start;
+  align-items: center;*/
+}
+
+.query-item-enter {
+  transform: translate3d(100%, 0, 0);
+}
+
+.query-item-enter.query-item-enter-active {
+  transition: transform 600ms ease-in;
+  transform: translate3d(0%, 0, 0);
+  animation-delay: 1s;
+}
+
+.query-item-leave {
+  transform: translate(0%);
+}
+
+.query-item-leave.query-item-leave-active {
+  transition: transform 600ms ease-in-out;
+  transform: translate(-100%, 0);
+}
+
+.query-item-stagger {
+  transition-delay: 10s;
+  transition-duration: 0s;
+}

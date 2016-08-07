@@ -1,40 +1,62 @@
-getObjectives
+const objectives = [
+ {
+    name: 'startDate',
+    humanName: 'Start Date',
+    resolvers: [
+      {
+        name: 'getFromUserIntent',
+        dependencies: [],
+        params: {
+          path: ['entities', 'datetime',  0, 'from', 'value']
+        },
+        target: 'startDate'
+      }
+    ],
+  },
+  {
+    name: 'endDate',
+    humanName: 'End Date',
+    resolvers: [
+      {
+        name: 'getFromUserIntent',
+        dependencies: [],
+        params: {
+          path: ['entities', 'datetime',  0, 'to', 'value']
+        },
+        target: 'endDate'
+      }
+    ]
+  },
+ {
+    name: 'recentEvents',
+    humanName: 'Recent Events',
+    resolvers: [
+      {
+        name: 'getEventsByTime',
+        params: {
+          startDate: '$startDate',
+          endDate: '$endDate'
+        },
+        dependencies: ['startDate', 'endDate'],
+        target: 'recentItems'
+      }
+    ]
+  },
+  {
+     name: 'relatedKeywords',
+     humanName: 'Related Keywords',
+     resolvers: [
+       {
+         name: 'getRelatedItems',
+         params: {
+           source: '$recentItems',
+           threshold: 1
+         },
+         dependencies: ['recentItems'],
+         target: 'keywords'
+       }
+     ]
+   }
+];
 
-objective -> getParameters
-
-parameter - question
-
-
-class HistoryGoal{
-  constructor(){
-
-  }
-
-
-}
-
-
-
-  async resolveObjectives(goal){
-    let self = this;
-    let objectives = goal.getObjectives()
-
-
-    //Async, resolves objectives.
-    let resolvedObjectives = Promise.all(objective.map(objective => {
-      return await self.resolveObjectives(objective)
-    }))
-  }
-
-  async resolveObjectives(objective){
-    if (objective.resolved) return objective;
-
-
-    // let resolvedParamaeters = Promise.all(objective.parameters.map(parameter => {
-    //     if (!parameter.resolved){
-    //
-    //     }
-    // }))
-  }
-
-  handleParameterFetched()
+module.exports = objectives;

@@ -13,7 +13,12 @@ var config = {
   ],
   //Config options on how to interpret requires imports
   resolve: {
-    extensions: ["", ".js", ".jsx"]
+    extensions: ["", ".js", ".jsx"],
+    alias: {
+      'styles': path.join(__dirname, '/src/app/styles'),
+      'components': path.join(__dirname, '/src/app/components'),
+      'conversations': path.join(__dirname, '/src/app/conversations')
+    }
     //node_modules: ["web_modules", "node_modules"]  (Default Settings)
   },
   //Server Configuration options
@@ -56,6 +61,10 @@ var config = {
         test: /\.(js|jsx)$/,  //All .js and .jsx files
         loaders: ['react-hot','babel-loader?optional=runtime&stage=0'], //react-hot is like browser sync and babel loads jsx and es6-7
         exclude: [nodeModulesPath]
+      },
+      {
+        test: /\.css$/,
+        loader: 'style-loader!css-loader'
       },
       {
         test: /masonry|imagesloaded|fizzy\-ui\-utils|desandro\-|outlayer|get\-size|doc\-ready|eventie|eventemitter/,

@@ -4,9 +4,9 @@
 // console.log(thinky, type);
 
 
-import Thinky from 'thinky'
+// import Thinky from 'thinky'
 
-var db = Thinky();
+var db = GLOBAL.thinky;
 var type = db.type;
 
 var Event = db.createModel("Event", {
@@ -19,18 +19,27 @@ var Event = db.createModel("Event", {
 })
 
 class HistoryManager{
-  constructor(userName){
-    this.user = userName
+  constructor(socket, io, userName){
+    this.user = userName;
+    this.socket = socket;
+    this.io = io;
   }
 
   saveEvent(event){
     try{
-      let ev = new Event({timestamp: new Date(), eventType: event.type, source: event.source, data: event.data, user:this.user})
+      let ev = new Event({timestamp: new Date(), eventType: event.type, source: event.source, data: event.data, user:this.user});
+      // console.log('system-event', ev);
+      this.io.emit('system-event', ev);
       return ev.save()
     }
     catch(e){
       console.error('History Manager: error saving history event', e);
     }
+  }
+
+  //TODO
+  getGroupedEventByType(eventType, grouping){
+
   }
 }
 

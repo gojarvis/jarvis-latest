@@ -1,14 +1,17 @@
 //TODO: All graph methods should live in one place. Currently unused.
 import Redis from 'ioredis'
+import config from 'config';
 let redis = new Redis();
 let pipeline = redis.pipeline();
 
+let dbConfig = config.get('graph');
 
 let graph = require("seraph")({
-  user: 'neo4j',
-  pass: 'sherpa',
-  server: 'http://45.55.36.193:7474'
+  user: dbConfig.user,
+  pass: dbConfig.pass,
+  server: dbConfig.server
 });
+
 
 
 class GraphDB{
@@ -17,11 +20,7 @@ class GraphDB{
   }
 
   queryGraph(cypher, params={}){
-    // console.log(cypher);
     return new Promise(function(resolve, reject) {
-
-
-
       graph.query(cypher, params, function(err, result){
         if (err) reject(err)
         else resolve(result)
@@ -109,7 +108,7 @@ class GraphDB{
   async relateNodes(origin, target, relationship){
 
     let cypher = 'START a=node({origin}), b=node({target}) '
-                +'CREATE UNIQUE a-[r:'+relationship+']-b '
+                +'CREATE UNIQUE a-[r:'+relationship+']->b '
                 +'SET r.weight = coalesce(r.weight, 0) + 1';
     let params = {origin: origin.id, target: target.id, relationship: relationship};
 
@@ -122,7 +121,7 @@ class GraphDB{
 
     catch(err){
       let cypher = 'START a=node('+origin.id+'), b=node('+target.id+') '
-                  +'CREATE UNIQUE a-[r:'+relationship+']-b '
+                  +'CREATE UNIQUE a-[r:'+relationship+']->b '
                   +'SET r.weight = coalesce(r.weight, 0) + 1';
 
       // console.log('failed', err, cypher);

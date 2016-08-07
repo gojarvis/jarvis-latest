@@ -8,13 +8,23 @@ import colors from 'colors';
 import fs from 'fs';
 
 let graphUtils = new GraphDB();
+//9afdfd3783da57ff673da2316105c8e52f411576
 
-let alchemy_language = watson.alchemy_language({api_key: '90b037daf9e184f3f506be9f7667ce289b1392b0'});
+let alchemy_language = watson.alchemy_language({api_key: 'ab2b4727617c0d529641168272d1e661634feb72'});
+import config from 'config';
+
+let dbConfig = config.get('graph');
 
 let graph = require("seraph")({
-  user: 'neo4j', pass: 'sherpa', server: 'http://45.55.36.193:7474',
-  // server: 'http://localhost:7474',
+  user: dbConfig.user,
+  pass: dbConfig.pass,
+  server: dbConfig.server
 });
+
+// let graph = require("seraph")({
+//   user: 'neo4j', pass: 'sherpa', server: 'http://104.236.57.246:7474',
+//   // server: 'http://localhost:7474',
+// });
 
 // we don't want to create constraints on our objects, as it throws an error when we try to MERGE
 // graph.constraints.uniqueness.create('Keyword', 'text', function (err, constraint) {
@@ -29,7 +39,7 @@ class MetadataManager {
   }
 
   async getSetKeywordsForUrl(urlNode) {
-    let url = urlNode.url;
+    let url = urlNode.address;
 
     // console.log(urlNode);
     if (!url.startsWith('http') || url.indexOf('localhost') != -1 || url.startsWith('https://www.google.com') || url.startsWith('http://www.facebook.com') || url.startsWith('http://www.google.com')) {
@@ -37,7 +47,7 @@ class MetadataManager {
     }
 
     try {
-      if ((_.isUndefined(urlNode.alchemy) || (!_.isUndefined(urlNode.alchemy) && urlNode.alchemy === 'failed')) && _.isUndefined(this.localCache[urlNode.url])) {
+      if ((_.isUndefined(urlNode.alchemy) || (!_.isUndefined(urlNode.alchemy) && urlNode.alchemy === 'failed')) && _.isUndefined(this.localCache[urlNode.address])) {
         try {
           console.log('NO ALCHEMY FOR ', urlNode);
           let keywords = await this.getAlchemyKeyWords(url);
@@ -47,7 +57,7 @@ class MetadataManager {
           // console.log('------------'.blue);
           // console.log('Final Results: '.red, results);
           console.log('------------'.blue, 'keywords', keywords);
-          this.localCache[urlNode.url] = true;
+          this.localCache[urlNode.address] = true;
 
           let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'success');
           // let keywordsNodes = await this.saveKeywords(keywords);
@@ -57,7 +67,7 @@ class MetadataManager {
           // let relationship = await Promise.all(keywords.map(keywords => this.relateKeywordToUrl(keywords, urlNode)));
         } catch (err) {
           console.log('getSetKeywordsForUrl failed:', err);
-          this.localCache[urlNode.url] = true;
+          this.localCache[urlNode.address] = true;
           let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'error');
         }
       }
@@ -91,7 +101,7 @@ class MetadataManager {
     // save wiki data
 
     // update url node to fetched
-    let urlUpdateCypher = `MERGE (n:Url { url: ${urlNode.url}, alchemy: 'fetched' }) RETURN n;`
+    let urlUpdateCypher = `MERGE (n:Url { url: ${urlNode.address}, alchemy: 'fetched' }) RETURN n;`
     let updatedUrlNode = txn.query(urlUpdateCypher, {});
 
     // relate keywords to node
@@ -173,7 +183,7 @@ class MetadataManager {
     keywordNodes.forEach(kwObj => {
       let cypher = `
         START a=node(${kwObj.node.id}), b=node(${urlNode.id})
-        CREATE UNIQUE (a)-[r:related]-(b)
+        CREATE UNIQUE (a)-[r:related]->(b)
         SET r.weight = coalesce(r.weight, 0) + ${kwObj.relevance}`;
 
       txn.query(cypher, {}, (err, result) => {

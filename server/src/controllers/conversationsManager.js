@@ -1,47 +1,74 @@
-import StateMachine from 'fsm-as-promised'
-import machine from 'machina'
-import { Map, List } from 'immutable';
+// import StateMachine from 'fsm-as-promised'
+// import machine from 'machina'
 import HistoryGoal from '../goals/history'
+import GreetingGoal from '../goals/greeting'
 import KnowledgeGoal from '../goals/knowledge'
 import SimilarActivityGoal from '../goals/similarActivity'
 import events from 'events'
+import imm, {Map, List} from 'immutable'
+import Goal from '../goals/goal'
 
+let i = 0;
 
 let goals = Map({
-  'query_history': new HistoryGoal(),
-  'query_knowledge': new KnowledgeGoal(),
-  'query_similar_activity': new SimilarActivityGoal()
+  'query_history': HistoryGoal,
+  'greetings': GreetingGoal
+  // 'query_knowledge': new KnowledgeGoal(),
+  // 'query_similar_activity': new SimilarActivityGoal()
 })
 
 class ConversationManager {
-  constructor(socket) {
+  constructor(socket, sid, io, context, history, deep) {
     this.socket = socket;
-    this.emitter = new events.EventEmitttr();
+    // this.emitter = new events.EventEmitter();
 
     this.state = Map({
       topic: 'neutral',
       outboundQuestion: '',
       inboundResponse: '',
-      currentGoal: ''
+      currentGoal: '',
       objectives: Map(),
-      parameters: Map(),
+      parameters: Map()
     });
+
+
+    this.onGoalDone = this.onGoalDone.bind(this);
 
     this.registerEvents();
 
   }
 
-  registerEvents(){
-    this.socket.on('ask-response', self.handleAskResponse)
+  registerEvents() {
+    this.socket.on('user-intent', (message) => {
+      this.onIntent(message);
+      // this.socket.emit('net-result', this.ask(intent));
+    });
   }
 
-  onIntent(witResult){
-      let {intent, parameters, state} = self.parseWitResult(witResults);
-      let goal = this.resolveGoal(intent, state);
-      this.state.update('currentGoal', goal)
+  onIntent(message) {
+    let parsedIntent = this.parseWitResult(message.witResult);
+    let intent = parsedIntent.get('intent');
+    let objectives = goals.get(intent);
+    let goal = new Goal();
+    goal.execute(this.onGoalDone,objectives,parsedIntent)
   }
 
-  parseWitResult(result){
+  onGoalDone(results){
+    console.log('---------------Goal done back in covo--------->');
+    console.log(results);
+    this.socket.emit('question-result', results);
+  }
+
+  parseWitResult(result) {
+    // console.log('parseWitResult:', JSON.stringify(result, null, 2));
+    let res = imm.fromJS(result);
+    let parsedOutcomes = res.get('outcomes').map(item => {
+      return Map({confidence: item.get('confidence'), intent: item.get('intent'), entities: item.get('entities')});
+    });
+
+    console.log('parsedOutcomes:', JSON.stringify(parsedOutcomes.toJS(), null, 2));
+
+    return parsedOutcomes.first();
     // if (result && result.outcomes && result.outcomes.length > 0) {
     //   let bestInputGuess = result.outcomes[0];
     //   // this.respond(bestInputGuess)
@@ -49,73 +76,14 @@ class ConversationManager {
     // }
   }
 
-  resolveGoal(intent){
+  resolveGoal(intent) {
     let goal = goals.get(intent);
-    return goal
+    return goal;
   }
-
-
-
-
-  askUserForParameter(parameter, goalName){
-    let self = this;
-    self.state.update('outboundQuestion', parameter);
-    self.socket.emit('ask-parameter', {
-      parameter: parameter,
-      goalName: goalName
-    })
-  }
-
-  handleAskResponse(message){
-    let { resolvedParameter, goalName } = message;
-    let goal = goals.get(goalName);
-    goal.handleParameterFetched(resolvedParameter);
-
-    // if (!_.isUndefined(this[cb])){
-    //
-    // }
-    // else{
-    //   console.log('error, could not resolved callback');
-    // }
-    //
-  }
-
-  //
-  // saveObjective(objective){
-  //   try{
-  //     let obj = new Objective({
-  //       created: new Date(),
-  //     })
-  //     return obj.save()
-  //   }
-  //   catch(e){
-  //     // console.error('History Manager: error saving history event', e);
-  //   }
-  // }
-
-  // import Thinky from 'thinky'
-  //
-  // let db = Thinky();
-  // let type = db.type;
-  //
-  // let Objective = db.createModel("Objective", {
-  //   id: type.string(),
-  //   created: type.date(),
-  //   name: type.string(),
-  //   parameters: [
-  //     {
-  //
-  //     }
-  //   ]
-  // })
-  //
-  // let Parameters = db.createModel("Parameter", {
-  //
-  // });
-
 
 
 
 }
 
-export default ConversationManager
+// export default ConversationManager
+module.exports = ConversationManager
