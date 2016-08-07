@@ -43,8 +43,6 @@
     "kue": "^0.10.5",
     "kue-ui": "^0.1.0",
     "leapjs": "^0.6.4",
-    "level-browserify": "^1.1.0",
-    "levelgraph": "^1.1.0",
     "limdu": "^0.6.0",
     "lodash": "^3.10.1",
     "machina": "^1.1.2",

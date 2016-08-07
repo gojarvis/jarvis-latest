@@ -1,5 +1,3 @@
-import level from 'level-browserify'
-import levelgraph from 'levelgraph'
 import serialize from 'serialization'
 import model from 'seraph-model';
 import Promise from 'bluebird';
@@ -192,7 +190,7 @@ class ChromeController {
     // return relatedUrls
   }
 
-  async handleHighlighted(active){    
+  async handleHighlighted(active){
     let activeTab = this.getActiveTab(active.tabIds[0])
     let activeTabTitle = '';
     // console.log('ACTIVE TAB', activeTab);

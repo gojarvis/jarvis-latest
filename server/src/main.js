@@ -15,9 +15,13 @@ let projectsPath = userConfig.projectsPath;
 let rethinkConfig = config.get('rethink');
 
 var db = require('thinky')({
-  host: rethinkConfig.host
+  host: rethinkConfig.host || "104.131.111.80"
 });
+
+
 global.thinky = db;
+
+
 
 setTimeout(()=>{
 
@@ -57,35 +61,28 @@ setTimeout(()=>{
   });
 
   app.post('/health', function(req,res){
-    res.json({'foo' : 'bar'});
+    res.json({'status' : 'healthy'});
   });
 
   app.post('/query', graphController.query);
 
 
-  let p = r.connect({host: rethinkConfig.host, db: rethinkConfig.db});
+  let p = r.connect({host: rethinkConfig.host || "104.131.111.80", db: rethinkConfig.db});
   p.then(function(connection){
-
+    console.log('HELLO I CONNECTED TO ', rethinkConfig);
     global.rethinkdbConnection = connection;
 
     var SocketManager =  require('./utils/socket-manager');
     // console.log(global.rethinkdbConnection);
     io.on('connection', function(socket){
       global._socket = socket;
-
       var socketManager = new SocketManager(socket,io);
-
-
-
     });
 
   })
 
-
-
-
-
   http.listen(3000, function(){
+    console.log('CONFIG', dbConfig, userConfig, rethinkConfig);
     console.log('listening on *:3000');
   });
 }, 1000);
