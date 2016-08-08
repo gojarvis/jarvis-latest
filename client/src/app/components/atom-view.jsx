@@ -219,7 +219,6 @@ class AtomView extends React.Component {
 
     return(
       <div style={{width: "100%"}}>
-
         <div style={LOCAL_STYLES.container}>
           <EventTickerList
             items={this.state.eventTicker}
@@ -254,8 +253,10 @@ class AtomView extends React.Component {
               {queriedItems}
             </FlipMove>
           </div>
+          <RaisedButton primary={true} style={{margin: 5}} onClick={() => {window.location.href = 'http://localhost:3000/auth/github'}}>
+            <span style={{padding: 5, color: '#fff'}}>Github Login</span>
+          </RaisedButton>
         </div>
-
       </div>
     )
   }

@@ -1,6 +1,6 @@
 {
   "version": "0.0.0",
-  "name": "Jarvis Watcher",
+  "name": "JarvisWatcher",
   "manifest_version": 2,
   "description": "Jarvis Chrome Extension",
   "browser_action": {
