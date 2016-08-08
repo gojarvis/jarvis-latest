@@ -48,6 +48,7 @@ class AtomView extends React.Component {
 
   componentWillMount() {
     let self = this;
+
     this.socket.on('system-event', msg => {
       // console.log('STATE', self.state);
       let eventTicker = self.state.eventTicker;
@@ -164,6 +165,26 @@ class AtomView extends React.Component {
 
   }
 
+  isLoggedIn(){
+    let userId = this.getParameterByName('userId', location);
+    if (!_.isUndefined(userId)){
+      localStorage.userId = userId;
+    }
+
+    console.log('HEY', !_.isUndefined(localStorage.userId)  && !_.isNull(localStorage.userId));
+    return !_.isUndefined(localStorage.userId)  && !_.isNull(localStorage.userId) && localStorage.userId !== 'null'
+  }
+
+  getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    let regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+  }
+
   async externalLinkClick(address, type){
 
     let params = {
@@ -216,46 +237,59 @@ class AtomView extends React.Component {
     }
     let filters = ['All', 'Files', 'URLs'];
     let users = [{username: 'parties', id: 83408}, {username: 'roieki', id: 83258}];
+    let body;
+    if (this.isLoggedIn()){
+      body = <div>
+        <EventTickerList
+          items={this.state.eventTicker}
+          itemOnClick={this.handleEventTickerItemClick.bind(this)}
+          itemStyle={LOCAL_STYLES.eventTickerItem} />
 
+        <div>
+          {focusedItem}
+          <hr />
+          <div style={LOCAL_STYLES.filterButtons}>
+            {this.state.filters.map((filter, index) => {
+              let zIndex = 5, selected;
+              if (filter.selected) {
+                zIndex = 0
+
+              }
+              return (
+                <RaisedButton
+                  key={index}
+                  label={filter.label}
+                  primary={filter.selected}
+                  secondary={!filter.selected}
+                  zIndex={zIndex}
+                  onClick={()=>this.handleFilter(filter)}
+                  style={{flex: '1 1 auto', margin: 10}} />
+              )
+            })}
+          </div>
+          <UserList users={this.state.users} onClick={this.handleUserFilter.bind(this) } />
+          <hr />
+          <FlipMove>
+            {queriedItems}
+          </FlipMove>
+        </div>
+      </div>
+
+    }
+    else{
+      body = <div>
+        <RaisedButton primary={true} style={{margin: 5}} onClick={() => {window.location.href = 'http://localhost:3000/auth/github'}}>
+          <span style={{padding: 5, color: '#fff'}}>Github Login</span>
+        </RaisedButton>
+      </div>
+    }
     return(
       <div style={{width: "100%"}}>
         <div style={LOCAL_STYLES.container}>
-          <EventTickerList
-            items={this.state.eventTicker}
-            itemOnClick={this.handleEventTickerItemClick.bind(this)}
-            itemStyle={LOCAL_STYLES.eventTickerItem} />
 
-          <div>
-            {focusedItem}
-            <hr />
-            <div style={LOCAL_STYLES.filterButtons}>
-              {this.state.filters.map((filter, index) => {
-                let zIndex = 5, selected;
-                if (filter.selected) {
-                  zIndex = 0
+          {body}
 
-                }
-                return (
-                  <RaisedButton
-                    key={index}
-                    label={filter.label}
-                    primary={filter.selected}
-                    secondary={!filter.selected}
-                    zIndex={zIndex}
-                    onClick={()=>this.handleFilter(filter)}
-                    style={{flex: '1 1 auto', margin: 10}} />
-                )
-              })}
-            </div>
-            <UserList users={this.state.users} onClick={this.handleUserFilter.bind(this) } />
-            <hr />
-            <FlipMove>
-              {queriedItems}
-            </FlipMove>
-          </div>
-          <RaisedButton primary={true} style={{margin: 5}} onClick={() => {window.location.href = 'http://localhost:3000/auth/github'}}>
-            <span style={{padding: 5, color: '#fff'}}>Github Login</span>
-          </RaisedButton>
+
         </div>
       </div>
     )

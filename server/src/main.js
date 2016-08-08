@@ -70,12 +70,12 @@ setTimeout(()=>{
 
   app.get('/auth/github/callback',
     passport.authenticate('github', { failureRedirect: '/login' }),
-    function(req, res) {
+    function(req, res) {      
       // Successful authentication, redirect home.
       // NOTE: if we had the user object here (it's not in res.body),
       // we could encode it and append it as a query string, OR inject into the
       // session
-      res.redirect('http://localhost:8888');
+      res.redirect('http://localhost:8888?userId=' + req.user.id);
     });
 
 
