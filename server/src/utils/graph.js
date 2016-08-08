@@ -130,6 +130,31 @@ class GraphDB{
     return res
   }
 
+  getSaveUserInGraph(user){
+    console.log('USER: ', user);
+    return new Promise(function(resolve, reject) {
+      graph.find(user, function(err, node){
+        if (err || !node.length){
+          console.log('user doesnt exist, saving', user);
+          graph.save(user, "User", function(err, node){
+            if (err){
+              console.log('CANT SAVE USER', user, err);
+              reject(err);
+            }
+            else{
+              console.log('USER SAVED', node);
+              resolve(node);
+            }
+          })
+        }
+        else{
+          console.log('user found', err, node);
+          resolve(node[0])
+        }
+      })
+    });
+  }
+
 
 
 }

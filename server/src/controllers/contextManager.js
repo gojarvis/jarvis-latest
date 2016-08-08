@@ -3,6 +3,8 @@ import _ from 'lodash';
 import watson from 'watson-developer-cloud';
 import r from 'rethinkdb'
 import config from 'config';
+import GraphUtil from '../utils/graph';
+let graphUtil = new GraphUtil();
 
 let dbConfig = config.get('graph');
 
@@ -40,7 +42,7 @@ class contextManager{
     this.slowHeart = heartbeats.createHeart(1000);
     this.history = history;
     this.recommendations = [];
-    this.initContext(userInfo)
+    this.initContext(userInfo);
   }
 
   async initContext(userInfo){
@@ -78,36 +80,11 @@ class contextManager{
   }
 
   async setUser(user){
-    let graphUser = await this.getSaveUserInGraph(user)
+    let graphUser = await graphUtil.getSaveUserInGraph(user)
 
     this.user = graphUser;
     console.log('this.user', this.user);
     return graphUser
-  }
-
-  getSaveUserInGraph(user){
-    console.log('USER: ', user);
-    return new Promise(function(resolve, reject) {
-      graph.find(user, function(err, node){
-        if (err || !node.length){
-          console.log('user doesnt exist, saving', user);
-          graph.save(user, "User", function(err, node){
-            if (err){
-              console.log('CANT SAVE USER', user, err);
-              reject(err);
-            }
-            else{
-              console.log('USER SAVED', node);
-              resolve(node);
-            }
-          })
-        }
-        else{
-          console.log('user found', err, node);
-          resolve(node[0])
-        }
-      })
-    });
   }
 
   saveUserInRethink(userInfo){

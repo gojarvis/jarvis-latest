@@ -14,7 +14,8 @@ let dbConfig = config.get('graph');
 let userConfig = config.get('user');
 let projectsPath = userConfig.projectsPath;
 let rethinkConfig = config.get('rethink');
-var contextManager = require('./controllers/contextManager');
+let GraphUtil = require('./utils/graph');
+let graphUtil = new GraphUtil();
 
 var db = require('thinky')({
   host: rethinkConfig.host || "104.131.111.80"
@@ -32,9 +33,12 @@ passport.use(new GitHubStrategy({
   clientSecret: GITHUB_CLIENT_SECRET,
   callbackURL: "http://localhost:3000/auth/github/callback"
 }, function(accessToken, refreshToken, profile, cb) {
-  contextManager.setUser({ username: profile.username }).then((result) => {
+  graphUtil.getSaveUserInGraph({ username: profile.username }).then((result) => {
     console.log('!!! found user: ', result);
-    return cb(result);
+    // after successful auth, the client will be at:
+    // http://localhost:3000/auth/github/callback?code=bf1ddad273aea7dae6dc
+    // and what will be returned to the view is: {"username":"parties","id":83408}
+    return cb(JSON.stringify(result));
   }).catch(cb);
 }));
 
@@ -45,7 +49,9 @@ app.get('/auth/github/callback',
   passport.authenticate('github', { failureRedirect: '/login' }),
   function(req, res) {
     // Successful authentication, redirect home.
-    res.redirect('/');
+    // Note: this does not work, client is still on /auth/github/callback and
+    // redirect does not happen
+    res.redirect('http://localhost:8888');
   });
 
 setTimeout(()=>{
