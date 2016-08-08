@@ -44,8 +44,9 @@ passport.serializeUser(function(user, cb) {
 });
 
 passport.deserializeUser(function(obj, cb) {
-  console.log('deserializeUser:', user);
-  cb(null, obj);
+  graphUtil.getSaveUserInGraph({ username: profile.username }).then((result) => {
+    return cb(null, result);
+  }).catch(cb);
 });
 
 setTimeout(()=>{
@@ -72,16 +73,21 @@ setTimeout(()=>{
     passport.authenticate('github', { failureRedirect: '/login' }),
     function(req, res) {
       // Successful authentication, redirect home.
-      // NOTE: if we had the user object here (it's not in res.body),
-      // we could encode it and append it as a query string, OR inject into the
-      // session
-      res.redirect('http://localhost:8888');
+      res.redirect(`http://localhost:8888?userId=${req.user.id}&username=${req.user.username}`);
     });
 
 
   app.get('/', function(req, res){
     res.sendFile('client/src/www/index.html');
   });
+
+  app.get('/user', function(req, res) {
+    if (req.user === undefined) {
+      res.json({});
+    } else {
+      res.json(req.user);
+    }
+  })
 
   app.get('/users', graphController.getUsers);
 
