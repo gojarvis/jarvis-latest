@@ -17,7 +17,7 @@ p.then(function(connection){
 })
 
 
-let socket = GLOBAL._socket;
+let socket = global._socket;
 
 class getRelatedItems {
   constructor(master) {

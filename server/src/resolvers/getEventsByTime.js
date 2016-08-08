@@ -5,12 +5,12 @@ import _ from 'lodash'
 
 
 
-let socket = GLOBAL._socket;
+let socket = global._socket;
 
 class getEventsByTime {
   constructor() {
     this.resolverName = 'getEventsByTime';
-    this.conn = GLOBAL.rethinkdbConnection
+    this.conn = global.rethinkdbConnection
   }
 
   async execute(message){

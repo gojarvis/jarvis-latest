@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 import Immutable from 'immutable';
 
-let socket = GLOBAL._socket;
+let socket = global._socket;
 
 class getFromUserIntent {
   constructor() {

@@ -34,7 +34,7 @@ class Goal {
     this.resolverExecuting = false;
     this.lastExecutedResolverIndex = 0;
 
-    this.socket = GLOBAL._socket;
+    this.socket = global._socket;
 
     this.listeners = List();
 

@@ -16,7 +16,7 @@ let graph = require("seraph")({
 class contextManager{
   constructor(history, userInfo){
 
-    var db = GLOBAL.thinky;
+    var db = global.thinky;
     var type = db.type;
 
     let User = db.createModel("User", {

@@ -6,7 +6,7 @@ import colors from 'colors';
 class getFromUser {
   constructor(master) {
     this.resolverName = 'getFromUser';
-    this.socket = GLOBAL._socket
+    this.socket = global._socket
 
     this.get = this.get.bind(this)
     this.gotResponseFromUser = this.gotResponseFromUser.bind(this);

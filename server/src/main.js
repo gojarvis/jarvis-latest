@@ -21,7 +21,29 @@ var db = require('thinky')({
 
 global.thinky = db;
 
+/** Passport **/
+var GitHubStrategy = require('passport-github').Strategy;
+var GITHUB_CLIENT_ID = 'a595d84888f2d2a687a4';
+var GITHUB_CLIENT_SECRET = '3279791b36883a5138acf4db4080a5982faee3d8';
+passport.use(new GitHubStrategy({
+  clientID: GITHUB_CLIENT_ID,
+  clientSecret: GITHUB_CLIENT_SECRET,
+  callbackURL: "http://127.0.0.1:3000/auth/github/callback"
+},function(accessToken, refreshToken, profile, cb) {
+  User.findOrCreate({ githubId: profile.id }, function (err, user) {
+    return cb(err, user);
+  });
+}));
 
+app.get('/auth/github',
+  passport.authenticate('github'));
+
+app.get('/auth/github/callback',
+  passport.authenticate('github', { failureRedirect: '/login' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/');
+  });
 
 setTimeout(()=>{
 

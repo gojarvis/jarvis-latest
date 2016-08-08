@@ -4,7 +4,7 @@ import EventEmitter from 'events';
 import colors from 'colors';
 import Goal from './goal'
 
-let socket = GLOBAL._socket;
+let socket = global._socket;
 
 const objectives = {
   goalName: {
@@ -59,7 +59,7 @@ class MetaGoal extends Goal {
     message += ' . That is good to know!';
 
 
-    GLOBAL._socket.emit('speak', message);
+    global._socket.emit('speak', message);
   }
 
 }
