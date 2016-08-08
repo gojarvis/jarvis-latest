@@ -131,7 +131,6 @@ class GraphDB{
   }
 
   getSaveUserInGraph(user){
-    console.log('USER: ', user);
     return new Promise(function(resolve, reject) {
       graph.find(user, function(err, node){
         if (err || !node.length){

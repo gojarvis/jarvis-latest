@@ -34,25 +34,19 @@ passport.use(new GitHubStrategy({
   callbackURL: "http://localhost:3000/auth/github/callback"
 }, function(accessToken, refreshToken, profile, cb) {
   graphUtil.getSaveUserInGraph({ username: profile.username }).then((result) => {
-    console.log('!!! found user: ', result);
-    // after successful auth, the client will be at:
-    // http://localhost:3000/auth/github/callback?code=bf1ddad273aea7dae6dc
-    // and what will be returned to the view is: {"username":"parties","id":83408}
-    return cb(JSON.stringify(result));
+    return cb(null, result);
   }).catch(cb);
 }));
 
-app.get('/auth/github',
-  passport.authenticate('github'));
+passport.serializeUser(function(user, cb) {
+  console.log('serializeUser:', user);
+  cb(null, user);
+});
 
-app.get('/auth/github/callback',
-  passport.authenticate('github', { failureRedirect: '/login' }),
-  function(req, res) {
-    // Successful authentication, redirect home.
-    // Note: this does not work, client is still on /auth/github/callback and
-    // redirect does not happen
-    res.redirect('http://localhost:8888');
-  });
+passport.deserializeUser(function(obj, cb) {
+  console.log('deserializeUser:', user);
+  cb(null, obj);
+});
 
 setTimeout(()=>{
 
@@ -65,6 +59,24 @@ setTimeout(()=>{
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
   });
+
+  // Initialize Passport and restore authentication state, if any, from the
+  // session.
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  app.get('/auth/github',
+    passport.authenticate('github'));
+
+  app.get('/auth/github/callback',
+    passport.authenticate('github', { failureRedirect: '/login' }),
+    function(req, res) {
+      // Successful authentication, redirect home.
+      // NOTE: if we had the user object here (it's not in res.body),
+      // we could encode it and append it as a query string, OR inject into the
+      // session
+      res.redirect('http://localhost:8888');
+    });
 
 
   app.get('/', function(req, res){
