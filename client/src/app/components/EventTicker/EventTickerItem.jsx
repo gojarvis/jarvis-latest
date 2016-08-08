@@ -3,9 +3,9 @@ import {File, Browser} from '../Icons';
 import IconText from 'components/IconText';
 import FB from 'styles/flexbox';
 
-import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/lib/card';
-import FlatButton from 'material-ui/lib/flat-button';
-import Toggle from 'material-ui/lib/toggle';
+import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
+import FlatButton from 'material-ui/FlatButton';
+import Toggle from 'material-ui/Toggle';
 import moment from 'moment';
 
 class EventTickerItem extends React.Component {

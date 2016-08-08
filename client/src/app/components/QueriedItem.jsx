@@ -2,7 +2,7 @@ import React from 'react';
 import File from 'components/Icons/File';
 import Browser from 'components/Icons/Browser';
 import IconText from 'components/IconText';
-import LinearProgress from 'material-ui/lib/linear-progress';
+import LinearProgress from 'material-ui/LinearProgress';
 import FB from 'styles/flexbox';
 
 class QueriedItem extends React.Component {

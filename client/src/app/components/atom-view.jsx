@@ -12,11 +12,16 @@ import QueriedItem from './QueriedItem.jsx';
 import FB from 'styles/flexbox';
 import COMMON from 'styles/common';
 import IconText from './IconText';
-import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/lib/card';
-import RaisedButton from 'material-ui/lib/raised-button';
+import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
+import RaisedButton from 'material-ui/RaisedButton';
+import FlatButton from 'material-ui/FlatButton';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
 import UserList from 'components/UserList';
 import FlipMove from 'react-flip-move';
+import Login from 'components/login';
+import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
 
 require('./QueriedItems.css');
 
@@ -175,6 +180,11 @@ class AtomView extends React.Component {
     return !_.isUndefined(localStorage.userId)  && !_.isNull(localStorage.userId) && localStorage.userId !== 'null'
   }
 
+  logOut() {
+    localStorage.userId = null;
+    window.location.href = '/';
+  }
+
   getParameterByName(name, url) {
     if (!url) url = window.location.href;
     name = name.replace(/[\[\]]/g, "\\$&");
@@ -238,6 +248,7 @@ class AtomView extends React.Component {
     let filters = ['All', 'Files', 'URLs'];
     let users = [{username: 'parties', id: 83408}, {username: 'roieki', id: 83258}];
     let body;
+
     if (this.isLoggedIn()){
       body = <div>
         <EventTickerList
@@ -273,25 +284,32 @@ class AtomView extends React.Component {
             {queriedItems}
           </FlipMove>
         </div>
-      </div>
-
-    }
-    else{
-      body = <div>
-        <RaisedButton primary={true} style={{margin: 5}} onClick={() => {window.location.href = 'http://localhost:3000/auth/github'}}>
-          <span style={{padding: 5, color: '#fff'}}>Github Login</span>
-        </RaisedButton>
-      </div>
-    }
-    return(
-      <div style={{width: "100%"}}>
-        <div style={LOCAL_STYLES.container}>
-
-          {body}
-
-
+        <div style={{...FB.base, ...FB.justify.center, ...FB.align.center, width: '100vw'}}>
+          <div style={{background: '#fff', borderRadius: 2}}>
+            <FlatButton
+              style={{cursor: 'pointer', padding: '0px 20px'}}
+              onClick={this.logOut}>
+              <i className="fa fa-sign-out" aria-hidden="true"></i>
+              <span style={{padding: 5}}>Logout</span>
+            </FlatButton>
+          </div>
         </div>
       </div>
+
+    } else {
+      body = <div>
+        <Login />
+      </div>
+    }
+
+    return(
+      <MuiThemeProvider muiTheme={getMuiTheme(lightBaseTheme)}>
+        <div style={{width: "100%"}}>
+          <div style={LOCAL_STYLES.container}>
+            {body}
+          </div>
+        </div>
+      </MuiThemeProvider>
     )
   }
 }
