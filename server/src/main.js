@@ -116,7 +116,12 @@ setTimeout(()=>{
   });
 
   app.post('/query', graphController.query);
-  app.post('/getTeams', function(req, res){
+  app.get('/teams', function(req, res) {
+    teamsController.getTeams().then(function(teams) {
+      res.json(teams);
+    });
+  })
+  app.post('/user/getTeams', function(req, res){
     let teams;
     let userId = req.body.userId;
     teamsController.getTeamsByUserId(userId).then(function(teams){

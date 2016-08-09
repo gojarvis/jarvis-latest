@@ -75,7 +75,7 @@ class AtomView extends React.Component {
         })
     })
 
-    agent.post('http://localhost:3000/getTeams', {userId: userId}).then((res) => {
+    agent.post('http://localhost:3000/user/getTeams', {userId: userId}).then((res) => {
 
         let result = res.body;
         this.setState({
@@ -305,7 +305,7 @@ class AtomView extends React.Component {
             {queriedItems}
           </FlipMove>
         </div>
-        <div style={{...FB.base, ...FB.justify.center, ...FB.align.center, width: '100vw', position: 'absolute', bottom: '15px'}}>
+        <div style={{...FB.base, ...FB.justify.center, ...FB.align.center, width: '100vw', position: 'fixed', bottom: '15px'}}>
           <div style={{background: '#fff', borderRadius: 2}}>
             <FlatButton
               style={{cursor: 'pointer', padding: '0px 20px', }}
@@ -342,6 +342,7 @@ const LOCAL_STYLES = {
     minHeight: "100vh",
     backgroundColor: "rgb(40, 44, 52)",
     color: '#fff',
+    overflow: 'auto',
   },
   __oldEventTickerItem: {
     width: "5vw",

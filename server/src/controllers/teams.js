@@ -16,7 +16,7 @@ let graph = require("seraph")({
 
 class TeamsController{
   constructor(){
-    
+
   }
 
   getSaveTeam(teamName){
@@ -110,7 +110,7 @@ class TeamsController{
 
 
 
-  getAllTeams(){
+  getTeams() {
     return new Promise(function(resolve, reject) {
         graph.find({type: 'team'}, function(err, node){
           if (err) reject('cant get team by name', err)
