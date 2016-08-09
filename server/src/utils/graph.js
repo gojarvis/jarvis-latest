@@ -19,11 +19,28 @@ class GraphDB{
 
   }
 
+  async getNode(type, index, value){
+    return new Promise(function(resolve, reject) {
+      let params = {type: type};
+      params[index] = value;
+      graph.find(params, function(err, node){
+        if (err) reject(err)
+        else{
+          resolve(node)
+        }
+      })
+    });
+  }
+
   queryGraph(cypher, params={}){
     return new Promise(function(resolve, reject) {
       graph.query(cypher, params, function(err, result){
+
         if (err) reject(err)
-        else resolve(result)
+        else {
+          console.log('QUERY GRAPH RESULT', result);
+          resolve(result)
+        }
       });
     });
   }
@@ -50,6 +67,20 @@ class GraphDB{
     });
   }
 
+  getUserNodeByUsername(username){
+    return new Promise(function(resolve, reject) {
+      graph.find({username: username}, function(err, userNodes){
+        if (err)  {
+          console.log(err);
+          reject(err);
+        }
+        else {
+          resolve(userNodes[0])
+        }
+      })
+    });
+  }
+
   async getRelatedToUrl(url, relationship, threshold){
     let urlNode = await this.getUrlNodeByUrl(url);
     let cypher = 'MATCH (n:Url)-[r:'+relationship+']-(q) WHERE n.url = "' + url +'" AND r.weight > ' + threshold +'  RETURN r,q ORDER BY r.weight DESC LIMIT 10';
@@ -57,6 +88,7 @@ class GraphDB{
     // console.log(cypher);
     try{
       let res = await this.queryGraph(cypher,params);
+
       return res;
     }
     catch(err){
@@ -93,6 +125,9 @@ class GraphDB{
 
   }
 
+
+
+
   async relateOneToMany(origin, others, relationship){
     let relationships = [];
     try {
@@ -106,7 +141,7 @@ class GraphDB{
   }
 
   async relateNodes(origin, target, relationship){
-
+    console.log('TARGET', target, target.id);
     let cypher = 'START a=node({origin}), b=node({target}) '
                 +'CREATE UNIQUE a-[r:'+relationship+']->b '
                 +'SET r.weight = coalesce(r.weight, 0) + 1';
@@ -116,7 +151,8 @@ class GraphDB{
 
     try{
       res = await this.queryGraph(cypher,params);
-      // console.log('res', res, cypher, params);
+      console.log('res', res, cypher, params);
+
     }
 
     catch(err){
@@ -124,10 +160,13 @@ class GraphDB{
                   +'CREATE UNIQUE a-[r:'+relationship+']->b '
                   +'SET r.weight = coalesce(r.weight, 0) + 1';
 
-      // console.log('failed', err, cypher);
+      console.log('failed', err, cypher);
+    }
+    finally{
+      return res
     }
 
-    return res
+
   }
 
   getSaveUserInGraph(user){

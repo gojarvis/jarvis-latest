@@ -17,10 +17,12 @@ let rethinkConfig = config.get('rethink');
 let GraphUtil = require('./utils/graph');
 let graphUtil = new GraphUtil();
 
+
+
+var teamsController = require('./controllers/teams')
 var db = require('thinky')({
   host: rethinkConfig.host || "104.131.111.80"
 });
-
 
 global.thinky = db;
 
@@ -92,8 +94,8 @@ setTimeout(()=>{
   app.get('/users', graphController.getUsers);
 
   app.post('/open', function(req, res){
-    let address = req.param('address');
-    let type = req.param('type');
+    let address = req.body.address;
+    let type = req.body.type;
     let cmd;
     switch(type){
       case 'url':
@@ -114,6 +116,20 @@ setTimeout(()=>{
   });
 
   app.post('/query', graphController.query);
+  app.post('/getTeams', function(req, res){
+    let teams;
+    let userId = req.body.userId;
+    teamsController.getTeamsByUserId(userId).then(function(teams){
+      res.json(teams)
+    })
+  });
+
+  app.post('/getTeamMembers', function(req,res){
+    let userId = req.body.userId;
+    teamsController.getTeamMembersByUserId(userId).then(function(teamMembers){
+      res.json(teamMembers);
+    });
+  })
 
 
   let p = r.connect({host: rethinkConfig.host || "104.131.111.80", db: rethinkConfig.db});

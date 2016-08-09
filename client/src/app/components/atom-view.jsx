@@ -40,7 +40,7 @@ class AtomView extends React.Component {
         { key: "keywords", selected: false, label: "Keywords" },
       ],
       users: [
-        {username: 'parties', id: 83408, selected: false}, {username: 'roieki', id: 83258, selected: false}
+
       ],
       params: {
         nodeId: -1,
@@ -49,9 +49,10 @@ class AtomView extends React.Component {
       }
     }
 
+
   }
 
-  componentWillMount() {
+  async componentWillMount() {
     let self = this;
 
     this.socket.on('system-event', msg => {
@@ -64,6 +65,24 @@ class AtomView extends React.Component {
         eventTicker: eventTicker
       })
     })
+    let userId = localStorage.userId;
+    let username = localStorage.username;
+    agent.post('http://localhost:3000/getTeamMembers', {userId: userId}).then((res) => {
+        let user = [{id: userId, username: username}];
+        let result = res.body;
+        this.setState({
+            users : _.union(user, result)
+        })
+    })
+
+    agent.post('http://localhost:3000/getTeams', {userId: userId}).then((res) => {
+
+        let result = res.body;
+        this.setState({
+            teams : result
+        })
+    })
+    // let userNode  =
 
   }
 
@@ -172,8 +191,10 @@ class AtomView extends React.Component {
 
   isLoggedIn(){
     let userId = this.getParameterByName('userId', location);
+    let username = this.getParameterByName('username', location);
     if (!_.isUndefined(userId)){
       localStorage.userId = userId;
+      localStorage.username = username;
     }
 
     console.log('HEY', !_.isUndefined(localStorage.userId)  && !_.isNull(localStorage.userId));
@@ -284,13 +305,13 @@ class AtomView extends React.Component {
             {queriedItems}
           </FlipMove>
         </div>
-        <div style={{...FB.base, ...FB.justify.center, ...FB.align.center, width: '100vw'}}>
+        <div style={{...FB.base, ...FB.justify.center, ...FB.align.center, width: '100vw', position: 'absolute', bottom: '15px'}}>
           <div style={{background: '#fff', borderRadius: 2}}>
             <FlatButton
-              style={{cursor: 'pointer', padding: '0px 20px'}}
+              style={{cursor: 'pointer', padding: '0px 20px', }}
               onClick={this.logOut}>
               <i className="fa fa-sign-out" aria-hidden="true"></i>
-              <span style={{padding: 5}}>Logout</span>
+              <span style={{padding: 5}}>Logout!</span>
             </FlatButton>
           </div>
         </div>
