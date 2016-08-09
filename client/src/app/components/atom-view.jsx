@@ -22,6 +22,7 @@ import Login from 'components/login';
 import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import { Link } from 'react-router';
 
 require('./QueriedItems.css');
 
@@ -307,6 +308,7 @@ class AtomView extends React.Component {
         </div>
         <div style={{...FB.base, ...FB.justify.center, ...FB.align.center, width: '100vw', position: 'fixed', bottom: '15px'}}>
           <div style={{background: '#fff', borderRadius: 2}}>
+            <Link to={`/teams`}>Teams</Link>
             <FlatButton
               style={{cursor: 'pointer', padding: '0px 20px', }}
               onClick={this.logOut}>

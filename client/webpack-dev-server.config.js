@@ -17,7 +17,8 @@ var config = {
     alias: {
       'styles': path.join(__dirname, '/src/app/styles'),
       'components': path.join(__dirname, '/src/app/components'),
-      'conversations': path.join(__dirname, '/src/app/conversations')
+      'conversations': path.join(__dirname, '/src/app/conversations'),
+      'views': path.join(__dirname, '/src/app/views'),
     }
     //node_modules: ["web_modules", "node_modules"]  (Default Settings)
   },

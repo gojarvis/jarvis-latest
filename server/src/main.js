@@ -1,4 +1,9 @@
-var app = require('express')();
+var express = require('express');
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
+var cookieSession = require('cookie-session');
+var proxy = require('http-proxy-middleware');
+var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var bodyParser = require('body-parser');
@@ -46,10 +51,22 @@ passport.serializeUser(function(user, cb) {
 });
 
 passport.deserializeUser(function(obj, cb) {
-  graphUtil.getSaveUserInGraph({ username: profile.username }).then((result) => {
+  graphUtil.getSaveUserInGraph({ username: obj.username }).then((result) => {
     return cb(null, result);
   }).catch(cb);
 });
+
+// route middleware to make sure a user is logged in
+function isLoggedIn(req, res, next) {
+  console.log('checking isLoggedIn')
+
+  // if user is authenticated in the session, carry on
+  if (req.isAuthenticated())
+    return next();
+
+  // if they aren't redirect them to the home page
+  res.redirect('/');
+}
 
 setTimeout(()=>{
 
@@ -63,10 +80,24 @@ setTimeout(()=>{
     next();
   });
 
+  app.use(cookieParser());
+  // app.use(cookieSession({
+  //   name: 'jarvis-session',
+  //   keys: ['key-1'],
+  //   domain: 'localhost:8888',
+  // }));
+  //
+  // app.use(function(req, res, next) {
+  //   req.sessionOptions.domain = 'localhost:8888';
+  //   next();
+  // })
+  app.use(session({secret: 'jarvis is my hero <3'}));
+
   // Initialize Passport and restore authentication state, if any, from the
   // session.
   app.use(passport.initialize());
   app.use(passport.session());
+
 
   app.get('/auth/github',
     passport.authenticate('github'));
@@ -74,14 +105,22 @@ setTimeout(()=>{
   app.get('/auth/github/callback',
     passport.authenticate('github', { failureRedirect: '/login' }),
     function(req, res) {
+      req.session.user = req.user;
       // Successful authentication, redirect home.
-      res.redirect(`http://localhost:8888?userId=${req.user.id}&username=${req.user.username}`);
+      res.redirect(`http://localhost:3000`);
     });
 
+  app.use('/', proxy({ target: 'http://localhost:8888', changeOrigin: true }));
 
-  app.get('/', function(req, res){
-    res.sendFile('client/src/www/index.html');
+  app.get('/userjson', isLoggedIn, function(req, res) {
+    console.log('GET userjson');
+    res.send(req.user);
   });
+
+
+  // app.get('/', function(req, res){
+  //   res.sendFile('client/src/www/index.html');
+  // });
 
   app.get('/user', function(req, res) {
     if (req.user === undefined) {
