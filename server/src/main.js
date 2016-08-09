@@ -117,6 +117,7 @@ setTimeout(()=>{
   });
 
   app.use('/', proxy({ target: 'http://localhost:8888', changeOrigin: true }));
+  app.use('/teams', proxy({ target: 'http://localhost:8888/teams', changeOrigin: true }));
 
   // app.get('/', function(req, res){
   //   res.sendFile('client/src/www/index.html');
@@ -155,7 +156,7 @@ setTimeout(()=>{
   });
 
   app.post('/query', graphController.query);
-  app.get('/teams', function(req, res) {
+  app.get('/api/teams', function(req, res) {
     teamsController.getTeams().then(function(teams) {
       res.json(teams);
     });

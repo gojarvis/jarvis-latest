@@ -1,4 +1,4 @@
-import {Component} from 'react';
+import {Component, PropTypes} from 'react';
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton'
 import FB from 'styles/flexbox';
@@ -6,6 +6,7 @@ import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 let agent = require('superagent-promise')(require('superagent'), Promise);
+import { Link } from 'react-router';
 
 class LoginView extends Component {
   constructor() {
@@ -15,6 +16,9 @@ class LoginView extends Component {
   async componentWillMount() {
     let userData = await agent.get('/userjson');
     console.log('User Data: ', userData.body)
+    if (userData) {
+      this.context.router.push('/main');
+    }
   }
 
   render() {
@@ -28,11 +32,16 @@ class LoginView extends Component {
               <i className="fa fa-lg fa-github" aria-hidden="true"></i>
               <span style={{marginLeft: 5}}>Login with GitHub</span>
             </FlatButton>
+            <Link to="/teams">Teams</Link>
           </div>
         </div>
       </MuiThemeProvider>
     )
   }
 }
+
+LoginView.contextTypes = {
+  router: PropTypes.object.isRequired
+};
 
 export default LoginView;

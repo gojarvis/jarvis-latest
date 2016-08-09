@@ -271,59 +271,52 @@ class AtomView extends React.Component {
     let users = [{username: 'parties', id: 83408}, {username: 'roieki', id: 83258}];
     let body;
 
-    if (this.isLoggedIn()){
-      body = <div>
-        <EventTickerList
-          items={this.state.eventTicker}
-          itemOnClick={this.handleEventTickerItemClick.bind(this)}
-          itemStyle={LOCAL_STYLES.eventTickerItem} />
+    body = <div>
+      <EventTickerList
+        items={this.state.eventTicker}
+        itemOnClick={this.handleEventTickerItemClick.bind(this)}
+        itemStyle={LOCAL_STYLES.eventTickerItem} />
 
-        <div>
-          {focusedItem}
-          <hr />
-          <div style={LOCAL_STYLES.filterButtons}>
-            {this.state.filters.map((filter, index) => {
-              let zIndex = 5, selected;
-              if (filter.selected) {
-                zIndex = 0
+      <div>
+        {focusedItem}
+        <hr />
+        <div style={LOCAL_STYLES.filterButtons}>
+          {this.state.filters.map((filter, index) => {
+            let zIndex = 5, selected;
+            if (filter.selected) {
+              zIndex = 0
 
-              }
-              return (
-                <RaisedButton
-                  key={index}
-                  label={filter.label}
-                  primary={filter.selected}
-                  secondary={!filter.selected}
-                  zIndex={zIndex}
-                  onClick={()=>this.handleFilter(filter)}
-                  style={{flex: '1 1 auto', margin: 10}} />
-              )
-            })}
-          </div>
-          <UserList users={this.state.users} onClick={this.handleUserFilter.bind(this) } />
-          <hr />
-          <FlipMove>
-            {queriedItems}
-          </FlipMove>
+            }
+            return (
+              <RaisedButton
+                key={index}
+                label={filter.label}
+                primary={filter.selected}
+                secondary={!filter.selected}
+                zIndex={zIndex}
+                onClick={()=>this.handleFilter(filter)}
+                style={{flex: '1 1 auto', margin: 10}} />
+            )
+          })}
         </div>
-        <div style={{...FB.base, ...FB.justify.center, ...FB.align.center, width: '100vw', position: 'fixed', bottom: '15px'}}>
-          <div style={{background: '#fff', borderRadius: 2}}>
-            <Link to={`/teams`}>Teams</Link>
-            <FlatButton
-              style={{cursor: 'pointer', padding: '0px 20px', }}
-              onClick={this.logOut}>
-              <i className="fa fa-sign-out" aria-hidden="true"></i>
-              <span style={{padding: 5}}>Logout!</span>
-            </FlatButton>
-          </div>
+        <UserList users={this.state.users} onClick={this.handleUserFilter.bind(this) } />
+        <hr />
+        <FlipMove>
+          {queriedItems}
+        </FlipMove>
+      </div>
+      <div style={{...FB.base, ...FB.justify.center, ...FB.align.center, width: '100vw', position: 'fixed', bottom: '15px'}}>
+        <div style={{background: '#fff', borderRadius: 2}}>
+          <Link to={`/teams`}>Teams</Link>
+          <FlatButton
+            style={{cursor: 'pointer', padding: '0px 20px', }}
+            onClick={this.logOut}>
+            <i className="fa fa-sign-out" aria-hidden="true"></i>
+            <span style={{padding: 5}}>Logout!</span>
+          </FlatButton>
         </div>
       </div>
-
-    } else {
-      body = <div>
-        <Login />
-      </div>
-    }
+    </div>
 
     return(
       <MuiThemeProvider muiTheme={getMuiTheme(lightBaseTheme)}>
