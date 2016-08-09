@@ -75,7 +75,11 @@ class MetadataManager {
       let relatedKeywords = await graphUtils.getRelatedToUrl(url, 'related', 1);
       return relatedKeywords;
     } catch (e) {
-      console.log('cant getset kws for url', e);
+      if (e.message.indexOf('alchemy') !== -1) {
+        console.log('Alchemy Error: Hmm... best guess is we exceeded our API limit.')
+      } else {
+        console.log('cant getset kws for url', e);
+      }
     } finally {}
 
   }
