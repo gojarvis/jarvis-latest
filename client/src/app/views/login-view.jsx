@@ -5,11 +5,18 @@ import FB from 'styles/flexbox';
 import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
+let agent = require('superagent-promise')(require('superagent'), Promise);
 
 class LoginView extends Component {
   constructor() {
     super();
   }
+
+  async componentWillMount() {
+    let userData = await agent.get('/userjson');
+    console.log('User Data: ', userData.body)
+  }
+
   render() {
     return (
       <MuiThemeProvider muiTheme={getMuiTheme(lightBaseTheme)}>

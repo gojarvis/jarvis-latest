@@ -81,17 +81,17 @@ setTimeout(()=>{
   });
 
   app.use(cookieParser());
-  // app.use(cookieSession({
-  //   name: 'jarvis-session',
-  //   keys: ['key-1'],
-  //   domain: 'localhost:8888',
-  // }));
-  //
+  app.use(cookieSession({
+    name: 'jarvis-session',
+    keys: ['key-1'],
+    // domain: 'localhost:8888',
+  }));
+
   // app.use(function(req, res, next) {
   //   req.sessionOptions.domain = 'localhost:8888';
   //   next();
   // })
-  app.use(session({secret: 'jarvis is my hero <3'}));
+  // app.use(session({secret: 'jarvis is my hero <3'}));
 
   // Initialize Passport and restore authentication state, if any, from the
   // session.
@@ -110,13 +110,13 @@ setTimeout(()=>{
       res.redirect(`http://localhost:3000`);
     });
 
-  app.use('/', proxy({ target: 'http://localhost:8888', changeOrigin: true }));
 
   app.get('/userjson', isLoggedIn, function(req, res) {
     console.log('GET userjson');
     res.send(req.user);
   });
 
+  app.use('/', proxy({ target: 'http://localhost:8888', changeOrigin: true }));
 
   // app.get('/', function(req, res){
   //   res.sendFile('client/src/www/index.html');
