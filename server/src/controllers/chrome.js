@@ -177,11 +177,21 @@ class ChromeController {
 
 
     let node = await this.getUrlNodeByUrl(activeTab[0].url);
-    if (this.context.activeUrl.url !== activeTab[0].url){
+    if (node !== undefined && this.context.activeUrl.url !== activeTab[0].url){
       this.context.setActiveUrl({url: activeTab[0].url, title: activeTab[0].title});
-      this.history.saveEvent({type: 'highlighted', source: 'chrome', data: { nodeId: node.id, address: activeTab[0].url, title: activeTab[0].title} }).then(function(res){
+      this.history.saveEvent({
+        type: 'highlighted',
+        source: 'chrome',
+        data: {
+          nodeId: node.id,
+          address: activeTab[0].url,
+          title: activeTab[0].title
+        }
+      }).then(function(res){
 
       });
+    } else {
+      throw new Error('ERROR: controllers/chrome::handleUpdated - `node` was undefined, url: ', activeTab[0].url);
     }
 
 
