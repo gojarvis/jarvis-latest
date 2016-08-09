@@ -24,6 +24,8 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import { Link } from 'react-router';
 
+import Navbar from './navbar.jsx'
+
 require('./QueriedItems.css');
 
 
@@ -66,9 +68,7 @@ class AtomView extends React.Component {
         eventTicker: eventTicker
       })
     })
-    let userId = localStorage.userId;
-    let username = localStorage.username;
-    agent.post('http://localhost:3000/getTeamMembers', {userId: userId}).then((res) => {
+    agent.post('http://localhost:3000/api/user/teams/members').then((res) => {
         let user = [{id: userId, username: username}];
         let result = res.body;
         this.setState({
@@ -76,7 +76,7 @@ class AtomView extends React.Component {
         })
     })
 
-    agent.post('http://localhost:3000/user/getTeams', {userId: userId}).then((res) => {
+    agent.post('http://localhost:3000/api/user/teams').then((res) => {
 
         let result = res.body;
         this.setState({
@@ -307,6 +307,7 @@ class AtomView extends React.Component {
       </div>
       <div style={{...FB.base, ...FB.justify.center, ...FB.align.center, width: '100vw', position: 'fixed', bottom: '15px'}}>
         <div style={{background: '#fff', borderRadius: 2}}>
+          <Navbar />
           <Link to={`/teams`}>Teams</Link>
           <FlatButton
             style={{cursor: 'pointer', padding: '0px 20px', }}
@@ -324,6 +325,7 @@ class AtomView extends React.Component {
           <div style={LOCAL_STYLES.container}>
             {body}
           </div>
+
         </div>
       </MuiThemeProvider>
     )

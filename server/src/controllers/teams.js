@@ -109,12 +109,12 @@ class TeamsController{
   }
 
 
-
-  getTeams() {
+  getAllTeams() {
     return new Promise(function(resolve, reject) {
-        graph.find({type: 'team'}, function(err, node){
+        graph.find({type: 'team'}, function(err, nodes){
+          console.log('ALL TEAMS', nodes);
           if (err) reject('cant get team by name', err)
-          else resolve(node)
+          else resolve(nodes)
         });
     });
   }

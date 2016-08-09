@@ -14,6 +14,7 @@ var graphController = require('./controllers/graph')
 var childProc = require('child_process');
 import config from 'config';
 import passport from 'passport';
+import _ from 'lodash';
 
 let dbConfig = config.get('graph');
 let userConfig = config.get('user');
@@ -59,8 +60,7 @@ passport.deserializeUser(function(obj, cb) {
 // route middleware to make sure a user is logged in
 function isLoggedIn(req, res, next) {
   console.log('checking isLoggedIn')
-
-  // if user is authenticated in the session, carry on
+// if user is authenticated in the session, carry on
   if (req.isAuthenticated())
     return next();
 
@@ -68,9 +68,27 @@ function isLoggedIn(req, res, next) {
   res.redirect('/');
 }
 
+function ensureAdmin(req, res, next) {
+  let username = req.session.passport.user.username;
+  let isAdmin = adminLoopkup(username)
+  //   return next();
+  if (isAdmin){
+    next();
+  }
+
+  // if they aren't redirect them to the home page
+  // res.redirect('/');
+}
+
+function adminLoopkup(username){
+  let admins = ['roieki', 'parties'];
+  let adminIndex = _.indexOf(admins,username);
+  let isAdmin = _.indexOf(admins, username) > -1 ? true : false
+  return isAdmin
+}
+
+
 setTimeout(()=>{
-
-
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -116,7 +134,7 @@ setTimeout(()=>{
     res.send(req.user);
   });
 
-  app.use('/', proxy({ target: 'http://localhost:8888', changeOrigin: true }));
+
   app.use('/teams', proxy({ target: 'http://localhost:8888/teams', changeOrigin: true }));
 
   // app.get('/', function(req, res){
@@ -127,9 +145,12 @@ setTimeout(()=>{
     if (req.user === undefined) {
       res.json({});
     } else {
+
       res.json(req.user);
     }
   })
+
+
 
   app.get('/users', graphController.getUsers);
 
@@ -157,24 +178,40 @@ setTimeout(()=>{
 
   app.post('/query', graphController.query);
   app.get('/api/teams', function(req, res) {
-    teamsController.getTeams().then(function(teams) {
+
+    let userId = req.session.user.id;
+    teamsController.getTeamsByUserId(userId).then(function(teams) {
       res.json(teams);
     });
   })
-  app.post('/user/getTeams', function(req, res){
+
+  app.post('/api/team/all', ensureAdmin, function(req,res){
+    console.log('TEAM TIME');
+    teamsController.getAllTeams().then(function(teams){
+      res.json(teams)
+    })
+  });
+
+
+  app.post('/api/user/teams', function(req, res){
     let teams;
-    let userId = req.body.userId;
+    let userId = req.session.passport.user.id;
+    console.log('api/user/teams', req.session);
     teamsController.getTeamsByUserId(userId).then(function(teams){
       res.json(teams)
     })
   });
 
-  app.post('/getTeamMembers', function(req,res){
-    let userId = req.body.userId;
+  app.post('/api/user/teams/members', function(req,res){
+    // let userId = req.body.userId;
+    let userId = req.session.passport.user.id;
     teamsController.getTeamMembersByUserId(userId).then(function(teamMembers){
       res.json(teamMembers);
     });
   })
+
+  app.use('/', proxy({ target: 'http://localhost:8888', changeOrigin: true }));
+
 
 
   let p = r.connect({host: rethinkConfig.host || "104.131.111.80", db: rethinkConfig.db});
