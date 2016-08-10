@@ -6,6 +6,7 @@ import {EventTickerList} from 'components/EventTicker';
 import QueriedItemList from 'components/QueriedItemList';
 import ViewWrapper from 'views/view-wrapper';
 import FocusedItem from 'components/FocusedItem';
+import Navbar from 'components/navbar';
 import imm from 'immutable';
 import FB from 'styles/flexbox';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -206,7 +207,10 @@ class MainView extends Component {
     return (
       <ViewWrapper>
         <div style={layout.container}>
+
+          <Navbar />
           <UserList users={this.state.users} onClick={this.handleUserFilter.bind(this) } />
+
           <EventTickerList
             items={this.state.eventTickerItems}
             itemOnClick={this._handleEventTickerItemClick.bind(this)} />

@@ -5,6 +5,7 @@ import IconText from 'components/IconText';
 import LinearProgress from 'material-ui/LinearProgress';
 import FB from 'styles/flexbox';
 let agent = require('superagent-promise')(require('superagent'), Promise);
+import RaisedButton from 'material-ui/RaisedButton';
 
 class Navbar extends React.Component {
   super(){
@@ -20,22 +21,50 @@ class Navbar extends React.Component {
 
   render() {
     return (
-      <div style={{color: "white", width: '100%'}}>
-          <div>
-
-          </div>
+      <div style={{...FB.base, ...FB.justify.start, ..._styles.container}}>
+          <span style={{..._styles.logo}}>Jarvis</span>
+          <div style={{..._styles.navigation, ...FB.justify.end}}>
+            <RaisedButton
+              style={{..._styles.button}}
+              label={"Home"}
+              primary={true}
+              zIndex={5}  />
+            <RaisedButton
+              style={{..._styles.button}}
+              label={"Teams"}
+              primary={true}
+              zIndex={5}  />
+            <RaisedButton
+              style={{..._styles.button}}
+              label={"Profile"}
+                primary={true}
+                zIndex={5}  />
+            </div>
       </div>
     )
   }
 }
 
 const _styles = {
+  logo: {
+    fontSize: '30px',
+    marginRight: '50px',
+
+
+  },
+  button: {
+    marginRight: '20px'
+  },
+  navigation: {
+
+  },
   container: {
-    color: 'rgba(0, 0, 0, 1)',
-    padding: 5,
-    margin: 10,
+    color: 'white',
+    padding: 15,
     cursor: "pointer",
     borderRadius: 4,
+    minHeight: '30px',
+    backgroundColor: 'black'
   }
 }
 

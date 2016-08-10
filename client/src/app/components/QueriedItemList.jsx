@@ -13,7 +13,7 @@ function QueriedItemList(props) {
     })
   }
   else{
-    items = <div>Nothing found :-(</div>
+    items = <div style={{padding: '20px'}}>@_________@</div>
   }
   return (
     <div>
