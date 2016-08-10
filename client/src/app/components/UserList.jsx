@@ -4,7 +4,6 @@ import FB from 'styles/flexbox';
 
 let UserList = (props) => {
   let {users} = props;
-  console.log('USERS', users.toJS());
   return (
     <div style={{...FB.base, ...FB.justify.start, ...LOCAL_STYLES.wrapper}}>
 

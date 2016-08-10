@@ -103,10 +103,18 @@ class MainView extends Component {
 
   async componentWillMount() {
     this.socket.on('system-event', msg => {
+      // console.log('STATE', this.state);
       this.setState({
         eventTickerItems: this.state.eventTickerItems.unshift(msg)
       });
+
+      let newParams = this.state.params;
+      newParams.nodeId = msg.data.nodeId;
+      this.query(newParams);
     });
+
+
+
     try{
       let userJsonResult = await agent.post('http://localhost:3000/api/user/userjson');
       let userJson = userJsonResult.body;
@@ -120,7 +128,7 @@ class MainView extends Component {
         user.selected = false;
         return user
       })
-      console.log(users.toJS());
+
 
       let teamsResult = await agent.post('http://localhost:3000/api/user/teams', { userId });
       let teams = teamsResult.body;
