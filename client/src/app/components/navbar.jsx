@@ -23,7 +23,7 @@ class Navbar extends React.Component {
 
   render() {
     return (
-      <div style={{...FB.base, ...FB.justify.start, ..._styles.container}}>
+      <div style={{...FB.base, ..._styles.container}}>
           <span style={{..._styles.logo}}>Jarvis</span>
           <div style={{..._styles.navigation, ...FB.justify.end}}>
             <RaisedButton
@@ -67,15 +67,17 @@ const _styles = {
   },
   navigation: {
     display: 'flex',
-    justifyContet: 'flex-end'
+    justifyContent: 'flex-end'
   },
   container: {
     color: 'white',
     padding: 15,
-    cursor: "pointer",
+    cursor: 'pointer',
     borderRadius: 4,
     minHeight: '30px',
-    backgroundColor: 'black'
+    backgroundColor: 'black',
+    display: 'flex',
+    justifyContent: 'space-between'
   }
 }
 
