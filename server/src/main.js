@@ -22,6 +22,7 @@ let projectsPath = userConfig.projectsPath;
 let rethinkConfig = config.get('rethink');
 let GraphUtil = require('./utils/graph');
 let graphUtil = new GraphUtil();
+var usersController = require('./controllers/users');
 
 
 
@@ -61,32 +62,27 @@ passport.deserializeUser(function(obj, cb) {
 function isLoggedIn(req, res, next) {
   console.log('checking isLoggedIn')
 // if user is authenticated in the session, carry on
-  if (req.isAuthenticated())
-    return next();
+  if (req.isAuthenticated()){
+      res.locals.loggedIn = true;
+      return next();
+  }
+
 
   // if they aren't redirect them to the home page
-  res.redirect('/');
+  res.locals.loggedIn = false;
+  res.json({error: 'Unauthorized'});
 }
 
 function ensureAdmin(req, res, next) {
   let username = req.session.passport.user.username;
-  let isAdmin = adminLoopkup(username)
-  //   return next();
-  if (isAdmin){
+  if (!_.isUndefined(req.session.passport.user.role) && req.session.passport.user.role === "admin"){
     next();
   }
 
+  res.json({error: 'Unauthorized'});
   // if they aren't redirect them to the home page
   // res.redirect('/');
 }
-
-function adminLoopkup(username){
-  let admins = ['roieki', 'parties'];
-  let adminIndex = _.indexOf(admins,username);
-  let isAdmin = _.indexOf(admins, username) > -1 ? true : false
-  return isAdmin
-}
-
 
 setTimeout(()=>{
   app.use(bodyParser.json());
@@ -129,7 +125,7 @@ setTimeout(()=>{
     });
 
 
-  app.get('/userjson', isLoggedIn, function(req, res) {
+  app.post('/api/user/userjson', isLoggedIn, function(req, res) {
     console.log('GET userjson');
     res.send(req.user);
   });
@@ -185,7 +181,7 @@ setTimeout(()=>{
     });
   })
 
-  app.post('/api/team/all', ensureAdmin, function(req,res){
+  app.post('/api/team/all',  [isLoggedIn, ensureAdmin], function(req,res){
     console.log('TEAM TIME');
     teamsController.getAllTeams().then(function(teams){
       res.json(teams)
@@ -193,7 +189,7 @@ setTimeout(()=>{
   });
 
 
-  app.post('/api/user/teams', function(req, res){
+  app.post('/api/user/teams', isLoggedIn, function(req, res){
     let teams;
     let userId = req.session.passport.user.id;
     console.log('api/user/teams', req.session);
@@ -202,13 +198,25 @@ setTimeout(()=>{
     })
   });
 
-  app.post('/api/user/teams/members', function(req,res){
+  app.post('/api/user/teams/members', isLoggedIn, function(req,res){
     // let userId = req.body.userId;
     let userId = req.session.passport.user.id;
     teamsController.getTeamMembersByUserId(userId).then(function(teamMembers){
       res.json(teamMembers);
     });
   })
+
+  app.post('/api/user/setAsAdmin', [isLoggedIn, ensureAdmin], function(req,res){
+    let username = req.session.passport.user.username;
+    usersController.setUserAsAdmin(username)
+  });
+
+  app.post('/logout', function(req,res){
+    req.session = null;
+    console.log('LOGGING OUT');
+    res.redirect('/');
+
+  });
 
   app.use('/', proxy({ target: 'http://localhost:8888', changeOrigin: true }));
 

@@ -68,6 +68,21 @@ class AtomView extends React.Component {
         eventTicker: eventTicker
       })
     })
+
+    try{
+      agent.post('http://localhost:3000/api/user/userjson').then(res => {
+        console.log('RES', res);
+          if (!_.isUndefined(res.body.error)){
+            console.log('Not logged in');
+            window.location.href = '/';
+          }else{
+
+          }
+      })
+    }
+    catch(e){
+
+    }
     agent.post('http://localhost:3000/api/user/teams/members').then((res) => {
         let user = [{id: userId, username: username}];
         let result = res.body;
@@ -203,8 +218,11 @@ class AtomView extends React.Component {
   }
 
   logOut() {
-    localStorage.userId = null;
-    window.location.href = '/';
+    // localStorage.userId = null;
+    agent.post('http://localhost:3000/logout').then(function(res){
+
+        window.location.href = '/';
+    })
   }
 
   getParameterByName(name, url) {
@@ -272,6 +290,7 @@ class AtomView extends React.Component {
     let body;
 
     body = <div>
+      <Navbar />
       <EventTickerList
         items={this.state.eventTicker}
         itemOnClick={this.handleEventTickerItemClick.bind(this)}
@@ -307,7 +326,7 @@ class AtomView extends React.Component {
       </div>
       <div style={{...FB.base, ...FB.justify.center, ...FB.align.center, width: '100vw', position: 'fixed', bottom: '15px'}}>
         <div style={{background: '#fff', borderRadius: 2}}>
-          <Navbar />
+
           <Link to={`/teams`}>Teams</Link>
           <FlatButton
             style={{cursor: 'pointer', padding: '0px 20px', }}

@@ -7,20 +7,23 @@ import FB from 'styles/flexbox';
 let agent = require('superagent-promise')(require('superagent'), Promise);
 
 class Navbar extends React.Component {
-  componentWillMount(){
-    console.log('WILL MOUNT');
-      agent.post('http://localhost:3000/api/team/all').then((res)=> {
-        console.log('res', res);
-      });
+  super(){
+    this.state = {
 
+    }
+  }
+  componentWillMount(){
+    agent.post('http://localhost:3000/api/team/all').then((res)=> {
+      console.log('res', res);
+    });
   }
 
   render() {
-
-
     return (
-      <div>
-        <span style={{color: "black"}}>Navbar</span>
+      <div style={{color: "white", width: '100%'}}>
+          <div>
+
+          </div>
       </div>
     )
   }
