@@ -1,5 +1,6 @@
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
 import IconText from 'components/IconText';
+let agent = require('superagent-promise')(require('superagent'), Promise);
 
 async function externalLinkClick(address, type){
   let params = {
