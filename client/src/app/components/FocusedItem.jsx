@@ -1,5 +1,6 @@
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
 import IconText from 'components/IconText';
+import _ from 'lodash';
 let agent = require('superagent-promise')(require('superagent'), Promise);
 
 async function externalLinkClick(address, type){
@@ -12,6 +13,11 @@ async function externalLinkClick(address, type){
 
 function FocusedItem(props) {
   let {item} = props;
+  if (_.isUndefined(item)){
+    console.log('No items');
+    return <div></div>
+  }
+
   let iconClass, iconColor;
   switch(item.get('type')) {
     case 'file':

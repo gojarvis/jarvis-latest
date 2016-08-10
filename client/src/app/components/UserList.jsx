@@ -4,13 +4,15 @@ import FB from 'styles/flexbox';
 
 let UserList = (props) => {
   let {users} = props;
-
+  console.log('USERS', users.toJS());
   return (
     <div style={{...FB.base, ...FB.justify.start}}>
+
       {users.map((item, index) => {
+        console.log('username', item.username);
         return <RaisedButton
           key={index}
-          label={item.username}
+          label="hello"
           primary={item.selected}
           secondary={!item.selected}
           onClick={()=>props.onClick(item)}

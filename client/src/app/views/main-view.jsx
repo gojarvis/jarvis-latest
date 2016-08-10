@@ -9,6 +9,7 @@ import FocusedItem from 'components/FocusedItem';
 import imm from 'immutable';
 import FB from 'styles/flexbox';
 import RaisedButton from 'material-ui/RaisedButton';
+import UserList from 'components/UserList';
 
 class MainView extends Component {
   constructor(...args) {
@@ -105,21 +106,62 @@ class MainView extends Component {
         eventTickerItems: this.state.eventTickerItems.unshift(msg)
       });
     });
+    try{
+      let userJsonResult = await agent.post('http://localhost:3000/api/user/userjson');
+      let userJson = userJsonResult.body;
+      let userId = userJson.id;
+      let username = userJson.username
+      let teamMembersResult = await agent.post('http://localhost:3000/api/user/teams/members', { userId })
+      let teamMembers = teamMembersResult.body;
+      let users = imm.fromJS([{ id: userId, username: username, selected: false }]);
+      users = users.concat(teamMembers);
+      users = users.map(user => {
+        user.selected = false;
+        return user
+      })
+      console.log(users.toJS());
 
-    let {userId, username} = localStorage;
+      let teamsResult = await agent.post('http://localhost:3000/api/user/teams', { userId });
+      let teams = teamsResult.body;
 
-    agent.post('http://localhost:3000/api/user/teams/members', { userId }).then((res) => {
-      let users = new imm.List([{ id: userId, username }]);
-      // TODO: add type/error checking
-      users = users.concat(res.body);
-      this.setState({ users });
-    });
-
-    agent.post('http://localhost:3000/api/user/teams', { userId }).then((res) => {
       this.setState({
-        teams : imm.List(res.body)
+        teams : imm.List(teams),
+        users: users
       });
-    });
+    }
+    catch(e){
+
+    }
+
+    // let {userId, username} = localStorage;
+
+
+  }
+
+  async handleUserFilter(selectedUser) {
+    console.log(selectedUser, this.state.users);
+    let newUserFilters = this.state.users.map((user) => {
+      if (user.username === selectedUser.username){
+        user.selected = !user.selected;
+      }
+      return user;
+    })
+
+    let userIds = [];
+    _.forEach(newUserFilters, (item)=>{
+      if (item.selected) userIds.push(item.id)
+    })
+
+    // let userIds = newUserFilters.map((item) => {if (item.selected ) { return item.id } });
+
+    if (userIds.length === 0) userIds = false;
+    let newParams = this.state.params;
+    newParams.endUserNodeIds = userIds;
+    this.setState({
+      params: newParams
+    })
+    this.query(newParams);
+
   }
 
   async _handleEventTickerItemClick(nodeId) {
@@ -130,7 +172,7 @@ class MainView extends Component {
   }
 
   _focusedItem() {
-    return this.state.focusedItem;    
+    return this.state.focusedItem;
   }
 
   render() {
@@ -164,7 +206,7 @@ class MainView extends Component {
     return (
       <ViewWrapper>
         <div style={layout.container}>
-
+          <UserList users={this.state.users} onClick={this.handleUserFilter.bind(this) } />
           <EventTickerList
             items={this.state.eventTickerItems}
             itemOnClick={this._handleEventTickerItemClick.bind(this)} />
