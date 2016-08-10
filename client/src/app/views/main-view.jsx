@@ -11,6 +11,7 @@ import imm from 'immutable';
 import FB from 'styles/flexbox';
 import RaisedButton from 'material-ui/RaisedButton';
 import UserList from 'components/UserList';
+import Toggle from 'material-ui/Toggle';
 
 class MainView extends Component {
   constructor(...args) {
@@ -33,7 +34,8 @@ class MainView extends Component {
         endNodeType: false,
         endUserNodeIds: false
       },
-      latestItem: new imm.Map()
+      latestItem: new imm.Map(),
+      autoswitch: false
     }
   }
 
@@ -110,7 +112,9 @@ class MainView extends Component {
 
       let newParams = this.state.params;
       newParams.nodeId = msg.data.nodeId;
-      this.query(newParams);
+      if (this.state.autoswitch){
+        this.query(newParams);
+      }
     });
 
 
@@ -180,6 +184,14 @@ class MainView extends Component {
     this.query(params);
   }
 
+  toggleAutoswitch(){
+    let newState = !this.state.autoswitch;
+    console.log(newState);
+    this.setState({
+      autoswitch: newState
+    })
+  }
+
   _focusedItem() {
     return this.state.focusedItem;
   }
@@ -235,11 +247,34 @@ class MainView extends Component {
           <QueriedItemList
             items={this.state.queriedItems.toJS()}
             onClick={this._handleEventTickerItemClick.bind(this)} />
+
+          <div>
+            <Toggle
+              onToggle={this.toggleAutoswitch.bind(this)}
+              toggle={this.state.autoswitch}
+              label="Autoswitch"
+              labelPosition="right"
+              style={styles.toggle}
+            />
+          </div>
         </div>
       </ViewWrapper>
     );
   }
 }
+
+const styles = {
+  block: {
+    maxWidth: 250,
+  },
+  toggle: {
+    color: 'white',
+    padding: 10,
+    backgroundColor: 'white',
+    marginBottom: 16,
+  },
+};
+
 
 const LOCAL_STYLES = {
   container: {
