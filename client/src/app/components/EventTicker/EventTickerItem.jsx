@@ -67,7 +67,7 @@ class EventTickerItem extends React.Component {
 
     return (
       <div title={JSON.stringify(item, null, 1)}>
-        <div style={{...this.props.style, ...STYLES.container}} onClick={() => this.props.onClick(this.props.item.data.nodeId)}>
+        <div style={STYLES.container} onClick={() => this.props.onClick(this.props.item.data.nodeId)}>
           <Card zDepth={4} style={{height: "120px", minWidth: "220px"}}>
              <CardText style={{...FB.base, flexDirection: 'column', display: "flex", justifyContent: "space-between"}}>
                <div style={STYLES.title}>{title.slice(0,35)}</div>
@@ -91,6 +91,7 @@ const STYLES = {
     borderRadius: 4,
     cursor: 'pointer',
     margin: "10px 0 10px 10px",
+    minWidth: 100,
   },
   title: {
     fontSize: 20,

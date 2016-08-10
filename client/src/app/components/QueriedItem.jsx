@@ -17,13 +17,17 @@ class QueriedItem extends React.Component {
 
     let title;
     let {endNode} = item;
-    if (endNode.type === 'file') {
-      let addr = endNode.address.split('/');
-      title = '../' + addr.slice(Math.max(addr.length - 3, 1)).join('/');
-    } else if (endNode.type === 'url') {
-      title = endNode.address.split('/').filter((item) => item !== "").slice(-1).pop().slice(0, 20);
+    switch (endNode.type) {
+      case 'file':
+        let addr = endNode.address.split('/');
+        title = '../' + addr.slice(Math.max(addr.length - 3, 1)).join('/');
+        break;
+      case 'url':
+        title = endNode.address.split('/').filter((item) => item !== "").slice(-1).pop().slice(0, 20);
+        break;
+      default:
+        break;
     }
-
 
     let iconClass, typeIconColor;
     switch(item.endNode.type) {

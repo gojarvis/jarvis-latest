@@ -5,6 +5,7 @@
   let { Router, Route, Link, hashHistory } = require('react-router');
   // let Main = require('./components/main.jsx'); // Our custom react component
   let AtomView = require('./components/atom-view.jsx');
+  let MainView = require('views/main-view.jsx');
   let Teams = require('./views/teams-view.jsx');
   let Login = require('./views/login-view.jsx');
   // let AuthUser = require('./views/auth-user.jsx');
@@ -28,8 +29,9 @@
   ReactDOM.render((
     <Router history={hashHistory}>
       <Route path="/" component={Login} />
-        {/* <Route path="/authenticated" component={authUser} /> */}
-      <Route path="/main" component={AtomView} />
+      {/* <Route path="/authenticated" component={authUser} /> */}
+      {/* <Route path="/main" component={AtomView} /> */}
+      <Route path="/main" component={MainView} />
       <Route path="/teams" component={Teams} />
     </Router>
   ), document.getElementById('app'));
