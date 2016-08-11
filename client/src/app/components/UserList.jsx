@@ -10,11 +10,12 @@ let UserList = (props) => {
       <div>
         <span style={{ ...LOCAL_STYLES.label}}>Team Members</span>
         {users.map((item, index) => {
+          console.log(item.toJS());
           return <RaisedButton
             key={index}
-            label='hello'
-            primary={item.selected}
-            secondary={!item.selected}
+            label={item.get('username')}
+            primary={item.get('selected')}
+            secondary={!item.get('selected')}
             onClick={()=>props.onClick(item)}
             style={{flex: '0 1 auto', margin: '5px 10px'}} />
         })}

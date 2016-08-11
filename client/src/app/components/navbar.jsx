@@ -1,19 +1,33 @@
-import React from 'react';
+import {Component, PropTypes} from 'react';
 import File from 'components/Icons/File';
 import Browser from 'components/Icons/Browser';
 import IconText from 'components/IconText';
-import LinearProgress from 'material-ui/LinearProgress';
 import FB from 'styles/flexbox';
 let agent = require('superagent-promise')(require('superagent'), Promise);
-import RaisedButton from 'material-ui/RaisedButton';
 import SvgIcon from 'material-ui/SvgIcon';
+import mui, { RaisedButton } from 'material-ui';
+console.log(mui);
 
-
-class Navbar extends React.Component {
+class Navbar extends Component {
   super(){
     this.state = {
 
     }
+  }
+
+  logout(){
+    agent.post('http://localhost:3000/logout').then((res)=> {
+      this.context.router.push('/');
+    });
+  }
+  getChildContext()
+   {
+
+      //  return { muiTheme: ThemeManager.getCurrentTheme() };
+   }
+
+  navigate(target){
+      this.context.router.push('/' + target);
   }
   componentWillMount(){
     agent.post('http://localhost:3000/api/team/all').then((res)=> {
@@ -25,30 +39,35 @@ class Navbar extends React.Component {
     return (
       <div style={{...FB.base, ..._styles.container}}>
           <span style={{..._styles.logo}}>Jarvis</span>
-          <div style={{..._styles.navigation, ...FB.justify.end}}>
-            <RaisedButton
-              icon={<HomeIcon style={iconStyles} />}
-              style={{..._styles.button}}
-              label={"Home"}
-              primary={true}
-              zIndex={5}  />
-            <RaisedButton
-              style={{..._styles.button}}
-              icon={<TeamIcon style={iconStyles} />}
-              label={"Teams"}
-              primary={true}
-              zIndex={5}  />
-            <RaisedButton
-              style={{..._styles.button}}
-              label={"Profile"}
-              primary={true}
-              zIndex={5}  />
-            <RaisedButton
-              style={{..._styles.button}}
-              label={"Logout"}
-              primary={true}
-              zIndex={5}  />
-            </div>
+            <div style={{..._styles.navigation, ...FB.justify.end}}>
+              <RaisedButton
+                icon={<HomeIcon style={iconStyles} />}
+                style={{..._styles.button}}
+                label={"Home"}
+                onClick={this.navigate.bind(this, "main")}
+                primary={true}
+                zIndex={5}  />
+              <RaisedButton
+                style={{..._styles.button}}
+                icon={<TeamIcon style={iconStyles} />}
+                label={"Teams"}
+                onClick={this.navigate.bind(this, "teams")}
+                primary={true}
+                zIndex={5}  />
+              <RaisedButton
+                style={{..._styles.button}}
+                label={"Profile"}
+                onClick={this.navigate.bind(this, "profile")}
+                primary={true}
+                zIndex={5}  />
+              <RaisedButton
+                style={{..._styles.button}}
+                label={"Logout"}
+                onClick={this.logout.bind(this)}
+                primary={true}
+                zIndex={5}  />
+              </div>
+
 
       </div>
     )
@@ -97,5 +116,9 @@ const TeamIcon = (props) => (
 
   </SvgIcon>
 )
+
+Navbar.contextTypes = {
+  router: PropTypes.object.isRequired
+};
 
 export default Navbar;

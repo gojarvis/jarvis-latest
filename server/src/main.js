@@ -75,11 +75,15 @@ function isLoggedIn(req, res, next) {
 
 function ensureAdmin(req, res, next) {
   let username = req.session.passport.user.username;
+  console.log(req.session.passport);
   if (!_.isUndefined(req.session.passport.user.role) && req.session.passport.user.role === "admin"){
+    console.log('IS ADMIN');
     next();
   }
+  else{
+    res.json({error: 'Unauthorized'});
+  }
 
-  res.json({error: 'Unauthorized'});
   // if they aren't redirect them to the home page
   // res.redirect('/');
 }
@@ -209,6 +213,13 @@ setTimeout(()=>{
   app.post('/api/user/setAsAdmin', [isLoggedIn, ensureAdmin], function(req,res){
     let username = req.session.passport.user.username;
     usersController.setUserAsAdmin(username)
+  });
+
+  app.post('/api/user/all', ensureAdmin, function(req,res){
+    // let username = req.session.passport.user.username;
+    usersController.getAllUsers().then(function(users){
+      res.json(users);
+    })
   });
 
   app.post('/logout', function(req,res){

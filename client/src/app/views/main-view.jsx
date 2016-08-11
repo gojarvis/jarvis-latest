@@ -125,10 +125,12 @@ class MainView extends Component {
       let userId = userJson.id;
       let username = userJson.username
       let teamMembersResult = await agent.post('http://localhost:3000/api/user/teams/members', { userId })
-      let teamMembers = teamMembersResult.body;
-      let users = imm.fromJS([{ id: userId, username: username, selected: false }]);
-      users = users.concat(teamMembers);
-      users = users.map(user => {
+      let teamMembers = imm.fromJS(teamMembersResult.body);
+      console.log('userId/name', userId, username, teamMembers);
+      let userObject = imm.fromJS({ id: userId, username: username, selected: false });
+      let usersList = new imm.List();
+      usersList = teamMembers.unshift(userObject);
+      usersList = usersList.map(user => {
         user.selected = false;
         return user
       })
@@ -139,7 +141,7 @@ class MainView extends Component {
 
       this.setState({
         teams : imm.List(teams),
-        users: users
+        users: usersList
       });
     }
     catch(e){
@@ -186,7 +188,6 @@ class MainView extends Component {
 
   toggleAutoswitch(){
     let newState = !this.state.autoswitch;
-    console.log(newState);
     this.setState({
       autoswitch: newState
     })
