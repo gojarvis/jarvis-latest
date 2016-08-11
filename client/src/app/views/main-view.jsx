@@ -192,10 +192,10 @@ class MainView extends Component {
   }
 
   async _handleEventTickerItemClick(nodeId) {
-    // let params = this.state.params;
-    // params.nodeId = nodeId;
-    //
-    // this.query(params);
+    let params = this.state.params;
+    params.nodeId = nodeId;
+
+    this.query(params);
   }
 
   toggleAutoswitch(){
@@ -243,14 +243,10 @@ class MainView extends Component {
 
           <Navbar />
 
-          <hr /><pre>{
-            JSON.stringify(this.props.eventTicker, null, 2)
-          }</pre><hr />
-
           <UserList users={this.state.users} onClick={this.handleUserFilter.bind(this) } />
 
           <EventTickerList
-            items={this.props.eventTicker}
+            items={this.props.eventTicker.items}
             itemOnClick={this._handleEventTickerItemClick.bind(this)} />
 
 
