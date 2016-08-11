@@ -195,12 +195,13 @@ setTimeout(()=>{
 
   app.post('/api/user/teams', isLoggedIn, function(req, res){
     let teams;
-    let userId = req.session.passport.user.id;
+    let userId = req.body.userId || req.session.passport.user.id;
     console.log('api/user/teams', req.session);
     teamsController.getTeamsByUserId(userId).then(function(teams){
       res.json(teams)
     })
   });
+
 
   app.post('/api/user/teams/members', isLoggedIn, function(req,res){
     // let userId = req.body.userId;
@@ -217,8 +218,16 @@ setTimeout(()=>{
 
   app.post('/api/user/all', ensureAdmin, function(req,res){
     // let username = req.session.passport.user.username;
+    console.log('ALL users');
     usersController.getAllUsers().then(function(users){
       res.json(users);
+    })
+  });
+
+  app.post('/api/user/associate', ensureAdmin, function(req,res){
+    let {username, teamname}= req.body;
+    teamsController.relateUserToTeam(username, teamname).then(function(relationship){
+      res.json({relationship: relationship})
     })
   });
 

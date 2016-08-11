@@ -30,7 +30,8 @@ class UsersController{
   getAllUsers() {
     return new Promise(async function(resolve, reject) {
         let cypher = 'match (u:User) return u';
-        let res = await graphUtil.query(cypher);
+        console.log('getAllUsers', cypher);
+        let res = await graphUtil.queryGraph(cypher);
         console.log(res);
         resolve(res);
     });
