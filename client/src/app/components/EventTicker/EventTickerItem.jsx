@@ -71,7 +71,7 @@ class EventTickerItem extends React.Component {
         break;
     }
 
-    let momentText = moment(this.props.item.timestamp).fromNow();
+    let momentText = moment(item.timestamp).fromNow();
 
     return (
       <div
