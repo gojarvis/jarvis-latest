@@ -32,6 +32,14 @@ class EventTickerItem extends React.Component {
     this.setState({expanded: false});
   };
 
+  async externalLinkClick(address, type){
+
+    let params = {
+      address : address,
+      type: type
+    };
+    let result = await agent.post('http://localhost:3000/open', params);
+  }
 
   render() {
     let item = this.props.item;
@@ -66,18 +74,14 @@ class EventTickerItem extends React.Component {
     let momentText = moment(this.props.item.timestamp).fromNow();
 
     return (
-      <div title={JSON.stringify(item, null, 1)}>
-        <div style={STYLES.container} onClick={() => this.props.onClick(this.props.item.data.nodeId)}>
-          <Card zDepth={4} style={{height: "120px", minWidth: "220px"}}>
-             <CardText style={{...FB.base, flexDirection: 'column', display: "flex", justifyContent: "space-between"}}>
-               <div style={STYLES.title}>{title.slice(0,35)}</div>
-               <div style={{...FB.base, fontSize: "12px", alignSelf: "stretch", marginBottom: 0}}>
-                 <div style={{marginRight: "5px"}}><span className={'fa fa-lg fa-' + iconClass} style={{marginRight: 15, fontSize: "13px", color: iconColor}} />{item.source} |</div>
-                 <div style={{color: "grey"}}>{momentText}</div>
-               </div>
-             </CardText>
-           </Card>
-        </div>
+      <div
+        className='eventTickerItem'
+        title={JSON.stringify(item, null, 1)}
+        style={STYLES.container}
+        onClick={() => this.props.onClick(this.props.item.data.nodeId)}>
+        <IconText icon='external-link' onClick={() => externalLinkClick(item.address, item.type)} style={{cursor: 'pointer'}} />
+        <IconText icon={iconClass} style={{marginRight: 10}} iconColor={iconColor} />
+        <span style={STYLES.title}>{title.slice(0,35)}</span>
       </div>
     );
   }
@@ -91,11 +95,13 @@ const STYLES = {
     borderRadius: 4,
     cursor: 'pointer',
     margin: "10px 0 10px 10px",
-    minWidth: 100,
+    flexShrink: 0,
+    backgroundColor: '#fff',
+    padding: 10,
   },
   title: {
     fontSize: 20,
-    alignSelf: "flex-start"
+    color: '#000'
   },
 }
 

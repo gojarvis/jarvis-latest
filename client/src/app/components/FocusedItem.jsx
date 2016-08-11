@@ -34,13 +34,13 @@ function FocusedItem(props) {
 
   return (
     <Card style={{...isVisible, ...styles.focusedItem}} title={JSON.stringify(props, null, 2)}>
-      <IconText icon={iconClass} iconColor={iconColor}>
+      <IconText icon={iconClass} iconColor={iconColor} margin={10}>
         {(item.get('title', '') || item.get('address', '') || '')
           .split('/')
           .filter(part => part !== '')
           .slice(-1).pop()}
       </IconText>
-      <IconText icon='external-link'>
+      <IconText icon='external-link' margin={10}>
         <span
           style={{cursor: 'pointer'}}
           onClick={() => externalLinkClick(item.get('address'), item.get('type'))}>

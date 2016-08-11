@@ -37,8 +37,7 @@ class EventTickerList extends React.Component {
             key={index}
             item={item}
             index={index}
-            onClick={this.props.itemOnClick}
-            style={{...this.props.itemStyle, backgroundColor: "grey"}} />
+            onClick={this.props.itemOnClick} />
         )
       });
     }
@@ -51,13 +50,13 @@ class EventTickerList extends React.Component {
     }
 
     return (
-      <div style={styles.eventTickerList}>
+      <div style={styles.eventTickerList} className='eventTickerList'>
         <CSSTransitionGroup
           transitionName='example'
           transitionEnterTimeout={500}
           transitionLeaveTimeout={300}
           component='div'
-          style={{display: 'flex'}}
+          style={{...FB.base, ...FB.align.stretch}}
           className='event-ticker-list'>
           {items}
         </CSSTransitionGroup>
@@ -70,7 +69,8 @@ const styles = {
   eventTickerList: {
     ...FB.base,
     ...FB.justify.start,
-    minHeight: 140,
+    ...FB.align.stretch,
+    // minHeight: 140,
     overflowY: "hidden",
     overflowX: "scroll",
   },
