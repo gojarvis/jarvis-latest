@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import { connect } from 'react-redux';
 import layout from 'styles/layout';
 import _ from 'lodash';
 let agent = require('superagent-promise')(require('superagent'), Promise);
@@ -78,6 +79,11 @@ class MainView extends Component {
 
   }
 
+  //  params: {
+  //    nodeId: neo4j node id (default: -1),
+  //    endNodeType: enum['File', 'Url', 'Keyword'] (default: false),
+  //    endUserNodeIds: end user nodes to query for (default: false),
+  //  }
   async query(params){
     let result = await agent.post('http://localhost:3000/query', params);
     let items = imm.fromJS(result.body);
@@ -105,6 +111,12 @@ class MainView extends Component {
 
   async componentWillMount() {
     this.socket.on('system-event', msg => {
+      // redux
+      this.props.dispatch({
+        type: 'PUSH_NEW_EVENT',
+        value: msg,
+      });
+
       // console.log('STATE', this.state);
       this.setState({
         eventTickerItems: this.state.eventTickerItems.unshift(msg)
@@ -180,10 +192,10 @@ class MainView extends Component {
   }
 
   async _handleEventTickerItemClick(nodeId) {
-    let params = this.state.params;
-    params.nodeId = nodeId;
-
-    this.query(params);
+    // let params = this.state.params;
+    // params.nodeId = nodeId;
+    //
+    // this.query(params);
   }
 
   toggleAutoswitch(){
@@ -230,10 +242,15 @@ class MainView extends Component {
         <div style={layout.container}>
 
           <Navbar />
+
+          <hr /><pre>{
+            JSON.stringify(this.props.eventTicker, null, 2)
+          }</pre><hr />
+
           <UserList users={this.state.users} onClick={this.handleUserFilter.bind(this) } />
 
           <EventTickerList
-            items={this.state.eventTickerItems}
+            items={this.props.eventTicker}
             itemOnClick={this._handleEventTickerItemClick.bind(this)} />
 
 
@@ -316,4 +333,8 @@ const LOCAL_STYLES = {
   },
 };
 
-export default MainView;
+export default connect(
+  state => ({
+    eventTicker: state.eventTicker
+  })
+)(MainView);

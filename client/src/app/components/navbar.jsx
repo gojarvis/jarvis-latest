@@ -6,7 +6,6 @@ import FB from 'styles/flexbox';
 let agent = require('superagent-promise')(require('superagent'), Promise);
 import SvgIcon from 'material-ui/SvgIcon';
 import mui, { RaisedButton } from 'material-ui';
-console.log(mui);
 
 class Navbar extends Component {
   super(){
@@ -31,7 +30,7 @@ class Navbar extends Component {
   }
   componentWillMount(){
     agent.post('http://localhost:3000/api/team/all').then((res)=> {
-      console.log('res', res);
+      console.info('res', res);
     });
   }
 
