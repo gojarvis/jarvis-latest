@@ -160,7 +160,7 @@ class contextManager{
 
   async relateUrlsToUrls(urls){
     //This will create a relationship with each URL and evrey url in the same context (including itself, TODO: Fix that)
-    console.log("relateUrlsToUrls");
+    // console.log("relateUrlsToUrls");
     //TODO: otherUrls = > filter url from urls
 
     let urlToUrlsRelationships =[];
@@ -230,7 +230,7 @@ class contextManager{
   }
 
   handleHeartbeat(heartbeat){
-    process.stdout.write('-*-');
+    // process.stdout.write('-*-');
     this.saveContext();
   }
 
@@ -372,18 +372,31 @@ class contextManager{
         else{
           try {
             graph.save({type: 'url', address: url, keywords: '', title: title}, 'Url', function(err, result){
-              console.log(err, result);
-              node = result;
+              // console.log(err, result);
+              if (err) {
+                try {
+                  self.getUrl(url).then(function(result){
+                    node = result;
+                    console.log('already existed', node);
+                    resolve(node)
+                  })
+                } catch (e) {
+                    console.log('cant get or save url', e);
+                } finally {
 
-              resolve(node);
+                }
+                // console.log('Cant save node', err);
+                // reject(err);
+              }
+              else{
+                node = result;
+                console.log('SAVED URL', result);
+                resolve(node);
+              }
 
             });
           } catch (e) {
             console.log('url probably exist', e);
-
-
-          } finally {
-            console.log('wat');
           }
         }
 

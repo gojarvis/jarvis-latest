@@ -8,7 +8,7 @@ import FB from 'styles/flexbox';
 class QueriedItem extends React.Component {
   render() {
     let {item} = this.props;
-    console.log('weight', item.relationshipWeight * 100);
+    console.log('item', item);
     // let color = "rgba(255, 255, 255, " + item.relationshipWeight + ")";
     let color = "hsla(" + parseInt(item.relationshipWeight * 100) +", 100%, 50%, 1)";
     // let title = item.endNode.address ?
@@ -25,6 +25,9 @@ class QueriedItem extends React.Component {
         break;
       case 'url':
         title = endNode.address.split('/').filter((item) => item !== "").slice(-1).pop().slice(0, 20);
+        break;
+      case 'keyword':
+        title = endNode.text
         break;
       default:
         break;

@@ -69,18 +69,20 @@ class ChromeController {
     self.socket.on('chrome-highlighted', function(msg){
       let {active, tabs} = msg;
       self.tabs = tabs;
+      console.log('===>TABS', tabs.length);
       self.handleHighlighted(active).then(function(related){
           self.io.emit('related', related)
       });
     });
 
 
-    self.socket.on('chrome-updated', function(message){
+    self.socket.on('chrome-updated', async function(message){
       console.log('chrome-updated');
       let {active, tabs} = message;
       self.tabs = tabs;
-      let activeTab = tabs.filter(item => item.active);
-      // console.log('ACTIVE TAB', activeTab);
+      await self.saveSession()
+      // let activeTab = tabs.filter(item => item.active);
+      // console.log('Chrome udpated, All tabs', active);
       self.handleUpdated(active).then(function(){
 
       });
@@ -89,7 +91,7 @@ class ChromeController {
     });
 
     self.socket.on('heartbeat', function(hb){
-      console.log(".");
+
       self.saveSession();
     });
 
@@ -111,6 +113,7 @@ class ChromeController {
   async saveSession(){
     let self = this;
     this.context.updateTabs(self.tabs);
+    return true;
   }
 
   getUrl(url){
@@ -173,26 +176,37 @@ class ChromeController {
 
   async handleUpdated(active){
     let activeTab = this.getActiveTab(active)
-    // console.log('ACTIVE TAB', activeTab);
-
+    console.log('HANDLE UPDATED --- ACTIVE TAB');
+    let url = activeTab[0].url;
+    let title = activeTab[0].title;
+    // console.log('URL', url, 'TITIE', title);
 
     let node = await this.getUrlNodeByUrl(activeTab[0].url);
-    if (node !== undefined && this.context.activeUrl.url !== activeTab[0].url){
-      this.context.setActiveUrl({url: activeTab[0].url, title: activeTab[0].title});
+
+    console.log('NODE', node, this.context.activeUrl.url, activeTab[0].url);
+    //
+    if (_.isUndefined(node)){
+      node = await this.context.saveUrl(url, title)
+      console.log('NEW NODE', node);
+    }
+
+    if( this.context.activeUrl.url !== activeTab[0].url){
+      this.context.setActiveUrl({url: url, title: title});
+
       this.history.saveEvent({
         type: 'highlighted',
         source: 'chrome',
         data: {
           nodeId: node.id,
-          address: activeTab[0].url,
-          title: activeTab[0].title
+          address: url,
+          title: title
         }
       }).then(function(res){
 
       });
-    } else {
-      throw new Error('ERROR: controllers/chrome::handleUpdated - `node` was undefined, url: ', activeTab[0].url);
+
     }
+
 
 
 
@@ -210,8 +224,9 @@ class ChromeController {
     else{
       activeTabTitle = activeTab[0].title;
     }
-    let activeUrl = { url: activeTab[0].url, title: activeTabTitle};
 
+    let activeUrl = { url: activeTab[0].url, title: activeTabTitle};
+    console.log('NODE BY URL', activeTab[0].url);
     let node = await this.getUrlNodeByUrl(activeTab[0].url);
 
 

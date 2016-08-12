@@ -1,15 +1,18 @@
 import QueriedItem from 'components/QueriedItem';
-
+import _ from 'lodash'
 function QueriedItemList(props) {
   let items;
   if (props.items.length > 0){
     items = props.items.map((item, index) => {
-      return (
-        <QueriedItem
-          item={item}
-          key={index}
-          onClick={props.onClick} />
-      )
+      if (item.relationshipType !== 'touched'){
+        return (
+          <QueriedItem
+            item={item}
+            key={index}
+            onClick={props.onClick} />
+        )
+      }
+
     })
   }
   else{
