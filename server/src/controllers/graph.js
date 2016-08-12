@@ -9,7 +9,7 @@ let graph = require("seraph")({
 
 function queryGraph(cypher, params={}){
   return new Promise(function(resolve, reject) {
-    
+
     graph.query(cypher, params, function(err, result){
       if (err) reject(err)
       else resolve(result)
@@ -37,16 +37,16 @@ let graphController = {
   },
 
   query: async function(req, res){
-    let nodeId = req.param('nodeId');
-    let relationshipType = req.param('relationshipType') || false;
-    let startNodeType = req.param('startNodeType') || false;
-    let endNodeType = req.param('endNodeType') || false;
+    let nodeId = req.body.nodeId;
+    let relationshipType = req.body.relationshipType || false;
+    let startNodeType = req.body.startNodeType || false;
+    let endNodeType = req.body.endNodeType || false;
     let relationshipCypherVariableString = relationshipType ? 'relationship:' + relationshipType : 'relationship'
     let startNodeString = startNodeType ? 'startNode:' + startNodeType : 'startNode'
     let endNodeString = endNodeType ? 'endNode:' + endNodeType : 'endNode'
 
-    let startUserNodeId = req.param('startUserNodeId') || false;
-    let endUserNodeIds = req.param('endUserNodeIds') || false;
+    let startUserNodeId = req.body.startUserNodeId || false;
+    let endUserNodeIds = req.body.endUserNodeIds || false;
     let normalizedSumCypher;
     let normalizedWeight;
     let cypher;

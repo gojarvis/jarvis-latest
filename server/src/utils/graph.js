@@ -38,7 +38,7 @@ class GraphDB{
 
         if (err) reject(err)
         else {
-          console.log('QUERY GRAPH RESULT', result);
+          // console.log('QUERY GRAPH RESULT', result);
           resolve(result)
         }
       });
@@ -141,7 +141,7 @@ class GraphDB{
   }
 
   async relateNodes(origin, target, relationship){
-    console.log('TARGET', target, target.id);
+    // console.log('TARGET', target, target.id);
     let cypher = 'START a=node({origin}), b=node({target}) '
                 +'CREATE UNIQUE a-[r:'+relationship+']->b '
                 +'SET r.weight = coalesce(r.weight, 0) + 1';
@@ -151,7 +151,7 @@ class GraphDB{
 
     try{
       res = await this.queryGraph(cypher,params);
-      console.log('res', res, cypher, params);
+      // console.log('res', res, cypher, params);
 
     }
 
@@ -186,7 +186,7 @@ class GraphDB{
           })
         }
         else{
-          console.log('user found', err, node);
+          // console.log('user found', err, node);
           resolve(node[0])
         }
       })

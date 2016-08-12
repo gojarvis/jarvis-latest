@@ -50,7 +50,7 @@ class AtomController {
     });
 
     self.socket.on('atom-highlighted', function(msg){
-      console.log('highlight');
+      // console.log('highlight');
       let address = msg.uri;
       self.handleFileHighlighted(address).then(function(related){
         self.io.emit('related-files', related);
@@ -107,7 +107,7 @@ class AtomController {
 
     try{
       res = await this.queryGraph(cypher,params);
-      console.log('res', res, cypher, params);
+      // console.log('res', res, cypher, params);
     }
 
     catch(err){
@@ -145,7 +145,7 @@ class AtomController {
   saveFile(address){
     let self = this;
     let trimmedAddress = address.replace(projectsPath, '');
-    console.log('TRIMMED ADDRESS', trimmedAddress);
+    // console.log('TRIMMED ADDRESS', trimmedAddress);
     return new Promise(function(resolve, reject) {
       graph.save({type: 'file', address: trimmedAddress}, 'File', function(err, node){
         node = node ? node : {type: 'file', address: address};
@@ -186,7 +186,7 @@ class AtomController {
   }
 
   async handleFileHighlighted(address){
-    console.log('ADDRESS', address);
+    // console.log('ADDRESS', address);
     let fileNode = await this.insertUniqueFile(address)
     let otherNodes = this.tabs.filter(tab => tab.id !== fileNode.id);
     let rel = await this.relateOneToMany(fileNode, otherNodes, 'openwith');
@@ -208,7 +208,7 @@ class AtomController {
     // });
 
     this.history.saveEvent({type: 'highlighted', source: 'atom', data: { nodeId: fileNode.id, address: address} }).then(function(res){
-      console.log('highlighted atom saved');
+      // console.log('highlighted atom saved');
     });
 
     return related

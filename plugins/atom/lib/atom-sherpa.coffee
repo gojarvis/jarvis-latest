@@ -74,11 +74,11 @@ module.exports = AtomSherpa =
     # @subscriptions.add editor.onDidChangeSelectionRange (event) => @emitEvent 'atom-selection', {uri: editor.getURI(), selection: event.selection}
 
   handleHighlighted: (item) ->
-    if item.getPath
+    # TODO: check for item === undefined
+    if item && item.getPath
       uri = item.getPath()
-    else
+    else if item && item.getURI
       uri = item.getURI()
-
     @socket.emit('atom-highlighted', {uri: uri});
 
 
