@@ -8,7 +8,7 @@ import FB from 'styles/flexbox';
 class QueriedItem extends React.Component {
   render() {
     let {item} = this.props;
-    console.log('weight', item.relationshipWeight * 100);
+    console.info('weight', item.relationshipWeight * 100);
     // let color = "rgba(255, 255, 255, " + item.relationshipWeight + ")";
     let color = "hsla(" + parseInt(item.relationshipWeight * 100) +", 100%, 50%, 1)";
     // let title = item.endNode.address ?
