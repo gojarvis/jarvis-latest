@@ -50,7 +50,7 @@ class AtomController {
     });
 
     self.socket.on('atom-highlighted', function(msg){
-      console.log('highlight');
+      // console.log('highlight');
       let address = msg.uri;
       self.handleFileHighlighted(address).then(function(related){
         self.io.emit('related-files', related);
@@ -208,7 +208,7 @@ class AtomController {
     // });
 
     this.history.saveEvent({type: 'highlighted', source: 'atom', data: { nodeId: fileNode.id, address: address} }).then(function(res){
-      console.log('highlighted atom saved');
+      // console.log('highlighted atom saved');
     });
 
     return related

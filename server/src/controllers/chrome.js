@@ -183,11 +183,11 @@ class ChromeController {
 
     let node = await this.getUrlNodeByUrl(activeTab[0].url);
 
-    console.log('NODE', node, this.context.activeUrl.url, activeTab[0].url);
+    // console.log('NODE', node, this.context.activeUrl.url, activeTab[0].url);
     //
     if (_.isUndefined(node)){
       node = await this.context.saveUrl(url, title)
-      console.log('NEW NODE', node);
+      // console.log('NEW NODE', node);
     }
 
     if( this.context.activeUrl.url !== activeTab[0].url){
