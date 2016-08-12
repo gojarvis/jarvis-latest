@@ -8,7 +8,14 @@ var config = {
   entry: [path.join(__dirname, '/src/app/app.jsx')],
   resolve: {
     //When require, do not have to add these extensions to file's name
-    extensions: ["", ".js", ".jsx"]
+    extensions: ["", ".js", ".jsx"],
+    alias: {
+      'styles': path.join(__dirname, '/src/app/styles'),
+      'components': path.join(__dirname, '/src/app/components'),
+      'conversations': path.join(__dirname, '/src/app/conversations'),
+      'views': path.join(__dirname, '/src/app/views'),
+      'store': path.join(__dirname, '/src/app/store'),
+    }
     //node_modules: ["web_modules", "node_modules"]  (Default Settings)
   },
   //Render source-map file for final build
@@ -19,6 +26,9 @@ var config = {
     filename: 'app.js'  //Name of output file
   },
   plugins: [
+    new webpack.optimize.CommonsChunkPlugin('common.js'),
+    new webpack.optimize.DedupePlugin(),
+    new webpack.optimize.AggressiveMergingPlugin(),
     //Minify the bundle
     new webpack.optimize.UglifyJsPlugin({
       compress: {
@@ -47,7 +57,11 @@ var config = {
         test: /\.(js|jsx)$/, //All .js and .jsx files
         loader: 'babel-loader?optional=runtime&stage=0', //react-hot is like browser sync and babel loads jsx and es6-7
         exclude: [nodeModulesPath]
-      }
+      },
+      {
+        test: /\.css$/,
+        loader: 'style-loader!css-loader'
+      },
     ]
   },
   //Eslint config
