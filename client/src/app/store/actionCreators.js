@@ -44,7 +44,6 @@ function shouldFetchQueryItems(state, params) {
 export function fetchQueryItemsIfNeeded(params) {
   return (dispatch, getState) => {
     if (shouldFetchQueryItems(getState(), params)) {
-      console.log('fetching items')
       return dispatch(fetchQueryItems(params));
     }
   }

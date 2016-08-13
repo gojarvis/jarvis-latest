@@ -6,7 +6,6 @@ import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 let agent = require('superagent-promise')(require('superagent'), Promise);
-import { Link } from 'react-router';
 
 class LoginView extends Component {
   constructor() {
@@ -36,7 +35,6 @@ class LoginView extends Component {
               <i className="fa fa-lg fa-github" aria-hidden="true"></i>
               <span style={{marginLeft: 5}}>Login with GitHub</span>
             </FlatButton>
-            <Link to="/teams">Teams</Link>
           </div>
         </div>
       </MuiThemeProvider>
