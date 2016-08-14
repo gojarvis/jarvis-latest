@@ -2,6 +2,7 @@ import { combineReducers } from 'redux';
 import {
   NEW_HISTORY_ITEM,
   REQUEST_QUERY_ITEMS, RECEIVE_QUERY_ITEMS,
+  REQUEST_BLACKLIST_NODE, RECEIVE_BLACKLIST_NODE_COMPLETE
 } from './actionCreators';
 import imm from 'immutable';
 
@@ -30,6 +31,17 @@ function queriedItems(state = {
         isFetching: false,
         items: action.items,
         lastUpdated: action.receivedAt,
+      };
+    case REQUEST_BLACKLIST_NODE:
+      return {
+        ...state,
+        isBlacklisting: true
+      };
+    case RECEIVE_BLACKLIST_NODE_COMPLETE:
+      return {
+        ...state,
+        isBlacklisting: false,
+        nodeId: action.nodeId
       };
     // case NEW_HISTORY_ITEM:
       // query for stuff
