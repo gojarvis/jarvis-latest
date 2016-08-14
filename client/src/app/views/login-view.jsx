@@ -14,13 +14,15 @@ class LoginView extends Component {
 
   async componentWillMount() {
     agent.post('http://localhost:3000/api/user/userjson').then(res => {
-      console.log('RES', res);
-        if (!_.isUndefined(res.body.error)){
-          console.log('Not logged in');
-        }else{
-          this.context.router.push('/main');
-        }
-    })
+      console.log('RES', res.body);
+      if (!_.isUndefined(res.body.error)) {
+        console.log('Not logged in');
+      } else {
+        window.localStorage.setItem('userId', res.body.id);
+        window.localStorage.setItem('username', res.body.username);
+        this.context.router.push('/main');
+      }
+    });
 
   }
 
