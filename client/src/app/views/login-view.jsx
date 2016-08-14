@@ -6,7 +6,6 @@ import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 let agent = require('superagent-promise')(require('superagent'), Promise);
-import { Link } from 'react-router';
 
 class LoginView extends Component {
   constructor() {
@@ -15,13 +14,15 @@ class LoginView extends Component {
 
   async componentWillMount() {
     agent.post('http://localhost:3000/api/user/userjson').then(res => {
-      console.log('RES', res);
-        if (!_.isUndefined(res.body.error)){
-          console.log('Not logged in');
-        }else{
-          this.context.router.push('/main');
-        }
-    })
+      console.log('RES', res.body);
+      if (!_.isUndefined(res.body.error)) {
+        console.log('Not logged in');
+      } else {
+        window.localStorage.setItem('userId', res.body.id);
+        window.localStorage.setItem('username', res.body.username);
+        this.context.router.push('/main');
+      }
+    });
 
   }
 
@@ -36,7 +37,6 @@ class LoginView extends Component {
               <i className="fa fa-lg fa-github" aria-hidden="true"></i>
               <span style={{marginLeft: 5}}>Login with GitHub</span>
             </FlatButton>
-            <Link to="/teams">Teams</Link>
           </div>
         </div>
       </MuiThemeProvider>

@@ -177,6 +177,8 @@ setTimeout(()=>{
   });
 
   app.post('/query', graphController.query);
+  app.post('/blacklist', graphController.blacklistNode);
+  
   app.get('/api/teams', function(req, res) {
 
     let userId = req.session.user.id;

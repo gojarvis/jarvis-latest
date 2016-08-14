@@ -1,5 +1,6 @@
 (function () {
   let React = require('react');
+  let { Provider } = require('react-redux')
   let ReactDOM = require('react-dom');
   let injectTapEventPlugin = require('react-tap-event-plugin');
   let { Router, Route, Link, hashHistory } = require('react-router');
@@ -8,6 +9,7 @@
   let MainView = require('views/main-view.jsx');
   let Teams = require('./views/teams-view.jsx');
   let Login = require('./views/login-view.jsx');
+  let store = require('./store/store');
   // let AuthUser = require('./views/auth-user.jsx');
   // let Face = require('./components/face.jsx'); // Our custom react component
   let io = require('socket.io-client');
@@ -27,13 +29,15 @@
   // Render the main app react component into the app div.
   // For more details see: https://facebook.github.io/react/docs/top-level-api.html#react.render
   ReactDOM.render((
-    <Router history={hashHistory}>
-      <Route path="/" component={Login} />
-      {/* <Route path="/authenticated" component={authUser} /> */}
-      {/* <Route path="/main" component={AtomView} /> */}
-      <Route path="/main" component={MainView} />
-      <Route path="/teams" component={Teams} />
-    </Router>
+    <Provider store={store}>
+      <Router history={hashHistory}>
+        <Route path="/" component={Login} />
+        {/* <Route path="/authenticated" component={authUser} /> */}
+        {/* <Route path="/main" component={AtomView} /> */}
+        <Route path="/main" component={MainView} />
+        <Route path="/teams" component={Teams} />
+      </Router>
+    </Provider>
   ), document.getElementById('app'));
 
 })();

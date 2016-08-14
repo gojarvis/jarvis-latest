@@ -10,7 +10,7 @@ let UserList = (props) => {
       <div>
         <span style={{ ...LOCAL_STYLES.label}}>Team Members</span>
         {users.map((item, index) => {
-          console.log(item.toJS());
+          // console.log(item.toJS());
           return <RaisedButton
             key={index}
             label={item.get('username')}
