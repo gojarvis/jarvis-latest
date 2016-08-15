@@ -51,6 +51,8 @@ let graphController = {
     let normalizedWeight;
     let cypher;
 
+    console.log('FINDME: ', nodeId, endNodeType, startUserNodeId, endUserNodeIds)
+
 
 
     if (startUserNodeId && (!endUserNodeIds || endUserNodeIds.length === 0)){
@@ -82,6 +84,9 @@ let graphController = {
     }
 
 
+    // doesn't get here for some reason
+    console.log('query: ', cypher);
+
     try{
 
       if (!startUserNodeId && !endUserNodeIds){
@@ -94,8 +99,7 @@ let graphController = {
         `
       }
 
-      try{
-
+      try {
         let result = await queryGraph(cypher);
         res.json(result);
       }

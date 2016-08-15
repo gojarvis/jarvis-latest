@@ -89,9 +89,12 @@ export function fetchQueryItemsIfNeeded(nodeId) {
     let state = getState();
     let params = {
       nodeId,
+      startUserNodeId: state.queriedItems.user.id,
       endNodeType: state.queriedItems.endNodeType,
-      // endUserNodeIds: state.queriedItems.endUserNodeIds.toJS()
+      endUserNodeIds: state.queriedItems.endUserNodeIds.toJS()
     };
+
+    console.log('sending with params: ', params);
 
     dispatch(setFocusedNode(nodeId));
 
