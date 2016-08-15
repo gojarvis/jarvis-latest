@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
 import {File, Browser} from '../Icons';
 import IconText from 'components/IconText';
 import FB from 'styles/flexbox';
@@ -14,6 +15,12 @@ class EventTickerItem extends React.Component {
     this.state = {
       expanded: false,
     };
+  }
+
+  static get propTypes() {
+    return {
+      item: PropTypes.object.isRequired
+    }
   }
 
   handleExpandChange = (expanded) => {
