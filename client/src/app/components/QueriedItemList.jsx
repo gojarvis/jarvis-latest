@@ -14,7 +14,7 @@ class QueriedItemList extends Component {
     let items;
     if (this.props.items.length > 0){
       items = this.props.items.map((item, index) => {
-        if (item.relationshipType !== 'touched'){
+        if (item.relationshipType !== true){
           return (
             <QueriedItem
               item={item}

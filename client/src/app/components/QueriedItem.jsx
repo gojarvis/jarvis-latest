@@ -31,9 +31,9 @@ class QueriedItem extends React.Component {
 
   render() {
     let {item} = this.props;
-    // console.info('queriedItem', item);
-    // let color = "rgba(255, 255, 255, " + item.relationshipWeight + ")";
-    let color = "hsla(" + parseInt(item.relationshipWeight * 100) +", 100%, 50%, 1)";
+    let weight = item.relationshipWeight > 1 ? 100 : parseInt(item.relationshipWeight * 100);
+    let color = "hsla(" + weight +", 100%, 50%, 1)";
+
     // let title = item.endNode.address ?
     //   item.endNode.address.split('/').filter((item) => item !== "").slice(-1).pop() :
     //   item.endNode.title ? item.endNode.title :

@@ -38,7 +38,6 @@ let graphController = {
 
   query: async function(req, res){
     let nodeId = req.body.nodeId;
-    let userId = req.session.user.id;
     let relationshipType = req.body.relationshipType || false;
     let startNodeType = req.body.startNodeType || false;
     let endNodeType = req.body.endNodeType || false;
@@ -50,66 +49,79 @@ let graphController = {
     let endUserNodeIds = req.body.endUserNodeIds || false;
     let normalizedSumCypher;
     let normalizedWeight;
+
+    console.log('FINDME: ', {nodeId, endNodeType, startUserNodeId, endUserNodeIds})
     let cypher;
 
+
     if (startUserNodeId && (!endUserNodeIds || endUserNodeIds.length === 0)){
-      cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]-(${startNodeString})-[${relationshipCypherVariableString}]-(${endNodeString}) where ID(startNode) = ${nodeId}`
+
+      cypher = `match (startUserNode:User)-[${'startUserRel_' + relationshipCypherVariableString}]->(${startNodeString})-[${'endUserRel_' + relationshipCypherVariableString}]->(${endNodeString}) where ID(startNode) = ${nodeId}`
+
       cypher += ` and ID(startUserNode) = ${startUserNodeId}`
       cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`
+      normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
 
-      normalizedSumCypher = cypher + ` return avg(${relationshipCypherVariableString}.weight) as normalizedSumWeight`;
       normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
-
-      cypher += ` return startNode,type(relationship) as relationshipType, (${relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, collect(distinct endNode)[0] as endNode order by relationshipWeight desc`
+      cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, collect(distinct endNode)[0] as endNode order by relationshipWeight desc`
 
     }
     if (startUserNodeId && endUserNodeIds && endUserNodeIds.length > 0){
-      cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]-(${startNodeString})-[${'startUserRel_' + relationshipCypherVariableString}]-(${endNodeString})-[${'endUserRel_' + relationshipCypherVariableString}]-(endUserNode:User) where ID(startNode) = ${nodeId}`
+      cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]->(${startNodeString})-[${'startUserRel_' + relationshipCypherVariableString}]->(${endNodeString})<-[${'endUserRel_' + relationshipCypherVariableString}]-(endUserNode:User) where ID(startNode) = ${nodeId}`
       cypher += ` and ID(startUserNode) = ${startUserNodeId}`
       cypher += ` and ID(endUserNode) in [${endUserNodeIds.join(',')}]`
       cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`
 
       normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
+
+      console.log('WAAAT', normalizedSumCypher);
       normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
 
       cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, collect(distinct endNode)[0] as endNode order by relationshipWeight desc`
     }
     if (!startUserNodeId && endUserNodeIds && endUserNodeIds.length > 0){
-      cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]-(${startNodeString})-[${'startUserRel_' + relationshipCypherVariableString}]-(${endNodeString})-[${'endUserRel_' + relationshipCypherVariableString}]-(endUserNode:User) where ID(startNode) = ${nodeId}`
+      cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]->(${startNodeString})-[${'startUserRel_' + relationshipCypherVariableString}]->(${endNodeString})->[${'endUserRel_' + relationshipCypherVariableString}]-(endUserNode:User) where ID(startNode) = ${nodeId}`
       cypher += ` and ID(endUserNode) in [${endUserNodeIds.join(',')}]`
       cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`
-
       normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
       normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
       cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, collect(distinct endNode)[0] as endNode order by relationshipWeight desc`
     }
 
 
+    // doesn't get here for some reason
+    // console.log('query: ', cypher);
+
     try{
 
       if (!startUserNodeId && !endUserNodeIds){
-        normalizedSumCypher = `start startNode=node(${nodeId}) match (${startNodeString})-[${relationshipCypherVariableString}]-(${endNodeString}) return log(sum(relationship.weight)) as normalizedSumWeight`;
+        normalizedSumCypher = `start startNode=node(${nodeId}) match (${startNodeString})-[${relationshipCypherVariableString}]->(${endNodeString}) return log(sum(relationship.weight)) as normalizedSumWeight`;
         normalizedWeight = await getNormalizedWeight(normalizedSumCypher);
 
 
         cypher = `
-          start startNode=node(${nodeId}) match (user:User)-[:touched]-(${startNodeString})-[${relationshipCypherVariableString}]->(${endNodeString}) where NOT (user)-[:blacklisted]-(${endNodeString}) and ID(user)=${userId} return collect(distinct startNode)[0] as startNode, collect(distinct type(relationship))[0] as relationshipType, log(relationship.weight)/${normalizedWeight} as relationshipWeight, collect(distinct endNode)[0] as endNode order by relationshipWeight desc limit 15
+          start startNode=node(${nodeId}) match (${startNodeString})-[${relationshipCypherVariableString}]-(${endNodeString}) return collect(distinct startNode)[0] as startNode, collect(distinct type(relationship))[0] as relationshipType, log(relationship.weight)/${normalizedWeight} as relationshipWeight, collect(distinct endNode)[0] as endNode order by relationshipWeight desc limit 15
         `
       }
 
-      try{
-        // console.log(cypher);
+      try {
         let result = await queryGraph(cypher);
+        // console.log(`======  QUERY   =====`);
+        // console.log(``);
+        // console.log(cypher);
+        // console.log(``);
+        // console.log(`====== END QUERY =====`);
+        console.log(`Found ${result.length} results for the query`);
         res.json(result);
       }
       catch(error){
-        console.error('Query to graph failed', cypher);
+        console.error('Query to graph failed', cypher, error);
         res.json({'error': error});
 
       }
     }
     catch(error){
-      console.error('Query to graph failed', cypher);
+      console.error('Query to graph failed :-()', cypher, error);
       res.json({'error': error});
 
     }
