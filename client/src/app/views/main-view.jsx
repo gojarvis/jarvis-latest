@@ -13,7 +13,7 @@ import FB from 'styles/flexbox';
 import RaisedButton from 'material-ui/RaisedButton';
 import UserList from 'components/UserList';
 import Toggle from 'material-ui/Toggle';
-import { pushHistoryItem, fetchQueryItemsIfNeeded } from 'store/actionCreators';
+// import { pushHistoryItem, fetchQueryItemsIfNeeded } from 'store/actionCreators';
 
 class MainView extends Component {
   constructor(...args) {
@@ -200,7 +200,7 @@ class MainView extends Component {
     let params = this.state.params;
     params.nodeId = nodeId;
 
-    this.props.dispatch(fetchQueryItemsIfNeeded(params));
+    // this.props.dispatch(fetchQueryItemsIfNeeded(params));
   }
 
   toggleAutoswitch(){
