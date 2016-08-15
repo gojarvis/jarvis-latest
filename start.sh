@@ -1,2 +1,15 @@
 #!/bin/sh
-./node_modules/.bin/pm2 start sherpa.json
+echo "===================================="
+echo "===================================="
+echo "===================================="
+echo "===================================="
+
+
+# less `pwd`/node_modules/pm2/bin/pm2
+echo `date`"TEST JARVIS"
+# npm install --save express
+`pwd`/node_modules/pm2/bin/pm2 status
+`pwd`/node_modules/pm2/bin/pm2 update
+`pwd`/node_modules/pm2/bin/pm2 start `pwd`/sherpa.json
+
+echo `date`"AFTER LAUNCHING"

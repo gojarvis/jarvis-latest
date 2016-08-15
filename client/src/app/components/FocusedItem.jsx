@@ -14,7 +14,7 @@ async function externalLinkClick(address, type){
 function FocusedItem(props) {
   let {item} = props;
   if (_.isUndefined(item)){
-    console.log('No items');
+    // console.log('No items');
     return <div></div>
   }
 

@@ -10,5 +10,5 @@ echo "\nBuilding chrome plugin\n"
 cd ../schrome && npm i &&
 echo "\nInstalling sherpa view\n"
 open .
-cd ../sherpa-view && npm i && apm link
+cd ../sherpa-view && npm i && apm link &&
 echo "installed" >> 'installed.flag'

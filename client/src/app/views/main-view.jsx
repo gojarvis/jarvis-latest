@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import { connect } from 'react-redux';
 import layout from 'styles/layout';
 import _ from 'lodash';
 let agent = require('superagent-promise')(require('superagent'), Promise);
@@ -12,6 +13,7 @@ import FB from 'styles/flexbox';
 import RaisedButton from 'material-ui/RaisedButton';
 import UserList from 'components/UserList';
 import Toggle from 'material-ui/Toggle';
+import { pushHistoryItem, fetchQueryItemsIfNeeded } from 'store/actionCreators';
 
 class MainView extends Component {
   constructor(...args) {
@@ -21,7 +23,6 @@ class MainView extends Component {
     this.state = {
       eventTickerItems: new imm.List(),
       users: new imm.List(),
-      queriedItems: new imm.List(),
       teams: new imm.List(),
       filters: [
         { key: "", selected: true, label: "All" },
@@ -36,6 +37,12 @@ class MainView extends Component {
       },
       latestItem: new imm.Map(),
       autoswitch: false
+    }
+  }
+
+  static get defaultProps() {
+    return {
+      queriedItems: imm.List()
     }
   }
 
@@ -78,6 +85,11 @@ class MainView extends Component {
 
   }
 
+  //  params: {
+  //    nodeId: neo4j node id (default: -1),
+  //    endNodeType: enum['File', 'Url', 'Keyword'] (default: false),
+  //    endUserNodeIds: end user nodes to query for (default: false),
+  //  }
   async query(params){
     let result = await agent.post('http://localhost:3000/query', params);
     let items = imm.fromJS(result.body);
@@ -109,9 +121,10 @@ class MainView extends Component {
     })
 
     this.socket.on('system-event', msg => {
-      // console.log('STATE', this.state);
-      this.setState({
-        eventTickerItems: this.state.eventTickerItems.unshift(msg)
+      // redux
+      this.props.dispatch({
+        type: 'NEW_HISTORY_ITEM',
+        value: msg,
       });
 
       let newParams = this.state.params;
@@ -187,7 +200,7 @@ class MainView extends Component {
     let params = this.state.params;
     params.nodeId = nodeId;
 
-    this.query(params);
+    this.props.dispatch(fetchQueryItemsIfNeeded(params));
   }
 
   toggleAutoswitch(){
@@ -204,7 +217,7 @@ class MainView extends Component {
   render() {
 
     let filters;
-    if (this.state.eventTickerItems.size > 0){
+    if (this.props.eventTickerItems.size > 0){
       filters = <div style={LOCAL_STYLES.filterButtons}>
         {this.state.filters.map((filter, index) => {
           let zIndex = 5, selected;
@@ -234,10 +247,11 @@ class MainView extends Component {
         <div style={layout.container}>
 
           <Navbar />
+
           <UserList users={this.state.users} onClick={this.handleUserFilter.bind(this) } />
 
           <EventTickerList
-            items={this.state.eventTickerItems}
+            items={this.props.eventTickerItems}
             itemOnClick={this._handleEventTickerItemClick.bind(this)} />
 
 
@@ -250,7 +264,7 @@ class MainView extends Component {
 
 
           <QueriedItemList
-            items={this.state.queriedItems.toJS()}
+            items={this.props.queriedItems.items.toJS()}
             onClick={this._handleEventTickerItemClick.bind(this)} />
 
           <div>
@@ -320,4 +334,9 @@ const LOCAL_STYLES = {
   },
 };
 
-export default MainView;
+export default connect(
+  state => ({
+    eventTickerItems: state.eventTickerItems,
+    queriedItems: state.queriedItems,
+  })
+)(MainView);

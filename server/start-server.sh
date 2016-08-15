@@ -1,1 +1,1 @@
-./node_modules/.bin/nodemon index.js --config ./nodemon.conf
+node_modules/nodemon/bin/nodemon.js index.js --config ./nodemon.conf

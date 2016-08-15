@@ -19,6 +19,7 @@ var config = {
       'components': path.join(__dirname, '/src/app/components'),
       'conversations': path.join(__dirname, '/src/app/conversations'),
       'views': path.join(__dirname, '/src/app/views'),
+      'store': path.join(__dirname, '/src/app/store'),
     }
     //node_modules: ["web_modules", "node_modules"]  (Default Settings)
   },

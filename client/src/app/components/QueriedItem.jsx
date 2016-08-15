@@ -4,11 +4,27 @@ import Browser from 'components/Icons/Browser';
 import IconText from 'components/IconText';
 import LinearProgress from 'material-ui/LinearProgress';
 import FB from 'styles/flexbox';
+let agent = require('superagent-promise')(require('superagent'), Promise);
 
 class QueriedItem extends React.Component {
+  constructor(...args) {
+    super(...args);
+
+    this._blacklistNode = this._blacklistNode.bind(this);
+  }
+
+  async _blacklistNode(targetId, e) {
+    console.log('blacklisting: ', targetId);
+    let result = await agent.post('/blacklist', {
+      userId: window.localStorage.getItem('userId'),
+      targetId
+    });
+    console.log('blacklist result: ', result.body);
+  }
+
   render() {
     let {item} = this.props;
-    console.log('item', item);
+    console.info('queriedItem', item);
     // let color = "rgba(255, 255, 255, " + item.relationshipWeight + ")";
     let color = "hsla(" + parseInt(item.relationshipWeight * 100) +", 100%, 50%, 1)";
     // let title = item.endNode.address ?
@@ -92,7 +108,10 @@ class QueriedItem extends React.Component {
           <IconText icon={openWithClass} iconColor={iconColor}>
             <div style={{...FB.base, flexWrap: "nowrap", ...FB.align.center}}>
               <div style={{flexGrow: "4", marginRight: "40px", overflow: "hidden", whiteSpace: "nowrap" }}>{title}</div>
-              <div style={{width: '25vw', marginRight: "2vw"}}><LinearProgress mode="determinate" value={item.relationshipWeight * 100} /></div>
+              <div style={{width: '25vw', marginRight: "2vw"}}>
+                <LinearProgress mode="determinate" value={item.relationshipWeight * 100} />
+              </div>
+              <IconText icon='trash' onClick={(e) => this._blacklistNode(nodeId, e)} />
             </div>
           </IconText>
         </IconText>
