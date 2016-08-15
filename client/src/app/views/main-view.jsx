@@ -14,7 +14,7 @@ import FB from 'styles/flexbox';
 import RaisedButton from 'material-ui/RaisedButton';
 import UserList from 'components/UserList';
 import Toggle from 'material-ui/Toggle';
-import { pushHistoryItem, fetchQueryItemsIfNeeded, focusNode } from 'store/actionCreators';
+import * as ActionCreators from 'store/actionCreators';
 
 class MainView extends Component {
   constructor(...args) {
@@ -201,7 +201,7 @@ class MainView extends Component {
     let params = this.state.params;
     params.nodeId = nodeId;
 
-    this.props.dispatch(fetchQueryItemsIfNeeded(nodeId, params));
+    this.props.dispatch(ActionCreators.fetchQueryItemsIfNeeded(nodeId, params));
   }
 
   toggleAutoswitch(){
@@ -249,12 +249,6 @@ class MainView extends Component {
 
           <Navbar />
 
-          <hr />
-            <pre>{
-              JSON.stringify(this.props.queriedItems, null, 2)
-            }</pre>
-          <hr />
-
           <UserList users={this.state.users} onClick={this.handleUserFilter.bind(this) } />
 
           <EventTickerList
@@ -278,6 +272,12 @@ class MainView extends Component {
               style={styles.toggle}
             />
           </div>
+
+          <hr />
+            <pre>{
+              JSON.stringify(this.props.queriedItems, null, 2)
+            }</pre>
+          <hr />
         </div>
       </ViewWrapper>
     );
