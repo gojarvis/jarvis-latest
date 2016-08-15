@@ -11,7 +11,7 @@ import LoadingIndicator from 'components/LoadingIndicator';
 class Navbar extends Component {
   super(){
     this.state = {
-
+      isAdmin: false
     }
   }
 
@@ -30,12 +30,35 @@ class Navbar extends Component {
       this.context.router.push('/' + target);
   }
   componentWillMount(){
+
     agent.post('http://localhost:3000/api/team/all').then((res)=> {
       console.info('res', res);
     });
+
+    agent.post('http://localhost:3000/api/user/userjson').then(res => {
+      if (res.body.role === 'admin'){
+        this.setState({
+          isAdmin: true
+        })
+      }
+    });
+  }
+
+  componentDidMount() {
+
   }
 
   render() {
+    let admin;
+    if (this.state && this.state.isAdmin){
+      admin = <RaisedButton
+        style={{..._styles.button}}
+        icon={<TeamIcon style={iconStyles} />}
+        label={"Admin"}
+        onClick={this.navigate.bind(this, "teams")}
+        primary={true}
+        zIndex={5}  />
+    }
     return (
       <div style={{...FB.base, ..._styles.container}}>
           <div style={{..._styles.logo}}>
@@ -50,13 +73,7 @@ class Navbar extends Component {
               onClick={this.navigate.bind(this, "main")}
               primary={true}
               zIndex={5}  />
-            <RaisedButton
-              style={{..._styles.button}}
-              icon={<TeamIcon style={iconStyles} />}
-              label={"Teams"}
-              onClick={this.navigate.bind(this, "teams")}
-              primary={true}
-              zIndex={5}  />
+            {admin}
             <RaisedButton
               style={{..._styles.button}}
               label={"Profile"}

@@ -14,7 +14,6 @@ class LoginView extends Component {
 
   async componentWillMount() {
     agent.post('http://localhost:3000/api/user/userjson').then(res => {
-      console.log('RES', res.body);
       if (!_.isUndefined(res.body.error)) {
         console.log('Not logged in');
       } else {

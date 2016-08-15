@@ -48,7 +48,6 @@ passport.use(new GitHubStrategy({
 }));
 
 passport.serializeUser(function(user, cb) {
-  console.log('serializeUser:', user);
   cb(null, user);
 });
 
@@ -60,7 +59,6 @@ passport.deserializeUser(function(obj, cb) {
 
 // route middleware to make sure a user is logged in
 function isLoggedIn(req, res, next) {
-  console.log('checking isLoggedIn')
 // if user is authenticated in the session, carry on
   if (req.isAuthenticated()){
       res.locals.loggedIn = true;
@@ -75,9 +73,7 @@ function isLoggedIn(req, res, next) {
 
 function ensureAdmin(req, res, next) {
   let username = req.session.passport.user.username;
-  console.log(req.session.passport);
   if (!_.isUndefined(req.session.passport.user.role) && req.session.passport.user.role === "admin"){
-    console.log('IS ADMIN');
     next();
   }
   else{
@@ -95,7 +91,6 @@ function init(user){
     if (!initialized){
       let p = r.connect({host: rethinkConfig.host || "104.131.111.80", db: rethinkConfig.db});
       p.then(function(connection){
-        console.log('HELLO I CONNECTED TO ', rethinkConfig);
         global.rethinkdbConnection = connection;
 
         var SocketManager =  require('./utils/socket-manager');
@@ -126,14 +121,8 @@ setTimeout(()=>{
   app.use(cookieSession({
     name: 'jarvis-session',
     keys: ['key-1'],
-    // domain: 'localhost:8888',
   }));
 
-  // app.use(function(req, res, next) {
-  //   req.sessionOptions.domain = 'localhost:8888';
-  //   next();
-  // })
-  // app.use(session({secret: 'jarvis is my hero <3'}));
 
   // Initialize Passport and restore authentication state, if any, from the
   // session.
@@ -154,16 +143,11 @@ setTimeout(()=>{
 
 
   app.post('/api/user/userjson', isLoggedIn, function(req, res) {
-    console.log('GET userjson');
     res.send(req.user);
   });
 
 
   app.use('/teams', proxy({ target: 'http://localhost:8888/teams', changeOrigin: true }));
-
-  // app.get('/', function(req, res){
-  //   res.sendFile('client/src/www/index.html');
-  // });
 
   app.get('/user', function(req, res) {
     if (req.user === undefined) {
@@ -198,7 +182,6 @@ setTimeout(()=>{
         cmd = 'open -a "Atom" ' + projectsPath + address;
       break;
     }
-    console.log('Executing', cmd);
     childProc.exec(cmd, function(){});
 
 
@@ -210,7 +193,7 @@ setTimeout(()=>{
 
   app.post('/query', graphController.query);
   app.post('/blacklist', graphController.blacklistNode);
-  
+
   app.get('/api/teams', function(req, res) {
 
     let userId = req.session.user.id;
@@ -220,7 +203,6 @@ setTimeout(()=>{
   })
 
   app.post('/api/team/all',  [isLoggedIn, ensureAdmin], function(req,res){
-    console.log('TEAM TIME');
     teamsController.getAllTeams().then(function(teams){
       res.json(teams)
     })
@@ -230,7 +212,6 @@ setTimeout(()=>{
   app.post('/api/user/teams', isLoggedIn, function(req, res){
     let teams;
     let userId = req.body.userId || req.session.passport.user.id;
-    console.log('api/user/teams', req.session);
     teamsController.getTeamsByUserId(userId).then(function(teams){
       res.json(teams)
     })
@@ -252,7 +233,6 @@ setTimeout(()=>{
 
   app.post('/api/user/all', ensureAdmin, function(req,res){
     // let username = req.session.passport.user.username;
-    console.log('ALL users');
     usersController.getAllUsers().then(function(users){
       res.json(users);
     })
