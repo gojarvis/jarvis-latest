@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import {
-  NEW_HISTORY_ITEM, FOCUS_NODE,
+  NEW_HISTORY_ITEM, FOCUS_NODE, TOGGLE_AUTOSWITCH,
   SET_END_NODE_TYPE, ADD_USER_NODE_ID,
   REQUEST_QUERY_ITEMS, RECEIVE_QUERY_ITEMS,
   REQUEST_BLACKLIST_NODE, RECEIVE_BLACKLIST_NODE_COMPLETE
@@ -10,7 +10,7 @@ import imm from 'immutable';
 function eventTickerItems(state = imm.List(), action) {
   switch (action.type) {
     case NEW_HISTORY_ITEM:
-      return state.unshift(action.value);
+      return state.unshift(action.payload);
     default:
       return state;
   }
@@ -22,9 +22,15 @@ function queriedItems(state = {
   focusedNodeId: -1,
   focusedNodeData: null,
   endNodeType: '',
-  endUserNodeIds: imm.Set()
+  endUserNodeIds: imm.Set(),
+  autoswitch: false,
 }, action) {
   switch (action.type) {
+    case TOGGLE_AUTOSWITCH:
+      return {
+        ...state,
+        autoswitch: !state.autoswitch
+      };
     case FOCUS_NODE:
       return {
         ...state,
@@ -39,7 +45,7 @@ function queriedItems(state = {
       return {
         ...state,
         endUserNodeIds: state.endUserNodeIds.add(action.payload)
-      }
+      };
     case REQUEST_QUERY_ITEMS:
       return {
         ...state,

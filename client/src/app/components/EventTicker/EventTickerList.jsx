@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component, PropTypes } from 'react';
 import Radium from 'radium';
 import EventTickerItem from './EventTickerItem';
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
@@ -6,7 +6,7 @@ import CSSTransitionGroup from 'react-addons-css-transition-group';
 import FB from 'styles/flexbox';
 require('./EventTicker.css');
 
-class EventTickerList extends React.Component {
+class EventTickerList extends Component {
   constructor(...args) {
     super(...args);
   }
@@ -15,16 +15,21 @@ class EventTickerList extends React.Component {
     this.props.fetchQueryItemsIfNeeded(nodeId);
   }
 
+  static get propTypes() {
+    return {
+      items: PropTypes.object.isRequired
+    }
+  }
+
   render() {
     let items;
-    if (this.props.items.size > 0){
+    if (this.props.items.size > 0) {
       items = this.props.items.map((item, index) => {
         let color = "rgba(80, 195, 210, 0.67)" ;
 
         if (index === 0) {
           color = "green"
-        }
-        else{
+        } else {
           let opacity = (100 - index * 9.90) / 100;
           color = "rgba(80, 195, 210, " + opacity + ")" ;
         }
@@ -37,8 +42,7 @@ class EventTickerList extends React.Component {
             onClick={this._itemOnClick.bind(this)} />
         )
       });
-    }
-    else{
+    } else {
       items = <Card zDepth={4} style={{height: "120px", minWidth: "220px", marginLeft: "20px"}}>
          <CardText style={{...FB.base, flexDirection: 'column', display: "flex", justifyContent: "space-between"}}>
            <div style={{fontSize: "20px"}}>Waiting...</div>

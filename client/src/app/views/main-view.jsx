@@ -67,22 +67,16 @@ class MainView extends Component {
 
   async componentWillMount() {
     this.socket.on('system-event', msg => {
-      // redux
-      this.props.dispatch({
-        type: 'NEW_HISTORY_ITEM',
-        value: msg,
-      });
+      this.props.dispatch(ActionCreators.pushHistoryItem(msg));
 
-      let newParams = this.state.params;
-      newParams.nodeId = msg.data.nodeId;
-      if (this.state.autoswitch){
-        this.query(newParams);
+      if (this.props.queriedItems.autoswitch){
+        this.props.dispatch(ActionCreators.fetchQueryItemsIfNeeded(msg.data.nodeId));
       }
     });
 
 
 
-    try{
+    try {
       let userJsonResult = await agent.post('http://localhost:3000/api/user/userjson');
       let userJson = userJsonResult.body;
       let userId = userJson.id;
@@ -106,8 +100,7 @@ class MainView extends Component {
         teams : imm.List(teams),
         users: usersList
       });
-    }
-    catch(e){
+    } catch(e) {
 
     }
 
@@ -143,10 +136,7 @@ class MainView extends Component {
   }
 
   toggleAutoswitch(){
-    let newState = !this.state.autoswitch;
-    this.setState({
-      autoswitch: newState
-    })
+    this.props.dispatch(ActionCreators.toggleAutoswitch());
   }
 
   render() {
@@ -177,7 +167,7 @@ class MainView extends Component {
           <div>
             <Toggle
               onToggle={this.toggleAutoswitch.bind(this)}
-              toggle={this.state.autoswitch}
+              toggle={this.props.queriedItems.autoswitch}
               label="Autoswitch"
               labelPosition="right"
               style={styles.toggle}

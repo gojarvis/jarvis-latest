@@ -1,6 +1,7 @@
 let agent = require('superagent-promise')(require('superagent'), Promise);
 import imm from 'immutable';
 export const NEW_HISTORY_ITEM = 'NEW_HISTORY_ITEM';
+export const TOGGLE_AUTOSWITCH = 'TOGGLE_AUTOSWITCH';
 export const FOCUS_NODE = 'FOCUS_NODE';
 export const SET_END_NODE_TYPE = 'SET_END_NODE_TYPE';
 export const ADD_USER_NODE_ID = 'ADD_USER_NODE_ID';
@@ -13,6 +14,12 @@ export function pushHistoryItem(item) {
   return {
     type: NEW_HISTORY_ITEM,
     payload: item,
+  }
+}
+
+export function toggleAutoswitch() {
+  return {
+    type: TOGGLE_AUTOSWITCH
   }
 }
 
