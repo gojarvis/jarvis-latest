@@ -1,5 +1,6 @@
 import { Component } from 'react';
-import { connect } from 'react-redux';
+import { connect, bindActionCreators } from 'react-redux';
+import { batchActions } from 'redux-batched-actions';
 import layout from 'styles/layout';
 import _ from 'lodash';
 let agent = require('superagent-promise')(require('superagent'), Promise);
@@ -13,7 +14,7 @@ import FB from 'styles/flexbox';
 import RaisedButton from 'material-ui/RaisedButton';
 import UserList from 'components/UserList';
 import Toggle from 'material-ui/Toggle';
-import { pushHistoryItem, fetchQueryItemsIfNeeded } from 'store/actionCreators';
+import { pushHistoryItem, fetchQueryItemsIfNeeded, focusNode } from 'store/actionCreators';
 
 class MainView extends Component {
   constructor(...args) {
@@ -45,6 +46,10 @@ class MainView extends Component {
       queriedItems: imm.List()
     }
   }
+
+  // componentDidMount() {
+  //   let { dispatch } = this.props;
+  // }
 
   async handleFilter(clickedFilter){
     let nodeId = this._focusedItem().get('id');
@@ -196,7 +201,7 @@ class MainView extends Component {
     let params = this.state.params;
     params.nodeId = nodeId;
 
-    this.props.dispatch(fetchQueryItemsIfNeeded(params));
+    this.props.dispatch(fetchQueryItemsIfNeeded(nodeId, params));
   }
 
   toggleAutoswitch(){
@@ -244,20 +249,19 @@ class MainView extends Component {
 
           <Navbar />
 
+          <hr />
+            <pre>{
+              JSON.stringify(this.props.queriedItems, null, 2)
+            }</pre>
+          <hr />
+
           <UserList users={this.state.users} onClick={this.handleUserFilter.bind(this) } />
 
-          <EventTickerList
-            items={this.props.eventTickerItems}
-            itemOnClick={this._handleEventTickerItemClick.bind(this)} />
-
-
+          <EventTickerList items={this.props.eventTickerItems}  />
 
           {filters}
 
-
           <FocusedItem item={this._focusedItem()} />
-
-
 
           <QueriedItemList
             items={this.props.queriedItems.items.toJS()}
@@ -331,6 +335,7 @@ const LOCAL_STYLES = {
 };
 
 export default connect(
+  // mapStateToProps
   state => ({
     eventTickerItems: state.eventTickerItems,
     queriedItems: state.queriedItems,

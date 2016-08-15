@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import File from 'components/Icons/File';
 import Browser from 'components/Icons/Browser';
 import IconText from 'components/IconText';
@@ -13,18 +13,25 @@ class QueriedItem extends React.Component {
     this._blacklistNode = this._blacklistNode.bind(this);
   }
 
+  static get propTypes() {
+    return {
+      item: PropTypes.object.isRequired,
+      onClick: PropTypes.func.isRequired,
+    }
+  }
+
   async _blacklistNode(targetId, e) {
-    console.log('blacklisting: ', targetId);
+    // console.log('blacklisting: ', targetId);
     let result = await agent.post('/blacklist', {
       userId: window.localStorage.getItem('userId'),
       targetId
     });
-    console.log('blacklist result: ', result.body);
+    // console.log('blacklist result: ', result.body);
   }
 
   render() {
     let {item} = this.props;
-    console.info('queriedItem', item);
+    // console.info('queriedItem', item);
     // let color = "rgba(255, 255, 255, " + item.relationshipWeight + ")";
     let color = "hsla(" + parseInt(item.relationshipWeight * 100) +", 100%, 50%, 1)";
     // let title = item.endNode.address ?

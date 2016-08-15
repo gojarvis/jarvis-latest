@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux';
 import {
-  NEW_HISTORY_ITEM,
+  NEW_HISTORY_ITEM, FOCUS_NODE,
+  SET_END_NODE_TYPE, ADD_USER_NODE_ID,
   REQUEST_QUERY_ITEMS, RECEIVE_QUERY_ITEMS,
   REQUEST_BLACKLIST_NODE, RECEIVE_BLACKLIST_NODE_COMPLETE
 } from './actionCreators';
@@ -17,9 +18,27 @@ function eventTickerItems(state = imm.List(), action) {
 
 function queriedItems(state = {
   items: imm.List(),
-  isFetching: false
+  isFetching: false,
+  focusedNodeId: -1,
+  endNodeType: false,
+  endUserNodeIds: imm.Set()
 }, action) {
   switch (action.type) {
+    case FOCUS_NODE:
+      return {
+        ...state,
+        focusedNodeId: action.payload
+      };
+    case SET_END_NODE_TYPE:
+      return {
+        ...state,
+        endNodeType: action.payload
+      };
+    case ADD_USER_NODE_ID:
+      return {
+        ...state,
+        endUserNodeIds: state.endUserNodeIds.add(action.payload)
+      }
     case REQUEST_QUERY_ITEMS:
       return {
         ...state,

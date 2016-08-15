@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
 import {File, Browser} from '../Icons';
 import IconText from 'components/IconText';
 import FB from 'styles/flexbox';
@@ -7,6 +8,7 @@ import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'mat
 import FlatButton from 'material-ui/FlatButton';
 import Toggle from 'material-ui/Toggle';
 import moment from 'moment';
+import { focusNodeAndQuery } from 'store/actionCreators';
 
 class EventTickerItem extends React.Component {
   constructor(...args) {
@@ -14,6 +16,12 @@ class EventTickerItem extends React.Component {
     this.state = {
       expanded: false,
     };
+  }
+
+  static get propTypes() {
+    return {
+      item: PropTypes.object.isRequired
+    }
   }
 
   handleExpandChange = (expanded) => {
@@ -39,6 +47,11 @@ class EventTickerItem extends React.Component {
       type: type
     };
     let result = await agent.post('http://localhost:3000/open', params);
+  }
+
+  _onClick(nodeId) {
+    console.log('heelo?')
+    this.props.dispatch(focusNodeAndQuery(nodeId));
   }
 
   render() {
@@ -78,7 +91,7 @@ class EventTickerItem extends React.Component {
         className='eventTickerItem'
         title={JSON.stringify(item, null, 1)}
         style={STYLES.container}
-        onClick={() => this.props.onClick(this.props.item.data.nodeId)}>
+        onClick={() => { this._onClick(this.props.item.data.nodeId)}}>
         <IconText icon='external-link' onClick={() => externalLinkClick(item.address, item.type)} style={{cursor: 'pointer'}} />
         <IconText icon={iconClass} style={{marginRight: 10}} iconColor={iconColor} />
         <span style={STYLES.title}>{title.slice(0,35)}</span>
@@ -105,4 +118,8 @@ const STYLES = {
   },
 }
 
-export default EventTickerItem;
+export default connect(
+  state => ({
+    queriedItems: state.queriedItems
+  })
+)(EventTickerItem);

@@ -1,3 +1,4 @@
+import { PropTypes } from 'react';
 import QueriedItem from 'components/QueriedItem';
 import _ from 'lodash'
 function QueriedItemList(props) {
@@ -23,6 +24,11 @@ function QueriedItemList(props) {
       {items}
     </div>
   );
+}
+
+QueriedItemList.propTypes = {
+  items: PropTypes.array.isRequired,
+  onClick: PropTypes.func.isRequired
 }
 
 export default QueriedItemList;

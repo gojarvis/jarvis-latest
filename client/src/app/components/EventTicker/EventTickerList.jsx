@@ -36,8 +36,7 @@ class EventTickerList extends React.Component {
           <EventTickerItem
             key={index}
             item={item}
-            index={index}
-            onClick={this.props.itemOnClick} />
+            index={index} />
         )
       });
     }

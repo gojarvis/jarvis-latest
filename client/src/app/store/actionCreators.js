@@ -1,13 +1,39 @@
 let agent = require('superagent-promise')(require('superagent'), Promise);
 import imm from 'immutable';
 export const NEW_HISTORY_ITEM = 'NEW_HISTORY_ITEM';
+export const FOCUS_NODE = 'FOCUS_NODE';
+export const SET_END_NODE_TYPE = 'SET_END_NODE_TYPE';
+export const ADD_USER_NODE_ID = 'ADD_USER_NODE_ID';
 export const REQUEST_QUERY_ITEMS = 'REQUEST_QUERY_ITEMS';
 export const RECEIVE_QUERY_ITEMS = 'RECEIVE_QUERY_ITEMS';
+export const REQUEST_BLACKLIST_NODE = 'REQUEST_BLACKLIST_NODE';
+export const RECEIVE_BLACKLIST_NODE_COMPLETE = 'RECEIVE_BLACKLIST_NODE_COMPLETE';
 
 export function pushHistoryItem(item) {
   return {
     type: NEW_HISTORY_ITEM,
     payload: item,
+  }
+}
+
+export function setFocusedNode(nodeId) {
+  return {
+    type: FOCUS_NODE,
+    payload: nodeId
+  }
+}
+
+export function setEndNodeType(type) {
+  return {
+    type: SET_END_NODE_TYPE,
+    payload: type
+  }
+}
+
+export function addUserNodeId(userId) {
+  return {
+    type: ADD_USER_NODE_ID,
+    payload: userId
   }
 }
 
@@ -37,12 +63,15 @@ function fetchQueryItems(params) {
   }
 }
 
+// TODO: add real logic here, cache, etc.
 function shouldFetchQueryItems(state, params) {
   return true;
 }
 
-export function fetchQueryItemsIfNeeded(params) {
+export function fetchQueryItemsIfNeeded(nodeId, params) {
   return (dispatch, getState) => {
+    dispatch(setFocusedNode(nodeId));
+
     if (shouldFetchQueryItems(getState(), params)) {
       return dispatch(fetchQueryItems(params));
     }
@@ -59,6 +88,8 @@ function requestBlacklistNode(params) {
 }
 
 function receiveBlacklistNodeComplete(params, data) {
+  // TODO: verify:
+  // console.log('receiveBlacklistNodeComplete:', data.nodeId);
   return {
     type: RECEIVE_BLACKLIST_NODE_COMPLETE,
     params,
@@ -75,6 +106,7 @@ function blacklistNode(params) {
   }
 }
 
+// TODO: consider doing something here
 function shouldBlacklistNode(state, params) {
   return true;
 }
