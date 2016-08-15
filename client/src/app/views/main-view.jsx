@@ -22,47 +22,22 @@ class MainView extends Component {
   constructor(...args) {
     super(...args);
     this.socket = window.socket;
-
-    this.state = {
-      eventTickerItems: new imm.List(),
-      users: new imm.List(),
-      teams: new imm.List(),
-      filters: [
-        { key: "", selected: true, label: "All", type: null },
-        { key: "files", selected: false, label: "Files", type: 'File' },
-        { key: "urls", selected: false, label: "URLs", type: 'Url' },
-        { key: "keywords", selected: false, label: "Keywords", type: 'Keyword' },
-      ],
-      params: {
-        nodeId: -1,
-        endNodeType: false,
-        endUserNodeIds: false
-      },
-      latestItem: new imm.Map(),
-      autoswitch: false
-    }
   }
 
-  // static get defaultProps() {
-  //   return {
-  //     queriedItems: imm.List()
-  //   }
-  // }
-
-  // componentDidMount() {
-  //   let { dispatch } = this.props;
-  // }
-
   componentWillReceiveProps(nextProps) {
-    // let checkItems = ['focusedNodeId', 'endNodeType'];
-    let checkItems = ['endNodeType'];
-    checkItems.forEach((item, index) => {
+    let checkProps = ['focusedNodeId', 'endNodeType', 'endUserNodeIds'];
+    let willFetch = false;
+    checkProps.forEach((item, index) => {
       if (nextProps.queriedItems.focusedNodeId !== undefined &&
         nextProps.queriedItems.focusedNodeId !== -1 &&
         this.props.queriedItems[item] !== nextProps.queriedItems[item]) {
-        this.props.dispatch(ActionCreators.fetchQueryItemsIfNeeded(nextProps.queriedItems.focusedNodeId));
+        willFetch = true;
       }
     })
+
+    if (willFetch) {
+      this.props.dispatch(ActionCreators.fetchQueryItemsIfNeeded(nextProps.queriedItems.focusedNodeId));
+    }
   }
 
   componentWillMount() {
@@ -75,32 +50,6 @@ class MainView extends Component {
     });
 
     this.props.dispatch(ActionCreators.fetchUserAndTheirTeams());
-  }
-
-  async handleUserFilter(selectedUser) {
-    console.log(selectedUser, this.state.users);
-    let newUserFilters = this.state.users.map((user) => {
-      if (user.username === selectedUser.username){
-        user.selected = !user.selected;
-      }
-      return user;
-    })
-
-    let userIds = [];
-    _.forEach(newUserFilters, (item)=>{
-      if (item.selected) userIds.push(item.id)
-    })
-
-    // let userIds = newUserFilters.map((item) => {if (item.selected ) { return item.id } });
-
-    if (userIds.length === 0) userIds = false;
-    let newParams = this.state.params;
-    newParams.endUserNodeIds = userIds;
-    this.setState({
-      params: newParams
-    })
-    this.query(newParams);
-
   }
 
   render() {
