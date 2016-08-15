@@ -8,7 +8,6 @@ import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'mat
 import FlatButton from 'material-ui/FlatButton';
 import Toggle from 'material-ui/Toggle';
 import moment from 'moment';
-import { focusNodeAndQuery } from 'store/actionCreators';
 
 class EventTickerItem extends React.Component {
   constructor(...args) {
@@ -49,11 +48,6 @@ class EventTickerItem extends React.Component {
     let result = await agent.post('http://localhost:3000/open', params);
   }
 
-  _onClick(nodeId) {
-    console.log('heelo?')
-    this.props.dispatch(focusNodeAndQuery(nodeId));
-  }
-
   render() {
     let item = this.props.item;
     let iconClass, iconColor;
@@ -91,7 +85,7 @@ class EventTickerItem extends React.Component {
         className='eventTickerItem'
         title={JSON.stringify(item, null, 1)}
         style={STYLES.container}
-        onClick={() => { this._onClick(this.props.item.data.nodeId)}}>
+        onClick={() => this.props.onClick(this.props.item.data.nodeId)}>
         <IconText icon='external-link' onClick={() => externalLinkClick(item.address, item.type)} style={{cursor: 'pointer'}} />
         <IconText icon={iconClass} style={{marginRight: 10}} iconColor={iconColor} />
         <span style={STYLES.title}>{title.slice(0,35)}</span>
@@ -118,8 +112,4 @@ const STYLES = {
   },
 }
 
-export default connect(
-  state => ({
-    queriedItems: state.queriedItems
-  })
-)(EventTickerItem);
+export default EventTickerItem;

@@ -257,7 +257,9 @@ class MainView extends Component {
 
           <UserList users={this.state.users} onClick={this.handleUserFilter.bind(this) } />
 
-          <EventTickerList items={this.props.eventTickerItems}  />
+          <EventTickerList
+            items={this.props.eventTickerItems}
+            itemOnClick={this._handleEventTickerItemClick.bind(this)} />
 
           {filters}
 
