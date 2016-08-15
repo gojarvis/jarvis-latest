@@ -5,7 +5,6 @@ var cookieSession = require('cookie-session');
 var proxy = require('http-proxy-middleware');
 var app = express();
 var http = require('http').Server(app);
-var io = require('socket.io')(http);
 var bodyParser = require('body-parser');
 var kue = require('kue');
 var ui = require('kue-ui');
@@ -24,7 +23,7 @@ let GraphUtil = require('./utils/graph');
 let graphUtil = new GraphUtil();
 var usersController = require('./controllers/users');
 
-
+var sessionData = {};
 
 var teamsController = require('./controllers/teams')
 var db = require('thinky')({
@@ -88,10 +87,22 @@ var initialized = false;
 
 function init(user){
   return new Promise(function(resolve, reject) {
-    console.log('Init status:', initialized);
+
 
     if (!initialized){
-      
+
+
+      var io = require('socket.io')(http);
+      console.log('INITIALIZING');
+      var SocketManager =  require('./utils/socket-manager');
+      // console.log(global.rethinkdbConnection);
+
+      io.on('connection', function(socket){
+        global._socket = socket;
+        var socketManager = new SocketManager(socket,io, user);
+        console.log('CONNECTED', socket.id);
+      });
+
       initialized = true;
     }
 
@@ -153,6 +164,7 @@ setTimeout(()=>{
 
   app.get('/init', isLoggedIn, function(req, res){
     console.log('STARTING UP');
+    sessionData = req.session;
     init(req.session.user).then(function(){
       res.send('done');
     })
@@ -248,16 +260,7 @@ setTimeout(()=>{
 
   let p = r.connect({host: rethinkConfig.host || "104.131.111.80", db: rethinkConfig.db});
   p.then(function(connection){
-    global.rethinkdbConnection = connection;
-
-    var SocketManager =  require('./utils/socket-manager');
-    // console.log(global.rethinkdbConnection);
-    console.log('System initialized');
-    io.on('connection', function(socket){
-      global._socket = socket;
-      var socketManager = new SocketManager(socket,io);
-      console.log('CONNECTED', socket);
-    });
+    // global.rethinkdbConnection = connection;
   });
 
 

@@ -18,7 +18,7 @@ class TeamsController{
   constructor(){
 
   }
-  
+
 
   getSaveTeam(teamName){
     let self = this;
@@ -113,7 +113,6 @@ class TeamsController{
   getAllTeams() {
     return new Promise(function(resolve, reject) {
         graph.find({type: 'team'}, function(err, nodes){
-          console.log('ALL TEAMS', nodes);
           if (err) reject('cant get team by name', err)
           else resolve(nodes)
         });

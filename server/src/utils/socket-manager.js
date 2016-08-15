@@ -23,12 +23,11 @@ const userInfo = {
 let context = {};
 
 class SocketManager {
-  constructor(socket, io) {
+  constructor(socket, io, user) {
     let sid = 'GKvm4Sdf';
-    var history = new History(socket,io, userInfo.username);
-
+    var history = new History(socket,io, user.username);
     if (_.isUndefined(context.user)){
-        context = new Context(history, userInfo);
+        context = new Context(history, { username: user.username});
     }
 
     const deep = new Deep(history, context);

@@ -46,7 +46,7 @@ class AtomController {
 
 
     self.socket.on('atom-connected', function(){
-      console.log('atom-connected');
+      console.log('atom-connected', self.socket.id);
     });
 
     self.socket.on('atom-highlighted', function(msg){

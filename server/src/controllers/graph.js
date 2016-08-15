@@ -98,7 +98,7 @@ let graphController = {
       }
 
       try{
-        console.log(cypher);
+        // console.log(cypher);
         let result = await queryGraph(cypher);
         res.json(result);
       }
