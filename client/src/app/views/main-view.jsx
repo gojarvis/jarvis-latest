@@ -262,7 +262,7 @@ class MainView extends Component {
 
           {filters}
 
-          <FocusedItem item={this._focusedItem()} />
+          <FocusedItem item={queriedItems.focusedNodeData} />
 
           <QueriedItemList
             items={queriedItems.items.toJS()}

@@ -49,7 +49,7 @@ function receiveQueryItems(params, data) {
   return {
     type: RECEIVE_QUERY_ITEMS,
     params,
-    items: imm.List(data),
+    items: imm.fromJS(data),
     receivedAt: Date.now(),
   }
 }

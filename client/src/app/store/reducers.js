@@ -20,6 +20,7 @@ function queriedItems(state = {
   items: imm.List(),
   isFetching: false,
   focusedNodeId: -1,
+  focusedNodeData: null,
   endNodeType: false,
   endUserNodeIds: imm.Set()
 }, action) {
@@ -43,6 +44,7 @@ function queriedItems(state = {
       return {
         ...state,
         isFetching: true,
+        focusedNodeId: action.params.nodeId
       };
     case RECEIVE_QUERY_ITEMS:
       return {
@@ -50,6 +52,7 @@ function queriedItems(state = {
         isFetching: false,
         items: action.items,
         lastUpdated: action.receivedAt,
+        focusedNodeData: action.items.first().get('startNode')
       };
     case REQUEST_BLACKLIST_NODE:
       return {
