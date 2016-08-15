@@ -135,10 +135,6 @@ class MainView extends Component {
 
   }
 
-  toggleAutoswitch(){
-    this.props.dispatch(ActionCreators.toggleAutoswitch());
-  }
-
   render() {
     let { queriedItems, dispatch, eventTickerItems } = this.props;
 
@@ -166,7 +162,7 @@ class MainView extends Component {
 
           <div>
             <Toggle
-              onToggle={this.toggleAutoswitch.bind(this)}
+              onToggle={() => { this.props.dispatch(ActionCreators.toggleAutoswitch()) }}
               toggle={this.props.queriedItems.autoswitch}
               label="Autoswitch"
               labelPosition="right"
