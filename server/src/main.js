@@ -88,6 +88,30 @@ function ensureAdmin(req, res, next) {
   // res.redirect('/');
 }
 
+var initialized = false;
+
+function init(user){
+  return new Promise(function(resolve, reject) {
+    if (!initialized){
+      let p = r.connect({host: rethinkConfig.host || "104.131.111.80", db: rethinkConfig.db});
+      p.then(function(connection){
+        console.log('HELLO I CONNECTED TO ', rethinkConfig);
+        global.rethinkdbConnection = connection;
+
+        var SocketManager =  require('./utils/socket-manager');
+        // console.log(global.rethinkdbConnection);
+        io.on('connection', function(socket){
+          global._socket = socket;
+          var socketManager = new SocketManager(socket,io);
+        });
+      });
+      initialized = true;
+    }
+
+    resolve()
+  });
+}
+
 setTimeout(()=>{
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
@@ -149,6 +173,14 @@ setTimeout(()=>{
       res.json(req.user);
     }
   })
+
+
+  app.get('/init', isLoggedIn, function(req, res){
+    console.log('STARTING UP');
+    init(req.session.user).then(function(){
+      res.send('done');
+    })
+  });
 
 
 
@@ -239,22 +271,6 @@ setTimeout(()=>{
   });
 
   app.use('/', proxy({ target: 'http://localhost:8888', changeOrigin: true }));
-
-
-
-  let p = r.connect({host: rethinkConfig.host || "104.131.111.80", db: rethinkConfig.db});
-  p.then(function(connection){
-    console.log('HELLO I CONNECTED TO ', rethinkConfig);
-    global.rethinkdbConnection = connection;
-
-    var SocketManager =  require('./utils/socket-manager');
-    // console.log(global.rethinkdbConnection);
-    io.on('connection', function(socket){
-      global._socket = socket;
-      var socketManager = new SocketManager(socket,io);
-    });
-
-  })
 
   http.listen(3000, function(){
     console.log('CONFIG', dbConfig, userConfig, rethinkConfig);

@@ -19,7 +19,7 @@ class LoginView extends Component {
         if (!_.isUndefined(res.body.error)){
           console.log('Not logged in');
         }else{
-          this.context.router.push('/main');
+          this.context.router.push('/main');          
         }
     })
 

@@ -104,6 +104,10 @@ class MainView extends Component {
   }
 
   async componentWillMount() {
+    agent.get('http://localhost:3000/init').then(res => {
+        console.log('Initialized');
+    })
+
     this.socket.on('system-event', msg => {
       // console.log('STATE', this.state);
       this.setState({
