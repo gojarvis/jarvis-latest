@@ -16,6 +16,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import UserList from 'components/UserList';
 import Toggle from 'material-ui/Toggle';
 import * as ActionCreators from 'store/actionCreators';
+import Filters from 'components/Filters';
 
 class MainView extends Component {
   constructor(...args) {
@@ -27,10 +28,10 @@ class MainView extends Component {
       users: new imm.List(),
       teams: new imm.List(),
       filters: [
-        { key: "", selected: true, label: "All" },
-        { key: "files", selected: false, label: "Files" },
-        { key: "urls", selected: false, label: "URLs" },
-        { key: "keywords", selected: false, label: "Keywords" },
+        { key: "", selected: true, label: "All", type: null },
+        { key: "files", selected: false, label: "Files", type: 'File' },
+        { key: "urls", selected: false, label: "URLs", type: 'Url' },
+        { key: "keywords", selected: false, label: "Keywords", type: 'Keyword' },
       ],
       params: {
         nodeId: -1,
@@ -42,83 +43,26 @@ class MainView extends Component {
     }
   }
 
-  static get defaultProps() {
-    return {
-      queriedItems: imm.List()
-    }
-  }
+  // static get defaultProps() {
+  //   return {
+  //     queriedItems: imm.List()
+  //   }
+  // }
 
   // componentDidMount() {
   //   let { dispatch } = this.props;
   // }
 
-  async handleFilter(clickedFilter){
-    let nodeId = this._focusedItem().get('id');
-    let newParams = this.state.params;
-    newParams.nodeId = nodeId;
-    newParams.endNodeType = false;
-
-    let oldFilters = this.state.filters;
-    // let selectedFilter = this.state.filters.filter((filter) => filter.key = clickedFilter.key);
-    let newFilters = this.state.filters.map((filter) => {
-      if (filter.key === clickedFilter.key) {
-        filter.selected = !filter.selected;
-        if (filter.selected){
-          switch (filter.key){
-            case 'files':
-              newParams.endNodeType = 'File';
-              break;
-            case 'urls':
-              newParams.endNodeType =  'Url'
-              break;
-            case 'keywords':
-              newParams.endNodeType =  'Keyword'
-              break;
-          }
-        }
+  componentWillReceiveProps(nextProps) {
+    // let checkItems = ['focusedNodeId', 'endNodeType'];
+    let checkItems = ['endNodeType'];
+    checkItems.forEach((item, index) => {
+      if (nextProps.queriedItems.focusedNodeId !== undefined &&
+        nextProps.queriedItems.focusedNodeId !== -1 &&
+        this.props.queriedItems[item] !== nextProps.queriedItems[item]) {
+        this.props.dispatch(ActionCreators.fetchQueryItemsIfNeeded(nextProps.queriedItems.focusedNodeId));
       }
-      else{
-        filter.selected = false
-      }
-      return filter
     })
-
-    this.setState({
-      filters: newFilters,
-      params: newParams
-    });
-    this.query(newParams);
-
-  }
-
-  //  params: {
-  //    nodeId: neo4j node id (default: -1),
-  //    endNodeType: enum['File', 'Url', 'Keyword'] (default: false),
-  //    endUserNodeIds: end user nodes to query for (default: false),
-  //  }
-  async query(params){
-    let result = await agent.post('http://localhost:3000/query', params);
-    let items = imm.fromJS(result.body);
-    let focusedItem;
-
-    //Keep the focused item in case query returns empty
-    if (items.size > 0){
-      focusedItem = items.getIn([0, 'startNode'], imm.Map());
-
-    }
-    else {
-      focusedItem = this.state.latestItem;
-    }
-
-    this.setState({
-      queriedItems: new imm.List()
-    }, () => {
-      this.setState({
-        queriedItems: imm.fromJS(result.body),
-        latestItem: focusedItem,
-        focusedItem: focusedItem
-      });
-    });
   }
 
   async componentWillMount() {
@@ -198,13 +142,6 @@ class MainView extends Component {
 
   }
 
-  async _handleEventTickerItemClick(nodeId) {
-    let params = this.state.params;
-    params.nodeId = nodeId;
-
-    this.props.dispatch(ActionCreators.fetchQueryItemsIfNeeded(nodeId, params));
-  }
-
   toggleAutoswitch(){
     let newState = !this.state.autoswitch;
     this.setState({
@@ -212,40 +149,10 @@ class MainView extends Component {
     })
   }
 
-  _focusedItem() {
-    return this.state.focusedItem;
-  }
-
   render() {
     let { queriedItems, dispatch, eventTickerItems } = this.props;
 
     let boundActions = bindActionCreators(ActionCreators, dispatch);
-
-    let filters;
-    if (eventTickerItems.size > 0){
-      filters = <div style={LOCAL_STYLES.filterButtons}>
-        {this.state.filters.map((filter, index) => {
-          let zIndex = 5, selected;
-          if (filter.selected) {
-            zIndex = 0
-
-          }
-          return (
-            <RaisedButton
-              key={index}
-              label={filter.label}
-              primary={filter.selected}
-              secondary={!filter.selected}
-              zIndex={zIndex}
-              onClick={()=>this.handleFilter(filter)}
-              style={{flex: '1 1 auto', margin: 10}} />
-          )
-        })}
-      </div>
-    }
-    else{
-      filters = <div></div>
-    }
 
     return (
       <ViewWrapper>
@@ -257,10 +164,9 @@ class MainView extends Component {
 
           <EventTickerList
             items={eventTickerItems}
-            itemOnClick={this._handleEventTickerItemClick.bind(this)}
             {...boundActions} />
 
-          {filters}
+          <Filters selectedFilter={this.props.queriedItems.endNodeType} {...boundActions} />
 
           <FocusedItem item={queriedItems.focusedNodeData} />
 

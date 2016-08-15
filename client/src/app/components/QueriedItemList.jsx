@@ -6,12 +6,6 @@ class QueriedItemList extends Component {
     super(...args);
   }
 
-  static get propTypes() {
-    return {
-      items: PropTypes.array.isRequired
-    }
-  }
-
   _itemOnClick(nodeId) {
     this.props.fetchQueryItemsIfNeeded(nodeId);
   }

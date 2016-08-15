@@ -78,7 +78,7 @@ export function fetchQueryItemsIfNeeded(nodeId) {
     let state = getState();
     let params = {
       nodeId,
-      // endNodeType: state.queriedItems.endNodeType,
+      endNodeType: state.queriedItems.endNodeType,
       // endUserNodeIds: state.queriedItems.endUserNodeIds.toJS()
     };
 

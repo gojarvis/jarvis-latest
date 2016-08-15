@@ -21,7 +21,7 @@ function queriedItems(state = {
   isFetching: false,
   focusedNodeId: -1,
   focusedNodeData: null,
-  endNodeType: false,
+  endNodeType: '',
   endUserNodeIds: imm.Set()
 }, action) {
   switch (action.type) {
