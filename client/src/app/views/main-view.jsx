@@ -66,6 +66,8 @@ class MainView extends Component {
   }
 
   async componentWillMount() {
+
+    let res = await agent.get('http://localhost:3000/init');
     this.socket.on('system-event', msg => {
       // redux
       this.props.dispatch({

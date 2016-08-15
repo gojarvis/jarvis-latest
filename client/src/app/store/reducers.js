@@ -52,7 +52,7 @@ function queriedItems(state = {
         isFetching: false,
         items: action.items,
         lastUpdated: action.receivedAt,
-        focusedNodeData: action.items.first().get('startNode')
+        focusedNodeData: action.items.get(0, imm.Map()).get('startNode', imm.Map())
       };
     case REQUEST_BLACKLIST_NODE:
       return {

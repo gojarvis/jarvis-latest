@@ -88,18 +88,10 @@ var initialized = false;
 
 function init(user){
   return new Promise(function(resolve, reject) {
-    if (!initialized){
-      let p = r.connect({host: rethinkConfig.host || "104.131.111.80", db: rethinkConfig.db});
-      p.then(function(connection){
-        global.rethinkdbConnection = connection;
+    console.log('Init status:', initialized);
 
-        var SocketManager =  require('./utils/socket-manager');
-        // console.log(global.rethinkdbConnection);
-        io.on('connection', function(socket){
-          global._socket = socket;
-          var socketManager = new SocketManager(socket,io);
-        });
-      });
+    if (!initialized){
+      
       initialized = true;
     }
 
@@ -253,6 +245,21 @@ setTimeout(()=>{
   });
 
   app.use('/', proxy({ target: 'http://localhost:8888', changeOrigin: true }));
+
+  let p = r.connect({host: rethinkConfig.host || "104.131.111.80", db: rethinkConfig.db});
+  p.then(function(connection){
+    global.rethinkdbConnection = connection;
+
+    var SocketManager =  require('./utils/socket-manager');
+    // console.log(global.rethinkdbConnection);
+    console.log('System initialized');
+    io.on('connection', function(socket){
+      global._socket = socket;
+      var socketManager = new SocketManager(socket,io);
+      console.log('CONNECTED', socket);
+    });
+  });
+
 
   http.listen(3000, function(){
     console.log('CONFIG', dbConfig, userConfig, rethinkConfig);
