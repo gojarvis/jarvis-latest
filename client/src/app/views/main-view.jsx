@@ -1,9 +1,7 @@
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { batchActions } from 'redux-batched-actions';
 import layout from 'styles/layout';
-import _ from 'lodash';
 let agent = require('superagent-promise')(require('superagent'), Promise);
 import {EventTickerList} from 'components/EventTicker';
 import QueriedItemList from 'components/QueriedItemList';
@@ -110,46 +108,6 @@ const styles = {
     padding: 10,
     backgroundColor: 'white',
     marginBottom: 16,
-  },
-};
-
-
-const LOCAL_STYLES = {
-  container: {
-    fontFamily: "arial",
-    minHeight: "100vh",
-    backgroundColor: "rgb(40, 44, 52)",
-    color: '#fff',
-    overflow: 'auto',
-  },
-  __oldEventTickerItem: {
-    width: "5vw",
-    padding: "13px",
-    margin: "10px",
-    marginBottom: "15px",
-    display: "inline-block",
-  },
-  eventTickerItem: {
-    minWidth: 100,
-  },
-  queriedItemsList: {
-    padding: "20px",
-    margin: "10px"
-  },
-  queriedItem: {},
-  focusedItem: {
-    margin: "10px",
-    padding: "10px",
-    color: "black"
-  },
-  filterButton: {
-    ...FB.base,
-    ...FB.justify.center,
-    ...FB.flex.equal,
-  },
-  filterButtons: {
-    ...FB.base,
-    ...FB.justify.around,
   },
 };
 
