@@ -1,27 +1,43 @@
-import {Component} from 'react';
+import { Component, PropTypes } from 'react';
 import RaisedButton from 'material-ui/RaisedButton';
 import FB from 'styles/flexbox';
 
-let UserList = (props) => {
-  let {users} = props;
-  return (
-    <div style={{...FB.base, ...FB.justify.start, ...LOCAL_STYLES.wrapper}}>
+class UserList extends Component {
+  constructor(...args) {
+    super(...args);
+  }
 
-      <div>
-        <span style={{ ...LOCAL_STYLES.label}}>Team Members</span>
-        {users.map((item, index) => {
-          // console.log(item.toJS());
-          return <RaisedButton
-            key={index}
-            label={item.get('username')}
-            primary={item.get('selected')}
-            secondary={!item.get('selected')}
-            onClick={()=>props.onClick(item)}
-            style={{flex: '0 1 auto', margin: '5px 10px'}} />
-        })}
+  static get propTypes() {
+    return {
+      users: PropTypes.object.isRequired,
+      selectedUsers: PropTypes.object.isRequired
+    }
+  }
+
+  render() {
+    let {users} = this.props;
+    return (
+      <div style={{...FB.base, ...FB.justify.start, ...LOCAL_STYLES.wrapper}}>
+
+        <div>
+          <span style={{ ...LOCAL_STYLES.label}}>Team Members</span>
+          {users.map((item, index) => {
+            let isSelected = this.props.selectedUsers.includes(item.get('id'));
+            // console.log(item.toJS());
+            return (
+              <RaisedButton
+                key={index}
+                label={item.get('username')}
+                primary={isSelected}
+                secondary={!isSelected}
+                onClick={() => { this.props.toggleFilterByUserId(item.get('id')) }}
+                style={{flex: '0 1 auto', margin: '5px 10px'}} />
+            );
+          })}
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 }
 
 const LOCAL_STYLES = {

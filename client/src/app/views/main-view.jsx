@@ -65,7 +65,7 @@ class MainView extends Component {
     })
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     this.socket.on('system-event', msg => {
       this.props.dispatch(ActionCreators.pushHistoryItem(msg));
 
@@ -74,39 +74,7 @@ class MainView extends Component {
       }
     });
 
-
-
-    try {
-      let userJsonResult = await agent.post('http://localhost:3000/api/user/userjson');
-      let userJson = userJsonResult.body;
-      let userId = userJson.id;
-      let username = userJson.username
-      let teamMembersResult = await agent.post('http://localhost:3000/api/user/teams/members', { userId })
-      let teamMembers = imm.fromJS(teamMembersResult.body);
-      console.log('userId/name', userId, username, teamMembers);
-      let userObject = imm.fromJS({ id: userId, username: username, selected: false });
-      let usersList = new imm.List();
-      usersList = teamMembers.unshift(userObject);
-      usersList = usersList.map(user => {
-        user.selected = false;
-        return user
-      })
-
-
-      let teamsResult = await agent.post('http://localhost:3000/api/user/teams', { userId });
-      let teams = teamsResult.body;
-
-      this.setState({
-        teams : imm.List(teams),
-        users: usersList
-      });
-    } catch(e) {
-
-    }
-
-    // let {userId, username} = localStorage;
-
-
+    this.props.dispatch(ActionCreators.fetchUserAndTheirTeams());
   }
 
   async handleUserFilter(selectedUser) {
@@ -146,7 +114,10 @@ class MainView extends Component {
 
           <Navbar />
 
-          <UserList users={this.state.users} onClick={this.handleUserFilter.bind(this) } />
+          <UserList
+            users={this.props.queriedItems.teamMembers}
+            selectedUsers={this.props.queriedItems.endUserNodeIds}
+            {...boundActions} />
 
           <EventTickerList
             items={eventTickerItems}
