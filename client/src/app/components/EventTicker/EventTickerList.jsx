@@ -11,11 +11,8 @@ class EventTickerList extends React.Component {
     super(...args);
   }
 
-  static get defaultProps() {
-    return {
-      items: [],
-      style: {},
-    }
+  _itemOnClick(nodeId) {
+    this.props.fetchQueryItemsIfNeeded(nodeId);
   }
 
   render() {
@@ -37,7 +34,7 @@ class EventTickerList extends React.Component {
             key={index}
             item={item}
             index={index}
-            onClick={this.props.itemOnClick} />
+            onClick={this._itemOnClick.bind(this)} />
         )
       });
     }

@@ -68,11 +68,23 @@ function shouldFetchQueryItems(state, params) {
   return true;
 }
 
-export function fetchQueryItemsIfNeeded(nodeId, params) {
+//  params: {
+//    nodeId: neo4j node id (default: -1),
+//    endNodeType: enum['File', 'Url', 'Keyword'] (default: false),
+//    endUserNodeIds: end user nodes to query for (default: false),
+//  }
+export function fetchQueryItemsIfNeeded(nodeId) {
   return (dispatch, getState) => {
+    let state = getState();
+    let params = {
+      nodeId,
+      // endNodeType: state.queriedItems.endNodeType,
+      // endUserNodeIds: state.queriedItems.endUserNodeIds.toJS()
+    };
+
     dispatch(setFocusedNode(nodeId));
 
-    if (shouldFetchQueryItems(getState(), params)) {
+    if (shouldFetchQueryItems(state, params)) {
       return dispatch(fetchQueryItems(params));
     }
   }

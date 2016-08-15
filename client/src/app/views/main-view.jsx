@@ -1,5 +1,6 @@
 import { Component } from 'react';
-import { connect, bindActionCreators } from 'react-redux';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { batchActions } from 'redux-batched-actions';
 import layout from 'styles/layout';
 import _ from 'lodash';
@@ -216,9 +217,12 @@ class MainView extends Component {
   }
 
   render() {
+    let { queriedItems, dispatch, eventTickerItems } = this.props;
+
+    let boundActions = bindActionCreators(ActionCreators, dispatch);
 
     let filters;
-    if (this.props.eventTickerItems.size > 0){
+    if (eventTickerItems.size > 0){
       filters = <div style={LOCAL_STYLES.filterButtons}>
         {this.state.filters.map((filter, index) => {
           let zIndex = 5, selected;
@@ -252,16 +256,17 @@ class MainView extends Component {
           <UserList users={this.state.users} onClick={this.handleUserFilter.bind(this) } />
 
           <EventTickerList
-            items={this.props.eventTickerItems}
-            itemOnClick={this._handleEventTickerItemClick.bind(this)} />
+            items={eventTickerItems}
+            itemOnClick={this._handleEventTickerItemClick.bind(this)}
+            {...boundActions} />
 
           {filters}
 
           <FocusedItem item={this._focusedItem()} />
 
           <QueriedItemList
-            items={this.props.queriedItems.items.toJS()}
-            onClick={this._handleEventTickerItemClick.bind(this)} />
+            items={queriedItems.items.toJS()}
+            {...boundActions} />
 
           <div>
             <Toggle
@@ -275,7 +280,7 @@ class MainView extends Component {
 
           <hr />
             <pre>{
-              JSON.stringify(this.props.queriedItems, null, 2)
+              JSON.stringify(queriedItems, null, 2)
             }</pre>
           <hr />
         </div>
