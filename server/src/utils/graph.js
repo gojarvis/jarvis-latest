@@ -160,7 +160,7 @@ class GraphDB{
                   +'MERGE a-[r:'+relationship+']->b '
                   +'SET r.weight = coalesce(r.weight, 0) + 1';
 
-      console.log('failed relate nodes in graphUtil');
+      console.log('failed relate nodes in graphUtil', err);
     }
     finally{
       return res
