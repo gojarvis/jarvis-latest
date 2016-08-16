@@ -21,16 +21,16 @@ export default class Root extends Component {
   componentWillMount() {
     console.log('mounting...')
     let self = this;
-    socket.on('chrome-disabled',function(){
-      console.log('Now disabled');
-      console.log('socket changing status to true');
-      self.setState({isDisabled: true})
-    });
-    socket.on('chrome-enabled',function(){
-      console.log('Now enabled');
-      console.log('socket changing status to false');
-      self.setState({isDisabled: false})
-    });
+    // socket.on('chrome-disabled',function(){
+    //   console.log('Now disabled');
+    //   console.log('socket changing status to true');
+    //   self.setState({isDisabled: true})
+    // });
+    // socket.on('chrome-enabled',function(){
+    //   console.log('Now enabled');
+    //   console.log('socket changing status to false');
+    //   self.setState({isDisabled: false})
+    // });
 
     chrome.storage.onChanged.addListener((changes, areaName) => {
       if (areaName === 'local' && changes.hasOwnProperty('isDisabled')) {
@@ -48,14 +48,15 @@ export default class Root extends Component {
   }
 
   enable() {
-    socket.emit('chrome-enable');
+    // socket.emit('chrome-enable');
+    chrome.runtime.sendMessage({ action: 'enable'})
     console.log('enabled click');
     chrome.storage.local.set({ isDisabled: false });
   }
 
   disable() {
-    socket.emit('chrome-disable');
-    console.log('disable click');
+    // socket.emit('chrome-disable');
+    chrome.runtime.sendMessage({ action: 'disable'})
     chrome.storage.local.set({ isDisabled: true });
   }
 
