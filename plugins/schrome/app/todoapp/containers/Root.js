@@ -3,13 +3,13 @@ import { Provider } from 'react-redux';
 import io from 'socket.io-client'
 let agent = require('superagent-promise')(require('superagent'), Promise);
 let socket = io.connect('http://localhost:3000', {reconnect: true});
-console.log(socket);
-// import io from 'socket.io-client'
+
 export default class Root extends Component {
 
   static propTypes = {
     store: PropTypes.object.isRequired
   };
+
   constructor(){
     super()
     this.state = {
@@ -38,18 +38,39 @@ export default class Root extends Component {
   }
   render() {
     const { store } = this.props;
-    let disabled;
+    let isDisabled;
     console.log('STATE' , this.state);
     if (this.state){
-       disabled = this.state.disabled ? 'disabled' : 'enabled';
+      isDisabled = this.state.disabled ? 'disabled' : 'enabled';
     }
+
+    let color = this.state.disabled ? 'red' : 'green';
 
     return (
       <div>
-        Jarvis is currently {disabled}
-        <div onClick={() => this.disable()}> Disable </div>
-        <div onClick={() => this.enable()}> Enable </div>
+        <div onClick={() => this.enable()} style={{...styles.container, color: !this.state.disabled ? 'green' : 'black'}}>
+          <span style={styles.icon}>&#x2713;</span>
+          <span style={styles.text}>Enable</span>
+        </div>
+        <div onClick={() => this.disable()} style={{...styles.container, color: this.state.disabled ? 'red' : 'black'}}>
+          <span style={styles.icon}>&#x2717;</span>
+          <span style={styles.text}>Disable</span>
+        </div>
       </div>
     );
+  }
+}
+
+const styles = {
+  container: {
+    display: 'flex',
+    padding: 10,
+    cursor: 'pointer'
+  },
+  icon: {
+    flexBasis: '20px'
+  },
+  text: {
+    flex: '1 0 auto'
   }
 }
