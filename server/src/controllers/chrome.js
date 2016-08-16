@@ -17,6 +17,8 @@ let graph = require("seraph")({
   server: dbConfig.server
 });
 
+let chromeExtensionEnabled = true;
+
 let graphAsync = Promise.promisifyAll(graph);
 
 graph.constraints.uniqueness.create('Url', 'address', function(err, constraint) {
@@ -56,6 +58,7 @@ class ChromeController {
       console.log("found ",   tabs.length, "tabs.");
       self.tabs = tabs;
       self.saveSession();
+      self.socket.emit('chrome-enabled')
     });
 
     self.socket.on('chrome-created', function(msg){
@@ -89,6 +92,17 @@ class ChromeController {
 
       self.saveSession();
     });
+
+
+    self.socket.on('chrome-disable', function(){
+      chromeExtensionEnabled = false;
+      self.io.emit('chrome-disabled')
+    })
+
+    self.socket.on('chrome-enable', function(){
+      chromeExtensionEnabled = true;
+      self.io.emit('chrome-enabled')
+    })
 
     self.socket.on('heartbeat', function(hb){
 
@@ -175,6 +189,10 @@ class ChromeController {
   }
 
   async handleUpdated(active){
+    if (!chromeExtensionEnabled){
+      console.log('Chrome extension disabled');
+      return;
+    }
     let activeTab = this.getActiveTab(active)
     console.log('HANDLE UPDATED --- ACTIVE TAB');
     let url = activeTab[0].url;
@@ -215,6 +233,10 @@ class ChromeController {
   }
 
   async handleHighlighted(active){
+    if (!chromeExtensionEnabled){
+      console.log('Chrome extension disabled');
+      return;
+    }
     let activeTab = this.getActiveTab(active.tabIds[0])
     let activeTabTitle = '';
     // console.log('ACTIVE TAB', activeTab);

@@ -301,7 +301,7 @@ class contextManager{
                   +'CREATE UNIQUE (a)-[r:'+relationship+']->(b) '
                   +'SET r.weight = coalesce(r.weight, 0) + 1';
 
-      console.log('failed', err, cypher);
+      console.log('context manager failed relateNodes');
     }
 
     return res
@@ -326,7 +326,7 @@ class contextManager{
                   +'CREATE UNIQUE (a)-[r:'+relationship+']->(b) '
                   +'SET r.weight = coalesce(r.weight, 0) + 1';
 
-      console.log('failed', err, cypher);
+      console.log('context manager failed associateNodes');
     }
 
     return res

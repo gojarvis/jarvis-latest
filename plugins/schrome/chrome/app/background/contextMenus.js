@@ -25,7 +25,7 @@ function popWindow(type) {
 
 chrome.contextMenus.create({
   id: CONTEXT_MENU_ID,
-  title: 'React Chrome Extension Example',
+  title: 'Jarvis Chrome Extension',
   contexts: ['all'],
   documentUrlPatterns: [
     'https://github.com/*'

@@ -160,7 +160,7 @@ class GraphDB{
                   +'CREATE UNIQUE a-[r:'+relationship+']->b '
                   +'SET r.weight = coalesce(r.weight, 0) + 1';
 
-      console.log('failed', err, cypher);
+      console.log('failed relate nodes in graphUtil');
     }
     finally{
       return res
