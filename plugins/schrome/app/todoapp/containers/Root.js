@@ -11,48 +11,69 @@ export default class Root extends Component {
   };
 
   constructor(){
-    super()
+    super();
+
     this.state = {
-      disabled: false
+      isEnabled: true
     }
   }
 
   componentWillMount(){
+    console.log('mounting...')
     let self = this;
     socket.on('chrome-disabled',function(){
       console.log('Now disabled');
-      self.setState({disabled: true})
+      self.setState({isEnabled: true})
     });
     socket.on('chrome-enabled',function(){
       console.log('Now enabled');
-      self.setState({disabled: false})
+      self.setState({isEnabled: false})
     });
+
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+      if (areaName === 'local' && changes.hasOwnProperty('isEnabled')) {
+        this.setState({ isEnabled: changes.isEnabled.newValue });
+      }
+    })
   }
 
-  disable(){
-    socket.emit('chrome-disable');
+  componentDidMount() {
+    chrome.storage.local.get('isEnabled', (obj) => {
+      this.setState({ isEnabled: obj.isEnabled });
+    });
   }
 
   enable(){
     socket.emit('chrome-enable');
+    chrome.storage.local.set({ isEnabled: true });
   }
+
+  disable(){
+    socket.emit('chrome-disable');
+    chrome.storage.local.set({ isEnabled: false });
+  }
+
   render() {
     const { store } = this.props;
-    let isDisabled;
+    let isEnabled;
     console.log('STATE' , this.state);
     if (this.state){
-      isDisabled = this.state.disabled ? 'disabled' : 'enabled';
+      isEnabled = this.state.isEnabled ? 'disabled' : 'enabled';
     }
 
-    let color = this.state.disabled ? 'red' : 'green';
+    let color = this.state.isEnabled ? 'red' : 'green';
 
     return (
       <div>
-        <div onClick={() => this.enable()} style={{...styles.container, color: !this.state.disabled ? 'green' : 'black'}}>
+        <div
+          onClick={() => this.enable()}
+          style={{...styles.container, color: this.state.isEnabled ? 'green' : 'black'}}>
           <span style={styles.icon}>&#x2713;</span>
           <span style={styles.text}>Enable</span>
         </div>
-        <div onClick={() => this.disable()} style={{...styles.container, color: this.state.disabled ? 'red' : 'black'}}>
+        <div
+          onClick={() => this.disable()}
+          style={{...styles.container, color: !this.state.isEnabled ? 'red' : 'black'}}>
           <span style={styles.icon}>&#x2717;</span>
           <span style={styles.text}>Disable</span>
         </div>
