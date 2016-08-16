@@ -99,7 +99,7 @@ class AtomController {
     // console.log(origin, target, relationship);
 
     let cypher = 'START a=node({origin}), b=node({target}) '
-                +'CREATE UNIQUE (a)-[r:'+relationship+']-(b) '
+                +'MERGE (a)-[r:'+relationship+']-(b) '
                 +'SET r.weight = coalesce(r.weight, 0) + 1';
     let params = {origin: origin.id, target: target.id, relationship: relationship};
 

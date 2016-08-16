@@ -143,7 +143,7 @@ class GraphDB{
   async relateNodes(origin, target, relationship){
     // console.log('TARGET', target, target.id);
     let cypher = 'START a=node({origin}), b=node({target}) '
-                +'CREATE UNIQUE a-[r:'+relationship+']->b '
+                +'MERGE a-[r:'+relationship+']->b '
                 +'SET r.weight = coalesce(r.weight, 0) + 1';
     let params = {origin: origin.id, target: target.id, relationship: relationship};
 
@@ -157,7 +157,7 @@ class GraphDB{
 
     catch(err){
       let cypher = 'START a=node('+origin.id+'), b=node('+target.id+') '
-                  +'CREATE UNIQUE a-[r:'+relationship+']->b '
+                  +'MERGE a-[r:'+relationship+']->b '
                   +'SET r.weight = coalesce(r.weight, 0) + 1';
 
       console.log('failed relate nodes in graphUtil');

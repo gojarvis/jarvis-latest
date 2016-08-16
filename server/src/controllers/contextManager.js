@@ -286,7 +286,7 @@ class contextManager{
   async relateNodes(origin, target, relationship){
     // console.log('RELATE NODES', origin, target);
     let cypher = 'START a=node({origin}), b=node({target}) '
-                +'CREATE UNIQUE (a)-[r:'+relationship+']->(b) '
+                +'MERGE (a)-[r:'+relationship+']->(b) '
                 +'SET r.weight = coalesce(r.weight, 0) + 1';
     let params = {origin: origin.id, target: target.id, relationship: relationship};
     let res = {};
@@ -298,7 +298,7 @@ class contextManager{
 
     catch(err){
       let cypher = 'START a=node('+origin.id+'), b=node('+target.id+') '
-                  +'CREATE UNIQUE (a)-[r:'+relationship+']->(b) '
+                  +'MERGE (a)-[r:'+relationship+']->(b) '
                   +'SET r.weight = coalesce(r.weight, 0) + 1';
 
       console.log('context manager failed relateNodes');
@@ -310,7 +310,7 @@ class contextManager{
   //Creates a bi-directional relationship between nodes
   async associateNodes(origin, target, relationship){
     let cypher = 'START a=node({origin}), b=node({target}) '
-                +'CREATE UNIQUE (a)-[r:'+relationship+']->(b) '
+                +'MERGE (a)-[r:'+relationship+']->(b) '
                 +'SET r.weight = coalesce(r.weight, 0) + 1';
     let params = {origin: origin.id, target: target.id, relationship: relationship};
 
@@ -323,7 +323,7 @@ class contextManager{
 
     catch(err){
       let cypher = 'START a=node('+origin.id+'), b=node('+target.id+') '
-                  +'CREATE UNIQUE (a)-[r:'+relationship+']->(b) '
+                  +'MERGE (a)-[r:'+relationship+']->(b) '
                   +'SET r.weight = coalesce(r.weight, 0) + 1';
 
       console.log('context manager failed associateNodes');

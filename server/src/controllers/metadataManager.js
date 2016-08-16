@@ -49,14 +49,14 @@ class MetadataManager {
     try {
       if ((_.isUndefined(urlNode.alchemy) || (!_.isUndefined(urlNode.alchemy) && urlNode.alchemy === 'failed')) && _.isUndefined(this.localCache[urlNode.address])) {
         try {
-          console.log('NO ALCHEMY FOR ', urlNode);
+          // console.log('NO ALCHEMY FOR ', urlNode);
           let keywords = await this.getAlchemyKeyWords(url);
           let keywordNodes = await this.saveKeywords(keywords);
           let results = await this.updateNodeAndRelationships(urlNode, keywordNodes);
-          console.log('**** localCache'.red,this.localCache);
+          // console.log('**** localCache'.red,this.localCache);
           // console.log('------------'.blue);
           // console.log('Final Results: '.red, results);
-          console.log('------------'.blue, 'keywords', keywords);
+          // console.log('------------'.blue, 'keywords', keywords);
           this.localCache[urlNode.address] = true;
 
           let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'success');
@@ -66,7 +66,7 @@ class MetadataManager {
           // let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'fetched');
           // let relationship = await Promise.all(keywords.map(keywords => this.relateKeywordToUrl(keywords, urlNode)));
         } catch (err) {
-          console.log('getSetKeywordsForUrl failed:', err);
+          // console.log('getSetKeywordsForUrl failed:', err);
           this.localCache[urlNode.address] = true;
           let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'error');
         }
@@ -111,7 +111,7 @@ class MetadataManager {
     // relate keywords to node
     let relationshipNodes = imm.List();
     keywordNodes.forEach(item => {
-      let cypher = `START a=node(${item.node.id}), b=node(${updatedUrlNode.id}) CREATE UNIQUE a-[r:related]-b SET r.weight = coalesce(r.weight, 0) + ${item.relevance}`;
+      let cypher = `START a=node(${item.node.id}), b=node(${updatedUrlNode.id}) MERGE a-[r:related]-b SET r.weight = coalesce(r.weight, 0) + ${item.relevance}`;
       console.log('Cypher:', cypher);
       relationshipNodes = relationshipNodes.push(txn.query(cypher, {}));
     });
@@ -187,7 +187,7 @@ class MetadataManager {
     keywordNodes.forEach(kwObj => {
       let cypher = `
         START a=node(${kwObj.node.id}), b=node(${urlNode.id})
-        CREATE UNIQUE (a)-[r:related]->(b)
+        MERGE (a)-[r:related]->(b)
         SET r.weight = coalesce(r.weight, 0) + ${kwObj.relevance}`;
 
       txn.query(cypher, {}, (err, result) => {
@@ -322,7 +322,7 @@ class MetadataManager {
   async relateNodes(origin, target, relationship, relevance) {
     let rel = (relevance)
     let cypher = 'START a=node({origin}), b=node({target}) ' +
-    'CREATE UNIQUE a-[r:' + relationship + ']-b ' + 'SET r.weight = coalesce(r.weight, 0) + ' + rel;
+    'MERGE a-[r:' + relationship + ']-b ' + 'SET r.weight = coalesce(r.weight, 0) + ' + rel;
     let params = {
       origin: origin.id,
       target: target.id,

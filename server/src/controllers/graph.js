@@ -135,7 +135,7 @@ let graphController = {
     console.log('blacklist: ', req.body);
     let cypher = `
       START userNode=node(${req.body.userId}), targetNode=node(${req.body.targetId})
-      CREATE UNIQUE (userNode)-[rel:blacklisted]->(targetNode)
+      MERGE (userNode)-[rel:blacklisted]->(targetNode)
       return userNode, targetNode, rel
     `;
 
