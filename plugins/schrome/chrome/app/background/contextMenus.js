@@ -23,17 +23,17 @@ function popWindow(type) {
   }
 }
 
-chrome.contextMenus.create({
-  id: CONTEXT_MENU_ID,
-  title: 'Jarvis Chrome Extension',
-  contexts: ['all'],
-  documentUrlPatterns: [
-    'https://github.com/*'
-  ]
-});
+// chrome.contextMenus.create({
+//   id: CONTEXT_MENU_ID,
+//   title: 'Jarvis Chrome Extension',
+//   contexts: ['all'],
+//   documentUrlPatterns: [
+//     'https://github.com/*'
+//   ]
+// });
 
-chrome.contextMenus.onClicked.addListener((event) => {
-  if (event.menuItemId === CONTEXT_MENU_ID) {
-    popWindow('open');
-  }
-});
+// chrome.contextMenus.onClicked.addListener((event) => {
+//   if (event.menuItemId === CONTEXT_MENU_ID) {
+//     popWindow('open');
+//   }
+// });
