@@ -57,7 +57,7 @@ function requestQueryItems(params) {
 }
 
 function receiveQueryItems(params, data) {
-  
+
   return {
     type: RECEIVE_QUERY_ITEMS,
     params,
@@ -95,7 +95,7 @@ export function fetchQueryItemsIfNeeded(nodeId) {
       endUserNodeIds: state.queriedItems.endUserNodeIds.toJS()
     };
 
-    console.log('sending with params: ', params);
+    // console.log('sending with params: ', params);
 
     dispatch(setFocusedNode(nodeId));
 

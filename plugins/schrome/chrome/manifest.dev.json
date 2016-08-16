@@ -18,6 +18,6 @@
   "web_accessible_resources": [
     "script/*"
   ],
-  "permissions": [ "contextMenus", "tabs", "storage", "http://localhost:3000/*"],
+  "permissions": [ "contextMenus", "tabs", "storage", "*://localhost/*"],
   "content_security_policy": "default-src 'self'; script-src 'self' https://localhost:3333 'unsafe-eval'; connect-src https://localhost:3333 wss://localhost:3333 ws://localhost:3000 'self' http://localhost:3000 http://chrome-extension; style-src * 'unsafe-inline'; img-src 'self' data:;"
 }

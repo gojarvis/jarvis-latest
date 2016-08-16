@@ -192,10 +192,10 @@ class MetadataManager {
 
       txn.query(cypher, {}, (err, result) => {
         if (err) {
-          console.log('?'.red, err);
+          // console.log('?'.red, err);
         }
 
-        console.log('!:'.blue, result);
+        // console.log('!:'.blue, result);
       });
     });
 
