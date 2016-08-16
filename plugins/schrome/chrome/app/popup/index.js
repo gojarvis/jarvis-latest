@@ -5,10 +5,8 @@ import Root from '../../../app/todoapp/containers/Root';
 
 chrome.storage.local.get('state', (obj) => {
   const { state } = obj;
-  if (Object.getPrototypeOf(state) === String.prototype) {
+  if (state) {
     window.state = JSON.parse(state);
-  } else if (Object.getPrototypeOf(state) === Object.prototype) {
-    window.state = state;
   }
 
   const createStore = require('../../../app/todoapp/store/configureStore');
