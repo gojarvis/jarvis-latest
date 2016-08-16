@@ -1,5 +1,5 @@
 #!/bin/sh
-git checkout release/0.1
+git checkout release/0.3
 echo "\nInstalling client\n"
 cd client && npm i &&
 echo "\nInstalling server\n"
