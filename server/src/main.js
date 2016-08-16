@@ -15,6 +15,11 @@ import config from 'config';
 import passport from 'passport';
 import _ from 'lodash';
 
+var path = require("path");
+
+var isDev = process.env.JARVIS_DEV || false;
+
+
 let dbConfig = config.get('graph');
 let userConfig = config.get('user');
 let projectsPath = userConfig.projectsPath;
@@ -256,8 +261,15 @@ setTimeout(()=>{
 
   });
 
-  app.use('/', proxy({ target: 'http://localhost:8888', changeOrigin: true }));
 
+  if(isDev != 'false'){
+    console.log('DEVELOPMENT MODE');
+    app.use('/', proxy({ target: 'http://localhost:8888', changeOrigin: true }));
+  }
+  else{
+    console.log('PRODUCTION MODE');
+      app.use(express.static(path.join(__dirname,"../../client/build")));
+  }
   let p = r.connect({host: rethinkConfig.host || "104.131.111.80", db: rethinkConfig.db});
   p.then(function(connection){
     // global.rethinkdbConnection = connection;
