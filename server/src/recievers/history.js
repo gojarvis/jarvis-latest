@@ -1,6 +1,6 @@
-import GraphUtils from '../utils/graph';
-import r from 'rethinkdb'
-import moment from 'moment'
+const GraphUtils = require('../utils/graph')
+const r = require('rethinkdb')
+const moment = require('moment')
 
 class HistoryReciever {
   constructor() {
@@ -18,7 +18,7 @@ class HistoryReciever {
         recommendations: []
       };
 
-      
+
 
       console.log(response);
       resolve(response);

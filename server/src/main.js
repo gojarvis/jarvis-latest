@@ -8,12 +8,12 @@ var http = require('http').Server(app);
 var bodyParser = require('body-parser');
 var kue = require('kue');
 var ui = require('kue-ui');
-import r from 'rethinkdb'
+var r = require('rethinkdb');
 var graphController = require('./controllers/graph')
 var childProc = require('child_process');
-import config from 'config';
-import passport from 'passport';
-import _ from 'lodash';
+var config = require('config');
+var passport = require('passport');
+var _ = require('lodash');
 
 var path = require("path");
 

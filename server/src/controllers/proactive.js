@@ -1,9 +1,9 @@
-import heartbeats from 'heartbeats'
-import r from 'rethinkdb'
-import _ from 'lodash'
-import moment from 'moment'
-import Meta from './metadataManager';
-import graphUtils from '../utils/graph';
+const heartbeats = require('heartbeats')
+const r = require('rethinkdb')
+const _ = require('lodash')
+const moment = require('moment')
+const Meta = require('./metadataManager')
+const graphUtils = require('../utils/graph')
 
 class Proactive {
     constructor(socket, sid, io, context, history, deep){

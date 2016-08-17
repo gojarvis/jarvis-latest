@@ -1,9 +1,9 @@
-import heartbeats from 'heartbeats'
-import _ from 'lodash';
-import watson from 'watson-developer-cloud';
-import r from 'rethinkdb'
-import config from 'config';
-import GraphUtil from '../utils/graph';
+let heartbeats = require('heartbeats')
+let _ = require('lodash')
+let watson = require('watson-developer-cloud')
+let r = require('rethinkdb')
+let config = require('config')
+let GraphUtil = require('../utils/graph')
 let graphUtil = new GraphUtil();
 
 let dbConfig = config.get('graph');

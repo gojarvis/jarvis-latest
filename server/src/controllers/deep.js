@@ -1,6 +1,6 @@
-import GraphDB from '../utils/graph'
-import r from 'rethinkdb'
-import Promise from 'bluebird';
+let GraphDB = require('../utils/graph')
+let r = require('rethinkdb')
+let Promise = require('bluebird')
 
 
 let graph = new GraphDB();

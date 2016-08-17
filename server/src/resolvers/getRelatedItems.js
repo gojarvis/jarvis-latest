@@ -1,8 +1,8 @@
-import EventEmitter from 'events';
-import r from 'rethinkdb'
-import colors from 'colors';
-import GraphDB from '../utils/graph'
-import imm from 'immutable';
+const EventEmitter = require('events')
+const r = require('rethinkdb')
+const colors = require('colors')
+const GraphDB = require('../utils/graph')
+const imm = require('immutable')
 
 let graph = new GraphDB();
 let conn = {};

@@ -1,6 +1,6 @@
-import EventEmitter from 'events';
-import r from 'rethinkdb'
-import _ from 'lodash'
+const EventEmitter = require('events')
+const r = require('rethinkdb')
+const _ = require('lodash')
 
 
 
