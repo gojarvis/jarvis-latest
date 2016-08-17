@@ -79,14 +79,12 @@ class MainView extends Component {
             items={queriedItems.items.toJS()}
             {...boundActions} />
 
-          <div>
+          <div style={styles.toggle}>
             <Toggle
               onToggle={() => { this.props.dispatch(ActionCreators.toggleAutoswitch()) }}
               toggle={this.props.queriedItems.autoswitch}
               label="Autoswitch"
-              labelPosition="right"
-              style={styles.toggle}
-            />
+              labelPosition="right" />
           </div>
 
           {/*<hr />
@@ -108,7 +106,9 @@ const styles = {
     color: 'white',
     padding: 10,
     backgroundColor: 'white',
-    marginBottom: 16,
+    position: 'fixed',
+    bottom: 0,
+    width: '100%'
   },
 };
 
