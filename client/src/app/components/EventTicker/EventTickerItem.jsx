@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import {File, Browser} from '../Icons';
 import IconText from 'components/IconText';
 import FB from 'styles/flexbox';
+let agent = require('superagent-promise')(require('superagent'), Promise);
 
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
@@ -39,14 +40,13 @@ class EventTickerItem extends React.Component {
     this.setState({expanded: false});
   };
 
-  async externalLinkClick(address, type){
-
-    let params = {
-      address : address,
-      type: type
-    };
-    let result = await agent.post('http://localhost:3000/open', params);
-  }
+  // async externalLinkClick(address, type){
+  //   let params = {
+  //     address : address,
+  //     type: type
+  //   };
+  //   let result = await agent.post('http://localhost:3000/open', params);
+  // }
 
   render() {
     let item = this.props.item;
@@ -86,9 +86,12 @@ class EventTickerItem extends React.Component {
         title={JSON.stringify(item, null, 1)}
         style={STYLES.container}
         onClick={() => this.props.onClick(this.props.item.data.nodeId)}>
-        <IconText icon='external-link' onClick={() => externalLinkClick(item.address, item.type)} style={{cursor: 'pointer'}} />
-        <IconText icon={iconClass} style={{marginRight: 10}} iconColor={iconColor} />
-        <span style={STYLES.title}>{title.slice(0,35)}</span>
+        {/* <IconText icon='external-link' onClick={() => externalLinkClick(item.address, item.type)} style={{cursor: 'pointer'}} /> */}
+        <div style={STYLES.row}>
+          <IconText icon={iconClass} style={{marginRight: 10}} iconColor={iconColor} />
+          <span style={STYLES.title}>{title.slice(0,35)}{title.length > 35 ? '...' : ''}</span>
+        </div>
+        <div style={STYLES.subtitle}>{momentText}</div>
       </div>
     );
   }
@@ -98,17 +101,28 @@ const STYLES = {
   container: {
     ...FB.base,
     ...FB.justify.center,
-    ...FB.align.center,
+    ...FB.align.end,
     borderRadius: 4,
     cursor: 'pointer',
     margin: "10px 0 10px 10px",
     flexShrink: 0,
     backgroundColor: '#fff',
     padding: 10,
+    color: '#000',
+    flexDirection: 'column',
+    minWidth: 100
+  },
+  row: {
+    ...FB.base,
+    ...FB.justify.center,
+    ...FB.align.center,
+    alignSelf: 'flex-start'
   },
   title: {
-    fontSize: 20,
-    color: '#000'
+    fontSize: 18
+  },
+  subtitle: {
+    fontSize: 11
   },
 }
 
