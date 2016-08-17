@@ -10,8 +10,8 @@ const History = require('../controllers/historyManager');
 const Proactive = require('../controllers/proactive');
 const Deep = require('../controllers/deep');
 const Conversations = require('../controllers/conversationsManager');
-import config from 'config';
-import _ from 'lodash';
+let config = require('config');
+let _ = require('lodash');
 //The context contains all the urls and files open right now
 //Access to the knowledge graph is gained via the context
 let userConfig = config.get('user');

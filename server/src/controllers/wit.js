@@ -1,9 +1,9 @@
-const rec       = require('node-record-lpcm16'),
-      request   = require('request');
+let rec       = require('node-record-lpcm16');
+let request   = require('request');
 
-const witToken = 'GRATHGRK7U6MQA7I47YU5Z6VCLXSZFUJ'; // get one from wit.ai!
-const wit = require('node-wit');
-const shellConnector = require('./witShellConnector');
+let witToken = 'GRATHGRK7U6MQA7I47YU5Z6VCLXSZFUJ'; // get one from wit.ai!
+let wit = require('node-wit');
+let shellConnector = require('./witShellConnector');
 
 class WitController {
   constructor(socket){

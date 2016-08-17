@@ -1,9 +1,9 @@
-const heartbeats = require('heartbeats')
-const r = require('rethinkdb')
-const _ = require('lodash')
-const moment = require('moment')
-const Meta = require('./metadataManager')
-const graphUtils = require('../utils/graph')
+let heartbeats = require('heartbeats')
+let r = require('rethinkdb')
+let _ = require('lodash')
+let moment = require('moment')
+let Meta = require('./metadataManager')
+let graphUtils = require('../utils/graph')
 
 class Proactive {
     constructor(socket, sid, io, context, history, deep){

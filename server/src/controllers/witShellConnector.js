@@ -1,4 +1,4 @@
-import exec from './nodeExec'
+let exec = require('./nodeExec')
 
 class witShellConnector {
   constructor(socket){

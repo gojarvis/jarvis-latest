@@ -1,4 +1,4 @@
-import shExec from './shExec'
+let shExec = require('./shExec')
 
 class FileSystemController {
   constructor(socket){

@@ -1,9 +1,6 @@
-const EventEmitter = require('events')
-const r = require('rethinkdb')
-const _ = require('lodash')
-
-
-
+let EventEmitter = require('events')
+let r = require('rethinkdb')
+let _ = require('lodash')
 
 let socket = global._socket;
 

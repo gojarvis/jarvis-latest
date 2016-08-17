@@ -1,5 +1,5 @@
-import EventEmitter from 'events';
-import Immutable from 'immutable';
+let EventEmitter = require('events');
+let Immutable = require('immutable');
 
 let socket = global._socket;
 

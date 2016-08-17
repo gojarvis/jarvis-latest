@@ -1,17 +1,17 @@
-import request from 'request-promise'
-import watson from 'watson-developer-cloud';
-import GraphDB from '../utils/graph';
-import _ from 'lodash'
-import wdk from 'wikidata-sdk';
-import imm from 'immutable';
-import colors from 'colors';
-import fs from 'fs';
+let request = require('request-promise');
+let watson = require('watson-developer-cloud');
+let GraphDB = require('../utils/graph');
+let _ = require('lodash');
+let wdk = require('wikidata-sdk');
+let imm = require('immutable');
+let colors = require('colors');
+let fs = require('fs');
 
 let graphUtils = new GraphDB();
 //9afdfd3783da57ff673da2316105c8e52f411576
 
 let alchemy_language = watson.alchemy_language({api_key: 'ab2b4727617c0d529641168272d1e661634feb72'});
-import config from 'config';
+let config = require('config');
 
 let dbConfig = config.get('graph');
 

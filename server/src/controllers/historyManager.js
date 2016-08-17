@@ -4,7 +4,7 @@
 // console.log(thinky, type);
 
 
-// import Thinky from 'thinky'
+// let Thinky = require('thinky')
 
 var db = global.thinky;
 var type = db.type;

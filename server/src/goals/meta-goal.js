@@ -1,8 +1,8 @@
-import imm from 'immutable';
-import {getFromUser, getFromUserIntent} from '../resolvers';
-import EventEmitter from 'events';
-import colors from 'colors';
-import Goal from './goal'
+let imm = require('immutable');
+let {getFromUser, getFromUserIntent} = require('../resolvers');
+let EventEmitter = require('events');
+let colors = require('colors');
+let Goal = require('./goal');
 
 let socket = global._socket;
 

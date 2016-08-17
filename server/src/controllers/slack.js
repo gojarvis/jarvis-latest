@@ -1,4 +1,4 @@
-import Botkit from 'botkit'
+let Botkit = require('botkit')
 
 let slackToken = 'xoxb-18928714965-rWRulI1O6h55r2sM140EpEqX'
 let autoReconnect = true

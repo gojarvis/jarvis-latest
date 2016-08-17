@@ -1,5 +1,5 @@
-import Leap from 'leapjs'
-import sfx from 'sfx'
+let Leap = require('leapjs')
+let sfx = require('sfx')
 
 // let T = require("timbre");
 

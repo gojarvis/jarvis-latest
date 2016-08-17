@@ -1,12 +1,12 @@
-// import StateMachine from 'fsm-as-promised'
-// import machine from 'machina'
-import HistoryGoal from '../goals/history'
-import GreetingGoal from '../goals/greeting'
-import KnowledgeGoal from '../goals/knowledge'
-import SimilarActivityGoal from '../goals/similarActivity'
-import events from 'events'
-import imm, {Map, List} from 'immutable'
-import Goal from '../goals/goal'
+// let StateMachine = require('fsm-as-promised');
+// let machine = require('machina');
+let HistoryGoal = require('../goals/history');
+let GreetingGoal = require('../goals/greeting');
+let KnowledgeGoal = require('../goals/knowledge');
+let SimilarActivityGoal = require('../goals/similarActivity');
+let events = require('events');
+let imm, {Map, List} = require('immutable');
+let Goal = require('../goals/goal');
 
 let i = 0;
 

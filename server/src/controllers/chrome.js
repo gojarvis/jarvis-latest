@@ -1,13 +1,13 @@
-import serialize from 'serialization'
-import model from 'seraph-model';
-import Promise from 'bluebird';
-// import PouchDB from 'pouchdb';
-import _ from 'lodash';
-import keywordExtractor from 'keyword-extractor';
-import MetaInspector from 'node-metainspector';
+let serialize = require('serialization');
+let model = require('seraph-model');
+let Promise = require('bluebird');
+// let PouchDB = require('pouchdb');
+let _ = require('lodash');
+let keywordExtractor = require('keyword-extractor');
+let MetaInspector = require('node-metainspector');
 
-import request from 'request-promise'
-import config from 'config';
+let request = require('request-promise');
+let config = require('config');
 
 let dbConfig = config.get('graph');
 

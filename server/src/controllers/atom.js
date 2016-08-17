@@ -1,12 +1,12 @@
-import Redis from 'ioredis'
-import serialize from 'serialization'
-import model from 'seraph-model';
-import Promise from 'bluebird';
-import PouchDB from 'pouchdb';
-import _ from 'lodash';
-import keywordExtractor from 'keyword-extractor';
-import MetaInspector from 'node-metainspector';
-import config from 'config';
+let Redis = require('ioredis');
+let serialize = require('serialization');
+let model = require('seraph-model');
+let Promise = require('bluebird');
+let PouchDB = require('pouchdb');
+let _ = require('lodash');
+let keywordExtractor = require('keyword-extractor');
+let MetaInspector = require('node-metainspector');
+let config = require('config');
 
 let dbConfig = config.get('graph');
 

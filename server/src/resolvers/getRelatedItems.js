@@ -1,8 +1,8 @@
-const EventEmitter = require('events')
-const r = require('rethinkdb')
-const colors = require('colors')
-const GraphDB = require('../utils/graph')
-const imm = require('immutable')
+let EventEmitter = require('events')
+let r = require('rethinkdb')
+let colors = require('colors')
+let GraphDB = require('../utils/graph')
+let imm = require('immutable')
 
 let graph = new GraphDB();
 let conn = {};

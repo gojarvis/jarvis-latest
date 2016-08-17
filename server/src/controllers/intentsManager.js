@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import historyReciever from '../recievers/history'
+let _ = require('lodash')
+let historyReciever = require('../recievers/history')
 
 class IntentsManager {
   constructor(context) {

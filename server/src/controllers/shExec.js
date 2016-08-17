@@ -1,4 +1,4 @@
-import Q from 'q'
+let Q = require('q');
 let spawn = require('child_process').spawn;
 
 module.exports = function(command){

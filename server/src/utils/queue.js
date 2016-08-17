@@ -1,6 +1,6 @@
-import imm from 'immutable';
-import {OrderedSet, Map, List} from 'immutable';
-import colors from 'colors';
+let imm = require('immutable');
+let {OrderedSet, Map, List} = require('immutable');
+let colors = require('colors');
 
 
 class Queue{

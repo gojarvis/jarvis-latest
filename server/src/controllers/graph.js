@@ -1,4 +1,4 @@
-  import config from 'config';
+let config = require('config');
 let dbConfig = config.get('graph');
 
 let graph = require("seraph")({
@@ -68,7 +68,7 @@ let graphController = {
       normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
       cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, collect(distinct endNode)[0] as endNode order by relationshipWeight desc`
     }
-    
+
     if (startUserNodeId && endUserNodeIds && endUserNodeIds.length > 0){
       cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]->(${startNodeString})-[${'startUserRel_' + relationshipCypherVariableString}]->(${endNodeString})<-[${'endUserRel_' + relationshipCypherVariableString}]-(endUserNode:User) where ID(startNode) = ${nodeId}`
       cypher += ` and ID(startUserNode) = ${startUserNodeId}`

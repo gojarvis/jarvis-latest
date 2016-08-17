@@ -1,6 +1,6 @@
 //TODO: All graph methods should live in one place. Currently unused.
-import Redis from 'ioredis'
-import config from 'config';
+let Redis = require('ioredis');
+let config = require('config');
 let redis = new Redis();
 let pipeline = redis.pipeline();
 

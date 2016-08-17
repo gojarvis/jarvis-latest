@@ -1,9 +1,8 @@
-import brain from 'brain'
-import limdu from 'limdu'
-import Redis from 'ioredis'
-import serialize from 'serialization'
-
-import IntentsManager from './intentsManager.js';
+let brain = require('brain')
+let limdu = require('limdu')
+let Redis = require('ioredis')
+let serialize = require('serialization')
+let IntentsManager = require('./intentsManager.js')
 
 // First, define our base classifier type (a multi-label classifier based on svm.js):
 let TextClassifier = limdu.classifiers.multilabel.BinaryRelevance.bind(0, {

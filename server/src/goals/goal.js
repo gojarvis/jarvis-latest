@@ -1,13 +1,13 @@
-import imm from 'immutable';
-import {Map, List} from 'immutable';
-import EventEmitter from 'events';
-import colors from 'colors';
-import async from 'async'
-import _ from 'lodash'
-import Immutable from 'immutable'
-import kue from 'kue';
-import Resolvers from '../resolvers'
-import Queue from '../utils/queue'
+let imm = require('immutable');
+let {Map, List} = require('immutable');
+let EventEmitter = require('events');
+let colors = require('colors');
+let async = require('async');
+let _ = require('lodash');
+let Immutable = require('immutable');
+let kue = require('kue');
+let Resolvers = require('../resolvers');
+let Queue = require('../utils/queue');
 
 
 // console.log('RESOLVERS'.yellow, Resolvers);

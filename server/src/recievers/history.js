@@ -1,6 +1,6 @@
-const GraphUtils = require('../utils/graph')
-const r = require('rethinkdb')
-const moment = require('moment')
+let GraphUtils = require('../utils/graph')
+let r = require('rethinkdb')
+let moment = require('moment')
 
 class HistoryReciever {
   constructor() {

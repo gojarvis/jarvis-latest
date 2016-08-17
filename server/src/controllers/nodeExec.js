@@ -1,7 +1,6 @@
-
-import nodemon from 'nodemon';
-import Q from 'q'
-let spawn = require('child_process').spawn;
+let nodemon = require('nodemon')
+let Q = require('q')
+let {spawn} = require('child_process');
 
 
 

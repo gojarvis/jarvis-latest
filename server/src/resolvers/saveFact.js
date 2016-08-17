@@ -1,5 +1,5 @@
-// import colors from 'colors';
-// import Thinky from 'thinky'
+// let colors = require('colors');
+// let Thinky = require('thinky'):
 //
 // var db = Thinky();
 // var type = db.type;
@@ -13,7 +13,7 @@
 //   source: type.string()
 // })
 //
-// import EventEmitter from 'events';
+// let EventEmitter = require('events');
 // let socket = global._socket;
 //
 // class saveFact {

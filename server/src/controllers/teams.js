@@ -1,9 +1,8 @@
-
-import config from 'config';
-import GraphUtil from '../utils/graph';
+let config = require('config');
+let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
-import _ from 'lodash';
-import Moniker from 'moniker';
+let _ = require('lodash');
+let Moniker = require('moniker');
 
 
 let dbConfig = config.get('graph');

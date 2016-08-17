@@ -1,6 +1,6 @@
 let queue = kue.createQueue();
 
-import kue from 'kue'
+let kue = require('kue')
 
 
 class speaker{

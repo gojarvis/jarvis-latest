@@ -1,6 +1,6 @@
-import EventEmitter from 'events';
-import eventToPromise from 'event-to-promise'
-import colors from 'colors';
+let EventEmitter = require('events');
+let eventToPromise = require('event-to-promise');
+let colors = require('colors');
 
 
 class getFromUser {
