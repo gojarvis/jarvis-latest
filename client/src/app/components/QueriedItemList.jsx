@@ -1,5 +1,6 @@
 import { Component, PropTypes } from 'react';
 import QueriedItem from 'components/QueriedItem';
+import FlipMove from 'react-flip-move';
 
 class QueriedItemList extends Component {
   constructor(...args) {
@@ -12,7 +13,7 @@ class QueriedItemList extends Component {
 
   render() {
     let items;
-    if (this.props.items.length > 0){
+    if (!this.props.isFetching && this.props.items.length > 0){
       items = this.props.items.map((item, index) => {
         if (item.relationshipType !== true){
           return (
@@ -26,12 +27,12 @@ class QueriedItemList extends Component {
       })
     }
     else{
-      items = <div style={{padding: '20px'}}>@_________@</div>
+      items = <div style={{padding: '20px', textAlign: 'center'}}>@_________@</div>
     }
     return (
-      <div>
+      <FlipMove enterAnimation='fade' leaveAnimation='fade'>
         {items}
-      </div>
+      </FlipMove>
     );
   }
 }

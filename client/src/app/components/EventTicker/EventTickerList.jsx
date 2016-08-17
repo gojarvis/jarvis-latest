@@ -3,6 +3,7 @@ import Radium from 'radium';
 import EventTickerItem from './EventTickerItem';
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
+import FlipMove from 'react-flip-move';
 import FB from 'styles/flexbox';
 require('./EventTicker.css');
 
@@ -21,10 +22,10 @@ class EventTickerList extends Component {
     }
   }
 
-  render() {
+  _renderItems() {
     let items;
     if (this.props.items.size > 0) {
-      items = this.props.items.map((item, index) => {
+      items = this.props.items.take(7).map((item, index) => {
         let color = "rgba(80, 195, 210, 0.67)" ;
 
         if (index === 0) {
@@ -50,17 +51,15 @@ class EventTickerList extends Component {
        </Card>
     }
 
+    return items;
+  }
+
+  render() {
     return (
       <div style={styles.eventTickerList} className='eventTickerList'>
-        <CSSTransitionGroup
-          transitionName='example'
-          transitionEnterTimeout={500}
-          transitionLeaveTimeout={300}
-          component='div'
-          style={{...FB.base, ...FB.align.stretch}}
-          className='event-ticker-list'>
-          {items}
-        </CSSTransitionGroup>
+        <FlipMove enterAnimation="accordianHorizontal" leaveAnimation="accordianHorizontal" style={{...FB.base, flexDirection: 'row'}}>
+          {this._renderItems()}
+        </FlipMove>
       </div>
     );
   }

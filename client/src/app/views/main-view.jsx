@@ -77,6 +77,7 @@ class MainView extends Component {
 
           <QueriedItemList
             items={queriedItems.items.toJS()}
+            isFetching={this.props.queriedItems.isFetching}
             {...boundActions} />
 
           <div style={styles.toggle}>
