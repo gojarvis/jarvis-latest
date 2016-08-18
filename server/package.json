@@ -5,7 +5,8 @@
   "author": "Roie Schwaber-Cohen",
   "scripts": {
     "start": "node index.js",
-    "nodemon": "nodemon index.js"
+    "nodemon": "nodemon index.js",
+    "build": "webpack -p --progress"
   },
   "dependencies": {
     "alasql": "^0.2.5",
