@@ -8,7 +8,9 @@ var http = require('http').Server(app);
 var bodyParser = require('body-parser');
 var kue = require('kue');
 var ui = require('kue-ui');
-var r = require('rethinkdb');
+
+var rethink = require('rethinkdb');
+
 var graphController = require('./controllers/graph')
 var childProc = require('child_process');
 var config = require('config');
@@ -270,7 +272,7 @@ setTimeout(()=>{
     console.log('PRODUCTION MODE');
       app.use(express.static(path.join(__dirname,"../../client/build")));
   }
-  let p = r.connect({host: rethinkConfig.host || "104.131.111.80", db: rethinkConfig.db});
+  let p = rethink.connect({host: rethinkConfig.host || "104.131.111.80", db: rethinkConfig.db});
   p.then(function(connection){
     // global.rethinkdbConnection = connection;
   });

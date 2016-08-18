@@ -25,7 +25,8 @@ module.exports = {
       test: /\.js$/,  //All .js and .jsx files
       loader: 'babel-loader',
       query: {
-        presets: ['es2015']
+        presets: ['es2015'],
+        plugins: ['transform-runtime']
       },
       exclude: /node_modules/
     }, {
