@@ -13,10 +13,10 @@ let graph = require("seraph")({
 });
 
 
-
 class GraphDB{
   constructor(){
-
+    graph.constraints.uniqueness.create('Url', 'url', function(err, constraint) {});
+    graph.constraints.uniqueness.create('User', 'username', function(err, constraint) {});
   }
 
   async getNode(type, index, value){
@@ -100,8 +100,6 @@ class GraphDB{
     // MATCH (n:User)-[t:touched]-(q)-[r]-(s)-[ot:touched]-(ou:User) RETURN n,q,r,s,ou ORDER BY r.weight DESC LIMIT 10
   }
 
-
-
   async getRelevantNodes(){
     let relevantUrls = await this.getRelevantUrls()
     // let relevantFiles = await this.getRelevantUrls()
@@ -118,15 +116,6 @@ class GraphDB{
     // console.log(related);
     return related;
   }
-
-
-
-  async getRelevantKeywords(){
-
-  }
-
-
-
 
   async relateOneToMany(origin, others, relationship){
     let relationships = [];
@@ -194,6 +183,64 @@ class GraphDB{
   }
 
 
+
+  //// Functions moved here for convinience, should be re-written
+  saveUrl(url, title){
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.getUrl(url).then(function(result){
+        let node = result;
+        if (!_.isUndefined(node)){
+          resolve(node)
+        }
+        else{
+          try {
+            graph.save({type: 'url', address: url, keywords: '', title: title}, 'Url', function(err, result){
+              // console.log(err, result);
+              if (err) {
+                try {
+                  self.getUrl(url).then(function(result){
+                    node = result;
+                    console.log('already existed', node);
+                    resolve(node)
+                  })
+                } catch (e) {
+                    console.log('cant get or save url', e);
+                } finally {
+
+                }
+                // console.log('Cant save node', err);
+                // reject(err);
+              }
+              else{
+                node = result;
+                console.log('SAVED URL', result);
+                resolve(node);
+              }
+
+            });
+          } catch (e) {
+            console.log('url probably exist', e);
+          }
+        }
+
+      });
+
+    });
+  }
+
+  getUrl(url){
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      graph.find({type: 'url', address: url}, function(err, node){
+        node = node ? node[0] : false;
+        if (err) reject(err)
+        else {
+          resolve(node);
+        }
+      });
+    });
+  }
 
 }
 

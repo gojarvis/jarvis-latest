@@ -1,26 +1,25 @@
-var express = require('express');
-var cookieParser = require('cookie-parser');
-var session = require('express-session');
-var cookieSession = require('cookie-session');
-var proxy = require('http-proxy-middleware');
-var app = express();
-var http = require('http').Server(app);
-var bodyParser = require('body-parser');
-var kue = require('kue');
-var ui = require('kue-ui');
+let express = require('express');
+let cookieParser = require('cookie-parser');
+let session = require('express-session');
+let cookieSession = require('cookie-session');
+let proxy = require('http-proxy-middleware');
+let app = express();
+let http = require('http').Server(app);
+let bodyParser = require('body-parser');
+let kue = require('kue');
+let ui = require('kue-ui');
 
-var rethink = require('rethinkdb');
+let rethink = require('rethinkdb');
 
-var graphController = require('./controllers/graph')
-var childProc = require('child_process');
-var config = require('config');
-var passport = require('passport');
-var _ = require('lodash');
+let graphController = require('./controllers/graph')
+let childProc = require('child_process');
+let config = require('config');
+let passport = require('passport');
+let _ = require('lodash');
 
-var path = require("path");
+let path = require("path");
 
-var isDev = process.env.JARVIS_DEV || false;
-
+let isDev = process.env.JARVIS_DEV || false;
 
 let dbConfig = config.get('graph');
 let userConfig = config.get('user');
@@ -28,21 +27,24 @@ let projectsPath = userConfig.projectsPath;
 let rethinkConfig = config.get('rethink');
 let GraphUtil = require('./utils/graph');
 let graphUtil = new GraphUtil();
-var usersController = require('./controllers/users');
+let usersController = require('./controllers/users');
+let teamsController = require('./controllers/teams');
 
-var sessionData = {};
+let sessionData = {};
 
-var teamsController = require('./controllers/teams')
-var db = require('thinky')({
+
+let db = require('thinky')({
   host: rethinkConfig.host || "104.131.111.80"
 });
 
 global.thinky = db;
 
+let initialized = false;
+
 /** Passport **/
-var GitHubStrategy = require('passport-github').Strategy;
-var GITHUB_CLIENT_ID = 'a595d84888f2d2a687a4';
-var GITHUB_CLIENT_SECRET = '3279791b36883a5138acf4db4080a5982faee3d8';
+let GitHubStrategy = require('passport-github').Strategy;
+let GITHUB_CLIENT_ID = 'a595d84888f2d2a687a4';
+let GITHUB_CLIENT_SECRET = '3279791b36883a5138acf4db4080a5982faee3d8';
 passport.use(new GitHubStrategy({
   clientID: GITHUB_CLIENT_ID,
   clientSecret: GITHUB_CLIENT_SECRET,
@@ -90,7 +92,7 @@ function ensureAdmin(req, res, next) {
   // res.redirect('/');
 }
 
-var initialized = false;
+
 
 function init(user){
   return new Promise(function(resolve, reject) {

@@ -21,26 +21,14 @@ let chromeExtensionEnabled = true;
 
 let graphAsync = Promise.promisifyAll(graph);
 
-graph.constraints.uniqueness.create('Url', 'address', function(err, constraint) {
-  // console.log(constraint);
-  // -> { type: 'UNIQUENESS', label: 'Person', property_keys: ['name'] }
-});
-//
-// graph.constraints.uniqueness.create('Keyword', 'text', function(err, constraint) {
-//   // console.log(constraint);
-//   // -> { type: 'UNIQUENESS', label: 'Person', property_keys: ['name'] }
-// });
-
-// let db = new PouchDB('sherpa');
 
 
 class ChromeController {
-  constructor(socket, sid,io, context, history){
+  constructor(socket,io, context, history){
     this.socket = socket;
     this.tabs = [];
     this.urls = [];
     this.activeTab = {};
-    this.sid = sid;
     this.io = io;
     this.context = context;
     this.history = history;

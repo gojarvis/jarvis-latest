@@ -16,6 +16,7 @@ function queryGraph(cypher, params={}){
     });
   });
 }
+
 async function getNormalizedWeight(query){
   let normalizedSumCypherResult = await queryGraph(query);
   let normalizedWeight ;
