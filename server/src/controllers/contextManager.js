@@ -66,7 +66,6 @@ class contextManager{
 
   }
 
-
   async setUser(user){
     let graphUser = await graphUtil.getSaveUserInGraph(user)
 
@@ -91,12 +90,23 @@ class contextManager{
   }
 
   async updateUserActivity(){
+    console.log('updateUserActivity');
+    let activeUrlDetails = this.getActiveUrl();
+    let urlNode;
 
-    let activeUrl = this.getActiveUrl();
-    let urlNode = await graphUtil.getUrlNodeByUrl(activeUrl.url);
+    try {
+      urlNode  = await graphUtil.getAndSaveUrlNode(activeUrlDetails);
+      console.log('updateUserActivity - ACTIVE URL', urlNode);
+      let rel = graphUtil.relateNodes(this.user, urlNode, 'touched');
 
+
+
+    } catch (e) {
+      console.log('cant updateUserActivity', e);
+    } finally {
+      return urlNode;
+    }
     //Mark URL as touched
-    let rel = graphUtil.relateNodes(this.user, urlNode, 'touched');
 
   }
 
@@ -111,9 +121,18 @@ class contextManager{
     // console.log('updated tabs', this.urlsArtifacts);
   }
 
-  setActiveUrl(url){
+  async setActiveUrl(url){
+    console.log('setActiveUrl', url);
     this.activeUrl = url;
-    this.updateUserActivity();
+    let activeUrlNode;
+    try {
+      activeUrlNode = await this.updateUserActivity();
+    } catch (e) {
+      console.log('cant set active url', );
+    } finally {
+      return activeUrlNode;
+    }
+
   }
 
   getActiveUrl(){

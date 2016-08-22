@@ -3,6 +3,7 @@ let Redis = require('ioredis');
 let config = require('config');
 let redis = new Redis();
 let pipeline = redis.pipeline();
+let _ = require('lodash');
 
 let dbConfig = config.get('graph');
 
@@ -12,11 +13,13 @@ let graph = require("seraph")({
   server: dbConfig.server
 });
 
+graph.constraints.uniqueness.create('Url', 'url', function(err, constraint) {});
+graph.constraints.uniqueness.create('User', 'username', function(err, constraint) {});
+graph.constraints.uniqueness.create('File', 'address', function(err, constraint) {});
 
 class GraphDB{
   constructor(){
-    graph.constraints.uniqueness.create('Url', 'url', function(err, constraint) {});
-    graph.constraints.uniqueness.create('User', 'username', function(err, constraint) {});
+
   }
 
   async getNode(type, index, value){
@@ -57,12 +60,17 @@ class GraphDB{
 
   getUrlNodeByUrl(url){
     return new Promise(function(resolve, reject) {
+      console.log('FINDING', url);
       graph.find({type: 'url', url: url}, function(err, urls){
         if (err)  {
           console.log(err);
           reject(err);
         }
-        else resolve(urls[0])
+
+        else {
+          console.log('URLS', urls);
+          resolve(urls[0])
+        }
       })
     });
   }
@@ -182,12 +190,57 @@ class GraphDB{
     });
   }
 
+  saveFile(address){
+    let self = this;
+    let trimmedAddress = address.replace(projectsPath, '');
+    // console.log('TRIMMED ADDRESS', trimmedAddress);
+    return new Promise(function(resolve, reject) {
+      graph.save({type: 'file', address: trimmedAddress}, 'File', function(err, node){
+        node = node ? node : {type: 'file', address: address};
+        if (err) {
+          console.log('err', err);
+          reject(err)
+        }
+        else {
+          console.log('node',node);
+          resolve(node);
+        }
+      });
+    });
+  }
 
+  getFile(address){
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      graph.find({type: 'file', address: address}, function(err, node){
+        node = node ? node[0] : {type: 'file', address: address};
+        if (err) reject(err)
+        else {
+          resolve(node);
+        }
+      });
+    });
+  }
 
   //// Functions moved here for convinience, should be re-written
+
+  async getAndSaveUrlNode(activeUrlDetails){
+      let {url, title} = activeUrlDetails;
+      console.log('getAndSaveUrlNode', url, title);
+      let node;
+      try {
+        node = await this.saveUrl(url, title)
+      } catch (e) {
+        console.log('cant get save url');
+      } finally {
+        return node;
+      }
+  }
+
   saveUrl(url, title){
     let self = this;
     return new Promise(function(resolve, reject) {
+
       self.getUrl(url).then(function(result){
         let node = result;
         if (!_.isUndefined(node)){

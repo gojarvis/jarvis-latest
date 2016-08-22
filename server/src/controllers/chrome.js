@@ -1,27 +1,13 @@
-let serialize = require('serialization');
-let model = require('seraph-model');
 let Promise = require('bluebird');
-// let PouchDB = require('pouchdb');
 let _ = require('lodash');
-let keywordExtractor = require('keyword-extractor');
-let MetaInspector = require('node-metainspector');
 
 let request = require('request-promise');
 let config = require('config');
 
-let dbConfig = config.get('graph');
-
-let graph = require("seraph")({
-  user: dbConfig.user,
-  pass: dbConfig.pass,
-  server: dbConfig.server
-});
+let GraphUtil = require('../utils/graph');
+let graphUtil = new GraphUtil();
 
 let chromeExtensionEnabled = true;
-
-let graphAsync = Promise.promisifyAll(graph);
-
-
 
 class ChromeController {
   constructor(socket,io, context, history){
@@ -60,7 +46,7 @@ class ChromeController {
     self.socket.on('chrome-highlighted', function(msg){
       let {active, tabs} = msg;
       self.tabs = tabs;
-      console.log('===>TABS', tabs.length);
+      console.log('===>TABS', tabs.length, active);
       self.handleHighlighted(active).then(function(related){
           self.io.emit('related', related)
       });
@@ -118,62 +104,8 @@ class ChromeController {
     return true;
   }
 
-  getUrl(url){
-    let self = this;
-    return new Promise(function(resolve, reject) {
-      graph.find({type: 'url', address: url}, function(err, node){
-        node = node ? node[0] : {type: 'url', address: url};
-        if (err) reject(err)
-        else {
-          resolve(node);
-          if (node && !node.keywords || node.keywords.length === 0){
-            self.fetchUrlMetaData(url);
-          }
-        }
-
-
-      });
-    });
-  }
-
   getActiveTab(id){
     return this.tabs.filter(tab => tab.id === id)
-  }
-
-
-  getUrlById(id){
-    return new Promise(function(resolve, reject) {
-      // console.log('ID', id);
-      graph.read(id, function(err,node){
-        node = node ? node : {}
-        if (err) {
-          console.log(err);
-          reject(err)
-        }
-        else {
-          console.log('found url by id', node);
-          resolve(node);
-        }
-      })
-    });
-  }
-
-  getKeywordByText(keyword){
-    return new Promise(function(resolve, reject) {
-      graph.find({type: 'keyword', text: keyword}, function(err, keywords){
-        if (err) reject (err)
-        else resolve(keywords[0])
-      })
-    });
-  }
-
-  getUrlNodeByUrl(url){
-    return new Promise(function(resolve, reject) {
-      graph.find({type: 'url', address: url}, function(err, urls){
-        if (err) reject (err)
-        else resolve(urls[0])
-      })
-    });
   }
 
   async handleUpdated(active){
@@ -187,14 +119,16 @@ class ChromeController {
     let title = activeTab[0].title;
     // console.log('URL', url, 'TITIE', title);
 
-    let node = await this.getUrlNodeByUrl(activeTab[0].url);
+    let node = await graphUtil.getUrlNodeByUrl(activeTab[0].url);
 
     // console.log('NODE', node, this.context.activeUrl.url, activeTab[0].url);
     //
     if (_.isUndefined(node)){
-      node = await this.context.saveUrl(url, title)
+      node = await graphUtil.saveUrl(url, title)
       // console.log('NEW NODE', node);
     }
+
+    console.log('NODE', node, this.context.activeUrl);
 
     if( this.context.activeUrl.url !== activeTab[0].url){
       this.context.setActiveUrl({url: url, title: title});
@@ -227,28 +161,26 @@ class ChromeController {
     }
     let activeTab = this.getActiveTab(active.tabIds[0])
     let activeTabTitle = '';
-    // console.log('ACTIVE TAB', activeTab);
+    let activeTabUrl = '';
+
     if (!activeTab[0]){
       return [];
     }
     else{
       activeTabTitle = activeTab[0].title;
+      activeTabUrl = activeTab[0].url
     }
 
-    let activeUrl = { url: activeTab[0].url, title: activeTabTitle};
-    console.log('NODE BY URL', activeTab[0].url);
-    let node = await this.getUrlNodeByUrl(activeTab[0].url);
+    let activeUrl = { url: activeTabUrl, title: activeTabTitle};
+    console.log('ACTIVE URL ', activeUrl);
+    let node = await this.context.setActiveUrl(activeUrl);
 
 
-    this.context.setActiveUrl(activeUrl);
 
     this.history.saveEvent({type: 'highlighted', source: 'chrome', data: { nodeId: node.id, address: activeUrl.url, title: activeTab[0].title} }).then(function(res){
 
     });
   }
-
-
-
 
 
 }
