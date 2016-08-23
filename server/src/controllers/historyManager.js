@@ -1,11 +1,3 @@
-// var thinky = require('thinky')();
-//
-// var type = thinky.type;
-// console.log(thinky, type);
-
-
-// let Thinky = require('thinky')
-
 var db = global.thinky;
 var type = db.type;
 
@@ -28,7 +20,6 @@ class HistoryManager{
   saveEvent(event){
     try{
       let ev = new Event({timestamp: new Date(), eventType: event.type, source: event.source, data: event.data, user:this.user});
-      // console.log('system-event', ev);
       this.io.emit('system-event', ev);
       return ev.save()
     }

@@ -122,7 +122,6 @@ class contextManager{
   }
 
   async setActiveUrl(url){
-    console.log('setActiveUrl', url);
     this.activeUrl = url;
     let activeUrlNode;
     try {

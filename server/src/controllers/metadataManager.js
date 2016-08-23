@@ -1,13 +1,13 @@
 let request = require('request-promise');
 let watson = require('watson-developer-cloud');
-let GraphDB = require('../utils/graph');
+let GraphUtil = require('../utils/graph');
 let _ = require('lodash');
 let wdk = require('wikidata-sdk');
 let imm = require('immutable');
 let colors = require('colors');
 let fs = require('fs');
 
-let graphUtils = new GraphDB();
+let graphUtil = new GraphUtil();
 //9afdfd3783da57ff673da2316105c8e52f411576
 
 let alchemy_language = watson.alchemy_language({api_key: 'ab2b4727617c0d529641168272d1e661634feb72'});
@@ -21,16 +21,6 @@ let graph = require("seraph")({
   server: dbConfig.server
 });
 
-// let graph = require("seraph")({
-//   user: 'neo4j', pass: 'sherpa', server: 'http://104.236.57.246:7474',
-//   // server: 'http://localhost:7474',
-// });
-
-// we don't want to create constraints on our objects, as it throws an error when we try to MERGE
-// graph.constraints.uniqueness.create('Keyword', 'text', function (err, constraint) {
-//   // console.log(constraint);
-//   // -> { type: 'UNIQUENESS', label: 'Person', property_keys: ['name'] }
-// });
 
 class MetadataManager {
   constructor(userName) {
@@ -72,7 +62,7 @@ class MetadataManager {
         }
       }
 
-      let relatedKeywords = await graphUtils.getRelatedToUrl(url, 'related', 1);
+      let relatedKeywords = await graphUtil.getRelatedToUrl(url, 'related', 1);
       return relatedKeywords;
     } catch (e) {
       if (e.message.indexOf('alchemy') !== -1) {
@@ -332,7 +322,7 @@ class MetadataManager {
     let res = {};
 
     try {
-      res = await graphUtils.queryGraph(cypher, params);
+      res = await graphUtil.queryGraph(cypher, params);
       // console.log('res', res, cypher, params);
     } catch (err) {
       console.log('failed to relate', err, params);
@@ -379,34 +369,6 @@ class MetadataManager {
     } catch (err) {
       console.error('!: ', error);
     }
-
-    // return new Promise(function(resolve, reject) {
-    //   graph.find({type: 'keyword', text: keyword.text, alchemy: true},function(err,res){
-    //     if (err) {
-    //       console.log('could not find keyword', err);
-    //
-    //     }
-    //     else {
-    //       if (_.isEmpty(res)){
-    //         graph.save({type: 'keyword', text: keyword.text, alchemy:true}, 'Keyword', function(err, node){
-    //           if (err) {
-    //             console.log('cant save keyword', node, res,err,  keyword.text);
-    //           }
-    //           else {
-    //             console.log('saved keyword', node);
-    //             resolve(node[0])
-    //           }
-    //         });
-    //       }
-    //       else{
-    //         // console.log('found keyword', res[0]);
-    //         resolve(res[0]);
-    //       }
-    //
-    //     }
-    //   })
-    //
-    // });
   }
 }
 

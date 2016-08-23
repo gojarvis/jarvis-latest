@@ -58,8 +58,6 @@ class ChromeController {
       let {active, tabs} = message;
       self.tabs = tabs;
       await self.saveSession()
-      // let activeTab = tabs.filter(item => item.active);
-      // console.log('Chrome udpated, All tabs', active);
       self.handleUpdated(active).then(function(){
 
       });
@@ -83,19 +81,6 @@ class ChromeController {
       self.saveSession();
     });
 
-    self.socket.emit('speak', 'Ready, sir');
-    // let rnd = _.random(0,1000);
-    // request.get('http://numbersapi.com/'+rnd+'/trivia?notfound=floor&fragment')
-    // .then(function(res){
-    //   // let joke = JSON.parse(res).value.joke;
-    //   let wat = res;
-    //   // console.log(joke);
-    //   // self.socket.emit('speak', 'The number ' + rnd + ' is ' +  wat);
-    //   self.socket.emit('speak', 'Ready, sir');
-    // })
-    // .catch(function(err){
-    //   console.log('no jokes for you', err);
-    // });
   }
 
   async saveSession(){

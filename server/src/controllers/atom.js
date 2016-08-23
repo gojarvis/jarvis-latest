@@ -78,9 +78,6 @@ class AtomController {
     return relationships;
   }
 
-
-
-
   async getAndSave(address){
     let self = this;
     let fileNode = await graphUtil.getFile(address);
@@ -106,7 +103,6 @@ class AtomController {
     return rel
 
   }
-
 
   async handleFileClose(address){
     // console.log('close',address)

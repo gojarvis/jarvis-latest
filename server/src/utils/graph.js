@@ -17,7 +17,7 @@ graph.constraints.uniqueness.create('Url', 'url', function(err, constraint) {});
 graph.constraints.uniqueness.create('User', 'username', function(err, constraint) {});
 graph.constraints.uniqueness.create('File', 'address', function(err, constraint) {});
 
-class GraphDB{
+class GraphUtil{
   constructor(){
 
   }
@@ -298,4 +298,4 @@ class GraphDB{
 }
 
 
-module.exports = GraphDB;
+module.exports = GraphUtil;
