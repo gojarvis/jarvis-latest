@@ -35,28 +35,6 @@ class AtomController {
         });
     }
 
-    async saveSession(tabs) {
-        let graphNodes = [];
-        this.tabs = tabs;
-        try {
-            graphNodes = await Promise.all(tabs.map(tab => graphUtil.saveFile(tab.uri)));
-            if (graphNodes.length > 0) {
-
-            }
-        } catch (err) {
-            //already exists
-            graphNodes = await Promise.all(tabs.map(tab => graphUtil.getFile(tab.uri)));
-        }
-
-        this.urls = graphNodes;
-
-        let relationshipsTop = await Promise.all(graphNodes.map(node => {
-            let origin = node;
-            let others = graphNodes.filter(node => node.id !== origin.id);
-            let relationship = 'openwith';
-            return this.relateOneToMany(origin, others, relationship)
-        }));
-    }
 
     async relateOneToMany(origin, others, relationship) {
         // console.log(origin, others, relationship);

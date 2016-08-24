@@ -13,9 +13,11 @@ let graph = require("seraph")({
   server: dbConfig.server
 });
 
+//TODO: Change this to be address instead of URL
 graph.constraints.uniqueness.create('Url', 'url', function(err, constraint) {});
 graph.constraints.uniqueness.create('User', 'username', function(err, constraint) {});
 graph.constraints.uniqueness.create('File', 'address', function(err, constraint) {});
+graph.constraints.uniqueness.create('Command', 'address', function(err, constraint) {});
 
 class GraphUtil{
   constructor(){
@@ -116,6 +118,7 @@ class GraphUtil{
     return
   }
 
+  //TODO: BATCH
   async getRelevantUrls(){
 
     let urls = this.context.urls.map(item => item.url);
@@ -125,6 +128,7 @@ class GraphUtil{
     return related;
   }
 
+  //TODO: BATCH
   async relateOneToMany(origin, others, relationship){
     let relationships = [];
     try {
@@ -292,6 +296,62 @@ class GraphUtil{
           resolve(node);
         }
       });
+    });
+  }
+
+  getCommand(command){
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      graph.find({type: 'command', address: command}, function(err, node){
+        node = node ? node[0] : false;
+        if (err) reject(err)
+        else {
+          resolve(node);
+        }
+      });
+    });
+  }
+
+
+  saveCommand(command){
+    let self = this;
+    return new Promise(function(resolve, reject) {
+
+      self.getCommand(command).then(function(result){
+        let node = result;
+        if (!_.isUndefined(node)){
+          resolve(node)
+        }
+        else{
+          try {
+            graph.save({type: 'command', address: command}, 'Command', function(err, result){
+              if (err) {
+                try {
+                  self.getCommand(command).then(function(result){
+                    node = result;
+                    console.log('already existed', node);
+                    resolve(node)
+                  })
+                } catch (e) {
+                    console.log('cant get or save command', e);
+                } finally {
+
+                }
+              }
+              else{
+                node = result;
+                console.log('SAVED COMMAND', result);
+                resolve(node);
+              }
+
+            });
+          } catch (e) {
+            console.log('command probably exist', e);
+          }
+        }
+
+      });
+
     });
   }
 

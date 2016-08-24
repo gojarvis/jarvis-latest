@@ -10,5 +10,12 @@
   "license": "ISC",
   "devDependencies": {
     "nodemon": "^1.10.2"
+  },
+  "dependencies": {
+    "prompt": "^1.0.0",
+    "pty.js": "^0.3.1",
+    "socket.io-client": "^1.4.8",
+    "term.js": "0.0.7",
+    "utf8": "^2.1.1"
   }
 }
