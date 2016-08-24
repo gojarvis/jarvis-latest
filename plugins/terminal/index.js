@@ -9,6 +9,8 @@ var activeTupple = {
   response: ''
 }
 
+io.emit('terminal-connected');
+
 var term = pty.spawn('bash', [], {
     name: 'xterm-color',
     cols: 80,
@@ -72,16 +74,15 @@ function setActiveCommand(command){
 }
 
 function setActiveResponse(response){
-    activeTupple.response = response
+    activeTupple.response = response.replace('/r', '')
     saveCommandResponseTupple();
 }
 
 function saveCommandResponseTupple(){
+  io.emit('terminal-command', activeTupple)
   fs.writeFile("/var/log/Jarvis/mlog", JSON.stringify(activeTupple), function(err) {
     if(err) {
         return console.log(err);
     }
-
-    console.log("The file was saved!");
-});
+  });
 }

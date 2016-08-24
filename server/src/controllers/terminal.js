@@ -1,16 +1,11 @@
 let _ = require('lodash');
-let config = require('config');
-
-
 let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
 
-//TODO: Projects path
-let userConfig = config.get('user');
-let projectsPath = userConfig.projectsPath;
 
 class TerminalController {
     constructor(socket, io, context, history) {
+        console.log('constructing');
         this.socket = socket;
         this.registerEvents();
         this.tabs = [];
@@ -22,20 +17,20 @@ class TerminalController {
 
     registerEvents() {
         var self = this;
-
+        console.log('registering terminal events');
         self.socket.on('terminal-connected', function() {
             console.log('terminal-connected', self.socket.id);
         });
 
-        self.socket.on('terminal-command', function(msg) {
-            self.handleCommand(command).then(function(related) {
+        self.socket.on('terminal-command', function(commandResponseTupple) {
+            self.handleCommand(commandResponseTupple).then(function(commandNode) {
 
             });
         });
     }
-
-
-
+    //
+    //
+    //
     async getAndSave(command) {
         let self = this;
         let commandNode = await graphUtil.getCommand(command);
@@ -47,10 +42,11 @@ class TerminalController {
 
     }
 
-    async handleCommand(command) {
+    async handleCommand(commandResponseTupple) {
         // console.log('ADDRESS', address);
-        let commandNode = await this.insertUniqueCommand(address)
-
+        let {command, response} = commandResponseTupple;
+        let commandNode = await this.getAndSave(command)
+        console.log('ADDED COMMAND NODE', commandNode);
 
         this.context.addCommandNode(commandNode);
         this.history.saveEvent({
@@ -66,13 +62,9 @@ class TerminalController {
 
         return commandNode
 
+
     }
 
-
-    async insertUniqueCommand(command) {
-        let command = await this.getAndSave(command);
-        return command;
-    }
 }
 
 
