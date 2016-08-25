@@ -5,7 +5,7 @@ let graphUtil = new GraphUtil();
 
 class TerminalController {
     constructor(socket, io, context, history) {
-        console.log('constructing');
+
         this.socket = socket;
         this.registerEvents();
         this.tabs = [];
@@ -17,7 +17,6 @@ class TerminalController {
 
     registerEvents() {
         var self = this;
-        console.log('registering terminal events');
         self.socket.on('terminal-connected', function() {
             console.log('terminal-connected', self.socket.id);
         });
@@ -35,7 +34,6 @@ class TerminalController {
         let self = this;
         let commandNode = await graphUtil.getCommand(command);
         if (!commandNode) {
-            console.log('saving');
             commandNode = await graphUtil.saveCommand(command);
         }
         return commandNode
@@ -43,7 +41,7 @@ class TerminalController {
     }
 
     async handleCommand(commandResponseTupple) {
-        // console.log('ADDRESS', address);
+
         let {command, response} = commandResponseTupple;
         let commandNode = await this.getAndSave(command)
 
@@ -58,7 +56,7 @@ class TerminalController {
                 response: response
             }
         }).then(function(res) {
-            // console.log('highlighted atom saved');
+            // console.log('command saved');
         });
 
         return commandNode
