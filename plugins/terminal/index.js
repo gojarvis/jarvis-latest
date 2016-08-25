@@ -3,7 +3,12 @@ var pty = require('pty.js');
 var io = require('socket.io-client')('http://localhost:3000')
 var utf8 = require('utf8');
 var fs = require('fs');
-
+var stripAnsi = require('strip-ansi');
+var _ = require('lodash');
+var cmd = '';
+var res = '';
+var previousCmd = '';
+var tabbed = false;
 var activeTupple = {
   command: '',
   response: ''
@@ -11,7 +16,7 @@ var activeTupple = {
 
 io.emit('terminal-connected');
 
-var term = pty.spawn('bash', [], {
+var term = pty.spawn('zsh', [], {
     name: 'xterm-color',
     cols: 80,
     rows: 30,
@@ -22,6 +27,10 @@ var term = pty.spawn('bash', [], {
 term.on('data', function(data) {
     handleResponse(data)
 })
+
+term.on('end', function(){
+  console.log('END');
+});
 
 
 term.on('error', function(data) {
@@ -37,14 +46,63 @@ var rl = readline.createInterface(process.stdin, process.stdout);
 process.stdin.setEncoding('utf-8');
 process.stdin.setRawMode(true);
 
-process.stdin.on('data', function(chunk){
-    if (chunk === '\t'){
+
+
+process.stdin.on('keypress', function (ch, key) {
+  // console.log('got "keypress"', key, key.sequence.length);
+  if (key && key.ctrl && key.name == 'c') {
+    process.stdin.pause();
+  }
+  if (!_.isUndefined(key) && key.sequence.length === 1 && key.sequence !== '\t' && key.sequence !== '\r'){
+    cmd += key.sequence;
+  }
+  else{
+    switch(key.name){
+      case 'down' :
+      term.write('\u001bOB')
+      break;
+      case 'left' :
+      term.write('\u001bOD')
+      break;
+      case 'right' :
+      term.write('\u001bOC')
+      break;
+      case 'tab' :
+      term.write(cmd);
       term.write('\t');
+      tabbed = true;
+      break;
+      case 'return' :
+      execute()
+      break;
     }
-})
+  }
+
+});
+
+function execute(){
+  //Save the previous Command and Response
+  if (!_.isEmpty(previousCmd)){
+    setActiveCommand(previousCmd);
+    setActiveResponse(res);
+    saveCommandResponseTupple();
+  }
+
+  res = '';
+  //Save the command that is going to be executed
+  previousCmd = cmd;
+
+  //Execute the command
+  term.write(cmd + '\r');
+
+  //Reset the active cmd
+  cmd = '';
+  tabbed = false;
+
+}
 
 rl.on('line', function(command) {
-    handleLine(command + '\r')
+    // handleLine(command + '\r')
     // rl.prompt();
 
 }).on('close', function() {
@@ -52,34 +110,28 @@ rl.on('line', function(command) {
 });
 
 function handleResponse(response){
-  process.stdout.write(response)
-  //TODO - find a better way to filte out noise
-  // console.log(response.length);
-  if (response.length > 10){
-    setActiveResponse(response.replace(/\x1B\[([0-9]{1,3}((;[0-9]{1,3})*)?)?[m|K]/g,''))
+  res += response;
+  if (!tabbed){
+    process.stdout.write(response);
   }
-
+  else{
+    console.log('RES', response);
+  }
 }
 
-function handleLine(command) {
-    if (command === "!\r") rl.close();
-    term.write(command);
-    setActiveCommand(command.replace(/\x1B\[([0-9]{1,3}((;[0-9]{1,3})*)?)?[m|K]/g,''))
-}
 
 function setActiveCommand(command){
-
     activeTupple.command = command;
-    activeTupple.response = '';
 }
 
 function setActiveResponse(response){
-    activeTupple.response = response.replace('/r', '')
+    activeTupple.response = stripAnsi(response.replace('/r', ''))
     saveCommandResponseTupple();
 }
 
 function saveCommandResponseTupple(){
-  io.emit('terminal-command', activeTupple)
+  // io.emit('terminal-command', activeTupple)
+  console.log('Sending the previous tupple', activeTupple);
   fs.writeFile("/var/log/Jarvis/mlog", JSON.stringify(activeTupple), function(err) {
     if(err) {
         return console.log(err);

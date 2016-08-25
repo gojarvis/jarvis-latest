@@ -12,10 +12,13 @@
     "nodemon": "^1.10.2"
   },
   "dependencies": {
+    "lodash": "^4.15.0",
     "prompt": "^1.0.0",
     "pty.js": "^0.3.1",
     "socket.io-client": "^1.4.8",
+    "strip-ansi": "^3.0.1",
     "term.js": "0.0.7",
-    "utf8": "^2.1.1"
+    "utf8": "^2.1.1",
+    "zsh-history": "^1.0.0"
   }
 }

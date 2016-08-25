@@ -209,26 +209,24 @@ class contextManager{
 
     if (!_.isEmpty(this.urls)){
       let userToUrls = await graphUtil.relateOneToMany(this.user, this.urls, 'touched')
-      console.log('associated user with ', this.urls.length, 'urls');
+      // console.log('associated user with ', this.urls.length, 'urls');
     }
     else{
-      console.log('no urls to associate');
+      // console.log('no urls to associate');
     }
 
     if (!_.isEmpty(this.files)){
-      console.log('assoc files', this.files);
+      // console.log('assoc files', this.files);
       let userToFiles = await graphUtil.relateOneToMany(this.user, this.files, 'touched')
-      console.log('associated user with ', this.files.length, 'files');
+      // console.log('associated user with ', this.files.length, 'files');
 
     }
-    console.log('COMMANDS', this.commands);
-    if (!_.isEmpty(this.commands)){
-      console.log('RELATING USER TO COMMAND');
-      let userToCommands = await graphUtil.relateOneToMany(this.user, this.commands, 'touched')
 
+    if (!_.isEmpty(this.commands)){
+      let userToCommands = await graphUtil.relateOneToMany(this.user, this.commands, 'touched')
     }
     else{
-      // console.log('no files to associate');
+      // console.log('no coomands to associate');
     }
   }
 
@@ -268,7 +266,7 @@ class contextManager{
 
   //TODO: Moved this from "proactive.js", should be unified with saveContext
   async relateContextToItself(){
-    console.log('Relating context to itself');
+    // console.log('Relating context to itself');
       try{
         let urls = this.urls;
         let files = this.files;

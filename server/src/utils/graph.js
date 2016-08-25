@@ -142,10 +142,8 @@ class GraphUtil{
     } catch (e) {
       console.log('failed', e);
     } finally {
-      console.log('done');
       return results;
     }
-
 
     // let relationships = [];
     // try {
