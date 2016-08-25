@@ -106,10 +106,6 @@ class GraphUtil{
     }
   }
 
-  async getTouchedByOtherUser(){
-    // MATCH (n:User)-[t:touched]-(q)-[r]-(s)-[ot:touched]-(ou:User) RETURN n,q,r,s,ou ORDER BY r.weight DESC LIMIT 10
-  }
-
   async getRelevantNodes(){
     let relevantUrls = await this.getRelevantUrls()
     // let relevantFiles = await this.getRelevantUrls()
@@ -130,21 +126,65 @@ class GraphUtil{
 
   //TODO: BATCH
   async relateOneToMany(origin, others, relationship){
-    let relationships = [];
+    let relationships = [];let txn; let results = [];
     try {
-      relationships = await Promise.all(others.map(target => this.relateNodes(origin, target, relationship)));
-    }
-    catch(err){
-      console.log('failed to relate one to many', err);
+      txn = graph.batch();
+      let relationshipQueries = others.map(target => this.getRelateNodeQuery(origin, target, relationship));
+      relationshipQueries.forEach(cypher => {
+        txn.query(cypher, {}, (err, result) => {
+          if (err){
+            console.log('err adding to txn', err);
+          }
+        })
+      })
+      results = this.commitBatch(txn);
+
+    } catch (e) {
+      console.log('failed', e);
+    } finally {
+      console.log('done');
+      return results;
     }
 
-    return relationships;
+
+    // let relationships = [];
+    // try {
+    //   relationships = await Promise.all(others.map(target => this.relateNodes(origin, target, relationship)));
+    // }
+    // catch(err){
+    //   console.log('failed to relate one to many', err);
+    // }
+    //
+    // return relationships;
+  }
+
+  commitBatch(txn) {
+    return new Promise(function (resolve, reject) {
+      try {
+        txn.commit((err, results) => {
+          if (err) {
+            reject(err);
+          }
+          resolve(results);
+        });
+      } catch (e) {
+        console.log('cant commit', e);
+        reject(e);
+      } finally {
+
+      }
+    });
+  }
+
+  getRelateNodeQuery(origin, target, relationship){
+    let cypher = `START a=node(${origin.id}), b=node(${target.id}) MERGE (a)-[r:${relationship}]->(b) SET r.weight = coalesce(r.weight, 0) + 1`;
+    return cypher
   }
 
   async relateNodes(origin, target, relationship){
     // console.log('TARGET', target, target.id);
     let cypher = 'START a=node({origin}), b=node({target}) '
-                +'MERGE a-[r:'+relationship+']->b '
+                +'MERGE (a)-[r:'+relationship+']->(b) '
                 +'SET r.weight = coalesce(r.weight, 0) + 1';
     let params = {origin: origin.id, target: target.id, relationship: relationship};
 
@@ -157,11 +197,7 @@ class GraphUtil{
     }
 
     catch(err){
-      let cypher = 'START a=node('+origin.id+'), b=node('+target.id+') '
-                  +'MERGE a-[r:'+relationship+']->b '
-                  +'SET r.weight = coalesce(r.weight, 0) + 1';
-
-      console.log('failed relate nodes in graphUtil', err);
+      console.log('failed relate nodes in graphUtil', err, cypher);
     }
     finally{
       return res
@@ -195,10 +231,13 @@ class GraphUtil{
   }
 
   saveFile(address){
+
     let self = this;
-    let trimmedAddress = address.replace(projectsPath, '');
+    let projectPath = '';
+    let trimmedAddress = address.replace('projectsPath', '');
     // console.log('TRIMMED ADDRESS', trimmedAddress);
     return new Promise(function(resolve, reject) {
+      console.log('SAVING FILE');
       graph.save({type: 'file', address: trimmedAddress}, 'File', function(err, node){
         node = node ? node : {type: 'file', address: address};
         if (err) {

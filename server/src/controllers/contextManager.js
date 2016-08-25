@@ -31,6 +31,7 @@ class contextManager{
     this.urls = [];
     this.urlsArtifacts = [];
     this.tabs = [];
+    this.commands = [];
     this.files = [];
     this.activeUrl = {};
     this.heart = heartbeats.createHeart(1000);
@@ -88,6 +89,15 @@ class contextManager{
       this.files.push(fileNode);
     }
   }
+
+  addCommandNode(commandNode){
+
+    let command = this.commands.filter(command => command.address === commandNode.address);
+    if (command.length === 0){
+      this.commands.push(commandNode);
+    }
+  }
+
 
   async updateUserActivity(){
     console.log('updateUserActivity');
@@ -188,6 +198,7 @@ class contextManager{
   }
 
   async relateUserToContext(){
+    console.log('relateUserToContext', this.commands);
     let self = this;
     // console.log(this.user);
     if (_.isUndefined(this.user.id)){
@@ -198,21 +209,31 @@ class contextManager{
 
     if (!_.isEmpty(this.urls)){
       let userToUrls = await graphUtil.relateOneToMany(this.user, this.urls, 'touched')
-      // console.log('associated user with ', this.urls.length, 'urls');
+      console.log('associated user with ', this.urls.length, 'urls');
     }
     else{
-      // console.log('no urls to associate');
+      console.log('no urls to associate');
     }
 
     if (!_.isEmpty(this.files)){
-      // console.log('assoc files', this.files);
+      console.log('assoc files', this.files);
       let userToFiles = await graphUtil.relateOneToMany(this.user, this.files, 'touched')
-      // console.log('associated user with ', this.files.length, 'files');
+      console.log('associated user with ', this.files.length, 'files');
+
+    }
+    console.log('COMMANDS', this.commands);
+    if (!_.isEmpty(this.commands)){
+      console.log('RELATING USER TO COMMAND');
+      let userToCommands = await graphUtil.relateOneToMany(this.user, this.commands, 'touched')
 
     }
     else{
       // console.log('no files to associate');
     }
+  }
+
+  clearCommandsContext(){
+    this.commands = [];
   }
 
   async saveContext(){
@@ -221,10 +242,8 @@ class contextManager{
     try {
       let urlsArtifacts = this.urlsArtifacts;
       let files = this.files;
-      // console.log('FILES', files.length);
-      // console.log('urlsArtifacts',urlsArtifacts);
       let urls = await Promise.all(urlsArtifacts.map(urlsArtifact => graphUtil.saveUrl(urlsArtifact.url, urlsArtifact.title)))
-      // console.log('saved urls', urls.length);
+
       this.urls = urls;
 
       if (files.length > 0 ){
@@ -232,10 +251,13 @@ class contextManager{
       }
       let urlsRels = await this.relateUrlsToUrls(urls);
 
-      this.relateUserToContext();
+      let userContext = await this.relateUserToContext();
 
       //TODO: Looks like this is partially done on "saveContext. remove duplication"
-      this.relateContextToItself();
+      let relatedContext = await this.relateContextToItself();
+
+      //Empty the commands buffer every heartbeat
+      this.clearCommandsContext()
 
     } catch (e) {
       console.error('something went wrong when creating a context', e);
@@ -246,10 +268,13 @@ class contextManager{
 
   //TODO: Moved this from "proactive.js", should be unified with saveContext
   async relateContextToItself(){
+    console.log('Relating context to itself');
       try{
         let urls = this.urls;
         let files = this.files;
-        // console.log(urls);
+
+        let commands = this.commands;
+
         if (urls.length > 0) {
           let urlRelationships = Promise.all(urls.map(url => this.relateUrlToUrls(url,urls)))
 
@@ -264,9 +289,23 @@ class contextManager{
           let fileRelationships = Promise.all(files.map(file => graphUtil.relateOneToMany(file, urls, 'openwith')));
         }
 
+        if (commands.length > 0 && files.length > 0){
+
+          let commandToFilesRelationships = Promise.all(commands.map(command => graphUtil.relateOneToMany(command, files, 'openwith')));
+        }
+
+        if (commands.length > 0 && urls.length > 0){
+          let commandToUrlsRelationships = Promise.all(commands.map(command => graphUtil.relateOneToMany(command, urls, 'openwith')));
+        }
+
+        if (commands.length > 0){
+          let commandInternalRelationships = Promise.all(commands.map(command => graphUtil.relateOneToMany(command, commands, 'openwith')));
+        }
+
+
       }
       catch(err){
-        console.log('bad deep', err);
+        console.log('cant relateContextToItself', err);
       }
   }
 

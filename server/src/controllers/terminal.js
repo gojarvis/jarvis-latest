@@ -46,7 +46,7 @@ class TerminalController {
         // console.log('ADDRESS', address);
         let {command, response} = commandResponseTupple;
         let commandNode = await this.getAndSave(command)
-        console.log('ADDED COMMAND NODE', commandNode);
+
 
         this.context.addCommandNode(commandNode);
         this.history.saveEvent({
@@ -54,7 +54,8 @@ class TerminalController {
             source: 'terminal',
             data: {
                 nodeId: commandNode.id,
-                address: command
+                address: command,
+                response: response
             }
         }).then(function(res) {
             // console.log('highlighted atom saved');
