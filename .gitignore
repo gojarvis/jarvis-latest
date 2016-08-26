@@ -4,3 +4,4 @@ server/sherpa/*
 server/bin/cloud/config/default.json
 client/build
 server/tmp
+server/build

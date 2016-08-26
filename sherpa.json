@@ -12,6 +12,7 @@
       "instances": 1,
       "env": {
         "NODE_ENV": "development",
+        "JARVIS_DEV": "true",
         "AWESOME_SERVICE_API_TOKEN": "xxx"
       },
       "env_production" : {
@@ -33,6 +34,7 @@
       "max_memory_restart": "2G",
       "env": {
         "NODE_ENV": "development",
+        "JARVIS_DEV": "true",
         "AWESOME_SERVICE_API_TOKEN": "xxx"
       },
       "env_production" : {
@@ -54,6 +56,7 @@
       "max_memory_restart": "2G",
       "env": {
         "NODE_ENV": "development",
+        "JARVIS_DEV": "true",
         "AWESOME_SERVICE_API_TOKEN": "xxx"
       },
       "env_production" : {
