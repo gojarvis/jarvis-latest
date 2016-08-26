@@ -44,7 +44,9 @@ term.on('close', function(e) {
 var rl = readline.createInterface(process.stdin, process.stdout);
 
 process.stdin.setEncoding('utf-8');
-process.stdin.setRawMode(true);
+if (process.stdin.isTTY) {
+  process.stdin.setRawMode(true);
+}
 
 
 
