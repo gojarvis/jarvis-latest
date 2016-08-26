@@ -49,24 +49,46 @@ class TeamsController{
     });
   }
 
-
   async relateUserToTeam(username, teamname){
     let self = this;
 
     let userNode;
     let teamNode;
     let relationship;
+    let detached;
     try{
        userNode = await graphUtil.getUserNodeByUsername(username);
        teamNode = await self.getTeamByName(teamname);
        relationship = await graphUtil.relateNodes(userNode, teamNode, 'member')
 
+
        //TODO: DETACH INVITE NODES
+       detached = await graphUtil.deleteRelationship(userNode, teamNode, 'invited');
 
        return relationship;
     }
     catch(e){
       console.log('cant relate', e);
+    }
+  }
+
+  async disassociatedUserFromTeam(username, team){
+    let self = this;
+
+    let userNode;
+    let teamNode;
+    let relationship;
+    let detached;
+    try{
+       userNode = await graphUtil.getUserNodeByUsername(username);
+       teamNode = await self.getTeamByName(teamname);
+
+       detached = await graphUtil.deleteRelationship(userNode, teamNode, 'memeber');
+
+       return relationship;
+    }
+    catch(e){
+      console.log('cant disassociate', e);
     }
   }
 
@@ -128,7 +150,6 @@ class TeamsController{
     }
   }
 
-
   getAllTeams() {
     return new Promise(function(resolve, reject) {
         graph.find({type: 'team'}, function(err, nodes){
@@ -137,8 +158,6 @@ class TeamsController{
         });
     });
   }
-
-
 
 }
 

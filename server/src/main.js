@@ -23,15 +23,16 @@ let isDev = process.env.JARVIS_DEV || false;
 
 let dbConfig = config.get('graph');
 let userConfig = config.get('user');
-let projectsPath = userConfig.projectsPath;
+let ProjectSettingsManager = require('./utils/project-settings-manager');
+let projectSettingsManager = new ProjectSettingsManager();
+
 let rethinkConfig = config.get('rethink');
 let GraphUtil = require('./utils/graph');
 let graphUtil = new GraphUtil();
 let usersController = require('./controllers/users');
 let teamsController = require('./controllers/teams');
-
+let settingsController = require('./controllers/settings');
 let sessionData = {};
-
 
 let db = require('thinky')({
   host: rethinkConfig.host || "104.131.111.80"
@@ -184,6 +185,7 @@ setTimeout(()=>{
   app.get('/users', graphController.getUsers);
 
   app.post('/open', function(req, res){
+    let rootPath = projectSettingsManager.getRootPath();
     let address = req.body.address;
     let type = req.body.type;
     let cmd;
@@ -192,7 +194,7 @@ setTimeout(()=>{
         cmd = 'open -a "Google Chrome" ' + address;
         break;
       case 'file':
-        cmd = 'open -a "Atom" ' + projectsPath + address;
+        cmd = 'open -a "Atom" ' + rootPath + address;
       break;
     }
     childProc.exec(cmd, function(){});
@@ -235,7 +237,7 @@ setTimeout(()=>{
     let userId = req.body.userId || req.session.passport.user.id;
     let username = req.body.username || req.session.passport.user.username;
 
-    userController.getAccessibleTeams(username).then(function(teams){
+    usersController.getAccessibleTeams(username).then(function(teams){
       res.json(teams)
     })
   });
@@ -251,7 +253,18 @@ setTimeout(()=>{
 
   app.post('/api/user/setAsAdmin', [isLoggedIn, ensureAdmin], function(req,res){
     let username = req.session.passport.user.username;
-    usersController.setUserAsAdmin(username)
+    usersController.setUserAsAdmin(username).then(function(userNode){
+
+    })
+  });
+
+  app.post('/api/user/create', [isLoggedIn, ensureAdmin], function(req,res){
+    let {username, role}= req.body;
+    usersController.createUser(username, role).then(function(userNode){
+      res.json(userNode);
+    })
+
+
   });
 
   app.post('/api/user/all', ensureAdmin, function(req,res){
@@ -263,7 +276,6 @@ setTimeout(()=>{
 
   app.post('/api/user/associate', ensureAdmin, function(req,res){
     let {username, teamname}= req.body;
-    console.log('Invite', username, teamname);
     teamsController.inviteUserToTeam(username, teamname).then(function(relationship){
       res.json({relationship: relationship})
     })
@@ -271,14 +283,18 @@ setTimeout(()=>{
 
   app.post('/api/user/teams/invites', isLoggedIn, function(req, res){
     let {username} = req.body;
-    userController.getTeamInvites(username).then(function(teams){
-      res.json({teams: teams});
+    console.log('Getting invites for', username);
+
+    usersController.getTeamInvites(username).then(function(teams){
+      console.log('invites for ', username, teams);
+      res.json(teams);
     })
 
   })
 
   app.post('/api/user/join', isLoggedIn, function(req,res){
-    let {username, teamname}= req.body;
+    let username = req.session.passport.user.username;
+    let {teamname}= req.body;
 
     //TODO - check user is pre associated with the team
 
@@ -289,8 +305,14 @@ setTimeout(()=>{
 
   app.post('/api/user/setRootPath', isLoggedIn, function(req,res){
     let {username, rootPath}= req.body;
-    userController.setRootPath(username, rootPath).then(function(relationship){
-      res.json({relationship: relationship})
+    settingsController.setRootPath(rootPath).then(function(path){
+      res.json({rootPath: path})
+    })
+  });
+
+  app.post('/api/user/getRootPath', isLoggedIn, function(req,res){
+    settingsController.getRootPath().then(function(path){
+      res.json(path)
     })
   });
 

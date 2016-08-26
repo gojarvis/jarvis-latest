@@ -33,8 +33,6 @@
     <Provider store={store}>
       <Router history={hashHistory}>
         <Route path="/" component={Login} />
-        {/* <Route path="/authenticated" component={authUser} /> */}
-        {/* <Route path="/main" component={AtomView} /> */}
         <Route path="/main" component={MainView} />
         <Route path="/admin" component={Admin} />
         <Route path="/profile" component={Profile} />

@@ -26,21 +26,26 @@ class UsersController{
     })
   }
 
-  async setRootPath(){
-
-  }
 
   async getTeamInvites(username){
     return new Promise(async function(resolve, reject) {
-        let cypher = `match (user:User)-[:invited]-(team:Team) where u.username=${username} return team`;
+        let cypher = `match (user:User)-[:invited]-(team:Team) where user.username='${username}' return team`;
+        let res ;
+        try {
+          res = await graphUtil.queryGraph(cypher);
+        } catch (e) {
+          console.log('cant get invites', e);
+        } finally {
+          resolve(res);
+        }
 
-        let res = await graphUtil.queryGraph(cypher);
-
-        resolve(res);
     });
   }
 
-
+  async createUser(username, role){
+    let userNode = await graphUtil.getSaveUserInGraph({username, role});
+    return userNode;
+  }
 
   getAllUsers() {
     return new Promise(async function(resolve, reject) {

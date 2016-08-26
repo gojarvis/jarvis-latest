@@ -8,6 +8,7 @@ import TextField from 'material-ui/TextField';
 let agent = require('superagent-promise')(require('superagent'), Promise);
 import TeamAssignmentForm from '../components/forms/teamAssignmentForm'
 import NewTeamForm from '../components/forms/newTeamForm'
+import NewUserForm from '../components/forms/newUserForm'
 
 class AdminView extends Component {
   constructor(...args) {
@@ -56,9 +57,9 @@ class AdminView extends Component {
       <ViewWrapper>
         <div style={{...LOCAL_STYLES.container}}>
           <Navbar />
-          <div style={{...FB.base, ...FB.justify.start}}>
+          <div>
             <List>
-            {this.state.users.map((item, index) => {
+              {this.state.users.map((item, index) => {
               return <ListItem key={index} style={{...LOCAL_STYLES.item}}>
                 <span >{item.user.username} </span>
                 <span>
@@ -70,21 +71,30 @@ class AdminView extends Component {
                 </span>
               </ListItem>
             })}
-          </List>
+            </List>
+
+            <div style={{margin: '10px'}}>
+              <div>Invite User to Team</div>
+              <TeamAssignmentForm />
+
+            </div>
+
+            <div style={{margin: '10px'}}>
+              <div>Create new Team</div>
+              <NewTeamForm />
+
+            </div>
+
+            <div style={{margin: '10px'}}>
+              <div>Create new User</div>
+              <NewUserForm />
+
+            </div>
 
           </div>
 
-          <div style={{margin: '10px'}}>
-            <div>Invite User to Team</div>
-            <TeamAssignmentForm />
 
-          </div>
 
-          <div style={{margin: '10px'}}>
-            <div>Create new Team</div>
-            <NewTeamForm />
-
-          </div>
         </div>
       </ViewWrapper>
     );

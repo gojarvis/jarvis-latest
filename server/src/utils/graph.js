@@ -13,9 +13,8 @@ let graph = require("seraph")({
   server: dbConfig.server
 });
 
-//TODO: Change this to be address instead of URL
-graph.constraints.uniqueness.create('Url', 'url', function(err, constraint) {});
 graph.constraints.uniqueness.create('User', 'username', function(err, constraint) {});
+graph.constraints.uniqueness.create('Url', 'address', function(err, constraint) {});
 graph.constraints.uniqueness.create('File', 'address', function(err, constraint) {});
 graph.constraints.uniqueness.create('Command', 'address', function(err, constraint) {});
 
@@ -114,7 +113,7 @@ class GraphUtil{
     return
   }
 
-  //TODO: BATCH
+
   async getRelevantUrls(){
 
     let urls = this.context.urls.map(item => item.url);
@@ -124,7 +123,6 @@ class GraphUtil{
     return related;
   }
 
-  //TODO: BATCH
   async relateOneToMany(origin, others, relationship){
     let relationships = [];let txn; let results = [];
     try {
@@ -177,6 +175,23 @@ class GraphUtil{
   getRelateNodeQuery(origin, target, relationship){
     let cypher = `START a=node(${origin.id}), b=node(${target.id}) MERGE (a)-[r:${relationship}]->(b) SET r.weight = coalesce(r.weight, 0) + 1`;
     return cypher
+  }
+
+  async deleteRelationship(origin, target, relationship){
+    let cypher = `MATCH (a)-[r:${relationship}]->(b) where ID(a)=${origin.id} and ID(b)=${target.id} DELETE r`;
+    console.log(cypher);
+    let res = {};
+
+    try{
+      res = await this.queryGraph(cypher);
+    }
+
+    catch(err){
+      console.log('failed delete relatioship in graphUtil', err, cypher);
+    }
+    finally{
+      return res
+    }
   }
 
   async relateNodes(origin, target, relationship){
@@ -348,7 +363,6 @@ class GraphUtil{
       });
     });
   }
-
 
   saveCommand(command){
     let self = this;

@@ -5,48 +5,49 @@ import ViewWrapper from 'views/view-wrapper';
 import {List, ListItem, MakeSelectable} from 'material-ui/List';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
-
 let agent = require('superagent-promise')(require('superagent'), Promise);
 
-class SetUserRootPathForm extends Component {
+class NewUserForm extends Component {
   constructor(...args){
-     super(...args);
-
-
+    super(...args);
      this.state = {
-       rootPath: ''
+       username: '',
+       role: ''
      }
-
-     this.init()
   }
 
-  async init(){
-      let res = await agent.post('/api/user/getRootPath', {rootPath});
-      let rootPath = res.body;
-      this.setState({rootPath})
-  }
-
-  updateRootPath(e){
-    let rootPath = e.target.value;
+  updateUserName(e){
+    let username = e.target.value;
     this.setState({
-      rootPath
+      username
     })
   }
 
-  async saveRootPath(){
-    let rootPath = this.state.rootPath;
-    let relationship = await agent.post('/api/user/setRootPath', {rootPath});
+  updateRole(e){
+    let role = e.target.value;
+    this.setState({
+      role
+    })
+  }
+
+  async saveUser(){
+    let {username, role} = this.state;
+
+    let user = await agent.post('/api/user/create', {username, role});
   }
 
   render () {
     return (
       <div style={{margin: '10px'}}>
         <div>
-          <TextField hintStyle={{color: 'white'}} hintText="Root Path" value={this.state.rootPath} onChange={ this.updateRootPath.bind(this) }/>
+          <TextField hintStyle={{color: 'white'}} hintText="User name" onKeyUp={ this.updateUserName.bind(this) }/>
+        </div>
+        <div>
+          <TextField hintStyle={{color: 'white'}} hintText="Role" onKeyUp={ this.updateRole.bind(this) }/>
         </div>
         <div>
           <RaisedButton
-            onClick={ () => this.saveRootPath() }
+            onClick={ () => this.saveUser() }
             label={"Save"}
             primary={true}
             style={{flex: '1 1 auto', margin: 10}} />
@@ -56,5 +57,4 @@ class SetUserRootPathForm extends Component {
   }
 }
 
-
-export default SetUserRootPathForm
+export default NewUserForm

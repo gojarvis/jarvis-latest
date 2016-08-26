@@ -13,11 +13,13 @@ class ProfileView extends Component {
   constructor(...args) {
     super(...args);
 
-    this.init();
     this.state ={
       user: {},
-      teams: []
+      teams: [],
+      invites: []
     }
+
+    this.init();
   }
 
   async init(){
@@ -31,16 +33,19 @@ class ProfileView extends Component {
       });
 
       let teams = await this.getUserTeams(user)
-      let teamInvites = await this.getTeamInvites(user);
+      let teamInvites = await this.getUserTeamInvites(user);
+
+
 
       this.setState({
-        teams: teams
+        teams: teams,
+        invites: teamInvites
       })
     });
   }
 
   async getUserTeamInvites(user){
-    let res = await agent.post('http://localhost:3000/api/user/teams/invites', { userId: user.id})
+    let res = await agent.post('http://localhost:3000/api/user/teams/invites', { username: user.username})
     return res.body
   }
 
@@ -71,26 +76,49 @@ class ProfileView extends Component {
         style={{flex: '1 1 auto', margin: 10}} />)
 
     })
+
+    let invites = this.state.invites;
+
+    let invitesButtons = invites.map((team, index) => {
+      return (<RaisedButton
+        key={index}
+        onClick={ () => this.joinTeam(team.name) }
+        label={team.name}
+        primary={false}
+        style={{flex: '1 1 auto', margin: 10}} />)
+
+    })
+
+    let joinSegment;
+
+    if (invitesButtons.length > 0){
+      joinSegment =
+      (<div style={{margin: '10px'}}>
+        <div>Join Team</div>
+        <div style={{margin: '10px'}}>
+          <div>
+            {invitesButtons}
+          </div>
+        </div>
+      </div>)
+    }
+
     return (
       <ViewWrapper>
         <div style={{...LOCAL_STYLES.container}}>
           <Navbar />
-          <div style={{...FB.base, ...FB.justify.start}}>
+          <div style={{marginLeft: '10px', marginTop: '20px'}}>
+            <div> {joinSegment} </div>
+
             <div style={{margin: '10px'}}>
-              <div>Join Team</div>
-              <div style={{margin: '10px'}}>
+              <div>Your teams</div>
                 <div>
                   {teamsButtons}
                 </div>
-                <div>
-                  <SetUserRootPathForm user={this.state.user}/>
+            </div>
 
-                </div>
-                <div>
-
-                </div>
-              </div>
-
+            <div>
+              <SetUserRootPathForm user={this.state.user}/>
             </div>
           </div>
 
@@ -117,5 +145,4 @@ const LOCAL_STYLES = {
     background: 'grey'
   }
 };
-
 export default ProfileView;

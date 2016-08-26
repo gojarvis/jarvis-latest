@@ -1,6 +1,8 @@
 let _ = require('lodash');
 let config = require('config');
 
+let ProjectSettingsManager = require('../utils/project-settings-manager');
+let projectSettingsManager = new ProjectSettingsManager();
 
 let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
@@ -60,7 +62,6 @@ class AtomController {
     }
 
     async handleFileHighlighted(address) {
-        // console.log('ADDRESS', address);
         let fileNode = await this.insertUniqueFile(address)
         let otherNodes = this.tabs.filter(tab => tab.id !== fileNode.id);
         let rel = await this.relateOneToMany(fileNode, otherNodes, 'openwith');
@@ -82,14 +83,14 @@ class AtomController {
     }
 
     async handleFileClose(address) {
-        // console.log('close',address)
         this.removeUniqueFile(address);
     }
 
     async insertUniqueFile(address) {
-        let trimmedAddress = address.replace(projectsPath, '');
+
+        let projectPath = projectSettingsManager.getRootPath();
+        let trimmedAddress = address.replace(projectPath, '');
         let fileNode = await this.getAndSave(trimmedAddress);
-        // console.log("found", fileNode.address);
         let tab = this.tabs.filter(tab => tab.address === fileNode.address);
         if (tab.length == 0) {
 
