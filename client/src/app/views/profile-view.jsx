@@ -54,7 +54,6 @@ class ProfileView extends Component {
     return res.body
   }
 
-
   async joinTeam(teamname){
     let username = this.state.username;
     let relationship = await agent.post('/api/user/join', {username, teamname});

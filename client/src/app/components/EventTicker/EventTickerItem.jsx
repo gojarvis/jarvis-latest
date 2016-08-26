@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import {File, Browser} from '../Icons';
+import {File, Browser, Terminal} from '../Icons';
 import IconText from 'components/IconText';
 import FB from 'styles/flexbox';
 let agent = require('superagent-promise')(require('superagent'), Promise);
@@ -49,7 +49,9 @@ class EventTickerItem extends React.Component {
   // }
 
   render() {
+
     let item = this.props.item;
+    console.log('ITEM', item);
     let iconClass, iconColor;
     switch(item.source) {
       case 'atom':
@@ -60,23 +62,19 @@ class EventTickerItem extends React.Component {
         iconClass = 'bookmark';
         iconColor = '#00BBD5';
         break;
+      case 'terminal':
+        iconClass = 'desktop';
+        iconColor = '#2dd500';
+        break;
     }
 
-
+    console.log('ICON', iconClass);
     let title = this.props.item.data.title ?
       this.props.item.data.title.split('/').filter(item => item !== '').slice(-1).pop() :
       this.props.item.data.address ?
         this.props.item.data.address.split('/').filter(item => item !== '').slice(-1).pop() :
         this.props.item.source;
-    let icon;
-    switch(this.props.item.source) {
-      case 'chrome':
-        icon = <Browser />;
-        break;
-      case 'atom':
-        icon = <File />;
-        break;
-    }
+
 
     let momentText = moment(item.timestamp).fromNow();
 

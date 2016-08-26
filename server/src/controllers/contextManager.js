@@ -197,7 +197,7 @@ class contextManager{
   }
 
   async relateUserToContext(){
-    console.log('relateUserToContext', this.commands);
+
     let self = this;
     // console.log(this.user);
     if (_.isUndefined(this.user.id)){
@@ -223,6 +223,7 @@ class contextManager{
 
     if (!_.isEmpty(this.commands)){
       let userToCommands = await graphUtil.relateOneToMany(this.user, this.commands, 'touched')
+
     }
     else{
       // console.log('no coomands to associate');
@@ -289,10 +290,13 @@ class contextManager{
         if (commands.length > 0 && files.length > 0){
 
           let commandToFilesRelationships = Promise.all(commands.map(command => graphUtil.relateOneToMany(command, files, 'openwith')));
+          let filesToCommandsRelationships = Promise.all(files.map(file => graphUtil.relateOneToMany(file, commands, 'openwith')));
         }
 
         if (commands.length > 0 && urls.length > 0){
           let commandToUrlsRelationships = Promise.all(commands.map(command => graphUtil.relateOneToMany(command, urls, 'openwith')));
+          let urlsToCommandsRelationships = Promise.all(urls.map(url => graphUtil.relateOneToMany(url, commands, 'openwith')));
+
         }
 
         if (commands.length > 0){

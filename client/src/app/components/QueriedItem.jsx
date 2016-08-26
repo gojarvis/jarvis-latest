@@ -52,6 +52,9 @@ class QueriedItem extends React.Component {
       case 'keyword':
         title = endNode.text
         break;
+      case 'command':
+        title = endNode.address
+        break;
       default:
         break;
     }
@@ -71,6 +74,10 @@ class QueriedItem extends React.Component {
         iconClass = 'aspect-ratio';
         typeIconColor = '#607D8B';
         break;
+      case 'command':
+          iconClass = 'desktop';
+          typeIconColor = '#2dd500';
+          break;
       default:
         typeIconColor = '#000';
         break;

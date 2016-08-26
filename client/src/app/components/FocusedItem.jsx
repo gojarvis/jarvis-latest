@@ -36,6 +36,10 @@ class FocusedItem extends Component {
         iconClass = 'bookmark';
         iconColor = '#00BBD5';
         break;
+      case 'command':
+        iconClass = 'desktop';
+        iconColor = '#2dd500';
+        break;
     }
 
     let isVisible = item.size === 0 ? { display: 'none' } : {};

@@ -42,7 +42,7 @@ class SetUserRootPathForm extends Component {
     return (
       <div style={{margin: '10px'}}>
         <div>
-          <TextField hintStyle={{color: 'white'}} hintText="Root Path" value={this.state.rootPath} onChange={ this.updateRootPath.bind(this) }/>
+          <TextField hintStyle={{color: 'white'}} textStyle={{color: 'white'}} hintText="Root Path" value={this.state.rootPath} onChange={ this.updateRootPath.bind(this) }/>
         </div>
         <div>
           <RaisedButton
