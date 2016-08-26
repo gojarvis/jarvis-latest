@@ -70,8 +70,7 @@ class AtomView extends React.Component {
     })
 
     try{
-      agent.post('http://localhost:3000/api/user/userjson').then(res => {
-        console.log('RES', res);
+      agent.post('http://localhost:3000/api/user/userjson').then(res => {        
           if (!_.isUndefined(res.body.error)){
             console.log('Not logged in');
             window.location.href = '/';

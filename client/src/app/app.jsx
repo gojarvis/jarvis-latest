@@ -7,8 +7,9 @@
   // let Main = require('./components/main.jsx'); // Our custom react component
   let AtomView = require('./components/atom-view.jsx');
   let MainView = require('views/main-view.jsx');
-  let Teams = require('./views/teams-view.jsx');
+  let Admin = require('./views/admin-view.jsx');
   let Login = require('./views/login-view.jsx');
+  let Profile = require('./views/profile-view.jsx');
   let store = require('./store/store');
   // let AuthUser = require('./views/auth-user.jsx');
   // let Face = require('./components/face.jsx'); // Our custom react component
@@ -35,7 +36,8 @@
         {/* <Route path="/authenticated" component={authUser} /> */}
         {/* <Route path="/main" component={AtomView} /> */}
         <Route path="/main" component={MainView} />
-        <Route path="/teams" component={Teams} />
+        <Route path="/admin" component={Admin} />
+        <Route path="/profile" component={Profile} />
       </Router>
     </Provider>
   ), document.getElementById('app'));

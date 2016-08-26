@@ -26,12 +26,28 @@ class UsersController{
     })
   }
 
+  async setRootPath(){
+
+  }
+
+  async getTeamInvites(username){
+    return new Promise(async function(resolve, reject) {
+        let cypher = `match (user:User)-[:invited]-(team:Team) where u.username=${username} return team`;
+
+        let res = await graphUtil.queryGraph(cypher);
+
+        resolve(res);
+    });
+  }
+
+
+
   getAllUsers() {
     return new Promise(async function(resolve, reject) {
         let cypher = 'match (u:User) return u';
-        console.log('getAllUsers', cypher);
+
         let res = await graphUtil.queryGraph(cypher);
-        console.log(res);
+
         resolve(res);
     });
   }

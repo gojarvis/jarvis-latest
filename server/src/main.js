@@ -230,6 +230,16 @@ setTimeout(()=>{
     })
   });
 
+  app.post('/api/user/accessibleTeams', isLoggedIn, function(req, res){
+    let teams;
+    let userId = req.body.userId || req.session.passport.user.id;
+    let username = req.body.username || req.session.passport.user.username;
+
+    userController.getAccessibleTeams(username).then(function(teams){
+      res.json(teams)
+    })
+  });
+
 
   app.post('/api/user/teams/members', isLoggedIn, function(req,res){
     // let userId = req.body.userId;
@@ -253,10 +263,43 @@ setTimeout(()=>{
 
   app.post('/api/user/associate', ensureAdmin, function(req,res){
     let {username, teamname}= req.body;
+    console.log('Invite', username, teamname);
+    teamsController.inviteUserToTeam(username, teamname).then(function(relationship){
+      res.json({relationship: relationship})
+    })
+  });
+
+  app.post('/api/user/teams/invites', isLoggedIn, function(req, res){
+    let {username} = req.body;
+    userController.getTeamInvites(username).then(function(teams){
+      res.json({teams: teams});
+    })
+
+  })
+
+  app.post('/api/user/join', isLoggedIn, function(req,res){
+    let {username, teamname}= req.body;
+
+    //TODO - check user is pre associated with the team
+
     teamsController.relateUserToTeam(username, teamname).then(function(relationship){
       res.json({relationship: relationship})
     })
   });
+
+  app.post('/api/user/setRootPath', isLoggedIn, function(req,res){
+    let {username, rootPath}= req.body;
+    userController.setRootPath(username, rootPath).then(function(relationship){
+      res.json({relationship: relationship})
+    })
+  });
+
+  app.post('/api/team/create', ensureAdmin, function(req,res){
+    let {teamname} = req.body;
+    teamsController.getSaveTeam(teamname).then(function(teamNode){
+      res.json({teamNode: teamNode});
+    });
+  })
 
   app.post('/logout', function(req,res){
     req.session = null;

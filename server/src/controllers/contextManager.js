@@ -98,7 +98,6 @@ class contextManager{
     }
   }
 
-
   async updateUserActivity(){
     console.log('updateUserActivity');
     let activeUrlDetails = this.getActiveUrl();

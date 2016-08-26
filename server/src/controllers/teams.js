@@ -18,7 +18,6 @@ class TeamsController{
 
   }
 
-
   getSaveTeam(teamName){
     let self = this;
 
@@ -51,20 +50,41 @@ class TeamsController{
   }
 
 
-  async relateUserToTeam(username, teamName){
+  async relateUserToTeam(username, teamname){
     let self = this;
+
     let userNode;
     let teamNode;
     let relationship;
     try{
        userNode = await graphUtil.getUserNodeByUsername(username);
-       teamNode = await self.getTeamByName(teamName);
+       teamNode = await self.getTeamByName(teamname);
        relationship = await graphUtil.relateNodes(userNode, teamNode, 'member')
+
+       //TODO: DETACH INVITE NODES
 
        return relationship;
     }
     catch(e){
       console.log('cant relate', e);
+    }
+  }
+
+  async inviteUserToTeam(username, teamname){
+    let self = this;
+
+    let userNode;
+    let teamNode;
+    let relationship;
+    try{
+       userNode = await graphUtil.getUserNodeByUsername(username);
+       teamNode = await self.getTeamByName(teamname);
+       relationship = await graphUtil.relateNodes(userNode, teamNode, 'invited')
+
+       return relationship;
+    }
+    catch(e){
+      console.log('cant invite', e);
     }
   }
 

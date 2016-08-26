@@ -32,7 +32,7 @@ class Navbar extends Component {
   componentWillMount(){
 
     agent.post('http://localhost:3000/api/team/all').then((res)=> {
-      console.info('res', res);
+      // console.info('res', res);
     });
 
     agent.post('http://localhost:3000/api/user/userjson').then(res => {
@@ -55,7 +55,7 @@ class Navbar extends Component {
         style={{..._styles.button}}
         icon={<TeamIcon style={iconStyles} />}
         label={"Admin"}
-        onClick={this.navigate.bind(this, "teams")}
+        onClick={this.navigate.bind(this, "admin")}
         primary={true}
         zIndex={5}  />
     }

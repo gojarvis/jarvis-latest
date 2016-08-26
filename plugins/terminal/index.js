@@ -130,7 +130,7 @@ function setActiveResponse(response){
 }
 
 function saveCommandResponseTupple(){
-  // io.emit('terminal-command', activeTupple)
+  io.emit('terminal-command', activeTupple)
   console.log('Sending the previous tupple', activeTupple);
   fs.writeFile("/var/log/Jarvis/mlog", JSON.stringify(activeTupple), function(err) {
     if(err) {
