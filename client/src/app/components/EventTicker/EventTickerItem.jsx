@@ -51,7 +51,6 @@ class EventTickerItem extends React.Component {
   render() {
 
     let item = this.props.item;
-    console.log('ITEM', item);
     let iconClass, iconColor;
     switch(item.source) {
       case 'atom':
@@ -68,7 +67,6 @@ class EventTickerItem extends React.Component {
         break;
     }
 
-    console.log('ICON', iconClass);
     let title = this.props.item.data.title ?
       this.props.item.data.title.split('/').filter(item => item !== '').slice(-1).pop() :
       this.props.item.data.address ?
