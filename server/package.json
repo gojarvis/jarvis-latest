@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "nodemon": "nodemon index.js",
-    "build": "webpack -p --progress"
+    "build": "cp package.json build/ && webpack -p --progress"
   },
   "dependencies": {
     "alasql": "^0.2.5",
@@ -85,6 +85,6 @@
     "babel-plugin-transform-runtime": "^6.12.0"
   },
   "jshintConfig": {
-    
+
   }
 }

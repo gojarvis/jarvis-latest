@@ -17,7 +17,7 @@ module.exports = {
   target: 'node',
   output: {
     path: path.join(__dirname, 'build'),
-    filename: 'backend.js'
+    filename: 'index.js'
   },
   module: {
     loaders: [{
