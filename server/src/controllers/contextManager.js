@@ -184,7 +184,7 @@ class contextManager{
   }
 
   async relateFileToFiles(file, files){
-    let others = files.filter(file => file.address !== file.address);
+    let others = files.filter(filterFile => file.address !== filterFile.address);
     let singleRelationships = await graphUtil.relateOneToMany(file, others, 'openwith');
     return singleRelationships;
   }
@@ -259,12 +259,13 @@ class contextManager{
 
   //TODO: Moved this from "proactive.js", should be unified with saveContext
   async relateContextToItself(){
-    // console.log('Relating context to itself');
+    console.log('Relating context to itself');
       try{
         let urls = this.urls;
         let files = this.files;
 
         let commands = this.commands;
+        console.log('CONTEXT', urls.length, files.length, commands.length);
 
         if (urls.length > 0) {
           let urlRelationships = Promise.all(urls.map(url => this.relateUrlToUrls(url,urls)))

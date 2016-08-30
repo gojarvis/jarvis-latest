@@ -68,7 +68,6 @@ class GraphUtil{
 
   getUrlNodeByUrl(url){
     return new Promise(function(resolve, reject) {
-      console.log('FINDING', url);
       graph.find({type: 'url', url: url}, function(err, urls){
         if (err)  {
           console.log(err);
@@ -149,16 +148,6 @@ class GraphUtil{
     } finally {
       return results;
     }
-
-    // let relationships = [];
-    // try {
-    //   relationships = await Promise.all(others.map(target => this.relateNodes(origin, target, relationship)));
-    // }
-    // catch(err){
-    //   console.log('failed to relate one to many', err);
-    // }
-    //
-    // return relationships;
   }
 
   commitBatch(txn) {

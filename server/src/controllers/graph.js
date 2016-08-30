@@ -1,8 +1,10 @@
+import _ from 'lodash'
 let ProjectSettingsManager = require('../utils/project-settings-manager');
 let projectSettingsManager = new ProjectSettingsManager();
 
 let graphCredentials = projectSettingsManager.getRepoCredentials();
 
+console.log('GraphCreds', graphCredentials);
 let graph = require("seraph")({
   user: graphCredentials.username,
   pass: graphCredentials.password,
@@ -21,14 +23,18 @@ function queryGraph(cypher, params={}){
 
 async function getNormalizedWeight(query){
   let normalizedSumCypherResult = await queryGraph(query);
+  console.log('RESULT', normalizedSumCypherResult);
   let normalizedWeight ;
-  if (normalizedSumCypherResult.length > 0){
+  if (!_.isNull(normalizedSumCypherResult[0]) &&  normalizedSumCypherResult.length > 0){
+    console.log('somehow in here');
     normalizedWeight = parseFloat(normalizedSumCypherResult[0].normalizedSumWeight);
     normalizedWeight = (normalizedWeight > 0) ? normalizedWeight : 1;
   }
   else{
     normalizedWeight = 1;
   }
+
+  console.log('Got to tthen end ', normalizedWeight);
   return normalizedWeight;
 
 }
@@ -69,7 +75,7 @@ let graphController = {
       cypher += ` and ID(startUserNode) = ${startUserNodeId}`
       cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`
       normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
-      console.log(normalizedSumCypher);
+      console.log('normalizedSumCypher---', normalizedSumCypher);
       normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
       console.log('normalizedWeight',normalizedWeight);
       cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, collect(distinct endNode)[0] as endNode order by relationshipWeight desc`

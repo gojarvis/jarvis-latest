@@ -354,7 +354,8 @@ if(isDev != 'false'){
   app.use('/', proxy({ target: 'http://localhost:8888', changeOrigin: true }));
 }
 else{
-  console.log('PRODUCTION MODE');
+    console.log('PRODUCTION MODE');
+    console.log(path.join(__dirname,"../../client/build"));
     app.use(express.static(path.join(__dirname,"../../client/build")));
 }
 let p = rethink.connect({host: rethinkConfig.host || "104.131.111.80", db: rethinkConfig.db});
