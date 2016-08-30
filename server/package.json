@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "nodemon": "nodemon index.js",
-    "build": "cp package.json build/ && webpack -p --progress"
+    "build": "mkdir -p build && cp package.json build/ && webpack -p --progress"
   },
   "dependencies": {
     "alasql": "^0.2.5",
