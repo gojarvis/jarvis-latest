@@ -19,6 +19,9 @@ module.exports = {
     path: path.join(__dirname, 'build'),
     filename: 'index.js'
   },
+  node: {
+    __dirname: false  
+  },
   module: {
     loaders: [{
       //React-hot loader and

@@ -28,7 +28,7 @@ let rethinkConfig = config.get('rethink');
 let GraphUtil = require('./utils/graph');
 let graphUtil = new GraphUtil();
 
-
+let staticClientPath = path.join(__dirname, '../client/build/');
 
 let usersController = require('./controllers/users');
 let teamsController = require('./controllers/teams');
@@ -355,8 +355,8 @@ if(isDev != 'false'){
 }
 else{
     console.log('PRODUCTION MODE');
-    console.log(path.join(__dirname,"../../client/build"));
-    app.use(express.static(path.join(__dirname,"../../client/build")));
+
+    app.use(express.static(staticClientPath));
 }
 let p = rethink.connect({host: rethinkConfig.host || "104.131.111.80", db: rethinkConfig.db});
 p.then(function(connection){
