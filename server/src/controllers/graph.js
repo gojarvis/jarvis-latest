@@ -4,7 +4,6 @@ let projectSettingsManager = new ProjectSettingsManager();
 
 let graphCredentials = projectSettingsManager.getRepoCredentials();
 
-console.log('GraphCreds', graphCredentials);
 let graph = require("seraph")({
   user: graphCredentials.username,
   pass: graphCredentials.password,
