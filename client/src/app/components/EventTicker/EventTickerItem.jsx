@@ -82,7 +82,6 @@ class EventTickerItem extends React.Component {
         title={JSON.stringify(item, null, 1)}
         style={STYLES.container}
         onClick={() => this.props.onClick(this.props.item.data.nodeId)}>
-        {/* <IconText icon='external-link' onClick={() => externalLinkClick(item.address, item.type)} style={{cursor: 'pointer'}} /> */}
         <div style={STYLES.row}>
           <IconText icon={iconClass} style={{marginRight: 10}} iconColor={iconColor} />
           <span style={STYLES.title}>{title.slice(0,35)}{title.length > 35 ? '...' : ''}</span>

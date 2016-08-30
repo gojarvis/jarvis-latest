@@ -1,11 +1,14 @@
 let fs = require('fs');
-let settingsPath = __dirname + '/../../config/settings.json'
+let settingsFile = require('../../settings.json');
+let settingsPath = './settings.json';
+
 
 class ProjectSettingsManager {
     constructor(){
-        this.readSettingsFile().then(settings => {
-          this.rootPath = settings.rootPath;
-        })
+        let settings = this.readSettingsFile()
+        this.rootPath = settings.rootPath;
+        this.repoCredentials = settings.repoCredentials;
+        this.activityManagerCredentials = settings.activityManagerCredentials;
     }
 
     async setRootPath(path){
@@ -18,24 +21,41 @@ class ProjectSettingsManager {
       return this.rootPath;
     }
 
+
+    async setRepoCredentials(credentials){
+      this.repoCredentials = credentials
+      let newSettings = await this.readSettingsFile();
+
+      newSettings.repoCredentials = credentials;
+      let savedSettings = await this.saveSettings(newSettings);
+
+      return this.repoCredentials;
+    }
+
+    async setActivityManagerCredentials(credentials){
+      this.activityManagerCredentials = credentials
+      let newSettings = await this.readSettingsFile();
+
+      newSettings.activityManagerCredentials = credentials;
+      let savedSettings = await this.saveSettings(newSettings);
+
+      return this.activityManagerCredentials;
+    }
+
+    getRepoCredentials(){
+      return this.repoCredentials
+    }
+
+    getActivityManagerCredentials(){
+      return this.activityManagerCredentials
+    }
+
     getRootPath(){
       return this.rootPath;
     }
 
     readSettingsFile(){
-      return new Promise(function(resolve, reject) {
-        let settings;
-        fs.readFile(settingsPath, 'utf8', function(err, data){
-          if (err){
-            console.log('cant read settings file', err);
-          }
-          else{
-            settings = JSON.parse(data);
-            console.log('READ SETTINGS', settings);
-            resolve(settings)
-          }
-        })
-      });
+      return settingsFile;
     }
 
     saveSettings(settings){

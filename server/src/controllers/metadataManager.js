@@ -11,14 +11,16 @@ let graphUtil = new GraphUtil();
 //9afdfd3783da57ff673da2316105c8e52f411576
 
 let alchemy_language = watson.alchemy_language({api_key: 'ab2b4727617c0d529641168272d1e661634feb72'});
-let config = require('config');
 
-let dbConfig = config.get('graph');
+let ProjectSettingsManager = require('../utils/project-settings-manager');
+let projectSettingsManager = new ProjectSettingsManager();
+
+let graphCredentials = projectSettingsManager.getRepoCredentials();
 
 let graph = require("seraph")({
-  user: dbConfig.user,
-  pass: dbConfig.pass,
-  server: dbConfig.server
+  user: graphCredentials.username,
+  pass: graphCredentials.password,
+  server: graphCredentials.address
 });
 
 

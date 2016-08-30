@@ -1,0 +1,16 @@
+{
+    "rootPath": "/Users/roieki/Sites",
+    "repoCredentials": {
+        "username": "neo4j",
+        "password": "sherpa",
+        "address": "http://104.131.111.80:7474/"
+    },
+    "publicRepoCredentials": {
+        "address": "http://localhost:7474",
+        "username": "neo4j",
+        "password": "sherpa"
+    },
+    "activityManagerCredentials": {
+      "address": "104.131.111.80"
+    }
+}

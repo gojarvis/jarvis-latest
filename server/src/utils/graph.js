@@ -5,12 +5,15 @@ let redis = new Redis();
 let pipeline = redis.pipeline();
 let _ = require('lodash');
 
-let dbConfig = config.get('graph');
+let ProjectSettingsManager = require('./project-settings-manager');
+let projectSettingsManager = new ProjectSettingsManager();
+
+let graphCredentials = projectSettingsManager.getRepoCredentials();
 
 let graph = require("seraph")({
-  user: dbConfig.user,
-  pass: dbConfig.pass,
-  server: dbConfig.server
+  user: graphCredentials.username,
+  pass: graphCredentials.password,
+  server: graphCredentials.address
 });
 
 graph.constraints.uniqueness.create('User', 'username', function(err, constraint) {});
@@ -21,6 +24,10 @@ graph.constraints.uniqueness.create('Command', 'address', function(err, constrai
 class GraphUtil{
   constructor(){
 
+  }
+
+  getGraph(){
+    return graph
   }
 
   async getNode(type, index, value){

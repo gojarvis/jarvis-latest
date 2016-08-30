@@ -1,10 +1,12 @@
-let config = require('config');
-let dbConfig = config.get('graph');
+let ProjectSettingsManager = require('../utils/project-settings-manager');
+let projectSettingsManager = new ProjectSettingsManager();
+
+let graphCredentials = projectSettingsManager.getRepoCredentials();
 
 let graph = require("seraph")({
-  user: dbConfig.user,
-  pass: dbConfig.pass,
-  server: dbConfig.server
+  user: graphCredentials.username,
+  pass: graphCredentials.password,
+  server: graphCredentials.address
 });
 
 function queryGraph(cypher, params={}){
@@ -58,6 +60,7 @@ let graphController = {
     let normalizedWeight;
 
     console.log('FINDME: ', {nodeId, endNodeType, startUserNodeId, endUserNodeIds})
+
     let cypher;
 
 
@@ -66,7 +69,9 @@ let graphController = {
       cypher += ` and ID(startUserNode) = ${startUserNodeId}`
       cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`
       normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
+      console.log(normalizedSumCypher);
       normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
+      console.log('normalizedWeight',normalizedWeight);
       cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, collect(distinct endNode)[0] as endNode order by relationshipWeight desc`
     }
 
@@ -94,7 +99,7 @@ let graphController = {
 
 
     // doesn't get here for some reason
-    // console.log('query: ', cypher);
+    console.log('query: ', cypher);
 
     try{
 

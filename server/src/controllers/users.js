@@ -5,12 +5,16 @@ let _ = require('lodash');
 let Moniker = require('moniker');
 
 
-let dbConfig = config.get('graph');
+
+let ProjectSettingsManager = require('../utils/project-settings-manager');
+let projectSettingsManager = new ProjectSettingsManager();
+
+let graphCredentials = projectSettingsManager.getRepoCredentials();
 
 let graph = require("seraph")({
-  user: dbConfig.user,
-  pass: dbConfig.pass,
-  server: dbConfig.server
+  user: graphCredentials.username,
+  pass: graphCredentials.password,
+  server: graphCredentials.address
 });
 
 class UsersController{

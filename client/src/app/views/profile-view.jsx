@@ -6,6 +6,8 @@ import {List, ListItem, MakeSelectable} from 'material-ui/List';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
 import SetUserRootPathForm from '../components/forms/setUserRootPathForm'
+import SetUserRepoCredentialsForm from '../components/forms/setUserRepoCredentialsForm'
+import SetUserActivityManagerForm from '../components/forms/setUserActivityManagerForm'
 
 let agent = require('superagent-promise')(require('superagent'), Promise);
 
@@ -118,6 +120,10 @@ class ProfileView extends Component {
 
             <div>
               <SetUserRootPathForm user={this.state.user}/>
+              <SetUserRepoCredentialsForm user={this.state.user} />
+              <div>                
+                <SetUserActivityManagerForm />
+              </div>
             </div>
           </div>
 

@@ -6,13 +6,6 @@ let config = require('config');
 let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
 let Meta = require('./metadataManager')
-let dbConfig = config.get('graph');
-
-let graph = require("seraph")({
-  user: dbConfig.user,
-  pass: dbConfig.pass,
-  server: dbConfig.server
-});
 
 // var db = Thinky();
 class contextManager{
@@ -172,7 +165,7 @@ class contextManager{
 
   async relateUrlToUrls(url, urls){
     let others = urls.filter(item => item.address !== url.address);
-    let singleRelationships = await this.graph.relateOneToMany(url, others, 'openwith');
+    let singleRelationships = await graphUtil.relateOneToMany(url, others, 'openwith');
     return singleRelationships;
   }
 
