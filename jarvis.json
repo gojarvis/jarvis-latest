@@ -1,0 +1,49 @@
+{
+  "apps" : [
+    {
+      "name"        : "sherpa-server",
+      "script"      : "start-server.sh",
+      "args"        : [],
+      "watch"       : false,
+      "merge_logs"  : true,
+      "cwd"         : "server",
+      "exec_mode"   : "fork_mode",
+      "exec_interperter": "bash",
+      "instances": 1,
+      "env": {
+        "NODE_ENV": "development",
+        "AWESOME_SERVICE_API_TOKEN": "xxx"
+      },
+      "env_production" : {
+         "NODE_ENV": "production",
+         "JARVIS_DEV": false
+      },
+      "env_staging" : {
+         "NODE_ENV" : "staging",
+         "JARVIS_DEV": false,
+         "TEST"     : true
+      }
+    },
+    {
+      "name"        : "sherpa-plugin-chrome",
+      "script"      : "start-plugin-chrome.sh",
+      "watch"       : false,
+      "merge_logs"  : true,
+      "cwd"         : "plugins/schrome",
+      "instances": 1,
+      "exec_mode": "fork_mode",
+      "max_memory_restart": "2G",
+      "env": {
+        "NODE_ENV": "development",
+        "AWESOME_SERVICE_API_TOKEN": "xxx"
+      },
+      "env_production" : {
+         "NODE_ENV": "production"
+      },
+      "env_staging" : {
+         "NODE_ENV" : "staging",
+         "TEST"     : true
+      }
+    }
+  ]
+}
