@@ -7,6 +7,21 @@ let heart = heartbeats.createHeart(1000);
 let socket = io.connect('http://localhost:3000', {reconnect: true});
 let tabs = [];
 
+let enabled = true;
+
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    if (request.action == 'disable'){
+      enabled = false;
+    }
+
+    if (request.action == 'enable'){
+      enabled = true;
+    }
+  });
+
+
+
 
 socket.on('load-tabs', function(){
   chrome.tabs.query({}, function(res){
@@ -17,33 +32,33 @@ socket.on('load-tabs', function(){
 //Initialize tabs
 chrome.tabs.query({}, function(res){
     tabs = res
-    socket.emit('chrome-init', res);
+    if (enabled) socket.emit('chrome-init', res);
 });
 
 
 chrome.tabs.onCreated.addListener(function(active){
   chrome.tabs.query({}, function(res){
       let tabs = res
-      socket.emit('chrome-created', {active:active, tabs:tabs})
+      if (enabled) socket.emit('chrome-created', {active:active, tabs:tabs})
   });
 
 });
 
 chrome.tabs.onHighlighted.addListener(function(active){
-  socket.emit('chrome-highlighted', {active:active, tabs:tabs})
+  if (enabled) socket.emit('chrome-highlighted', {active:active, tabs:tabs})
 });
 
 chrome.tabs.onUpdated.addListener(function(active){
   chrome.tabs.query({}, function(res){
       let tabs = res
-      socket.emit('chrome-updated', {active:active, tabs:tabs});
+      if (enabled) socket.emit('chrome-updated', {active:active, tabs:tabs});
   });
 });
 
 chrome.tabs.onActivated.addListener(function(active){
   chrome.tabs.query({}, function(res){
       let tabs = res
-      socket.emit('chrome-activated', {active:active, tabs:tabs});
+      if (enabled) socket.emit('chrome-activated', {active:active, tabs:tabs});
   });
 });
 
@@ -54,7 +69,7 @@ chrome.tabs.onActivated.addListener(function(active){
 heart.createEvent(30, function(heartbeat, last){
   chrome.tabs.query({}, function(tabs){
       let hb = { heartbeat: heartbeat, last: last, tabs: tabs};
-      socket.emit('heartbeat', hb);
+      if (enabled) socket.emit('heartbeat', hb);
   });
 
 });

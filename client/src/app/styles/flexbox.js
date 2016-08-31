@@ -6,6 +6,9 @@ const FB = {
   },
   align: {
     center: { alignItems: 'center' },
+    start: { alignItems: 'flex-start' },
+    end: { alignItems: 'flex-end' },
+    stretch: { alignItems: 'stretch' },
   },
   justify: {
     start: { justifyContent: "flex-start" },

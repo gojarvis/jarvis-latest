@@ -1,12 +1,4 @@
-// var thinky = require('thinky')();
-//
-// var type = thinky.type;
-// console.log(thinky, type);
-
-
-// import Thinky from 'thinky'
-
-var db = GLOBAL.thinky;
+var db = global.thinky;
 var type = db.type;
 
 var Event = db.createModel("Event", {
@@ -28,7 +20,6 @@ class HistoryManager{
   saveEvent(event){
     try{
       let ev = new Event({timestamp: new Date(), eventType: event.type, source: event.source, data: event.data, user:this.user});
-      // console.log('system-event', ev);
       this.io.emit('system-event', ev);
       return ev.save()
     }

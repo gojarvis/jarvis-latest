@@ -1,22 +1,17 @@
-import heartbeats from 'heartbeats'
-import _ from 'lodash';
-import watson from 'watson-developer-cloud';
-import r from 'rethinkdb'
-import config from 'config';
-
-let dbConfig = config.get('graph');
-
-let graph = require("seraph")({
-  user: dbConfig.user,
-  pass: dbConfig.pass,
-  server: dbConfig.server
-});
+let heartbeats = require('heartbeats');
+let _ = require('lodash');
+let watson = require('watson-developer-cloud');
+let r = require('rethinkdb');
+let config = require('config');
+let GraphUtil = require('../utils/graph');
+let graphUtil = new GraphUtil();
+let Meta = require('./metadataManager')
 
 // var db = Thinky();
 class contextManager{
   constructor(history, userInfo){
 
-    var db = GLOBAL.thinky;
+    var db = global.thinky;
     var type = db.type;
 
     let User = db.createModel("User", {
@@ -24,23 +19,19 @@ class contextManager{
       username: type.string(),
     }, { pk: "username"})
 
-    graph.constraints.uniqueness.create('Url', 'url', function(err, constraint) {
-      // console.log(constraint);
-      // -> { type: 'UNIQUENESS', label: 'Person', property_keys: ['name'] }
-    });
-    graph.constraints.uniqueness.create('User', 'username', function(err, constraint) {});
 
     this.user = {};
     this.urls = [];
     this.urlsArtifacts = [];
     this.tabs = [];
+    this.commands = [];
     this.files = [];
     this.activeUrl = {};
     this.heart = heartbeats.createHeart(1000);
     this.slowHeart = heartbeats.createHeart(1000);
     this.history = history;
     this.recommendations = [];
-    this.initContext(userInfo)
+    this.initContext(userInfo);
   }
 
   async initContext(userInfo){
@@ -48,7 +39,8 @@ class contextManager{
     try{
         user = await this.setUser(userInfo);
         this.user = user;
-        console.log('USER', user);
+
+        this.metadata = new Meta(this.user);
 
         this.heart.createEvent(30, function(heartbeat, last){
           this.handleHeartbeat(heartbeat);
@@ -68,69 +60,20 @@ class contextManager{
 
   }
 
-  get() {
-    return {
-      urls: this.urls,
-      files: this.files,
-      user: this.user,
-      recommendations: []
-    }
-  }
-
   async setUser(user){
-    let graphUser = await this.getSaveUserInGraph(user)
+    let graphUser = await graphUtil.getSaveUserInGraph(user)
 
     this.user = graphUser;
-    console.log('this.user', this.user);
+    console.log('User assigned to context', this.user);
     return graphUser
   }
 
-  getSaveUserInGraph(user){
-    return new Promise(function(resolve, reject) {
-      graph.find(user, function(err, node){
-        if (err || !node.length){
-          console.log('user doesnt exist, saving', user);
-          graph.save(user, "User", function(err, node){
-            if (err){
-              console.log('CANT SAVE USER', user, err);
-              reject(err);
-            }
-            else{
-              console.log('USER SAVED', node);
-              resolve(node);
-            }
-          })
-        }
-        else{
-          console.log('user found', err, node);
-          resolve(node[0])
-        }
-      })
-    });
+  handleHeartbeat(heartbeat){
+    this.saveContext();
   }
 
-  saveUserInRethink(userInfo){
-    return new Promise(function(resolve, reject) {
-       let user = new User(userInfo);
-       user.save().then(function(err,res){
-         if (err) {
-           User.get(userInfo).then(function(err,res){
-             if (err){
-               console.log('cant get', err)
-             }
-             else{
-               resolve(res);
-             }
-           })
-         }
-         else resolve(res);
-       });
-    });
-  }
-
-  updateFiles(files){
-    this.files = files;
-    console.log('context updated files', this.files);
+  handleSlowHeartbeat(heartbeat){
+    this.history.saveEvent({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls} }).then(function(res){})
   }
 
   addFileNode(fileNode){
@@ -140,13 +83,43 @@ class contextManager{
     }
   }
 
+  removeFileNode(fileNode){
+    console.log('Removed File node', fileNode);
+    let filteredFiles = this.files.filter(file => {
+      console.log(file, fileNode);
+      return file.address === fileNode.address
+    });
+    this.files = filteredFiles;
+    console.log('FILES after node remove', this.files);
+
+  }
+
+  addCommandNode(commandNode){
+
+    let command = this.commands.filter(command => command.address === commandNode.address);
+    if (command.length === 0){
+      this.commands.push(commandNode);
+    }
+  }
+
   async updateUserActivity(){
+    console.log('updateUserActivity');
+    let activeUrlDetails = this.getActiveUrl();
+    let urlNode;
 
-    let activeUrl = this.getActiveUrl();
-    let urlNode = await this.getUrlNodeByUrl(activeUrl.url);
+    try {
+      urlNode  = await graphUtil.getAndSaveUrlNode(activeUrlDetails);
+      console.log('updateUserActivity - ACTIVE URL', urlNode);
+      let rel = graphUtil.relateNodes(this.user, urlNode, 'touched');
 
+
+
+    } catch (e) {
+      console.log('cant updateUserActivity', e);
+    } finally {
+      return urlNode;
+    }
     //Mark URL as touched
-    let rel = this.relateNodes(this.user, urlNode, 'touched');
 
   }
 
@@ -161,11 +134,17 @@ class contextManager{
     // console.log('updated tabs', this.urlsArtifacts);
   }
 
-  setActiveUrl(url){
+  async setActiveUrl(url){
     this.activeUrl = url;
+    let activeUrlNode;
+    try {
+      activeUrlNode = await this.updateUserActivity();
+    } catch (e) {
+      console.log('cant set active url', );
+    } finally {
+      return activeUrlNode;
+    }
 
-
-    this.updateUserActivity();
   }
 
   getActiveUrl(){
@@ -173,16 +152,13 @@ class contextManager{
   }
 
   async relateUrlsToFiles(urls, files){
-    // console.log('relateUrlsToFiles', urls,files);
-    let urlToFiles = await Promise.all(urls.map(url => this.relateOneToMany(url, files, 'openwith')));
-    let filesToUrls = await Promise.all(files.map(file => this.relateOneToMany(file, urls, 'openwith')));
-
-    // console.log('related stuff', files.length, urls.length);
+    let urlToFiles = await Promise.all(urls.map(url => graphUtil.relateOneToMany(url, files, 'openwith')));
+    let filesToUrls = await Promise.all(files.map(file => graphUtil.relateOneToMany(file, urls, 'openwith')));
   }
 
   async relateUrlsToUrls(urls){
     //This will create a relationship with each URL and evrey url in the same context (including itself, TODO: Fix that)
-    console.log("relateUrlsToUrls");
+    // console.log("relateUrlsToUrls");
     //TODO: otherUrls = > filter url from urls
 
     let urlToUrlsRelationships =[];
@@ -196,23 +172,19 @@ class contextManager{
       return urlToUrlsRelationships;
     }
 
-    // _.forEach(urls, async function(url){
-    //   let others = urls.filter(node => node.id !== url.id);
-    //   console.log('RUU-------->', url.title, others);
-    //   let urlToUrlsRelationships = await Promise.all(urls.map(url => this.relateOneToMany(url, others, 'openwith')));
-    //   relationships.push(urlToUrlsRelationships);
-    //
-    // }.bind(this));
+  }
 
-
-    // console.log('related urls', urls);
+  async relateUrlToUrls(url, urls){
+    let others = urls.filter(item => item.address !== url.address);
+    let singleRelationships = await graphUtil.relateOneToMany(url, others, 'openwith');
+    return singleRelationships;
   }
 
   async relateUrlToOthers(url, urls){
     let others = urls.filter(node => node.id !== url.id);
     let innerUrlToUrlsRelationships = [];
     try{
-      innerUrlToUrlsRelationships = await Promise.all(urls.map(url => this.relateOneToMany(url, others, 'openwith')));
+      innerUrlToUrlsRelationships = await Promise.all(urls.map(url => graphUtil.relateOneToMany(url, others, 'openwith')));
     }
     catch(e){
       console.log(err);
@@ -222,8 +194,14 @@ class contextManager{
     }
   }
 
+  async relateFileToFiles(file, files){
+    let others = files.filter(filterFile => file.address !== filterFile.address);
+    let singleRelationships = await graphUtil.relateOneToMany(file, others, 'openwith');
+    return singleRelationships;
+  }
 
   async relateUserToContext(){
+
     let self = this;
     // console.log(this.user);
     if (_.isUndefined(this.user.id)){
@@ -233,7 +211,7 @@ class contextManager{
 
 
     if (!_.isEmpty(this.urls)){
-      let userToUrls = await this.relateOneToMany(this.user, this.urls, 'touched')
+      let userToUrls = await graphUtil.relateOneToMany(this.user, this.urls, 'touched')
       // console.log('associated user with ', this.urls.length, 'urls');
     }
     else{
@@ -242,22 +220,22 @@ class contextManager{
 
     if (!_.isEmpty(this.files)){
       // console.log('assoc files', this.files);
-      let userToFiles = await this.relateOneToMany(this.user, this.files, 'touched')
+      let userToFiles = await graphUtil.relateOneToMany(this.user, this.files, 'touched')
       // console.log('associated user with ', this.files.length, 'files');
 
     }
+
+    if (!_.isEmpty(this.commands)){
+      let userToCommands = await graphUtil.relateOneToMany(this.user, this.commands, 'touched')
+
+    }
     else{
-      // console.log('no files to associate');
+      // console.log('no coomands to associate');
     }
   }
 
-  handleHeartbeat(heartbeat){
-    process.stdout.write('-*-');
-    this.saveContext();
-  }
-
-  handleSlowHeartbeat(heartbeat){
-    this.history.saveEvent({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls} }).then(function(res){})
+  clearCommandsContext(){
+    this.commands = [];
   }
 
   async saveContext(){
@@ -266,10 +244,8 @@ class contextManager{
     try {
       let urlsArtifacts = this.urlsArtifacts;
       let files = this.files;
-      // console.log('FILES', files.length);
-      // console.log('urlsArtifacts',urlsArtifacts);
-      let urls = await Promise.all(urlsArtifacts.map(urlsArtifact => self.saveUrl(urlsArtifact.url, urlsArtifact.title)))
-      // console.log('saved urls', urls.length);
+      let urls = await Promise.all(urlsArtifacts.map(urlsArtifact => graphUtil.saveUrl(urlsArtifact.url, urlsArtifact.title)))
+
       this.urls = urls;
 
       if (files.length > 0 ){
@@ -277,155 +253,68 @@ class contextManager{
       }
       let urlsRels = await this.relateUrlsToUrls(urls);
 
-      this.relateUserToContext();
+      let userContext = await this.relateUserToContext();
+
+      //TODO: Looks like this is partially done on "saveContext. remove duplication"
+      let relatedContext = await this.relateContextToItself();
+
+      //Empty the commands buffer every heartbeat
+      this.clearCommandsContext()
 
     } catch (e) {
       console.error('something went wrong when creating a context', e);
     } finally {
 
     }
-
-
   }
 
-  async relateOneToMany(origin, others, relationship){
-    let relationships = [];
-    try {
-      relationships = await Promise.all(others.map(target => this.relateNodes(origin, target, relationship)));
-      return relationships;
-    }
-    catch(err){
-      console.log('failed to relate one to many', err);
-    }
-    finally{
+  //TODO: Moved this from "proactive.js", should be unified with saveContext
+  async relateContextToItself(){
+    console.log('Relating context to itself');
+      try{
+        let urls = this.urls;
+        let files = this.files;
 
-      return relationships;
-    }
+        let commands = this.commands;
+        console.log('CONTEXT', urls.length, files.length, commands.length);
 
+        if (urls.length > 0) {
+          let urlRelationships = Promise.all(urls.map(url => this.relateUrlToUrls(url,urls)))
 
-  }
-
-  async relateNodes(origin, target, relationship){
-    // console.log('RELATE NODES', origin, target);
-    let cypher = 'START a=node({origin}), b=node({target}) '
-                +'CREATE UNIQUE (a)-[r:'+relationship+']->(b) '
-                +'SET r.weight = coalesce(r.weight, 0) + 1';
-    let params = {origin: origin.id, target: target.id, relationship: relationship};
-    let res = {};
-
-    try{
-      res = await this.queryGraph(cypher,params);
-      // console.log('res', res, cypher, params);
-    }
-
-    catch(err){
-      let cypher = 'START a=node('+origin.id+'), b=node('+target.id+') '
-                  +'CREATE UNIQUE (a)-[r:'+relationship+']->(b) '
-                  +'SET r.weight = coalesce(r.weight, 0) + 1';
-
-      console.log('failed', err, cypher);
-    }
-
-    return res
-  }
-
-  //Creates a bi-directional relationship between nodes
-  async associateNodes(origin, target, relationship){
-    let cypher = 'START a=node({origin}), b=node({target}) '
-                +'CREATE UNIQUE (a)-[r:'+relationship+']->(b) '
-                +'SET r.weight = coalesce(r.weight, 0) + 1';
-    let params = {origin: origin.id, target: target.id, relationship: relationship};
-
-    let res = {};
-
-    try{
-      res = await this.queryGraph(cypher,params);
-      // console.log('res', res, cypher, params);
-    }
-
-    catch(err){
-      let cypher = 'START a=node('+origin.id+'), b=node('+target.id+') '
-                  +'CREATE UNIQUE (a)-[r:'+relationship+']->(b) '
-                  +'SET r.weight = coalesce(r.weight, 0) + 1';
-
-      console.log('failed', err, cypher);
-    }
-
-    return res
-  }
-
-  queryGraph(cypher, params){
-
-    return new Promise(function(resolve, reject) {
-      graph.query(cypher, params, function(err, result){
-        if (err) {
-          console.log('err', err);
-          reject(err)
-        }
-        else resolve(result)
-      });
-    });
-  }
-
-  getUrlCount(){
-    return new Promise(function(resolve, reject) {
-      graph.query('MATCH (n:Url) RETURN count(n)', function(err, result){
-        if (err) reject(err)
-      });
-    });
-  }
-
-  getFileCount(){
-    return new Promise(function(resolve, reject) {
-      graph.query('MATCH (n:File) RETURN count(n)', function(err, result){
-        if (err) reject(err)
-      });
-    });
-  }
-
-  saveUrl(url, title){
-    let self = this;
-    return new Promise(function(resolve, reject) {
-      self.getUrl(url).then(function(result){
-        let node = result;
-        if (!_.isUndefined(node)){
-          resolve(node)
-        }
-        else{
-          try {
-            graph.save({type: 'url', address: url, keywords: '', title: title}, 'Url', function(err, result){
-              console.log(err, result);
-              node = result;
-
-              resolve(node);
-
-            });
-          } catch (e) {
-            console.log('url probably exist', e);
-
-
-          } finally {
-            console.log('wat');
-          }
+          let keywords = await Promise.all(urls.map(url => this.metadata.getSetKeywordsForUrl(url)));
         }
 
-      });
-
-    });
-  }
-
-  getUrl(url){
-    let self = this;
-    return new Promise(function(resolve, reject) {
-      graph.find({type: 'url', address: url}, function(err, node){
-        node = node ? node[0] : false;
-        if (err) reject(err)
-        else {
-          resolve(node);
+        if (files.length > 0){
+          let fileRelationships = Promise.all(files.map(file => this.relateFileToFiles(file, files, 'openwith')));
         }
-      });
-    });
+
+        if (files.length > 0 && urls.length > 0){
+          let fileRelationships = Promise.all(files.map(file => graphUtil.relateOneToMany(file, urls, 'openwith')));
+        }
+
+        if (commands.length > 0 && files.length > 0){
+
+          let commandToFilesRelationships = Promise.all(commands.map(command => graphUtil.relateOneToMany(command, files, 'openwith')));
+          let filesToCommandsRelationships = Promise.all(files.map(file => graphUtil.relateOneToMany(file, commands, 'openwith')));
+        }
+
+        if (commands.length > 0 && urls.length > 0){
+          let commandToUrlsRelationships = Promise.all(commands.map(command => graphUtil.relateOneToMany(command, urls, 'openwith')));
+          let urlsToCommandsRelationships = Promise.all(urls.map(url => graphUtil.relateOneToMany(url, commands, 'openwith')));
+
+        }
+
+        if (commands.length > 0){
+          let commandInternalRelationships = Promise.all(commands.map(command => graphUtil.relateOneToMany(command, commands, 'openwith')));
+        }
+
+
+      }
+      catch(err){
+        console.log('cant relateContextToItself', err);
+      }
   }
+
 
 }
 

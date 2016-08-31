@@ -1,15 +1,39 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import File from 'components/Icons/File';
 import Browser from 'components/Icons/Browser';
 import IconText from 'components/IconText';
-import LinearProgress from 'material-ui/lib/linear-progress';
+import LinearProgress from 'material-ui/LinearProgress';
 import FB from 'styles/flexbox';
+let agent = require('superagent-promise')(require('superagent'), Promise);
 
 class QueriedItem extends React.Component {
+  constructor(...args) {
+    super(...args);
+
+    this._blacklistNode = this._blacklistNode.bind(this);
+  }
+
+  static get propTypes() {
+    return {
+      item: PropTypes.object.isRequired,
+      onClick: PropTypes.func.isRequired,
+    }
+  }
+
+  async _blacklistNode(targetId, e) {
+    // console.log('blacklisting: ', targetId);
+    let result = await agent.post('/blacklist', {
+      userId: window.localStorage.getItem('userId'),
+      targetId
+    });
+    // console.log('blacklist result: ', result.body);
+  }
+
   render() {
     let {item} = this.props;
+    let weight = item.relationshipWeight > 1 ? 100 : parseInt(item.relationshipWeight * 100);
+    let color = "hsla(" + weight +", 100%, 50%, 1)";
 
-    let color = "rgba(255, 255, 255, " + item.relationshipWeight + ")";
     // let title = item.endNode.address ?
     //   item.endNode.address.split('/').filter((item) => item !== "").slice(-1).pop() :
     //   item.endNode.title ? item.endNode.title :
@@ -17,13 +41,23 @@ class QueriedItem extends React.Component {
 
     let title;
     let {endNode} = item;
-    if (endNode.type === 'file') {
-      let addr = endNode.address.split('/');
-      title = '../' + addr.slice(Math.max(addr.length - 3, 1)).join('/');
-    } else if (endNode.type === 'url') {
-      title = endNode.address.split('/').filter((item) => item !== "").slice(-1).pop().slice(0, 20);
+    switch (endNode.type) {
+      case 'file':
+        let addr = endNode.address.split('/');
+        title = '../' + addr.slice(Math.max(addr.length - 3, 1)).join('/');
+        break;
+      case 'url':
+        title = endNode.address.split('/').filter((item) => item !== "").slice(-1).pop().slice(0, 20);
+        break;
+      case 'keyword':
+        title = endNode.text
+        break;
+      case 'command':
+        title = endNode.address
+        break;
+      default:
+        break;
     }
-
 
     let iconClass, typeIconColor;
     switch(item.endNode.type) {
@@ -40,6 +74,10 @@ class QueriedItem extends React.Component {
         iconClass = 'aspect-ratio';
         typeIconColor = '#607D8B';
         break;
+      case 'command':
+          iconClass = 'desktop';
+          typeIconColor = '#2dd500';
+          break;
       default:
         typeIconColor = '#000';
         break;
@@ -78,13 +116,16 @@ class QueriedItem extends React.Component {
     return (
       <div
         title={JSON.stringify(item, null, 2)}
-        style={{..._styles.container, backgroundColor: color}}
+        style={{..._styles.container, backgroundColor: "white", borderColor: color, borderRight: "15px solid " + color, borderLeft: "15px solid " + color}}
         onClick={() => this.props.onClick(nodeId)}>
         <IconText icon={iconClass} iconColor={typeIconColor}>
           <IconText icon={openWithClass} iconColor={iconColor}>
             <div style={{...FB.base, flexWrap: "nowrap", ...FB.align.center}}>
               <div style={{flexGrow: "4", marginRight: "40px", overflow: "hidden", whiteSpace: "nowrap" }}>{title}</div>
-              <div style={{width: '25vw', marginRight: "2vw"}}><LinearProgress mode="determinate" value={item.relationshipWeight * 100} /></div>
+              <div style={{width: '25vw', marginRight: "2vw"}}>
+                <LinearProgress mode="determinate" value={item.relationshipWeight * 100} />
+              </div>
+              <IconText icon='trash' onClick={(e) => this._blacklistNode(nodeId, e)} />
             </div>
           </IconText>
         </IconText>

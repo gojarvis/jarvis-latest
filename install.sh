@@ -1,5 +1,5 @@
 #!/bin/sh
-git checkout release/0.1
+git checkout release/latest
 echo "\nInstalling client\n"
 cd client && npm i &&
 echo "\nInstalling server\n"
@@ -10,5 +10,5 @@ echo "\nBuilding chrome plugin\n"
 cd ../schrome && npm i &&
 echo "\nInstalling sherpa view\n"
 open .
-cd ../sherpa-view && npm i && apm link
+cd ../sherpa-view && npm i && apm link &&
 echo "installed" >> 'installed.flag'

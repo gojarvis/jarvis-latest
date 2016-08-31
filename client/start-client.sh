@@ -1,1 +1,1 @@
-node_modules/.bin/webpack-dev-server --config webpack-dev-server.config.js --progress --inline --colors
+node_modules/webpack-dev-server/bin/webpack-dev-server.js --config webpack-dev-server.config.js --progress --inline --colors

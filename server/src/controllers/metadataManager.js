@@ -1,36 +1,28 @@
-import request from 'request-promise'
-import watson from 'watson-developer-cloud';
-import GraphDB from '../utils/graph';
-import _ from 'lodash'
-import wdk from 'wikidata-sdk';
-import imm from 'immutable';
-import colors from 'colors';
-import fs from 'fs';
+let request = require('request-promise');
+let watson = require('watson-developer-cloud');
+let GraphUtil = require('../utils/graph');
+let _ = require('lodash');
+let wdk = require('wikidata-sdk');
+let imm = require('immutable');
+let colors = require('colors');
+let fs = require('fs');
 
-let graphUtils = new GraphDB();
+let graphUtil = new GraphUtil();
 //9afdfd3783da57ff673da2316105c8e52f411576
 
 let alchemy_language = watson.alchemy_language({api_key: 'ab2b4727617c0d529641168272d1e661634feb72'});
-import config from 'config';
 
-let dbConfig = config.get('graph');
+let ProjectSettingsManager = require('../utils/project-settings-manager');
+let projectSettingsManager = new ProjectSettingsManager();
+
+let graphCredentials = projectSettingsManager.getRepoCredentials();
 
 let graph = require("seraph")({
-  user: dbConfig.user,
-  pass: dbConfig.pass,
-  server: dbConfig.server
+  user: graphCredentials.username,
+  pass: graphCredentials.password,
+  server: graphCredentials.address
 });
 
-// let graph = require("seraph")({
-//   user: 'neo4j', pass: 'sherpa', server: 'http://104.236.57.246:7474',
-//   // server: 'http://localhost:7474',
-// });
-
-// we don't want to create constraints on our objects, as it throws an error when we try to MERGE
-// graph.constraints.uniqueness.create('Keyword', 'text', function (err, constraint) {
-//   // console.log(constraint);
-//   // -> { type: 'UNIQUENESS', label: 'Person', property_keys: ['name'] }
-// });
 
 class MetadataManager {
   constructor(userName) {
@@ -49,14 +41,14 @@ class MetadataManager {
     try {
       if ((_.isUndefined(urlNode.alchemy) || (!_.isUndefined(urlNode.alchemy) && urlNode.alchemy === 'failed')) && _.isUndefined(this.localCache[urlNode.address])) {
         try {
-          console.log('NO ALCHEMY FOR ', urlNode);
+          // console.log('NO ALCHEMY FOR ', urlNode);
           let keywords = await this.getAlchemyKeyWords(url);
           let keywordNodes = await this.saveKeywords(keywords);
           let results = await this.updateNodeAndRelationships(urlNode, keywordNodes);
-          console.log('**** localCache'.red,this.localCache);
+          // console.log('**** localCache'.red,this.localCache);
           // console.log('------------'.blue);
           // console.log('Final Results: '.red, results);
-          console.log('------------'.blue, 'keywords', keywords);
+          // console.log('------------'.blue, 'keywords', keywords);
           this.localCache[urlNode.address] = true;
 
           let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'success');
@@ -66,16 +58,20 @@ class MetadataManager {
           // let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'fetched');
           // let relationship = await Promise.all(keywords.map(keywords => this.relateKeywordToUrl(keywords, urlNode)));
         } catch (err) {
-          console.log('getSetKeywordsForUrl failed:', err);
+          // console.log('getSetKeywordsForUrl failed:', err);
           this.localCache[urlNode.address] = true;
           let updatedNode = await this.updateUrlKeywordFetchStatus(url, 'error');
         }
       }
 
-      let relatedKeywords = await graphUtils.getRelatedToUrl(url, 'related', 1);
+      let relatedKeywords = await graphUtil.getRelatedToUrl(url, 'related', 1);
       return relatedKeywords;
     } catch (e) {
-      console.log('cant getset kws for url', e);
+      if (e.message.indexOf('alchemy') !== -1) {
+        console.log('Alchemy Error: Hmm... best guess is we exceeded our API limit.')
+      } else {
+        console.log('cant getset kws for url', e);
+      }
     } finally {}
 
   }
@@ -107,7 +103,7 @@ class MetadataManager {
     // relate keywords to node
     let relationshipNodes = imm.List();
     keywordNodes.forEach(item => {
-      let cypher = `START a=node(${item.node.id}), b=node(${updatedUrlNode.id}) CREATE UNIQUE a-[r:related]-b SET r.weight = coalesce(r.weight, 0) + ${item.relevance}`;
+      let cypher = `START a=node(${item.node.id}), b=node(${updatedUrlNode.id}) MERGE a-[r:related]-b SET r.weight = coalesce(r.weight, 0) + ${item.relevance}`;
       console.log('Cypher:', cypher);
       relationshipNodes = relationshipNodes.push(txn.query(cypher, {}));
     });
@@ -183,15 +179,15 @@ class MetadataManager {
     keywordNodes.forEach(kwObj => {
       let cypher = `
         START a=node(${kwObj.node.id}), b=node(${urlNode.id})
-        CREATE UNIQUE (a)-[r:related]->(b)
+        MERGE (a)-[r:related]->(b)
         SET r.weight = coalesce(r.weight, 0) + ${kwObj.relevance}`;
 
       txn.query(cypher, {}, (err, result) => {
         if (err) {
-          console.log('?'.red, err);
+          // console.log('?'.red, err);
         }
 
-        console.log('!:'.blue, result);
+        // console.log('!:'.blue, result);
       });
     });
 
@@ -318,7 +314,7 @@ class MetadataManager {
   async relateNodes(origin, target, relationship, relevance) {
     let rel = (relevance)
     let cypher = 'START a=node({origin}), b=node({target}) ' +
-    'CREATE UNIQUE a-[r:' + relationship + ']-b ' + 'SET r.weight = coalesce(r.weight, 0) + ' + rel;
+    'MERGE a-[r:' + relationship + ']-b ' + 'SET r.weight = coalesce(r.weight, 0) + ' + rel;
     let params = {
       origin: origin.id,
       target: target.id,
@@ -328,7 +324,7 @@ class MetadataManager {
     let res = {};
 
     try {
-      res = await graphUtils.queryGraph(cypher, params);
+      res = await graphUtil.queryGraph(cypher, params);
       // console.log('res', res, cypher, params);
     } catch (err) {
       console.log('failed to relate', err, params);
@@ -375,34 +371,6 @@ class MetadataManager {
     } catch (err) {
       console.error('!: ', error);
     }
-
-    // return new Promise(function(resolve, reject) {
-    //   graph.find({type: 'keyword', text: keyword.text, alchemy: true},function(err,res){
-    //     if (err) {
-    //       console.log('could not find keyword', err);
-    //
-    //     }
-    //     else {
-    //       if (_.isEmpty(res)){
-    //         graph.save({type: 'keyword', text: keyword.text, alchemy:true}, 'Keyword', function(err, node){
-    //           if (err) {
-    //             console.log('cant save keyword', node, res,err,  keyword.text);
-    //           }
-    //           else {
-    //             console.log('saved keyword', node);
-    //             resolve(node[0])
-    //           }
-    //         });
-    //       }
-    //       else{
-    //         // console.log('found keyword', res[0]);
-    //         resolve(res[0]);
-    //       }
-    //
-    //     }
-    //   })
-    //
-    // });
   }
 }
 

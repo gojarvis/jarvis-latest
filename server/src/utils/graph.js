@@ -1,29 +1,57 @@
 //TODO: All graph methods should live in one place. Currently unused.
-import Redis from 'ioredis'
-import config from 'config';
+let Redis = require('ioredis');
+let config = require('config');
 let redis = new Redis();
 let pipeline = redis.pipeline();
+let _ = require('lodash');
 
-let dbConfig = config.get('graph');
+let ProjectSettingsManager = require('./project-settings-manager');
+let projectSettingsManager = new ProjectSettingsManager();
+
+let graphCredentials = projectSettingsManager.getRepoCredentials();
 
 let graph = require("seraph")({
-  user: dbConfig.user,
-  pass: dbConfig.pass,
-  server: dbConfig.server
+  user: graphCredentials.username,
+  pass: graphCredentials.password,
+  server: graphCredentials.address
 });
 
+graph.constraints.uniqueness.create('User', 'username', function(err, constraint) {});
+graph.constraints.uniqueness.create('Url', 'address', function(err, constraint) {});
+graph.constraints.uniqueness.create('File', 'address', function(err, constraint) {});
+graph.constraints.uniqueness.create('Command', 'address', function(err, constraint) {});
 
-
-class GraphDB{
+class GraphUtil{
   constructor(){
 
+  }
+
+  getGraph(){
+    return graph
+  }
+
+  async getNode(type, index, value){
+    return new Promise(function(resolve, reject) {
+      let params = {type: type};
+      params[index] = value;
+      graph.find(params, function(err, node){
+        if (err) reject(err)
+        else{
+          resolve(node)
+        }
+      })
+    });
   }
 
   queryGraph(cypher, params={}){
     return new Promise(function(resolve, reject) {
       graph.query(cypher, params, function(err, result){
+
         if (err) reject(err)
-        else resolve(result)
+        else {
+          // console.log('QUERY GRAPH RESULT', result);
+          resolve(result)
+        }
       });
     });
   }
@@ -45,7 +73,25 @@ class GraphDB{
           console.log(err);
           reject(err);
         }
-        else resolve(urls[0])
+
+        else {
+          console.log('URLS', urls);
+          resolve(urls[0])
+        }
+      })
+    });
+  }
+
+  getUserNodeByUsername(username){
+    return new Promise(function(resolve, reject) {
+      graph.find({username: username}, function(err, userNodes){
+        if (err)  {
+          console.log(err);
+          reject(err);
+        }
+        else {
+          resolve(userNodes[0])
+        }
       })
     });
   }
@@ -57,18 +103,13 @@ class GraphDB{
     // console.log(cypher);
     try{
       let res = await this.queryGraph(cypher,params);
+
       return res;
     }
     catch(err){
       console.log('failed to get related', err);
     }
   }
-
-  async getTouchedByOtherUser(){
-    // MATCH (n:User)-[t:touched]-(q)-[r]-(s)-[ot:touched]-(ou:User) RETURN n,q,r,s,ou ORDER BY r.weight DESC LIMIT 10
-  }
-
-
 
   async getRelevantNodes(){
     let relevantUrls = await this.getRelevantUrls()
@@ -77,6 +118,7 @@ class GraphDB{
 
     return
   }
+
 
   async getRelevantUrls(){
 
@@ -87,28 +129,71 @@ class GraphDB{
     return related;
   }
 
+  async relateOneToMany(origin, others, relationship){
+    let relationships = [];let txn; let results = [];
+    try {
+      txn = graph.batch();
+      let relationshipQueries = others.map(target => this.getRelateNodeQuery(origin, target, relationship));
+      relationshipQueries.forEach(cypher => {
+        txn.query(cypher, {}, (err, result) => {
+          if (err){
+            console.log('err adding to txn', err);
+          }
+        })
+      })
+      results = this.commitBatch(txn);
 
-
-  async getRelevantKeywords(){
-
+    } catch (e) {
+      console.log('failed', e);
+    } finally {
+      return results;
+    }
   }
 
-  async relateOneToMany(origin, others, relationship){
-    let relationships = [];
-    try {
-      relationships = await Promise.all(others.map(target => this.relateNodes(origin, target, relationship)));
-    }
-    catch(err){
-      console.log('failed to relate one to many', err);
+  commitBatch(txn) {
+    return new Promise(function (resolve, reject) {
+      try {
+        txn.commit((err, results) => {
+          if (err) {
+            reject(err);
+          }
+          resolve(results);
+        });
+      } catch (e) {
+        console.log('cant commit', e);
+        reject(e);
+      } finally {
+
+      }
+    });
+  }
+
+  getRelateNodeQuery(origin, target, relationship){
+    let cypher = `START a=node(${origin.id}), b=node(${target.id}) MERGE (a)-[r:${relationship}]->(b) SET r.weight = coalesce(r.weight, 0) + 1`;
+    return cypher
+  }
+
+  async deleteRelationship(origin, target, relationship){
+    let cypher = `MATCH (a)-[r:${relationship}]->(b) where ID(a)=${origin.id} and ID(b)=${target.id} DELETE r`;
+    console.log(cypher);
+    let res = {};
+
+    try{
+      res = await this.queryGraph(cypher);
     }
 
-    return relationships;
+    catch(err){
+      console.log('failed delete relatioship in graphUtil', err, cypher);
+    }
+    finally{
+      return res
+    }
   }
 
   async relateNodes(origin, target, relationship){
-
+    // console.log('TARGET', target, target.id);
     let cypher = 'START a=node({origin}), b=node({target}) '
-                +'CREATE UNIQUE a-[r:'+relationship+']->b '
+                +'MERGE (a)-[r:'+relationship+']->(b) '
                 +'SET r.weight = coalesce(r.weight, 0) + 1';
     let params = {origin: origin.id, target: target.id, relationship: relationship};
 
@@ -117,22 +202,207 @@ class GraphDB{
     try{
       res = await this.queryGraph(cypher,params);
       // console.log('res', res, cypher, params);
+
     }
 
     catch(err){
-      let cypher = 'START a=node('+origin.id+'), b=node('+target.id+') '
-                  +'CREATE UNIQUE a-[r:'+relationship+']->b '
-                  +'SET r.weight = coalesce(r.weight, 0) + 1';
-
-      // console.log('failed', err, cypher);
+      console.log('failed relate nodes in graphUtil', err, cypher);
+    }
+    finally{
+      return res
     }
 
-    return res
+
   }
 
+  getSaveUserInGraph(user){
+    return new Promise(function(resolve, reject) {
+      graph.find(user, function(err, node){
+        if (err || !node.length){
+          console.log('user doesnt exist, saving', user);
+          graph.save(user, "User", function(err, node){
+            if (err){
+              console.log('CANT SAVE USER', user, err);
+              reject(err);
+            }
+            else{
+              console.log('USER SAVED', node);
+              resolve(node);
+            }
+          })
+        }
+        else{
+          // console.log('user found', err, node);
+          resolve(node[0])
+        }
+      })
+    });
+  }
 
+  saveFile(address){
+
+    let self = this;
+    let projectPath = '';
+    let trimmedAddress = address.replace('projectsPath', '');
+    // console.log('TRIMMED ADDRESS', trimmedAddress);
+    return new Promise(function(resolve, reject) {
+      console.log('SAVING FILE');
+      graph.save({type: 'file', address: trimmedAddress}, 'File', function(err, node){
+        node = node ? node : {type: 'file', address: address};
+        if (err) {
+          console.log('err', err);
+          reject(err)
+        }
+        else {
+          console.log('node',node);
+          resolve(node);
+        }
+      });
+    });
+  }
+
+  getFile(address){
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      graph.find({type: 'file', address: address}, function(err, node){
+        node = node ? node[0] : {type: 'file', address: address};
+        if (err) reject(err)
+        else {
+          resolve(node);
+        }
+      });
+    });
+  }
+
+  //// Functions moved here for convinience, should be re-written
+
+  async getAndSaveUrlNode(activeUrlDetails){
+      let {url, title} = activeUrlDetails;
+      console.log('getAndSaveUrlNode', url, title);
+      let node;
+      try {
+        node = await this.saveUrl(url, title)
+      } catch (e) {
+        console.log('cant get save url');
+      } finally {
+        return node;
+      }
+  }
+
+  saveUrl(url, title){
+    let self = this;
+    return new Promise(function(resolve, reject) {
+
+      self.getUrl(url).then(function(result){
+        let node = result;
+        if (!_.isUndefined(node)){
+          resolve(node)
+        }
+        else{
+          try {
+            graph.save({type: 'url', address: url, keywords: '', title: title}, 'Url', function(err, result){
+              // console.log(err, result);
+              if (err) {
+                try {
+                  self.getUrl(url).then(function(result){
+                    node = result;
+                    console.log('already existed', node);
+                    resolve(node)
+                  })
+                } catch (e) {
+                    console.log('cant get or save url', e);
+                } finally {
+
+                }
+                // console.log('Cant save node', err);
+                // reject(err);
+              }
+              else{
+                node = result;
+                console.log('SAVED URL', result);
+                resolve(node);
+              }
+
+            });
+          } catch (e) {
+            console.log('url probably exist', e);
+          }
+        }
+
+      });
+
+    });
+  }
+
+  getUrl(url){
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      graph.find({type: 'url', address: url}, function(err, node){
+        node = node ? node[0] : false;
+        if (err) reject(err)
+        else {
+          resolve(node);
+        }
+      });
+    });
+  }
+
+  getCommand(command){
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      graph.find({type: 'command', address: command}, function(err, node){
+        node = node ? node[0] : false;
+        if (err) reject(err)
+        else {
+          resolve(node);
+        }
+      });
+    });
+  }
+
+  saveCommand(command){
+    let self = this;
+    return new Promise(function(resolve, reject) {
+
+      self.getCommand(command).then(function(result){
+        let node = result;
+        if (!_.isUndefined(node)){
+          resolve(node)
+        }
+        else{
+          try {
+            graph.save({type: 'command', address: command}, 'Command', function(err, result){
+              if (err) {
+                try {
+                  self.getCommand(command).then(function(result){
+                    node = result;
+                    console.log('already existed', node);
+                    resolve(node)
+                  })
+                } catch (e) {
+                    console.log('cant get or save command', e);
+                } finally {
+
+                }
+              }
+              else{
+                node = result;
+                console.log('SAVED COMMAND', result);
+                resolve(node);
+              }
+
+            });
+          } catch (e) {
+            console.log('command probably exist', e);
+          }
+        }
+
+      });
+
+    });
+  }
 
 }
 
 
-module.exports = GraphDB;
+module.exports = GraphUtil;

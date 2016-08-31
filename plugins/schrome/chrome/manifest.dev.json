@@ -1,10 +1,10 @@
 {
   "version": "0.0.0",
-  "name": "Jarvis Watcher",
+  "name": "JarvisWatcher",
   "manifest_version": 2,
   "description": "Jarvis Chrome Extension",
   "browser_action": {
-    "default_title": "React Chrome Extension Example",
+    "default_title": "Jarvis Chrome Extension",
     "default_popup": "popup.html"
   },
   "icons": {
@@ -18,6 +18,6 @@
   "web_accessible_resources": [
     "script/*"
   ],
-  "permissions": [ "contextMenus", "tabs", "storage", "https://github.com/*"],
+  "permissions": [ "contextMenus", "tabs", "storage", "*://localhost/*"],
   "content_security_policy": "default-src 'self'; script-src 'self' https://localhost:3333 'unsafe-eval'; connect-src https://localhost:3333 wss://localhost:3333 ws://localhost:3000 'self' http://localhost:3000 http://chrome-extension; style-src * 'unsafe-inline'; img-src 'self' data:;"
 }

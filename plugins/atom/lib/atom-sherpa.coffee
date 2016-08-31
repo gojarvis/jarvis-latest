@@ -20,7 +20,7 @@ module.exports = AtomSherpa =
     # Register command that toggles this view
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-sherpa:toggle': => @toggle()
     @subscriptions.add atom.workspace.onDidOpen (file) => @handleOpen 'open', {uri: file.uri, index: file.index, file:file}, { }
-    @subscriptions.add atom.workspace.onDidDestroyPaneItem (context) => @handleClose 'close', {uri: context.item.getURI()}, { }
+    @subscriptions.add atom.workspace.onDidDestroyPaneItem (context) => @handleClose context.item.getURI(), { }
     @subscriptions.add atom.workspace.observeTextEditors (editor) => @handleEditor editor
     @subscriptions.add atom.workspace.onDidChangeActivePaneItem (item) => @handleHighlighted item
     # @subscriptions.add @socket.on 'run cmd', (cmd) => @runCommand cmd
@@ -74,11 +74,11 @@ module.exports = AtomSherpa =
     # @subscriptions.add editor.onDidChangeSelectionRange (event) => @emitEvent 'atom-selection', {uri: editor.getURI(), selection: event.selection}
 
   handleHighlighted: (item) ->
-    if item.getPath
+    # TODO: check for item === undefined
+    if item && item.getPath
       uri = item.getPath()
-    else
+    else if item && item.getURI
       uri = item.getURI()
-
     @socket.emit('atom-highlighted', {uri: uri});
 
 
