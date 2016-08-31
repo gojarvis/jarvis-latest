@@ -62,6 +62,13 @@ chrome.tabs.onActivated.addListener(function(active){
   });
 });
 
+chrome.tabs.onRemoved.addListener(function(closedTabId){
+  chrome.tabs.query({}, function(res){
+      let tabs = res
+      if (enabled) socket.emit('chrome-closed', {closedTabId:closedTabId, tabs:tabs});
+  });
+})
+
 //https://developer.chrome.com/extensions/omnibox
 // chrome.onInputEntered()
 
