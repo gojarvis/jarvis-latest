@@ -35,6 +35,14 @@ class AtomController {
 
             });
         });
+
+        self.socket.on('atom-file-close', function(msg){
+            let address = msg.uri;
+
+            self.handleFileClose(address).then(function(){
+              console.log('Done close');
+            })
+        })
     }
 
 
@@ -61,6 +69,15 @@ class AtomController {
 
     }
 
+    async handleFileClose(address){
+
+      let projectPath = projectSettingsManager.getRootPath();
+      let trimmedAddress = address.replace(projectPath, '');
+      let fileNode = await graphUtil.getFile(trimmedAddress);
+      this.context.removeFileNode(fileNode)
+      return fileNode
+    }
+
     async handleFileHighlighted(address) {
         let fileNode = await this.insertUniqueFile(address)
         let otherNodes = this.tabs.filter(tab => tab.id !== fileNode.id);
@@ -82,9 +99,9 @@ class AtomController {
 
     }
 
-    async handleFileClose(address) {
-        this.removeUniqueFile(address);
-    }
+    // async handleFileClose(address) {
+    //     this.removeUniqueFile(address);
+    // }
 
     async insertUniqueFile(address) {
 

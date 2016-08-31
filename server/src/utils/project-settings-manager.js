@@ -3,12 +3,6 @@ let fs = require('fs');
 let path = require('path');
 
 
-console.log('TRYING TO FIGURE OUT MY PATH');
-console.log('============================');
-// console.log(path.join(__dirname, './settings.json'));
-console.log(path.resolve('settings.json'));
-
-console.log(process.env.PROD);
 // let settingsPath = path.resolve(__dirname, 'settings.json');
 let settingsPath = 'settings.json';
 
@@ -32,7 +26,6 @@ class ProjectSettingsManager {
 
 
     async setRepoCredentials(credentials){
-      console.log('SAVING CREDS', credentials);
       this.repoCredentials = credentials
       let newSettings = await this.readSettingsFile();
 
@@ -71,7 +64,6 @@ class ProjectSettingsManager {
 
     saveSettings(settings){
       return new Promise(function(resolve, reject) {
-        console.log('WRITING TO SETTINGS FILE', settings);
         fs.writeFile (settingsPath, JSON.stringify(settings), function(err) {
           if (err) {
             console.log('error saving settings', err);

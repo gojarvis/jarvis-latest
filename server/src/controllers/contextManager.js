@@ -83,6 +83,17 @@ class contextManager{
     }
   }
 
+  removeFileNode(fileNode){
+    console.log('Removed File node', fileNode);
+    let filteredFiles = this.files.filter(file => {
+      console.log(file, fileNode);
+      return file.address === fileNode.address
+    });
+    this.files = filteredFiles;
+    console.log('FILES after node remove', this.files);
+
+  }
+
   addCommandNode(commandNode){
 
     let command = this.commands.filter(command => command.address === commandNode.address);
