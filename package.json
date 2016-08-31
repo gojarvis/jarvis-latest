@@ -7,7 +7,9 @@
     "start": "./start.sh",
     "stop": "./stop.sh",
     "restart": "pm2 restart all",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:windows": ".\\install.bat",
+    "windows": ".\\start.bat"
   },
   "repository": {
     "type": "git",
