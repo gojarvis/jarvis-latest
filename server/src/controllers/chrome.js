@@ -46,11 +46,16 @@ class ChromeController {
     self.socket.on('chrome-highlighted', function(msg){
       let {active, tabs} = msg;
       self.tabs = tabs;
-      console.log('===>TABS', tabs.length, active);
+      // console.log('===>TABS', tabs.length, active);
       self.handleHighlighted(active).then(function(related){
           self.io.emit('related', related)
       });
     });
+
+    self.socket.on('chrome-closed', async function(message){
+      let {closedTabId, tabs} = message;
+      self.handleClosedTab(closedTabId, tabs)
+    })
 
 
     self.socket.on('chrome-updated', async function(message){
@@ -89,17 +94,29 @@ class ChromeController {
     return true;
   }
 
+
+  //TODO
+  async isInWhiteList(address){
+
+  }
+
+  async isInBlackList(address){
+
+  }
+
+
   getActiveTab(id){
     return this.tabs.filter(tab => tab.id === id)
   }
 
   async handleUpdated(active){
+    console.log('ACTIVE', active);
+
     if (!chromeExtensionEnabled){
       console.log('Chrome extension disabled');
       return;
     }
     let activeTab = this.getActiveTab(active)
-    console.log('HANDLE UPDATED --- ACTIVE TAB');
     let url = activeTab[0].url;
     let title = activeTab[0].title;
     // console.log('URL', url, 'TITIE', title);
@@ -113,7 +130,7 @@ class ChromeController {
       // console.log('NEW NODE', node);
     }
 
-    console.log('NODE', node, this.context.activeUrl);
+    // console.log('NODE', node, this.context.activeUrl);
 
     if( this.context.activeUrl.url !== activeTab[0].url){
       this.context.setActiveUrl({url: url, title: title});
@@ -131,11 +148,6 @@ class ChromeController {
       });
 
     }
-
-
-
-
-
     // return relatedUrls
   }
 
@@ -157,14 +169,15 @@ class ChromeController {
     }
 
     let activeUrl = { url: activeTabUrl, title: activeTabTitle};
-    console.log('ACTIVE URL ', activeUrl);
     let node = await this.context.setActiveUrl(activeUrl);
-
-
 
     this.history.saveEvent({type: 'highlighted', source: 'chrome', data: { nodeId: node.id, address: activeUrl.url, title: activeTab[0].title} }).then(function(res){
 
     });
+  }
+
+  async handleClosedTab(closedTabId, tabs){
+    this.context.removeTab(tabs);
   }
 
 
