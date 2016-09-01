@@ -217,8 +217,19 @@ class GraphUtil{
     finally{
       return res
     }
+  }
 
-
+  async getRelatedNodes(startNode, relationship){
+    let cypher =
+      `MATCH (startNode)-[relationship:${relationship}]->(endNode) where ID(startNode)=${startNode.id} return endNode`;
+    let res = {};
+    try {
+      res = await this.queryGraph(cypher);
+    } catch (err) {
+      console.log('failed to get related nodes in graphUtil', err, cypher);
+    } finally {
+      return res;
+    }
   }
 
   getSaveUserInGraph(user){
@@ -238,7 +249,6 @@ class GraphUtil{
           })
         }
         else{
-          // console.log('user found', err, node);
           resolve(node[0])
         }
       })
