@@ -6,8 +6,6 @@ let proxy = require('http-proxy-middleware');
 let app = express();
 let http = require('http').Server(app);
 let bodyParser = require('body-parser');
-let kue = require('kue');
-let ui = require('kue-ui');
 
 let rethink = require('rethinkdb');
 
@@ -19,7 +17,7 @@ let _ = require('lodash');
 
 let path = require("path");
 
-let isDev = process.env.JARVIS_DEV || false;
+let isDev = !_.isUndefined(process.env.JARVIS_DEV);
 
 let ProjectSettingsManager = require('./utils/project-settings-manager');
 let projectSettingsManager = new ProjectSettingsManager();
@@ -28,7 +26,7 @@ let rethinkConfig = config.get('rethink');
 let GraphUtil = require('./utils/graph');
 let graphUtil = new GraphUtil();
 
-let staticClientPath = path.join(__dirname, '../client/build/');
+let staticClientPath = path.join(__dirname, '../../client/build/');
 
 let usersController = require('./controllers/users');
 let teamsController = require('./controllers/teams');
@@ -44,19 +42,8 @@ global.thinky = db;
 let initialized = false;
 
 /** Passport **/
-let GitHubStrategy = require('passport-github').Strategy;
-let GITHUB_CLIENT_ID = 'a595d84888f2d2a687a4';
-let GITHUB_CLIENT_SECRET = '3279791b36883a5138acf4db4080a5982faee3d8';
-
-passport.use(new GitHubStrategy({
-  clientID: GITHUB_CLIENT_ID,
-  clientSecret: GITHUB_CLIENT_SECRET,
-  callbackURL: "http://localhost:3000/auth/github/callback"
-}, function(accessToken, refreshToken, profile, cb) {
-  graphUtil.getSaveUserInGraph({ username: profile.username }).then((result) => {
-    return cb(null, result);
-  }).catch(cb);
-}));
+let gitHubStrategy = require('./strategies/github')
+passport.use(gitHubStrategy);
 
 passport.serializeUser(function(user, cb) {
   cb(null, user);
@@ -349,13 +336,13 @@ app.post('/logout', function(req,res){
 });
 
 
-if(isDev != 'false'){
-  console.log('DEVELOPMENT MODE');
+if(isDev){
+  console.log('DEVELOPMENT MODE', !_.isUndefined(process.env.JARVIS_DEV));
   app.use('/', proxy({ target: 'http://localhost:8888', changeOrigin: true }));
 }
 else{
     console.log('PRODUCTION MODE');
-
+    console.log('staticClientPath',staticClientPath);
     app.use(express.static(staticClientPath));
 }
 let p = rethink.connect({host: rethinkConfig.host || "104.131.111.80", db: rethinkConfig.db});
