@@ -39,8 +39,7 @@ class AtomController {
         self.socket.on('atom-file-close', function(msg){
             let address = msg.uri;
 
-            self.handleFileClose(address).then(function(){
-              console.log('Done close');
+            self.handleFileClose(address).then(function(){              
             })
         })
     }

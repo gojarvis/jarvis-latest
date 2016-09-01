@@ -72,11 +72,12 @@ let graphController = {
     if (startUserNodeId && (!endUserNodeIds || endUserNodeIds.length === 0)){
       cypher = `match (startUserNode:User)-[${'startUserRel_' + relationshipCypherVariableString}]->(${startNodeString})-[${'endUserRel_' + relationshipCypherVariableString}]->(${endNodeString}) where ID(startNode) = ${nodeId}`
       cypher += ` and ID(startUserNode) = ${startUserNodeId}`
+      cypher += ` and NOT ID(endNode) = ${nodeId}`
       cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`
       normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
-      console.log('normalizedSumCypher---', normalizedSumCypher);
+      // console.log('normalizedSumCypher---', normalizedSumCypher);
       normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
-      console.log('normalizedWeight',normalizedWeight);
+      // console.log('normalizedWeight',normalizedWeight);
       cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, collect(distinct endNode)[0] as endNode order by relationshipWeight desc`
     }
 
@@ -84,11 +85,11 @@ let graphController = {
       cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]->(${startNodeString})-[${'startUserRel_' + relationshipCypherVariableString}]->(${endNodeString})<-[${'endUserRel_' + relationshipCypherVariableString}]-(endUserNode:User) where ID(startNode) = ${nodeId}`
       cypher += ` and ID(startUserNode) = ${startUserNodeId}`
       cypher += ` and ID(endUserNode) in [${endUserNodeIds.join(',')}]`
+      cypher += ` and NOT ID(endNode) = ${nodeId}`
       cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`
 
       normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
 
-      console.log('WAAAT', normalizedSumCypher);
       normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
 
       cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, collect(distinct endNode)[0] as endNode order by relationshipWeight desc`
@@ -97,6 +98,7 @@ let graphController = {
       cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]->(${startNodeString})-[${'startUserRel_' + relationshipCypherVariableString}]->(${endNodeString})->[${'endUserRel_' + relationshipCypherVariableString}]-(endUserNode:User) where ID(startNode) = ${nodeId}`
       cypher += ` and ID(endUserNode) in [${endUserNodeIds.join(',')}]`
       cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`
+      cypher += ` and NOT ID(endNode) = ${nodeId}`
       normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
       normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
       cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, collect(distinct endNode)[0] as endNode order by relationshipWeight desc`
@@ -121,9 +123,9 @@ let graphController = {
       try {
         let result = await queryGraph(cypher);
         console.log(`======  QUERY   =====`);
-        console.log(``);
+        console.log(`  `);
         console.log(cypher);
-        console.log(``);
+        console.log(`  `);
         console.log(`====== END QUERY =====`);
         console.log(`Found ${result.length} results for the query`);
         res.json(result);
@@ -145,23 +147,23 @@ let graphController = {
   },
 
   blacklistNode: async function(req, res) {
-    let nodeId = req.body.nodeId;
-    console.log('blacklist: ', req.body);
-    let cypher = `
-      START userNode=node(${req.body.userId}), targetNode=node(${req.body.targetId})
-      MERGE (userNode)-[rel:blacklisted]->(targetNode)
-      return userNode, targetNode, rel
-    `;
-
-    console.log('cypher: ', cypher);
-
-    try {
-      let result = await queryGraph(cypher);
-      res.json(result);
-    } catch(error) {
-      console.error(`Blacking node(${req.body.nodeId}) for user(${req.body.userId}) failed`, cypher);
-      res.json({'error': error});
-    }
+  //   let nodeId = req.body.nodeId;
+  //   console.log('blacklist: ', req.body);
+  //   let cypher = `
+  //     START userNode=node(${req.body.userId}), targetNode=node(${req.body.targetId})
+  //     MERGE (userNode)-[rel:blacklisted]->(targetNode)
+  //     return userNode, targetNode, rel
+  //   `;
+  //
+  //   console.log('cypher: ', cypher);
+  //
+  //   try {
+  //     let result = await queryGraph(cypher);
+  //     res.json(result);
+  //   } catch(error) {
+  //     console.error(`Blacking node(${req.body.nodeId}) for user(${req.body.userId}) failed`, cypher);
+  //     res.json({'error': error});
+  //   }
   }
 }
 

@@ -1,4 +1,4 @@
-var db = global.thinky;
+var db = require('../utils/rethink')
 var type = db.type;
 
 var Event = db.createModel("Event", {

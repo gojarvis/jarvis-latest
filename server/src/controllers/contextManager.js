@@ -11,7 +11,7 @@ let Meta = require('./metadataManager')
 class contextManager{
   constructor(history, userInfo){
 
-    var db = global.thinky;
+    var db = require('../utils/rethink')
     var type = db.type;
 
     let User = db.createModel("User", {
