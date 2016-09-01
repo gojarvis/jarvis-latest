@@ -11,7 +11,7 @@ let Meta = require('./metadataManager')
 class contextManager{
   constructor(history, userInfo){
 
-    var db = global.thinky;
+    var db = require('../utils/rethink')
     var type = db.type;
 
     let User = db.createModel("User", {
@@ -271,7 +271,7 @@ class contextManager{
 
   //TODO: Moved this from "proactive.js", should be unified with saveContext
   async relateContextToItself(){
-    console.log('Relating context to itself');
+    // console.log('Relating context to itself');
       try{
         let urls = this.urls;
         let files = this.files;

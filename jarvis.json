@@ -1,7 +1,7 @@
 {
   "apps" : [
     {
-      "name"        : "sherpa-server",
+      "name"        : "jarvis",
       "script"      : "start-server.sh",
       "args"        : [],
       "watch"       : false,
@@ -25,7 +25,7 @@
       }
     },
     {
-      "name"        : "sherpa-plugin-chrome",
+      "name"        : "jarvis-plugin-chrome",
       "script"      : "start-plugin-chrome.sh",
       "watch"       : false,
       "merge_logs"  : true,
