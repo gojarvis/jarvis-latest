@@ -73,9 +73,7 @@ class GraphUtil{
           console.log(err);
           reject(err);
         }
-
         else {
-          console.log('URLS', urls);
           resolve(urls[0])
         }
       })
@@ -119,6 +117,14 @@ class GraphUtil{
     return
   }
 
+  //TODO
+  async getWhitelistExpressions(username){
+
+  }
+
+  async getBlacklistExpressions(username){
+
+  }
 
   async getRelevantUrls(){
 
@@ -261,6 +267,7 @@ class GraphUtil{
     });
   }
 
+
   getFile(address){
     let self = this;
     return new Promise(function(resolve, reject) {
@@ -274,11 +281,45 @@ class GraphUtil{
     });
   }
 
+  saveRegex(regex){
+
+    let self = this;
+
+    // console.log('TRIMMED ADDRESS', trimmedAddress);
+    return new Promise(function(resolve, reject) {
+      console.log('SAVING Regex');
+      graph.save({type: 'regex', address: regex}, 'Regex', function(err, node){
+        // node = node ? node : {type: 'regex', address: address};
+        if (err) {
+          console.log('err', err);
+          reject(err)
+        }
+        else {
+          console.log('node',node);
+          resolve(node);
+        }
+      });
+    });
+  }
+
+
+  getRegex(address){
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      graph.find({type: 'regex', address: address}, function(err, node){
+        node = node ? node[0] : {type: 'regex', address: address};
+        if (err) reject(err)
+        else {
+          resolve(node);
+        }
+      });
+    });
+  }
   //// Functions moved here for convinience, should be re-written
 
   async getAndSaveUrlNode(activeUrlDetails){
       let {url, title} = activeUrlDetails;
-      console.log('getAndSaveUrlNode', url, title);
+      // console.log('getAndSaveUrlNode', url, title);
       let node;
       try {
         node = await this.saveUrl(url, title)
@@ -306,7 +347,7 @@ class GraphUtil{
                 try {
                   self.getUrl(url).then(function(result){
                     node = result;
-                    console.log('already existed', node);
+                    // console.log('already existed', node);
                     resolve(node)
                   })
                 } catch (e) {
@@ -319,7 +360,7 @@ class GraphUtil{
               }
               else{
                 node = result;
-                console.log('SAVED URL', result);
+                // console.log('SAVED URL', result);
                 resolve(node);
               }
 
@@ -376,7 +417,7 @@ class GraphUtil{
                 try {
                   self.getCommand(command).then(function(result){
                     node = result;
-                    console.log('already existed', node);
+                    // console.log('already existed', node);
                     resolve(node)
                   })
                 } catch (e) {
