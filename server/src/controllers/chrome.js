@@ -108,68 +108,44 @@ class ChromeController {
 
     //TODO
     //The URL Gatekeeper
-    async urlFilter(address){
-      //is blacklist enabled?
-      let block = false;
-      let pass = true;
-      let isInBlackList = await this.isInBlackList(address)
-      if (blacklistEnabled && isInBlackList){
-        block = true;
-      }
-
-      let isInWhiteList = this.isInWhiteList(address);
-      if (whitelistEnabled){
-        pass = false;
-        if (isInWhiteList){
-          pass = true;
+    async urlFilter(address) {
+        //is blacklist enabled?
+        let block = false;
+        let pass = true;
+        let isInBlackList = await this.isInBlackList(address)
+        if (blacklistEnabled && isInBlackList) {
+            block = true;
         }
-      }
 
-      if (!block && pass){
-        return address;
-      }
-      else{
-        return false;
-      }
+        let isInWhiteList = this.isInWhiteList(address);
+        if (whitelistEnabled) {
+            pass = false;
+            if (isInWhiteList) {
+                pass = true;
+            }
+        }
+
+        if (!block && pass) {
+            return address;
+        } else {
+            return false;
+        }
     }
 
     async isInWhiteList(address) {
         let user = this.context.getUser()
-        let whitelistExpressions = graphUtil.getWhitelistExpressions(user)
-        let isWhitelisted = whitelistExpressions.map(expression => this.testExpression(expression, address))
+        let whitelistExpressions = graphUtil.getRelatedNodes(user, 'whitelist')
+        let isWhitelisted = whitelistExpressions.map(expression => this.testExpression(expression.address, address))
     }
 
     async isInBlackList(address) {
         let user = this.context.getUser()
-        let blacklistExpression = graphUtil.getBlacklistExpressions(user)
-        let isBlacklisted = blacklistExpression.map(expression => this.testExpression(expression, address))
-    }
-    
-    testExpression(expression, str){
-          return expression.test(str);
+        let blacklistExpressions = graphUtil.getRelatedNodes(user, 'blacklist')
+        let isBlacklisted = blacklistExpressions.map(expression => this.testExpression(expression.address, address))
     }
 
-    async addRegexToBlackList(userId, address){
-      // let urlNode = await graphUtil.getUrlNodeByUrl(address);
-      // let targetId = urlNode.id;
-      // let cypher = `
-      //   START userNode=node(${userId}), targetNode=node(${targetId})
-      //   MERGE (userNode)-[rel:blacklisted]->(targetNode)
-      //   return userNode, targetNode, rel
-      // `;
-      //
-      // console.log('cypher: ', cypher);
-      //
-      // try {
-      //   let result = await graphUtil.queryGraph(cypher);
-      //   return result
-      // } catch(error) {
-      //   console.error(`Blacking node(${req.body.nodeId}) for user(${req.body.userId}) failed`, cypher);
-      // }
-    }
-
-    async addRegexToWhiteList(address){
-
+    testExpression(expression, str) {
+        return expression.test(str);
     }
 
 

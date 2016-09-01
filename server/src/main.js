@@ -142,11 +142,9 @@ app.get('/auth/github/callback',
         res.redirect(`http://localhost:3000`);
     });
 
-
 app.post('/api/user/userjson', isLoggedIn, function(req, res) {
     res.send(req.user);
 });
-
 
 app.use('/teams', proxy({
     target: 'http://localhost:8888/teams',
@@ -162,15 +160,12 @@ app.get('/user', function(req, res) {
     }
 })
 
-
 app.get('/init', isLoggedIn, function(req, res) {
     sessionData = req.session;
     init(req.session.user).then(function() {
         res.send('done');
     })
 });
-
-
 
 app.get('/users', graphController.getUsers);
 
@@ -321,7 +316,6 @@ app.post('/api/user/setRootPath', isLoggedIn, function(req, res) {
 });
 
 app.post('/api/user/setRepoCredentials', isLoggedIn, function(req, res) {
-
     let {
         username,
         password,
@@ -345,7 +339,6 @@ app.post('/api/user/getRootPath', isLoggedIn, function(req, res) {
 });
 
 app.post('/api/user/setActivityManagerAddress', isLoggedIn, function(req, res) {
-
     let {
         address
     } = req.body;
@@ -374,6 +367,32 @@ app.post('/api/team/create', ensureAdmin, function(req, res) {
         });
     });
 })
+
+
+app.post('/api/user/addFilterExpression', isLoggedIn, function(req, res) {
+    let expression = req.body.expression;
+    let type = req.body.expressionType;
+    let user = req.session.passport.user;
+
+    settingsController.addExpression(expression, type, user).then(relationship => {
+        console.log('done adding expression in main.js', relationship);
+        res.json(relationship: relationship);
+    })
+})
+
+app.post('/api/user/listFilterExpressions', isLoggedIn, function(req, res) {
+    let type = req.body.expressionType;
+    let user = req.session.passport.user;
+
+
+    settingsController.listFilterExpression(type, user).then(expressions => {
+        console.log('done listing expression in main.js', expressions);
+        res.json({ expressions});
+    })
+
+});
+
+
 
 app.post('/logout', function(req, res) {
     req.session = null;

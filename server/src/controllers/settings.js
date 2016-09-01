@@ -6,13 +6,6 @@ let Moniker = require('moniker');
 let ProjectSettingsManager = require('../utils/project-settings-manager');
 let projectSettingsManager = new ProjectSettingsManager();
 
-let graphCredentials = projectSettingsManager.getRepoCredentials();
-
-let graph = require("seraph")({
-    user: graphCredentials.username,
-    pass: graphCredentials.password,
-    server: graphCredentials.address
-});
 class SettingsController {
     constructor() {
 
@@ -46,6 +39,22 @@ class SettingsController {
     async getActivityManagerCredentials(credentials) {
         let creds = await projectSettingsManager.getActivityManagerCredentials(credentials);
         return creds;
+    }
+
+
+    async addExpression(expression, filterType, user){
+        console.log('Adding expression to user', expression, user);
+        let expressionNode = await graphUtil.saveRegex(expression);
+        let userNode = await graphUtil.getUserNodeByUsername(user.username);
+        let relationship = await graphUtil.relateNodes(userNode, expressionNode, filterType);
+        console.log('----> added expression to user', expression, user);
+        return relatioship;
+    }
+
+    async listFilterExpression(filterType, user){
+        let userNode = await graphUtil.getUserNodeByUsername(user.username);
+        let expressions = await graphUtil.getRelatedNodes(userNode, filterType)
+        return expressions;
     }
 
 

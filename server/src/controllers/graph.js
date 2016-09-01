@@ -22,18 +22,14 @@ function queryGraph(cypher, params={}){
 
 async function getNormalizedWeight(query){
   let normalizedSumCypherResult = await queryGraph(query);
-  console.log('RESULT', normalizedSumCypherResult);
   let normalizedWeight ;
   if (!_.isNull(normalizedSumCypherResult[0]) &&  normalizedSumCypherResult.length > 0){
-    console.log('somehow in here');
     normalizedWeight = parseFloat(normalizedSumCypherResult[0].normalizedSumWeight);
     normalizedWeight = (normalizedWeight > 0) ? normalizedWeight : 1;
   }
   else{
     normalizedWeight = 1;
   }
-
-  console.log('Got to tthen end ', normalizedWeight);
   return normalizedWeight;
 
 }
@@ -64,10 +60,7 @@ let graphController = {
     let normalizedSumCypher;
     let normalizedWeight;
 
-    console.log('FINDME: ', {nodeId, endNodeType, startUserNodeId, endUserNodeIds})
-
     let cypher;
-
 
     if (startUserNodeId && (!endUserNodeIds || endUserNodeIds.length === 0)){
       cypher = `match (startUserNode:User)-[${'startUserRel_' + relationshipCypherVariableString}]->(${startNodeString})-[${'endUserRel_' + relationshipCypherVariableString}]->(${endNodeString}) where ID(startNode) = ${nodeId}`
@@ -147,23 +140,23 @@ let graphController = {
   },
 
   blacklistNode: async function(req, res) {
-  //   let nodeId = req.body.nodeId;
-  //   console.log('blacklist: ', req.body);
-  //   let cypher = `
-  //     START userNode=node(${req.body.userId}), targetNode=node(${req.body.targetId})
-  //     MERGE (userNode)-[rel:blacklisted]->(targetNode)
-  //     return userNode, targetNode, rel
-  //   `;
-  //
-  //   console.log('cypher: ', cypher);
-  //
-  //   try {
-  //     let result = await queryGraph(cypher);
-  //     res.json(result);
-  //   } catch(error) {
-  //     console.error(`Blacking node(${req.body.nodeId}) for user(${req.body.userId}) failed`, cypher);
-  //     res.json({'error': error});
-  //   }
+    let nodeId = req.body.nodeId;
+
+    let cypher = `
+      START userNode=node(${req.body.userId}), targetNode=node(${req.body.targetId})
+      MERGE (userNode)-[rel:blacklisted]->(targetNode)
+      return userNode, targetNode, rel
+    `;
+
+    // console.log('cypher: ', cypher);
+
+    try {
+      let result = await queryGraph(cypher);
+      res.json(result);
+    } catch(error) {
+      console.error(`Blacking node(${req.body.nodeId}) for user(${req.body.userId}) failed`, cypher);
+      res.json({'error': error});
+    }
   }
 }
 
