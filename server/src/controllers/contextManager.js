@@ -84,14 +84,17 @@ class contextManager{
   }
 
   removeFileNode(fileNode){
-    console.log('Removed File node', fileNode);
     let filteredFiles = this.files.filter(file => {
       console.log(file, fileNode);
       return file.address === fileNode.address
     });
-    this.files = filteredFiles;
-    console.log('FILES after node remove', this.files);
 
+    this.files = filteredFiles;
+  }
+
+  removeTab(tabs){
+
+    this.updateTabs(tabs)
   }
 
   addCommandNode(commandNode){
@@ -103,16 +106,13 @@ class contextManager{
   }
 
   async updateUserActivity(){
-    console.log('updateUserActivity');
+    // console.log('updateUserActivity');
     let activeUrlDetails = this.getActiveUrl();
     let urlNode;
 
     try {
       urlNode  = await graphUtil.getAndSaveUrlNode(activeUrlDetails);
-      console.log('updateUserActivity - ACTIVE URL', urlNode);
       let rel = graphUtil.relateNodes(this.user, urlNode, 'touched');
-
-
 
     } catch (e) {
       console.log('cant updateUserActivity', e);
@@ -130,6 +130,7 @@ class contextManager{
         title: tab.title
       }
     })
+
     this.urlsArtifacts = urlsArtifacts;
     // console.log('updated tabs', this.urlsArtifacts);
   }
