@@ -5,8 +5,7 @@ let redis = new Redis();
 let pipeline = redis.pipeline();
 let _ = require('lodash');
 
-let ProjectSettingsManager = require('./project-settings-manager');
-let projectSettingsManager = new ProjectSettingsManager();
+let projectSettingsManager = require('./settings-manager');
 
 let graphCredentials = projectSettingsManager.getRepoCredentials();
 
@@ -265,7 +264,7 @@ class GraphUtil{
           console.log('err', err);
           reject(err)
         }
-        else {          
+        else {
           resolve(node);
         }
       });

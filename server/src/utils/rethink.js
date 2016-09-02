@@ -1,5 +1,4 @@
-import ProjectSettingsManager from './project-settings-manager';
-let projectSettingsManager = new ProjectSettingsManager();
+import projectSettingsManager from './settings-manager';
 let activityManagerCredentials = projectSettingsManager.getActivityManagerCredentials();
 
 let db = require('thinky')({

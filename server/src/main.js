@@ -17,8 +17,7 @@ let _ = require('lodash');
 
 let path = require("path");
 
-let ProjectSettingsManager = require('./utils/project-settings-manager');
-let projectSettingsManager = new ProjectSettingsManager();
+let projectSettingsManager = require('./utils/settings-manager');
 let rethinkConfig = config.get('rethink');
 let GraphUtil = require('./utils/graph');
 let graphUtil = new GraphUtil();
