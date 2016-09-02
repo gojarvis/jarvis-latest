@@ -1,3 +1,4 @@
+
 let Promise = require('bluebird');
 let _ = require('lodash');
 
@@ -66,7 +67,6 @@ class ChromeController {
             self.handleClosedTab(closedTabId, tabs)
         })
 
-
         self.socket.on('chrome-updated', async function(message) {
             // console.log('chrome-updated');
             let {
@@ -81,7 +81,6 @@ class ChromeController {
 
             self.saveSession();
         });
-
 
         self.socket.on('chrome-disable', function() {
             chromeExtensionEnabled = false;
@@ -102,74 +101,90 @@ class ChromeController {
 
     async saveSession() {
         let self = this;
-        this.context.updateTabs(self.tabs);
+
+
+        let filteredFlags = await Promise.all(self.tabs.map(tab => {
+          return self.urlFilter(tab.url)
+        }));
+        let filteredTabs = [];
+        self.tabs.forEach((tab, index) => {
+          if (filteredFlags[index] === true) {
+            filteredTabs.push(tab);
+          }
+        })
+
+        this.context.updateTabs(filteredTabs);
         return true;
     }
 
-    //TODO
+
     //The URL Gatekeeper
-    async urlFilter(address){
-      //is blacklist enabled?
-      let block = false;
-      let pass = true;
-      let isInBlackList = await this.isInBlackList(address)
-      if (blacklistEnabled && isInBlackList){
-        block = true;
-      }
+    async urlFilter(address) {
+        //is blacklist enabled?
 
-      let isInWhiteList = this.isInWhiteList(address);
-      if (whitelistEnabled){
-        pass = false;
-        if (isInWhiteList){
-          pass = true;
+        let blacklistEnabled = false;
+        let whiteListEnabled = true;
+
+        let block = false;
+        let pass = false;
+
+        let blacklisted = await this.isInBlackList(address)
+        if (blacklistEnabled && blacklisted) {
+            block = true;
         }
-      }
 
-      if (!block && pass){
-        return address;
-      }
-      else{
-        return false;
-      }
+        let whitelisted = await this.isInWhiteList(address);
+        if (whiteListEnabled) {
+            pass = false;
+            if (whitelisted) {
+                pass = true;
+            }
+        }
+
+
+        // console.log('filter', address, 'pass', pass, 'block', block);
+        if (!block && pass) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     async isInWhiteList(address) {
         let user = this.context.getUser()
-        let whitelistExpressions = graphUtil.getWhitelistExpressions(user)
-        let isWhitelisted = whitelistExpressions.map(expression => this.testExpression(expression, address))
+        if (_.isEmpty(user)){
+          console.log('No user when searching the white list');
+          return false;
+        }
+        let userNode = await graphUtil.getUserNodeByUsername(user.username);
+        let whitelistExpressions = await graphUtil.getRelatedNodes(userNode, 'whitelist')
+        let isWhitelisted = false;
+        whitelistExpressions.forEach(expression => {
+          if (this.testExpression(expression.address, address)){
+            isWhitelisted = true;
+          }
+        })
+        return isWhitelisted;
     }
 
     async isInBlackList(address) {
         let user = this.context.getUser()
-        let blacklistExpression = graphUtil.getBlacklistExpressions(user)
-        let isBlacklisted = blacklistExpression.map(expression => this.testExpression(expression, address))
-    }
-    
-    testExpression(expression, str){
-          return expression.test(str);
-    }
-
-    async addRegexToBlackList(userId, address){
-      // let urlNode = await graphUtil.getUrlNodeByUrl(address);
-      // let targetId = urlNode.id;
-      // let cypher = `
-      //   START userNode=node(${userId}), targetNode=node(${targetId})
-      //   MERGE (userNode)-[rel:blacklisted]->(targetNode)
-      //   return userNode, targetNode, rel
-      // `;
-      //
-      // console.log('cypher: ', cypher);
-      //
-      // try {
-      //   let result = await graphUtil.queryGraph(cypher);
-      //   return result
-      // } catch(error) {
-      //   console.error(`Blacking node(${req.body.nodeId}) for user(${req.body.userId}) failed`, cypher);
-      // }
+        if (_.isEmpty(user)){
+          return false;
+        }
+        let userNode = await graphUtil.getUserNodeByUsername(user.username);
+        let blacklistExpressions = await graphUtil.getRelatedNodes(userNode, 'blacklist')
+        let isBlacklisted = false;
+        blacklistExpressions.forEach(expression => {
+          if (this.testExpression(expression.address, address)){
+             isBlacklisted = true;
+          }
+        })
+        return isBlacklisted;
     }
 
-    async addRegexToWhiteList(address){
-
+    testExpression(expression, str) {
+        return _.isArray(str.match(expression))
     }
 
 
@@ -184,9 +199,21 @@ class ChromeController {
             return;
         }
         let activeTab = this.getActiveTab(active)
+
+        if (_.isUndefined(activeTab) || _.isUndefined(activeTab[0])){
+          console.log('tab undefined when handling updated');
+          return;
+        }
+
         let url = activeTab[0].url;
         let title = activeTab[0].title;
-        // console.log('URL', url, 'TITIE', title);
+
+
+        let pass = await this.urlFilter(url);
+        if (!pass){
+          // console.log('URL disabled by white or black lists', url);
+          return;
+        }
 
         let node = await graphUtil.getUrlNodeByUrl(activeTab[0].url);
 
@@ -226,6 +253,8 @@ class ChromeController {
             console.log('Chrome extension disabled');
             return;
         }
+
+
         let activeTab = this.getActiveTab(active.tabIds[0])
         let activeTabTitle = '';
         let activeTabUrl = '';
@@ -235,6 +264,12 @@ class ChromeController {
         } else {
             activeTabTitle = activeTab[0].title;
             activeTabUrl = activeTab[0].url
+        }
+
+        let pass = await this.urlFilter(activeTabUrl);
+        if (!pass){
+          console.log('URL disabled by white or black lists', activeTabUrl);
+          return;
         }
 
         let activeUrl = {

@@ -7,7 +7,6 @@ let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
 let Meta = require('./metadataManager')
 
-// var db = Thinky();
 class contextManager{
   constructor(history, userInfo){
 
