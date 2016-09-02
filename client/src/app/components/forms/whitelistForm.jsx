@@ -46,7 +46,6 @@ class WhiteListForm extends Component {
 
 
   render () {
-    console.log('Rendering', this.state.expressions);
     return (
       <div style={{margin: '10px'}}>
         <UrlFilteringEditor expressions={this.state.expressions} saveExpresion={this.saveWhitelistExpression.bind(this)}/>

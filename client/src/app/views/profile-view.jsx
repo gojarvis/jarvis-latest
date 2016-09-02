@@ -10,6 +10,7 @@ import SetUserRepoCredentialsForm from '../components/forms/setUserRepoCredentia
 import SetUserActivityManagerForm from '../components/forms/setUserActivityManagerForm'
 import WhiteListForm from '../components/forms/whitelistForm';
 import BlackListForm from '../components/forms/blacklistForm';
+
 let agent = require('superagent-promise')(require('superagent'), Promise);
 
 class ProfileView extends Component {

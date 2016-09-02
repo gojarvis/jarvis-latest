@@ -1,7 +1,6 @@
 import { Component } from 'react';
 import FB from 'styles/flexbox';
 import Navbar from '../navbar';
-import ViewWrapper from 'views/view-wrapper';
 import {List, ListItem, MakeSelectable} from 'material-ui/List';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
