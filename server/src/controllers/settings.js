@@ -21,6 +21,16 @@ class SettingsController {
         return path;
     }
 
+    async setFilterStatus(filterType, filterStatus) {
+        let newFilterStatus = projectSettingsManager.setFilterStatus(filterType, filterStatus);
+        return newFilterStatus;
+    }
+
+    async getFilterStatus(filterType) {
+        let filterStatus = projectSettingsManager.getFilterStatus(filterType);
+        return filterStatus;
+    }
+
     async setRepoCredentials(credentials) {
         let creds = await projectSettingsManager.setRepoCredentials(credentials);
         return creds;

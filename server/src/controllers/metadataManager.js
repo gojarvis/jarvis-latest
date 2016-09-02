@@ -68,7 +68,7 @@ class MetadataManager {
       return relatedKeywords;
     } catch (e) {
       if (e.message.indexOf('alchemy') !== -1) {
-        console.log('Alchemy Error: Hmm... best guess is we exceeded our API limit.')
+        // console.log('Alchemy Error: Hmm... best guess is we exceeded our API limit.')
       } else {
         console.log('cant getset kws for url', e);
       }
@@ -119,7 +119,7 @@ class MetadataManager {
   }
 
   async saveKeywords(keywords) {
-    console.log('Saving alchemy keywords:'.green);
+    // console.log('Saving alchemy keywords:'.green);
 
     if (!imm.is(keywords)) {
       keywords = imm.fromJS(keywords);
@@ -272,7 +272,7 @@ class MetadataManager {
   }
 
   getAlchemyKeyWords(url) {
-    console.log('Getting alchemy keywords...'.green)
+    // console.log('Getting alchemy keywords...'.green)
     return new Promise(function (resolve, reject) {
       if (url.startsWith("http")) {
         let params = {

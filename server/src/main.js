@@ -334,6 +334,26 @@ app.post('/api/user/getRootPath', isLoggedIn, function(req, res) {
     })
 });
 
+app.post('/api/user/getFilterStatus', isLoggedIn, function(req,res){
+
+  let {filterType} = req.body
+  settingsController.getFilterStatus(filterType).then(function(filterStatus){
+    res.json({
+      filterStatus
+    })
+  })
+})
+
+app.post('/api/user/setFilterStatus', isLoggedIn, function(req,res){
+  let {filterType, filterStatus} = req.body;
+
+  settingsController.setFilterStatus(filterType, filterStatus).then(function(newFilterStatus){
+    res.json({
+      newFilterStatus
+    })
+  })
+})
+
 app.post('/api/user/setActivityManagerAddress', isLoggedIn, function(req, res) {
     let {
         address
@@ -381,11 +401,12 @@ app.post('/api/user/listFilterExpressions', isLoggedIn, function(req, res) {
     let user = req.session.passport.user;
 
 
-    settingsController.listFilterExpression(type, user).then(expressions => {        
+    settingsController.listFilterExpression(type, user).then(expressions => {
         res.json(expressions);
     })
 
 });
+
 
 
 
