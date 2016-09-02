@@ -124,7 +124,7 @@ class ChromeController {
         //is blacklist enabled?
         let blacklistEnabled = await settingsManager.getFilterStatus('blacklist');
         let whiteListEnabled = await settingsManager.getFilterStatus('whitelist');
-        
+
         let block = false;
         let pass = false;
 
@@ -144,8 +144,7 @@ class ChromeController {
           pass = true;
         }
 
-
-        console.log('filter', address, 'pass', pass, 'block', block, 'whiteListEnabled:', whiteListEnabled, );
+        // console.log('filter', address, 'pass', pass, 'block', block, 'whiteListEnabled:', whiteListEnabled, );
         if (!block && pass) {
             return true;
         } else {
