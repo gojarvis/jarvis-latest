@@ -64,14 +64,18 @@ class WhiteListForm extends Component {
 
 
   render () {
+    let whitelistEnabledLabel = this.state.whitelistEnabled ? 'enabled' : 'disabled';
+
     return (
       <div style={{margin: '10px'}}>
+        <h3> White List</h3>
+        <Toggle
+          onToggle={() => { this.toggleWhiteList() }}
+          toggled={this.state.whitelistEnabled}
+          label={`White List filter ${whitelistEnabledLabel}`}
+          labelPosition="right" />
         <UrlFilteringEditor expressions={this.state.expressions} saveExpresion={this.saveWhitelistExpression.bind(this)}/>
-          <Toggle
-            onToggle={() => { this.toggleWhiteList() }}
-            toggled={this.state.whitelistEnabled}
-            label="Whitelist"
-            labelPosition="right" />
+
       </div>
     )
   }

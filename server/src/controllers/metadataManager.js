@@ -282,7 +282,7 @@ class MetadataManager {
 
         alchemy_language.keywords(params, function (err, response) {
           if (err) {
-            console.log('error:', err);
+            // console.log('error:', err);
             reject(err);
           } else {
             let res = JSON.stringify(response, null, 2);

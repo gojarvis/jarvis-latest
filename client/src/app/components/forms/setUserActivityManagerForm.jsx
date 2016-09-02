@@ -41,7 +41,7 @@ class SetUserActivityManagerForm extends Component {
     return (
       <div style={{margin: '10px'}}>
         <div>
-          <TextField hintStyle={{color: 'white'}} textStyle={{color: 'white'}} hintText="Activity Manager Address" value={this.state.address} onChange={ this.updateActivityManagerAddress.bind(this) }/>
+          <TextField hintStyle={{color: '#464646'}} textStyle={{color: '#464646'}} hintText="Activity Manager Address" value={this.state.address} onChange={ this.updateActivityManagerAddress.bind(this) }/>
         </div>
         <div>
           <RaisedButton
