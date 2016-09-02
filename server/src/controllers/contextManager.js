@@ -67,6 +67,10 @@ class contextManager{
     return graphUser
   }
 
+  getUser(){
+    return this.user;
+  }
+
   handleHeartbeat(heartbeat){
     this.saveContext();
   }
@@ -84,7 +88,7 @@ class contextManager{
 
   removeFileNode(fileNode){
     let filteredFiles = this.files.filter(file => {
-      console.log(file, fileNode);
+
       return file.address === fileNode.address
     });
 
@@ -124,10 +128,13 @@ class contextManager{
 
   updateTabs(tabs){
     let urlsArtifacts = tabs.map(tab => {
-      return {
-        url: tab.url,
-        title: tab.title
+      if (!_.isUndefined(tab)){
+        return {
+          url: tab.url,
+          title: tab.title
+        }
       }
+
     })
 
     this.urlsArtifacts = urlsArtifacts;

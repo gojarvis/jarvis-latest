@@ -5,8 +5,7 @@ let redis = new Redis();
 let pipeline = redis.pipeline();
 let _ = require('lodash');
 
-let ProjectSettingsManager = require('./project-settings-manager');
-let projectSettingsManager = new ProjectSettingsManager();
+let projectSettingsManager = require('./settings-manager');
 
 let graphCredentials = projectSettingsManager.getRepoCredentials();
 
@@ -259,7 +258,6 @@ class GraphUtil{
     let trimmedAddress = address.replace('projectsPath', '');
     // console.log('TRIMMED ADDRESS', trimmedAddress);
     return new Promise(function(resolve, reject) {
-      console.log('SAVING FILE');
       graph.save({type: 'file', address: trimmedAddress}, 'File', function(err, node){
         node = node ? node : {type: 'file', address: address};
         if (err) {
@@ -267,7 +265,6 @@ class GraphUtil{
           reject(err)
         }
         else {
-          console.log('node',node);
           resolve(node);
         }
       });

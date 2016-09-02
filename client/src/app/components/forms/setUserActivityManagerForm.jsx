@@ -1,7 +1,6 @@
 import { Component } from 'react';
 import FB from 'styles/flexbox';
 import Navbar from '../navbar';
-import ViewWrapper from 'views/view-wrapper';
 import {List, ListItem, MakeSelectable} from 'material-ui/List';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
@@ -42,7 +41,7 @@ class SetUserActivityManagerForm extends Component {
     return (
       <div style={{margin: '10px'}}>
         <div>
-          <TextField hintStyle={{color: 'white'}} textStyle={{color: 'white'}} hintText="Activity Manager Address" value={this.state.address} onChange={ this.updateActivityManagerAddress.bind(this) }/>
+          <TextField hintStyle={{color: '#464646'}} textStyle={{color: '#464646'}} hintText="Activity Manager Address" value={this.state.address} onChange={ this.updateActivityManagerAddress.bind(this) }/>
         </div>
         <div>
           <RaisedButton

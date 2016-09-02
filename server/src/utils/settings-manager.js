@@ -6,12 +6,15 @@ let path = require('path');
 // let settingsPath = path.resolve(__dirname, 'settings.json');
 let settingsPath = 'settings.json';
 
-class ProjectSettingsManager {
+class SettingsManager {
     constructor(){
         let settings = this.readSettingsFile()
+        console.log('READING SETTINGS', settings);
         this.rootPath = settings.rootPath;
         this.repoCredentials = settings.repoCredentials;
         this.activityManagerCredentials = settings.activityManagerCredentials;
+        this.filter_blacklist = settings['filter_blacklist'];
+        this.filter_whitelist = settings['filter_whitelist'];
     }
 
     async setRootPath(path){
@@ -26,23 +29,44 @@ class ProjectSettingsManager {
 
 
     async setRepoCredentials(credentials){
-      this.repoCredentials = credentials
-      let newSettings = await this.readSettingsFile();
-
-      newSettings.repoCredentials = credentials;
-      let savedSettings = await this.saveSettings(newSettings);
-
+      let saved = await this.saveSettingsByKey('repoCredentials', credentials);
+      this.repoCredentials = credentials;
       return this.repoCredentials;
     }
 
     async setActivityManagerCredentials(credentials){
-      this.activityManagerCredentials = credentials
-      let newSettings = await this.readSettingsFile();
-
-      newSettings.activityManagerCredentials = credentials;
-      let savedSettings = await this.saveSettings(newSettings);
-
+      let saved = await this.saveSettingsByKey('activityManagerCredentials', credentials);
+      this.activityManagerCredentials = credentials;
       return this.activityManagerCredentials;
+    }
+
+    async setFilterStatus(filterType, filterStatus){
+      let key = `filter_${filterType}`;
+      this[key] = filterStatus;
+      let saved = await this.saveSettingsByKey(key, filterStatus);
+      return saved;
+    }
+
+    async getFilterStatus(filterType){
+      let key = `filter_${filterType}`;
+      let value = this[key];
+      return value;
+    }
+
+
+    async saveSettingsByKey(key, value){
+      let newSettings = this.readSettingsFile();
+
+      newSettings[key] = value;
+      let saved;
+      try {
+        // console.log('SAVING', newSettings);
+        saved = await this.saveSettings(newSettings);
+      } catch (e) {
+        console.log('cant save settings', e);
+      } finally {
+        return saved
+      }
     }
 
     getRepoCredentials(){
@@ -78,5 +102,5 @@ class ProjectSettingsManager {
     }
 }
 
-
-module.exports = ProjectSettingsManager
+let settingsManager = new SettingsManager();
+module.exports = settingsManager

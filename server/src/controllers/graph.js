@@ -1,7 +1,5 @@
 import _ from 'lodash'
-let ProjectSettingsManager = require('../utils/project-settings-manager');
-let projectSettingsManager = new ProjectSettingsManager();
-
+let projectSettingsManager = require('../utils/settings-manager');
 let graphCredentials = projectSettingsManager.getRepoCredentials();
 
 let graph = require("seraph")({

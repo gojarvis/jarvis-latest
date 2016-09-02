@@ -6,8 +6,10 @@ let config = require('config');
 
 let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
-
+let settingsManager = require('../utils/settings-manager');
 let chromeExtensionEnabled = true;
+
+
 
 class ChromeController {
     constructor(socket, io, context, history) {
@@ -120,9 +122,8 @@ class ChromeController {
     //The URL Gatekeeper
     async urlFilter(address) {
         //is blacklist enabled?
-
-        let blacklistEnabled = false;
-        let whiteListEnabled = true;
+        let blacklistEnabled = await settingsManager.getFilterStatus('blacklist');
+        let whiteListEnabled = await settingsManager.getFilterStatus('whitelist');
 
         let block = false;
         let pass = false;
@@ -139,9 +140,11 @@ class ChromeController {
                 pass = true;
             }
         }
+        else{
+          pass = true;
+        }
 
-
-        // console.log('filter', address, 'pass', pass, 'block', block);
+        // console.log('filter', address, 'pass', pass, 'block', block, 'whiteListEnabled:', whiteListEnabled, );
         if (!block && pass) {
             return true;
         } else {
@@ -152,7 +155,7 @@ class ChromeController {
     async isInWhiteList(address) {
         let user = this.context.user;
         if (_.isEmpty(user)){
-          console.log('No user when searching the white list');
+          // console.log('No user when searching the white list');
           return false;
         }
         let userNode = await graphUtil.getUserNodeByUsername(user.username);
@@ -267,7 +270,7 @@ class ChromeController {
 
         let pass = await this.urlFilter(activeTabUrl);
         if (!pass){
-          console.log('URL disabled by white or black lists', activeTabUrl);
+          // console.log('URL disabled by white or black lists', activeTabUrl);
           return;
         }
 

@@ -10,6 +10,7 @@ import SetUserRepoCredentialsForm from '../components/forms/setUserRepoCredentia
 import SetUserActivityManagerForm from '../components/forms/setUserActivityManagerForm'
 import WhiteListForm from '../components/forms/whitelistForm';
 import BlackListForm from '../components/forms/blacklistForm';
+
 let agent = require('superagent-promise')(require('superagent'), Promise);
 
 class ProfileView extends Component {
@@ -108,32 +109,40 @@ class ProfileView extends Component {
       <ViewWrapper>
         <div style={{...LOCAL_STYLES.container}}>
           <Navbar />
-          <div style={{marginLeft: '10px', marginTop: '20px'}}>
+          <div style={{marginLeft: '10px', marginTop: '20px', background: "#a19e9e", padding: "20px", color: 'black'}}>
             <div> {joinSegment} </div>
 
-            <div style={{margin: '10px'}}>
-              <div>Your teams</div>
+            <div style={{margin: '10px', borderBottom: '1px solid #5f5f5f'}}>
+              <h3>Teams</h3>
                 <div>
                   {teamsButtons}
                 </div>
             </div>
 
-            <div>
+            <div style={{margin: '10px', borderBottom: '1px solid #5f5f5f'}}>
+              <h3>Root Path</h3>
               <SetUserRootPathForm user={this.state.user}/>
-              <SetUserRepoCredentialsForm user={this.state.user} />
-              <div>
-                <SetUserActivityManagerForm />
-              </div>
+
+
             </div>
 
+            <div style={{margin: '10px', borderBottom: '1px solid #5f5f5f'}}>
+              <h3>Repo Credentials</h3>
+              <SetUserRepoCredentialsForm user={this.state.user} />
 
-            <div>
-              <h3>White List</h3>
+            </div>
+
+            <div style={{margin: '10px', borderBottom: '1px solid #5f5f5f'}}>
+              <h3>Activity Manager Credentials</h3>
+              <SetUserActivityManagerForm />
+            </div>
+
+            <div style={{margin: '10px', borderBottom: '1px solid #5f5f5f'}}>
               <WhiteListForm />
             </div>
 
-            <div>
-              <h3>Black List</h3>
+            <div style={{margin: '10px', borderBottom: '1px solid #5f5f5f'}}>
+
               <BlackListForm />
             </div>
           </div>

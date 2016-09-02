@@ -1,8 +1,8 @@
 let _ = require('lodash');
 let config = require('config');
 
-let ProjectSettingsManager = require('../utils/project-settings-manager');
-let projectSettingsManager = new ProjectSettingsManager();
+// let ProjectSettingsManager = require('../utils/settings-manager');
+let projectSettingsManager = require('../utils/settings-manager');
 
 let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
@@ -39,7 +39,7 @@ class AtomController {
         self.socket.on('atom-file-close', function(msg){
             let address = msg.uri;
 
-            self.handleFileClose(address).then(function(){              
+            self.handleFileClose(address).then(function(){
             })
         })
     }

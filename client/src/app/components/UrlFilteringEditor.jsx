@@ -41,13 +41,14 @@ class UrlFilteringEditor extends Component {
 
     })
     return (
-      <div style={{margin: '10px'}}>
-        <List>
+      <div>
+        <h4>Expression list</h4>
+        <List style={{background: '#bbbbbb', marginBottom: '20px'}}>
           {expressionsListItems}
         </List>
         <div>
           <div>Add expression</div>
-          <TextField hintStyle={{color: 'white'}} hintText="Expression" onKeyUp={ this.updateExpression.bind(this) }/>
+          <TextField hintStyle={{color: '#464646'}} hintText="Expression" onKeyUp={ this.updateExpression.bind(this) }/>
           <div>
             <RaisedButton
               onClick={ () => this.save() }

@@ -1,7 +1,6 @@
 import { Component } from 'react';
 import FB from 'styles/flexbox';
 import Navbar from '../navbar';
-import ViewWrapper from 'views/view-wrapper';
 import {List, ListItem, MakeSelectable} from 'material-ui/List';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
@@ -58,13 +57,13 @@ class SetUserRepoCredentials extends Component {
     return (
       <div style={{margin: '10px'}}>
         <div>
-          <TextField hintStyle={{color: 'white'}} textStyle={{color: 'white'}} hintText="Repo Address" value={this.state.address} onChange={ this.updateRepoAddress.bind(this) }/>
+          <TextField hintStyle={{color: '#464646'}} textStyle={{color: '#464646'}} hintText="Repo Address" value={this.state.address} onChange={ this.updateRepoAddress.bind(this) }/>
         </div>
         <div>
-          <TextField hintStyle={{color: 'white'}} textStyle={{color: 'white'}} hintText="Username" value={this.state.username} onChange={ this.updateRepoUsername.bind(this) }/>
+          <TextField hintStyle={{color: '#464646'}} textStyle={{color: '#464646'}} hintText="Username" value={this.state.username} onChange={ this.updateRepoUsername.bind(this) }/>
         </div>
         <div>
-          <TextField hintStyle={{color: 'white'}} textStyle={{color: 'white'}} hintText="Password" value={this.state.password} onChange={ this.updateRepoPassword.bind(this) }/>
+          <TextField hintStyle={{color: '#464646'}} textStyle={{color: '#464646'}} hintText="Password" value={this.state.password} onChange={ this.updateRepoPassword.bind(this) }/>
         </div>
         <div>
           <RaisedButton

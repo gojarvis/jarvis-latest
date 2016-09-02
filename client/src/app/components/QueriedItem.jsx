@@ -34,11 +34,6 @@ class QueriedItem extends React.Component {
     let weight = item.relationshipWeight > 1 ? 100 : parseInt(item.relationshipWeight * 100);
     let color = "hsla(" + weight +", 100%, 50%, 1)";
 
-    // let title = item.endNode.address ?
-    //   item.endNode.address.split('/').filter((item) => item !== "").slice(-1).pop() :
-    //   item.endNode.title ? item.endNode.title :
-    //     item.endNode.text ? item.endNode.text  : 'No title or address'
-
     let title;
     let {endNode} = item;
     switch (endNode.type) {
@@ -46,8 +41,11 @@ class QueriedItem extends React.Component {
         let addr = endNode.address.split('/');
         title = '../' + addr.slice(Math.max(addr.length - 3, 1)).join('/');
         break;
-      case 'url':
-        title = endNode.address.split('/').filter((item) => item !== "").slice(-1).pop().slice(0, 20);
+      case 'url':        
+        title = endNode.title;
+        if (title.length === 0){
+          title = endNode.address.split('/').filter((item) => item !== "").slice(-1).pop().slice(0, 20);
+        }
         break;
       case 'keyword':
         title = endNode.text
@@ -121,9 +119,9 @@ class QueriedItem extends React.Component {
         <IconText icon={iconClass} iconColor={typeIconColor}>
           <IconText icon={openWithClass} iconColor={iconColor}>
             <div style={{...FB.base, flexWrap: "nowrap", ...FB.align.center}}>
-              <div style={{flexGrow: "4", marginRight: "40px", overflow: "hidden", whiteSpace: "nowrap" }}>{title}</div>
-              <div style={{width: '25vw', marginRight: "2vw"}}>
-                <LinearProgress mode="determinate" value={item.relationshipWeight * 100} />
+              <div style={{flexGrow: "4", marginRight: "40px", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", width: "10px" }}>{title}</div>
+              <div style={{width: '10vw', marginRight: "2vw"}}>
+                <LinearProgress mode="determinate" value={item.relationshipWeight  * 10} />
               </div>
               <IconText icon='trash' onClick={(e) => this._blacklistNode(nodeId, e)} />
             </div>
