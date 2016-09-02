@@ -43,7 +43,6 @@ class SettingsManager {
     async setFilterStatus(filterType, filterStatus){
       let key = `filter_${filterType}`;
       this[key] = filterStatus;
-      console.log('THIS', this[key]);
       let saved = await this.saveSettingsByKey(key, filterStatus);
       return saved;
     }

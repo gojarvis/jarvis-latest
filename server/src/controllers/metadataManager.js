@@ -12,8 +12,8 @@ let graphUtil = new GraphUtil();
 
 let alchemy_language = watson.alchemy_language({api_key: 'ab2b4727617c0d529641168272d1e661634feb72'});
 
-let ProjectSettingsManager = require('../utils/project-settings-manager');
-let projectSettingsManager = new ProjectSettingsManager();
+let projectSettingsManager = require('../utils/settings-manager');
+
 
 let graphCredentials = projectSettingsManager.getRepoCredentials();
 

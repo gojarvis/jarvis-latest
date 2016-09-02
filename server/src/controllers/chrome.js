@@ -155,7 +155,7 @@ class ChromeController {
     async isInWhiteList(address) {
         let user = this.context.user;
         if (_.isEmpty(user)){
-          console.log('No user when searching the white list');
+          // console.log('No user when searching the white list');
           return false;
         }
         let userNode = await graphUtil.getUserNodeByUsername(user.username);
