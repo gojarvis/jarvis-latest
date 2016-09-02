@@ -17,8 +17,6 @@ let _ = require('lodash');
 
 let path = require("path");
 
-
-
 let ProjectSettingsManager = require('./utils/project-settings-manager');
 let projectSettingsManager = new ProjectSettingsManager();
 let rethinkConfig = config.get('rethink');
@@ -29,8 +27,6 @@ let usersController = require('./controllers/users');
 let teamsController = require('./controllers/teams');
 let settingsController = require('./controllers/settings');
 let sessionData = {};
-
-
 
 let isDev = !_.isUndefined(process.env.JARVIS_DEV);
 
@@ -369,14 +365,14 @@ app.post('/api/team/create', ensureAdmin, function(req, res) {
 })
 
 
-app.post('/api/user/addFilterExpression', isLoggedIn, function(req, res) {
+app.post('/api/user/saveFilterExpression', isLoggedIn, function(req, res) {
     let expression = req.body.expression;
     let type = req.body.expressionType;
     let user = req.session.passport.user;
 
     settingsController.addExpression(expression, type, user).then(relationship => {
         console.log('done adding expression in main.js', relationship);
-        res.json(relationship: relationship);
+        res.json({relationship});
     })
 })
 
@@ -385,9 +381,8 @@ app.post('/api/user/listFilterExpressions', isLoggedIn, function(req, res) {
     let user = req.session.passport.user;
 
 
-    settingsController.listFilterExpression(type, user).then(expressions => {
-        console.log('done listing expression in main.js', expressions);
-        res.json({ expressions});
+    settingsController.listFilterExpression(type, user).then(expressions => {        
+        res.json(expressions);
     })
 
 });

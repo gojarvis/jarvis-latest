@@ -20,6 +20,7 @@ graph.constraints.uniqueness.create('User', 'username', function(err, constraint
 graph.constraints.uniqueness.create('Url', 'address', function(err, constraint) {});
 graph.constraints.uniqueness.create('File', 'address', function(err, constraint) {});
 graph.constraints.uniqueness.create('Command', 'address', function(err, constraint) {});
+graph.constraints.uniqueness.create('Regex', 'expression', function(err, constraint) {});
 
 class GraphUtil{
   constructor(){
@@ -98,10 +99,9 @@ class GraphUtil{
     let urlNode = await this.getUrlNodeByUrl(url);
     let cypher = 'MATCH (n:Url)-[r:'+relationship+']-(q) WHERE n.url = "' + url +'" AND r.weight > ' + threshold +'  RETURN r,q ORDER BY r.weight DESC LIMIT 10';
     let params = {url: url, threshold: threshold};
-    // console.log(cypher);
+
     try{
       let res = await this.queryGraph(cypher,params);
-
       return res;
     }
     catch(err){
@@ -111,9 +111,6 @@ class GraphUtil{
 
   async getRelevantNodes(){
     let relevantUrls = await this.getRelevantUrls()
-    // let relevantFiles = await this.getRelevantUrls()
-    // let relevantKeywords = await this.getRelevantUrls()
-
     return
   }
 

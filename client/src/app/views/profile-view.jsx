@@ -8,7 +8,8 @@ import TextField from 'material-ui/TextField';
 import SetUserRootPathForm from '../components/forms/setUserRootPathForm'
 import SetUserRepoCredentialsForm from '../components/forms/setUserRepoCredentialsForm'
 import SetUserActivityManagerForm from '../components/forms/setUserActivityManagerForm'
-
+import WhiteListForm from '../components/forms/whitelistForm';
+import BlackListForm from '../components/forms/blacklistForm';
 let agent = require('superagent-promise')(require('superagent'), Promise);
 
 class ProfileView extends Component {
@@ -36,15 +37,14 @@ class ProfileView extends Component {
 
       let teams = await this.getUserTeams(user)
       let teamInvites = await this.getUserTeamInvites(user);
-
-
-
       this.setState({
         teams: teams,
         invites: teamInvites
       })
     });
   }
+
+
 
   async getUserTeamInvites(user){
     let res = await agent.post('http://localhost:3000/api/user/teams/invites', { username: user.username})
@@ -121,9 +121,20 @@ class ProfileView extends Component {
             <div>
               <SetUserRootPathForm user={this.state.user}/>
               <SetUserRepoCredentialsForm user={this.state.user} />
-              <div>                
+              <div>
                 <SetUserActivityManagerForm />
               </div>
+            </div>
+
+
+            <div>
+              <h3>White List</h3>
+              <WhiteListForm />
+            </div>
+
+            <div>
+              <h3>Black List</h3>
+              <BlackListForm />
             </div>
           </div>
 

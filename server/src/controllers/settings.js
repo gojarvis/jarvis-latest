@@ -43,12 +43,11 @@ class SettingsController {
 
 
     async addExpression(expression, filterType, user){
-        console.log('Adding expression to user', expression, user);
+
         let expressionNode = await graphUtil.saveRegex(expression);
         let userNode = await graphUtil.getUserNodeByUsername(user.username);
         let relationship = await graphUtil.relateNodes(userNode, expressionNode, filterType);
-        console.log('----> added expression to user', expression, user);
-        return relatioship;
+        return relationship;
     }
 
     async listFilterExpression(filterType, user){
