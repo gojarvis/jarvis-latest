@@ -1,4 +1,3 @@
-
 let Promise = require('bluebird');
 let _ = require('lodash');
 
@@ -151,7 +150,7 @@ class ChromeController {
     }
 
     async isInWhiteList(address) {
-        let user = this.context.getUser()
+        let user = this.context.user;
         if (_.isEmpty(user)){
           console.log('No user when searching the white list');
           return false;
@@ -168,7 +167,7 @@ class ChromeController {
     }
 
     async isInBlackList(address) {
-        let user = this.context.getUser()
+        let user = this.context.user;
         if (_.isEmpty(user)){
           return false;
         }
