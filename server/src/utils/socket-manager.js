@@ -20,11 +20,16 @@ class SocketManager {
 
 
     //Plugins
-    this.chrome = new ChromeController(socket, io, context, history)
-    this.atom = new AtomController(socket, io, context, history)
-    this.terminal = new TerminalController(socket, io, context, history)
+    try{
+      this.chrome = new ChromeController(socket, io, context, history)
+      this.atom = new AtomController(socket, io, context, history)
+      this.terminal = new TerminalController(socket, io, context, history)
+      console.log('All controller instantiated');
+    }
+    catch(e){
+      console.log('Cant instantiate controllers', e);
+    }
 
-    console.log('All controller instantiated');
 
   }
 }

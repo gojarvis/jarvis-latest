@@ -259,15 +259,13 @@ class GraphUtil{
     let trimmedAddress = address.replace('projectsPath', '');
     // console.log('TRIMMED ADDRESS', trimmedAddress);
     return new Promise(function(resolve, reject) {
-      console.log('SAVING FILE');
       graph.save({type: 'file', address: trimmedAddress}, 'File', function(err, node){
         node = node ? node : {type: 'file', address: address};
         if (err) {
           console.log('err', err);
           reject(err)
         }
-        else {
-          console.log('node',node);
+        else {          
           resolve(node);
         }
       });

@@ -6,7 +6,7 @@ let path = require('path');
 // let settingsPath = path.resolve(__dirname, 'settings.json');
 let settingsPath = 'settings.json';
 
-class new SettingsManager {
+class SettingsManager {
     constructor(){
         let settings = this.readSettingsFile()
         console.log('READING SETTINGS', settings);
@@ -51,7 +51,6 @@ class new SettingsManager {
     async getFilterStatus(filterType){
       let key = `filter_${filterType}`;
       let value = this[key];
-      console.log('getting filter status for', key, value);
       return value;
     }
 

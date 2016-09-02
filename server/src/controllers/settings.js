@@ -3,8 +3,8 @@ let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
 let _ = require('lodash');
 let Moniker = require('moniker');
-let ProjectSettingsManager = require('../utils/project-settings-manager');
-let projectSettingsManager = new ProjectSettingsManager();
+let projectSettingsManager = require('../utils/settings-manager');
+// let projectSettingsManager = new ProjectSettingsManager();
 
 class SettingsController {
     constructor() {
