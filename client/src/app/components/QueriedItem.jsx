@@ -32,7 +32,7 @@ class QueriedItem extends React.Component {
   render() {
     let {item} = this.props;
     let weight = item.relationshipWeight > 1 ? 100 : parseInt(item.relationshipWeight * 100);
-    let color = "hsla(" + weight +", 100%, 50%, 1)";
+    let color = "hsla(" + weight +", 80%, 80%, 0.9)";
 
     let title;
     let {endNode} = item;
@@ -41,7 +41,7 @@ class QueriedItem extends React.Component {
         let addr = endNode.address.split('/');
         title = '../' + addr.slice(Math.max(addr.length - 3, 1)).join('/');
         break;
-      case 'url':        
+      case 'url':
         title = endNode.title;
         if (title.length === 0){
           title = endNode.address.split('/').filter((item) => item !== "").slice(-1).pop().slice(0, 20);
@@ -123,7 +123,7 @@ class QueriedItem extends React.Component {
               <div style={{width: '10vw', marginRight: "2vw"}}>
                 <LinearProgress mode="determinate" value={item.relationshipWeight  * 10} />
               </div>
-              <IconText icon='trash' onClick={(e) => this._blacklistNode(nodeId, e)} />
+              <IconText style={{color: 'grey'}} icon='trash' onClick={(e) => this._blacklistNode(nodeId, e)} />
             </div>
           </IconText>
         </IconText>
