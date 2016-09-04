@@ -11,7 +11,7 @@ let agent = require('superagent-promise')(require('superagent'), Promise);
 
 
 class WhiteListForm extends Component {
-  constructor(...args){
+  constructor(...args) {
     super(...args);
 
     this.state = {
@@ -19,21 +19,19 @@ class WhiteListForm extends Component {
     }
   }
 
-  componentWillMount(){
+  componentWillMount() {
     this.getWhitelistExpressions();
     this.getWhiteListStatus();
   }
 
-  async saveWhitelistExpression(expression){
-
+  async saveWhitelistExpression(expression) {
     let expressionType = 'whitelist';
     let relationshipBetweenUserExpression = await agent.post('/api/user/saveFilterExpression', {expression, expressionType});
     this.getWhitelistExpressions()
     return relationshipBetweenUserExpression
-
   }
 
-  async toggleWhiteList(){
+  async toggleWhiteList() {
     let newStatus = !this.state.whitelistEnabled;
     let res = await agent.post('/api/user/setFilterStatus', { filterType: 'whitelist', filterStatus: newStatus });
     let updatedStatus = res.body;
@@ -42,14 +40,14 @@ class WhiteListForm extends Component {
     })
   }
 
-  async getWhiteListStatus(){
+  async getWhiteListStatus() {
     let res = await agent.post('/api/user/getFilterStatus', {filterType: 'whitelist' });
     console.log('got whitelist status', res.body.filterStatus);
     let whitelistEnabled = res.body.filterStatus
     this.setState( { whitelistEnabled })
   }
 
-  async getWhitelistExpressions(){
+  async getWhitelistExpressions() {
     let res = await agent.post('/api/user/listFilterExpressions', {expressionType: 'whitelist'})
     let whitelistExpressions = res.body;
     this.setState({
@@ -57,9 +55,12 @@ class WhiteListForm extends Component {
     })
   }
 
-  async deleteWhitelistExpression(expression){
+  async deleteWhitelistExpression(expression) {
+    console.log('delete: ', expression)
     let expressionType = 'whitelist';
-    let deleted = await agent.post('/api/user/deleteFilterExpression', {expression, expressionType})
+    let deleted = await agent.post('/api/user/deleteFilterExpression', { expression, expressionType });
+    this.getWhitelistExpressions();
+    return deleted;
   }
 
 
@@ -74,7 +75,11 @@ class WhiteListForm extends Component {
           toggled={this.state.whitelistEnabled}
           label={`White List filter ${whitelistEnabledLabel}`}
           labelPosition="right" />
-        <UrlFilteringEditor expressions={this.state.expressions} saveExpresion={this.saveWhitelistExpression.bind(this)}/>
+
+        <UrlFilteringEditor
+          expressions={this.state.expressions}
+          saveExpression={this.saveWhitelistExpression.bind(this)}
+          deleteExpression={this.deleteWhitelistExpression.bind(this)} />
 
       </div>
     )

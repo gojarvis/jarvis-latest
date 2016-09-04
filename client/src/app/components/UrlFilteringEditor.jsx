@@ -3,6 +3,7 @@ import FB from 'styles/flexbox';
 import {List, ListItem, MakeSelectable} from 'material-ui/List';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
+import IconText from 'components/IconText';
 let agent = require('superagent-promise')(require('superagent'), Promise);
 
 class UrlFilteringEditor extends Component {
@@ -19,7 +20,7 @@ class UrlFilteringEditor extends Component {
 
   async save(){
     let {expression} = this.state;
-    let result = this.props.saveExpresion(expression)
+    let result = this.props.saveExpression(expression)
     this.setState({expression: ''})
   }
 
@@ -32,10 +33,10 @@ class UrlFilteringEditor extends Component {
 
 
   render () {
-    let expressionsListItems = this.props.expressions.map( expression => {
+    let expressionsListItems = this.props.expressions.map((expression, index) => {
       return (
-        <ListItem>
-          {expression.address}
+        <ListItem key={index}>
+          <IconText icon='trash' onClick={(e) => this.props.deleteExpression(expression)}>{expression.address}</IconText>
         </ListItem>
       )
 
@@ -64,7 +65,8 @@ class UrlFilteringEditor extends Component {
 
 UrlFilteringEditor.propTypes = {
     expressions: PropTypes.array,
-    saveExpression: PropTypes.function
+    saveExpression: PropTypes.func,
+    deleteExpression: PropTypes.func
 };
 
 UrlFilteringEditor.defaultProps = {
