@@ -20,15 +20,16 @@ class UrlFilteringEditor extends Component {
 
   async save(){
     let {expression} = this.state;
-    let result = this.props.saveExpression(expression)
-    this.setState({expression: ''})
+    if (expression) {
+      let result = this.props.saveExpression(expression)
+      this.setState({expression: ''});
+    }
   }
 
-  updateExpression(e){
-    let expression = e.target.value;
+  updateExpression = (event) => {
     this.setState({
-      expression
-    })
+      expression: event.target.value
+    });
   }
 
 
@@ -38,9 +39,9 @@ class UrlFilteringEditor extends Component {
         <ListItem key={index}>
           <IconText icon='trash' onClick={(e) => this.props.deleteExpression(expression)}>{expression.address}</IconText>
         </ListItem>
-      )
+      );
+    });
 
-    })
     return (
       <div>
         <h4>Expression list</h4>
@@ -49,7 +50,11 @@ class UrlFilteringEditor extends Component {
         </List>
         <div>
           <div>Add expression</div>
-          <TextField hintStyle={{color: '#464646'}} hintText="Expression" onKeyUp={ this.updateExpression.bind(this) }/>
+          <TextField
+            hintStyle={{color: '#464646'}}
+            hintText="Expression"
+            onChange={this.updateExpression}
+            value={this.state.expression} />
           <div>
             <RaisedButton
               onClick={ () => this.save() }
