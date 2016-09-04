@@ -12,10 +12,6 @@
  * How to use:
  *    In another file, use child_process.exec to create a process, and assign a
  *    function to handle the 'exit' event (fn(code, signal)).
- *
- * Other notes:
- *    Below, there is commented-out code that will transform this module into an
- *    exportable promise module.
  */
 
 var compareVersions = require('compare-versions');
@@ -44,38 +40,26 @@ function findVer(cmd) {
   })
 }
 
-// NOTE: uncomment these lines to change this to an exportable promise module
-// function checkVersions() {
-  // return new Promise(function(fulfill, reject) {
-    Promise.all([
-      findVer(getNodeVer),
-      findVer(getNpmVer)
-    ]).then(function(results) {
-      localNodeVersion = results[0].replace(/\n/g, '').slice(1);
-      localNpmVersion = results[1].replace(/\n/g, '');
+Promise.all([
+  findVer(getNodeVer),
+  findVer(getNpmVer)
+]).then(function(results) {
+  localNodeVersion = results[0].replace(/\n/g, '').slice(1);
+  localNpmVersion = results[1].replace(/\n/g, '');
 
-      isNodeValid = !!(compareVersions(localNodeVersion, minNodeVer) > -1);
-      isNpmValid = !!(compareVersions(localNpmVersion, minNpmVer) > -1);
+  isNodeValid = !!(compareVersions(localNodeVersion, minNodeVer) > -1);
+  isNpmValid = !!(compareVersions(localNpmVersion, minNpmVer) > -1);
 
-      isToolsetValid = isNodeValid && isNpmValid;
+  isToolsetValid = isNodeValid && isNpmValid;
 
-      // console.log(`${localNodeVersion} vs. ${minNodeVer}: ${isNodeValid}`);
-      // console.log(`${localNpmVersion} vs. ${minNpmVer}: ${isNpmValid}`);
+  // console.log(`${localNodeVersion} vs. ${minNodeVer}: ${isNodeValid}`);
+  // console.log(`${localNpmVersion} vs. ${minNpmVer}: ${isNpmValid}`);
 
-      if (isToolsetValid) {
-        process.exit(0);
-      } else {
-        process.exit(1);
-      }
-      // fulfill({
-      //   isNodeValid,
-      //   isNpmValid
-      // });
-    }).catch(function(error) {
-      process.exit(1);
-      // reject(error);
-    });
-  // });
-// }
-
-// module.exports = checkVersions;
+  if (isToolsetValid) {
+    process.exit(0);
+  } else {
+    process.exit(1);
+  }
+}).catch(function(error) {
+  process.exit(1);
+});
