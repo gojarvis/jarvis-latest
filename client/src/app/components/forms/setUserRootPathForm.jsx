@@ -40,16 +40,17 @@ class SetUserRootPathForm extends Component {
   render () {
     return (
       <div style={{margin: '10px'}}>
-        <div>
-          <TextField hintStyle={{color: 'white'}} textStyle={{color: 'white'}} hintText="Root Path" value={this.state.rootPath} onChange={ this.updateRootPath.bind(this) }/>
-        </div>
-        <div>
-          <RaisedButton
-            onClick={ () => this.saveRootPath() }
-            label={"Save"}
-            primary={true}
-            style={{flex: '1 1 auto', margin: 10}} />
-        </div>
+        <TextField
+          hintStyle={{color: '#888'}}
+          textStyle={{color: '#888'}}
+          hintText="Root Path"
+          value={this.state.rootPath}
+          onChange={ this.updateRootPath.bind(this) }/>
+        <RaisedButton
+          onClick={ () => this.saveRootPath() }
+          label={"Save"}
+          primary={true}
+          style={{flex: '1 1 auto', margin: 10}} />
       </div>
     )
   }
