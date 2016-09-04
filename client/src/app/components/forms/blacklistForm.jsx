@@ -11,7 +11,7 @@ let agent = require('superagent-promise')(require('superagent'), Promise);
 
 
 class BlackListForm extends Component {
-  constructor(...args){
+  constructor(...args) {
     super(...args);
 
     this.state = {
@@ -20,14 +20,14 @@ class BlackListForm extends Component {
     }
   }
 
-  componentWillMount(){
+  componentWillMount() {
     this.getBlacklistExpressions();
-    this.getBlackListStatus()
+    this.getBlackListStatus();
   }
 
 
 
-  async toggleBlackList(){
+  async toggleBlackList() {
     let newStatus = !this.state.blacklistEnabled;
     let res = await agent.post('/api/user/setFilterStatus', { filterType: 'blacklist', filterStatus: newStatus });
     let updatedStatus = res.body;
@@ -37,23 +37,21 @@ class BlackListForm extends Component {
     })
   }
 
-  async getBlackListStatus(){
+  async getBlackListStatus() {
     let res = await agent.post('/api/user/getFilterStatus', {filterType: 'blacklist' });
     console.log('got blacklist status', res.body.filterStatus);
     let blacklistEnabled = res.body.filterStatus
     this.setState( { blacklistEnabled })
   }
 
-  async saveBlacklistExpression(expression){
-
+  async saveBlacklistExpression(expression) {
     let expressionType = 'blacklist';
     let relationshipBetweenUserExpression = await agent.post('/api/user/saveFilterExpression', {expression, expressionType});
-    this.getBlacklistExpressions()
-    return relationshipBetweenUserExpression
-
+    this.getBlacklistExpressions();
+    return relationshipBetweenUserExpression;
   }
 
-  async getBlacklistExpressions(){
+  async getBlacklistExpressions() {
     let res = await agent.post('/api/user/listFilterExpressions', {expressionType: 'blacklist'})
     let blacklistExpressions = res.body;
     this.setState({
@@ -61,9 +59,11 @@ class BlackListForm extends Component {
     })
   }
 
-  async deleteBlacklistExpression(expression){
+  async deleteBlacklistExpression(expression) {
     let expressionType = 'blacklist';
-    let deleted = await agent.post('/api/user/deleteFilterExpression', {expression, expressionType})
+    let deleted = await agent.post('/api/user/deleteFilterExpression', { expression, expressionType });
+    this.getBlacklistExpressions();
+    return deleted;
   }
 
 
@@ -71,7 +71,6 @@ class BlackListForm extends Component {
     let blacklistEnabledLabel = this.state.blacklistEnabled ? 'enabled' : 'disabled';
     return (
       <div>
-
         <div>
           <h3>Black List</h3>
           <Toggle
@@ -80,7 +79,10 @@ class BlackListForm extends Component {
             label={`Black List filter ${blacklistEnabledLabel}`}
             labelPosition="right" />
         </div>
-        <UrlFilteringEditor expressions={this.state.expressions} saveExpresion={this.saveBlacklistExpression.bind(this)}/>
+        <UrlFilteringEditor
+          expressions={this.state.expressions}
+          saveExpression={this.saveBlacklistExpression.bind(this)}
+          deleteExpression={this.deleteBlacklistExpression.bind(this)} />
       </div>
     )
   }
