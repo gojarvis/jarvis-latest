@@ -4,6 +4,7 @@ import Navbar from 'components/navbar';
 import ViewWrapper from 'views/view-wrapper';
 import {List, ListItem, MakeSelectable} from 'material-ui/List';
 import RaisedButton from 'material-ui/RaisedButton';
+import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 import SetUserRootPathForm from 'components/forms/setUserRootPathForm'
 import SetUserRepoCredentialsForm from 'components/forms/setUserRepoCredentialsForm'
@@ -111,28 +112,28 @@ class ProfileView extends Component {
       <ViewWrapper>
         <div style={{...LOCAL_STYLES.container}}>
           <Navbar />
-          <div style={{marginLeft: '10px', marginTop: '20px', background: "#a19e9e", padding: "20px", color: 'black'}}>
+          <div style={{background: '#efefef', color: '#333'}}>
             <div> {joinSegment} </div>
 
             <div style={LOCAL_STYLES.block}>
-              <h3>Teams</h3>
+              <Title>Teams</Title>
               <div>
                 {teamsButtons}
               </div>
             </div>
 
             <div style={LOCAL_STYLES.block}>
-              <h3>Root Path</h3>
+              <Title>Root Path</Title>
               <SetUserRootPathForm user={this.state.user}/>
             </div>
 
             <div style={LOCAL_STYLES.block}>
-              <h3>Repo Credentials</h3>
+              <Title>Repo Credentials</Title>
               <SetUserRepoCredentialsForm user={this.state.user} />
             </div>
 
             <div style={LOCAL_STYLES.block}>
-              <h3>Activity Manager Credentials</h3>
+              <Title>Activity Manager Credentials</Title>
               <SetUserActivityManagerForm />
             </div>
 
@@ -150,6 +151,12 @@ class ProfileView extends Component {
   }
 }
 
+const Title = (props) => {
+  return (
+    <div style={{fontSize: 18, fontWeight: '700'}}>{props.children}</div>
+  )
+}
+
 const LOCAL_STYLES = {
   container: {
     fontFamily: "arial",
@@ -158,6 +165,7 @@ const LOCAL_STYLES = {
     color: '#fff',
     overflow: 'auto',
   },
+  subContainer: {marginLeft: '10px', marginTop: '20px', background: "#a19e9e", padding: "20px", color: 'black'},
   item: {
     margin: "10px",
     padding: "10px",
@@ -165,7 +173,7 @@ const LOCAL_STYLES = {
     background: 'grey',
   },
   block: {
-    margin: '10px',
+    padding: '10px',
     borderBottom: '1px solid #5f5f5f',
   },
 };

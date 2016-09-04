@@ -2,6 +2,7 @@ import { Component } from 'react';
 import FB from 'styles/flexbox';
 import Navbar from '../navbar';
 import {List, ListItem, MakeSelectable} from 'material-ui/List';
+import Subheader from 'material-ui/Subheader';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
 import UrlFilteringEditor from '../UrlFilteringEditor';
@@ -69,16 +70,17 @@ class BlackListForm extends Component {
 
   render () {
     let blacklistEnabledLabel = this.state.blacklistEnabled ? 'enabled' : 'disabled';
+    let blacklistToggle = (
+      <Toggle
+        onToggle={() => { this.toggleBlackList() }}
+        toggled={this.state.blacklistEnabled}
+        labelPosition="right" />
+    );
+
     return (
       <div>
-        <div>
-          <h3>Black List</h3>
-          <Toggle
-            onToggle={() => { this.toggleBlackList() }}
-            toggled={this.state.blacklistEnabled}
-            label={`Black List filter ${blacklistEnabledLabel}`}
-            labelPosition="right" />
-        </div>
+        <h3>Black List</h3>
+        <ListItem primaryText="Filter enabled" rightToggle={blacklistToggle} />
         <UrlFilteringEditor
           expressions={this.state.expressions}
           saveExpression={this.saveBlacklistExpression.bind(this)}

@@ -40,16 +40,17 @@ class SetUserActivityManagerForm extends Component {
   render () {
     return (
       <div style={{margin: '10px'}}>
-        <div>
-          <TextField hintStyle={{color: '#464646'}} textStyle={{color: '#464646'}} hintText="Activity Manager Address" value={this.state.address} onChange={ this.updateActivityManagerAddress.bind(this) }/>
-        </div>
-        <div>
-          <RaisedButton
-            onClick={ () => this.saveActivityManagerAddress() }
-            label={"Save"}
-            primary={true}
-            style={{flex: '1 1 auto', margin: 10}} />
-        </div>
+        <TextField
+          hintStyle={{color: '#888'}}
+          textStyle={{color: '#888'}}
+          hintText="Activity Manager Address"
+          value={this.state.address}
+          onChange={ this.updateActivityManagerAddress.bind(this) }/>
+        <RaisedButton
+          onClick={ () => this.saveActivityManagerAddress() }
+          label={"Save"}
+          primary={true}
+          style={{flex: '1 1 auto', margin: 10}} />
       </div>
     )
   }

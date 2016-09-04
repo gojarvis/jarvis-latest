@@ -1,6 +1,8 @@
 import { PropTypes, Component } from 'react';
 import FB from 'styles/flexbox';
 import {List, ListItem, MakeSelectable} from 'material-ui/List';
+import DeleteIcon from 'material-ui/svg-icons/action/delete';
+import Subheader from 'material-ui/Subheader';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
 import IconText from 'components/IconText';
@@ -23,6 +25,7 @@ class UrlFilteringEditor extends Component {
     if (expression) {
       let result = this.props.saveExpression(expression)
       this.setState({expression: ''});
+      this.inputRef.focus();
     }
   }
 
@@ -36,26 +39,28 @@ class UrlFilteringEditor extends Component {
   render () {
     let expressionsListItems = this.props.expressions.map((expression, index) => {
       return (
-        <ListItem key={index}>
-          <IconText icon='trash' onClick={(e) => this.props.deleteExpression(expression)}>{expression.address}</IconText>
+        <ListItem key={index} leftIcon={<DeleteIcon onClick={(e) => this.props.deleteExpression(expression)} />}>
+          {expression.address}
         </ListItem>
       );
     });
 
     return (
       <div>
-        <h4>Expression list</h4>
-        <List style={{background: '#bbbbbb', marginBottom: '20px'}}>
+        <List>
+          <Subheader>Expression List</Subheader>
           {expressionsListItems}
         </List>
         <div>
-          <div>Add expression</div>
-          <TextField
-            hintStyle={{color: '#464646'}}
-            hintText="Expression"
-            onChange={this.updateExpression}
-            value={this.state.expression} />
-          <div>
+          <Subheader>Add Expression</Subheader>
+          <div style={{paddingLeft: 20}}>
+            <TextField
+              hintStyle={{color: '#888'}}
+              hintText="Expression"
+              ref={(ref) => this.inputRef = ref}
+              onKeyUp={(event) => {event.keyCode === 13 ? this.save() : null}}
+              onChange={this.updateExpression}
+              value={this.state.expression} />
             <RaisedButton
               onClick={ () => this.save() }
               label={"Save"}
