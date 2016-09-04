@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/gojarvis/jarvis-latest#readme",
   "dependencies": {
+    "compare-versions": "^3.0.0",
     "express": "^4.14.0",
     "nodemon": "^1.10.0",
     "passport-github": "^1.1.0",
