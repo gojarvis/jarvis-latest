@@ -2,12 +2,14 @@
   "name": "jarvis-latest",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server/index.js",
   "scripts": {
     "start": "./start.sh",
     "stop": "./stop.sh",
     "restart": "pm2 restart all",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:mac": "nwbuild -p \"osx64\" -o ./build-nwjs ./server",
+    "build:windows": "nwbuild -p \"win64\" -o \".\\build-nwjs\" .\\server\\"
   },
   "repository": {
     "type": "git",
@@ -25,5 +27,8 @@
     "nodemon": "^1.10.0",
     "passport-github": "^1.1.0",
     "pm2": "^1.1.3"
+  },
+  "devDependencies": {
+    "nw-builder": "^3.0.0"
   }
 }

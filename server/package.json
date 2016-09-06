@@ -1,7 +1,8 @@
 {
   "name": "jarvis-server",
   "version": "0.0.1",
-  "main": "index.js",
+  "main": "http://localhost:3000",
+  "bg-script": "index.js",
   "author": "Roie Schwaber-Cohen",
   "scripts": {
     "start": "node index.js",
