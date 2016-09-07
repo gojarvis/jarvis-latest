@@ -88,15 +88,16 @@ class contextManager{
 
   removeFileNode(fileNode){
     let filteredFiles = this.files.filter(file => {
-
-      return file.address === fileNode.address
+      return file.address !== fileNode.address
     });
+
+    console.log('FILTERED', filteredFiles);
 
     this.files = filteredFiles;
   }
 
   removeTab(tabs){
-
+    console.log('TABS', tabs.length);
     this.updateTabs(tabs)
   }
 
@@ -283,7 +284,7 @@ class contextManager{
         let files = this.files;
 
         let commands = this.commands;
-        console.log('CONTEXT', urls.length, files.length, commands.length);
+        console.log('CONTEXT', urls.map(url => { return url.address}).join(','), '|', files.map(file => { return file.address}).join(','));
 
         if (urls.length > 0) {
           let urlRelationships = Promise.all(urls.map(url => this.relateUrlToUrls(url,urls)))

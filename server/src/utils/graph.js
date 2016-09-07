@@ -139,7 +139,7 @@ class GraphUtil{
       relationshipQueries.forEach(cypher => {
         txn.query(cypher, {}, (err, result) => {
           if (err){
-            console.log('err adding to txn', err);
+            console.log('err adding to txn', err.code, cypher);
           }
         })
       })
@@ -171,7 +171,7 @@ class GraphUtil{
   }
 
   getRelateNodeQuery(origin, target, relationship){
-    let cypher = `START a=node(${origin.id}), b=node(${target.id}) MERGE (a)-[r:${relationship}]->(b) SET r.weight = coalesce(r.weight, 0) + 1`;
+    let cypher = `START a=node(${origin.id}), b=node(${target.id}) MERGE (a)-[r:${relationship}]->(b) SET r.weight = coalesce(r.weight, 0) + 0.01`;
     return cypher
   }
 
@@ -196,7 +196,7 @@ class GraphUtil{
     // console.log('TARGET', target, target.id);
     let cypher = 'START a=node({origin}), b=node({target}) '
                 +'MERGE (a)-[r:'+relationship+']->(b) '
-                +'SET r.weight = coalesce(r.weight, 0) + 1';
+                +'SET r.weight = coalesce(r.weight, 0) + 0.01';
     let params = {origin: origin.id, target: target.id, relationship: relationship};
 
     let res = {};
