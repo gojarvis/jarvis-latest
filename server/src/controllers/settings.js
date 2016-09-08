@@ -41,9 +41,19 @@ class SettingsController {
     return creds;
   }
 
+  async setAggregationHoursValue(value) {
+    let hoursValue = await projectSettingsManager.setAggregationHoursValue(value);
+    return hoursValue;
+  }
+
+  async getAggregationHoursValue() {
+    let hoursValue = await projectSettingsManager.getAggregationHoursValue();
+    return hoursValue;
+  }
+
   async setActivityManagerCredentials(credentials) {
-    let creds = await projectSettingsManager.setActivityManagerCredentials(credentials);
-    return creds;
+    let hoursValue = await projectSettingsManager.setActivityManagerCredentials(credentials);
+    return hoursValue;
   }
 
   async getActivityManagerCredentials(credentials) {
