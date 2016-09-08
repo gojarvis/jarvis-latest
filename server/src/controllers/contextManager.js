@@ -1,14 +1,15 @@
 let heartbeats = require('heartbeats');
 let _ = require('lodash');
 let watson = require('watson-developer-cloud');
-let r = require('rethinkdb');
+let thinky = require('../utils/rethink');
 let config = require('config');
 let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
 let Meta = require('./metadataManager')
+let settingsManager = require('../utils/settings-manager');
 
 class contextManager{
-  constructor(history, userInfo){
+  constructor(history, userInfo, socket, io){
 
     var db = require('../utils/rethink')
     var type = db.type;
@@ -18,7 +19,7 @@ class contextManager{
       username: type.string(),
     }, { pk: "username"})
 
-
+    this.io = io;
     this.user = {};
     this.urls = [];
     this.urlsArtifacts = [];
@@ -30,6 +31,13 @@ class contextManager{
     this.slowHeart = heartbeats.createHeart(1000);
     this.history = history;
     this.recommendations = [];
+
+    try{
+      this.assessContext();
+    }
+    catch(e){
+      console.log('cant asses', e);
+    }
     this.initContext(userInfo);
   }
 
@@ -45,8 +53,8 @@ class contextManager{
           this.handleHeartbeat(heartbeat);
         }.bind(this));
 
-        this.slowHeart.createEvent(300, function(heartbeat, last){
-
+        this.slowHeart.createEvent(60, function(heartbeat, last){
+          this.handleSlowHeartbeat(heartbeat)
         }.bind(this));
 
         return user;
@@ -73,10 +81,68 @@ class contextManager{
 
   handleHeartbeat(heartbeat){
     this.saveContext();
+    this.assessContext();
+
+  }
+
+  async assessContext(){
+    let r = thinky.r;
+    let contextBucktededByHour = 'nothing';
+
+    let numberOfHoursToAggregate = await settingsManager.getAggregationHoursValue() || 1;
+    console.log('ASSESING',numberOfHoursToAggregate);
+
+    try {
+      contextBucktededByHour =
+        await r.table('Event').filter(function(event){
+           return event.hasFields('data') && event('data').hasFields('address')
+        })
+        .map(function (row) {
+        	return (
+          	{
+              day: row('timestamp').dayOfYear() ,
+              hour: row('timestamp').hours() ,
+              address: row('data')('address'),
+              nodeId:  row('data')('nodeId'),
+              timestamp: row('timestamp'),
+              source: row('source'),
+              eventType: row('eventType'),
+              id: row('id')
+             }
+            )
+          }
+        )
+      .orderBy(r.desc('day'), r.desc('hour')).group('day', 'hour' ).ungroup().map(function(row){
+          return (
+            {
+              dayHour: row('group'),
+              items: row('reduction')
+            }
+          )
+      })
+      .orderBy(r.desc('dayHour')).limit(numberOfHoursToAggregate).concatMap(function(row){
+        return row("items")
+      })
+      .group('address').count().ungroup().orderBy(r.desc("reduction"))
+      .map(function(row){
+        return ({
+          address: row("group"),
+          count: row("reduction")
+        })
+      })
+      .limit(15)
+      .run();
+    } catch (e) {
+      console.log('meh', e);
+    } finally {
+      this.io.emit('context-hour-buckets-update', contextBucktededByHour);
+    }
+
+
   }
 
   handleSlowHeartbeat(heartbeat){
-    this.history.saveEvent({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls} }).then(function(res){})
+    this.history.saveContext({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls, commands: this.commands}, timestamp: new Date()  }).then(function(res){})
   }
 
   addFileNode(fileNode){
@@ -90,14 +156,10 @@ class contextManager{
     let filteredFiles = this.files.filter(file => {
       return file.address !== fileNode.address
     });
-
-    console.log('FILTERED', filteredFiles);
-
     this.files = filteredFiles;
   }
 
   removeTab(tabs){
-    console.log('TABS', tabs.length);
     this.updateTabs(tabs)
   }
 
@@ -263,7 +325,6 @@ class contextManager{
 
       let userContext = await this.relateUserToContext();
 
-      //TODO: Looks like this is partially done on "saveContext. remove duplication"
       let relatedContext = await this.relateContextToItself();
 
       //Empty the commands buffer every heartbeat
@@ -284,8 +345,8 @@ class contextManager{
         let files = this.files;
 
         let commands = this.commands;
-        console.log('CONTEXT', urls.map(url => { return url.address}).join(','), '|', files.map(file => { return file.address}).join(','));
-
+        // console.log('CONTEXT', urls.map(url => { return url.address}).join(','), '|', files.map(file => { return file.address}).join(','));
+        console.log('CONTEXT', urls.length, files.length, commands.length);
         if (urls.length > 0) {
           let urlRelationships = Promise.all(urls.map(url => this.relateUrlToUrls(url,urls)))
 

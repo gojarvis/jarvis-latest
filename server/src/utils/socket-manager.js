@@ -15,7 +15,7 @@ class SocketManager {
     let history = new History(socket,io, user.username);
 
     if (_.isUndefined(context.user)){
-        context = new Context(history, { username: user.username});
+        context = new Context(history, { username: user.username}, socket, io);
     }
 
 
