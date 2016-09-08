@@ -1,8 +1,3 @@
-//TODO: All graph methods should live in one place. Currently unused.
-let Redis = require('ioredis');
-let config = require('config');
-let redis = new Redis();
-let pipeline = redis.pipeline();
 let _ = require('lodash');
 
 let projectSettingsManager = require('./settings-manager');
