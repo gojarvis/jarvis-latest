@@ -48,6 +48,10 @@ class MainView extends Component {
       }
     });
 
+    this.socket.on('context-hour-buckets-update', msg => {
+      console.log('CONTEXT HOURS BUCKETS UPDATE', msg);
+    })
+
     this.props.dispatch(ActionCreators.fetchUserAndTheirTeams());
   }
 

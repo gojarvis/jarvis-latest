@@ -28,6 +28,16 @@ class HistoryManager{
     }
   }
 
+  saveContext(event){
+    try{
+      let ev = new Event({timestamp: new Date(), eventType: event.type, source: event.source, data: event.data, user:this.user});
+      return ev.save()
+    }
+    catch(e){
+      console.error('History Manager: error saving context event', e);
+    }
+  }
+
   //TODO
   getGroupedEventByType(eventType, grouping){
 
