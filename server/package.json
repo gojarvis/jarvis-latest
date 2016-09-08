@@ -7,7 +7,23 @@
   "scripts": {
     "start": "node index.js",
     "nodemon": "nodemon index.js",
-    "build": "mkdir -p build && cp package.json build/ && webpack -p --progress"
+    "build": "cp package.json build/ && webpack -p --progress"
+  },
+  "nexe": {
+    "input": "./bin/nexe",
+    "output": "nexe^$",
+    "temp": "tmp",
+    "browserify": {
+      "requires": [],
+      "excludes": [],
+      "paths": []
+    },
+    "runtime": {
+      "framework": "node",
+      "version": "6.3.0",
+      "js-flags": "--use_strict",
+      "ignoreFlags": true
+    }
   },
   "dependencies": {
     "alasql": "^0.2.5",
@@ -15,6 +31,10 @@
     "babel": "^6.1.18",
     "babel-core": "^6.2.1",
     "babel-loader": "^6.2.5",
+    "babel-plugin-transform-async-to-generator": "6.8.0",
+    "babel-plugin-transform-class-properties": "6.9.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "6.8.0",
+    "babel-plugin-transform-object-rest-spread": "6.8.0",
     "babel-plugin-syntax-async-functions": "^6.3.13",
     "babel-plugin-syntax-async-generators": "^6.3.13",
     "babel-polyfill": "^6.3.14",
@@ -47,6 +67,7 @@
     "influent": "^0.5.2",
     "influx": "^4.0.0",
     "ioredis": "^1.13.1",
+    "js-yaml": "^3.6.1",
     "json-loader": "^0.5.4",
     "keyword-extractor": "0.0.12",
     "kue": "^0.10.5",
@@ -83,7 +104,8 @@
     "wikidata-sdk": "^2.2.0"
   },
   "devDependencies": {
-    "babel-plugin-transform-runtime": "^6.12.0"
+    "babel-plugin-transform-runtime": "^6.12.0",
+    "nexe": "^1.1.2"
   },
   "jshintConfig": {}
 }
