@@ -20,6 +20,10 @@ class MainView extends Component {
   constructor(...args) {
     super(...args);
     this.socket = window.socket;
+
+    this.state = {
+      temporalContextItems: []
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -48,16 +52,22 @@ class MainView extends Component {
       }
     });
 
-    this.socket.on('context-hour-buckets-update', msg => {
-      console.log('CONTEXT HOURS BUCKETS UPDATE', msg);
-    })
+
 
     this.props.dispatch(ActionCreators.fetchUserAndTheirTeams());
   }
 
+  async componentDidMount(){
+    this.socket.on('context-analysis-update', msg => {
+      this.setState({
+        temporalContextItems: imm.fromJS(msg.temporalContext)
+      })
+    })
+  }
+
   render() {
     let { queriedItems, dispatch, eventTickerItems } = this.props;
-
+    let temporalContextItems = this.state.temporalContextItems;
     let boundActions = bindActionCreators(ActionCreators, dispatch);
 
     return (
@@ -73,6 +83,10 @@ class MainView extends Component {
 
           <EventTickerList
             items={eventTickerItems}
+            {...boundActions} />
+
+          <EventTickerList
+            items={temporalContextItems}
             {...boundActions} />
 
           <Filters selectedFilter={this.props.queriedItems.endNodeType} {...boundActions} />
@@ -121,6 +135,6 @@ export default connect(
   // mapStateToProps
   state => ({
     eventTickerItems: state.eventTickerItems,
-    queriedItems: state.queriedItems,
+    queriedItems: state.queriedItems
   })
 )(MainView);

@@ -32,12 +32,7 @@ class contextManager{
     this.history = history;
     this.recommendations = [];
 
-    try{
-      this.assessContext();
-    }
-    catch(e){
-      console.log('cant asses', e);
-    }
+
     this.initContext(userInfo);
   }
 
@@ -57,13 +52,13 @@ class contextManager{
           this.handleSlowHeartbeat(heartbeat)
         }.bind(this));
 
+        this.getAndEmitContextUpdates();
+
         return user;
     }
     catch(err){
       console.error('cannot initialize context',err);
     }
-
-
 
   }
 
@@ -81,18 +76,98 @@ class contextManager{
 
   handleHeartbeat(heartbeat){
     this.saveContext();
-    this.assessContext();
+    this.getAndEmitContextUpdates();
+
+  }
+  async getAndEmitContextUpdates(){
+    console.log('getAndEmitContextUpdates');
+    let contextBucktededByHour, globalWeightFactors;
+    try {
+      contextBucktededByHour = await this.getContextNodesBucketedByHour();
+      globalWeightFactors = await this.getGlobalWeightFactors();
+
+      this.io.emit('context-analysis-update', {
+        temporalContext: contextBucktededByHour,
+        modifiers: globalWeightFactors[0]
+      })
+    } catch (e) {
+      console.log('cant getAndEmitContextUpdates', e);
+    } finally {
+
+    }
 
   }
 
-  async assessContext(){
-    let r = thinky.r;
-    let contextBucktededByHour = 'nothing';
 
-    let numberOfHoursToAggregate = await settingsManager.getAggregationHoursValue() || 1;
-    console.log('ASSESING',numberOfHoursToAggregate);
+  async getGlobalWeightFactors(){
+    let user = this.user;
+    let cypher = `
+        match (startUserNode:User)-[startUserRel_relationship:touched]->(startNode:Url)-[endUserRel_relationship:openwith]->(endNode:Url)
+        match (startNode)-[globalOpen:openwith]->(endNode)
+        where
+        ID(startUserNode)=${user.id}
+        with {
+        	avgTouch: avg(startUserRel_relationship.weight) ,
+        	maxTouch: max(startUserRel_relationship.weight),
+        	stdevTouch: stdev(startUserRel_relationship.weight),
+
+        	avgOpen: avg(endUserRel_relationship.weight),
+        	maxOpen: max(endUserRel_relationship.weight),
+        	stdevOpen: stdev(endUserRel_relationship.weight),
+
+        	avgGlobalOpen: avg(globalOpen.weight),
+        	maxGlobalOpen: max(globalOpen.weight),
+        	stdevGlobalOpen: stdev(globalOpen.weight)
+        } as data
+        return data`;
+    let globalWeightFactors;
 
     try {
+      globalWeightFactors = await graphUtil.queryGraph(cypher);
+    } catch (e) {
+      console.log('cant getGlobalTouchWeightFactor', e);
+    } finally {
+      return globalWeightFactors
+    }
+  }
+
+
+
+  async getContextNodesBucketedByHour(){
+    let nodeIdsByHours = await this.getContextNodeIdsBucktedByHour();
+    let nodes;
+    try {
+      nodes = await Promise.all(nodeIdsByHours.map( item => this.getBucketedNodeById(item)));
+    } catch (e) {
+      console.log('cant getContextNodeIdsBucktedByHour', e);
+    } finally {
+      return nodes;
+    }
+  }
+
+  async getBucketedNodeById(item){
+
+    let node = {};
+    try{
+      node.data = await graphUtil.getNodeById(item.nodeId)
+      node.count = item.count;
+
+    }
+    catch(e){
+      console.log('cant getBucketedNodeById', e);
+    }
+    finally{
+      return node
+    }
+  }
+
+
+  async getContextNodeIdsBucktedByHour(){
+    let r = thinky.r;
+    let contextBucktededByHour;
+    let numberOfHoursToAggregate;
+    try {
+      numberOfHoursToAggregate  = await settingsManager.getAggregationHoursValue() || 1;
       contextBucktededByHour =
         await r.table('Event').filter(function(event){
            return event.hasFields('data') && event('data').hasFields('address')
@@ -102,6 +177,7 @@ class contextManager{
           	{
               day: row('timestamp').dayOfYear() ,
               hour: row('timestamp').hours() ,
+              dayHour: r.add(row('timestamp').dayOfYear().mul(24), row('timestamp').hours()),
               address: row('data')('address'),
               nodeId:  row('data')('nodeId'),
               timestamp: row('timestamp'),
@@ -112,7 +188,7 @@ class contextManager{
             )
           }
         )
-      .orderBy(r.desc('day'), r.desc('hour')).group('day', 'hour' ).ungroup().map(function(row){
+      .group('dayHour').ungroup().map(function(row){
           return (
             {
               dayHour: row('group'),
@@ -123,19 +199,19 @@ class contextManager{
       .orderBy(r.desc('dayHour')).limit(numberOfHoursToAggregate).concatMap(function(row){
         return row("items")
       })
-      .group('address').count().ungroup().orderBy(r.desc("reduction"))
+      .group('nodeId').count().ungroup().orderBy(r.desc("reduction"))
       .map(function(row){
         return ({
-          address: row("group"),
+          nodeId: row("group"),
           count: row("reduction")
         })
       })
       .limit(15)
       .run();
     } catch (e) {
-      console.log('meh', e);
+      console.log('cant getContextNodeIdsBucktedByHour', e);
     } finally {
-      this.io.emit('context-hour-buckets-update', contextBucktededByHour);
+      return contextBucktededByHour
     }
 
 
