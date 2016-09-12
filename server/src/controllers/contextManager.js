@@ -5,7 +5,7 @@ let thinky = require('../utils/rethink');
 let config = require('config');
 let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
-let Meta = require('./metadataManager')
+let keywordsManager = require('./keywordsManager');
 let settingsManager = require('../utils/settings-manager');
 
 class contextManager{
@@ -42,7 +42,6 @@ class contextManager{
         user = await this.setUser(userInfo);
         this.user = user;
 
-        this.metadata = new Meta(this.user);
 
         this.heart.createEvent(30, function(heartbeat, last){
           this.handleHeartbeat(heartbeat);
@@ -52,7 +51,7 @@ class contextManager{
           this.handleSlowHeartbeat(heartbeat)
         }.bind(this));
 
-        this.getAndEmitContextUpdates();
+        // this.getAndEmitContextUpdates();
 
         return user;
     }
@@ -76,9 +75,10 @@ class contextManager{
 
   handleHeartbeat(heartbeat){
     this.saveContext();
-    this.getAndEmitContextUpdates();
+    // this.getAndEmitContextUpdates();
 
   }
+
   async getAndEmitContextUpdates(){
     console.log('getAndEmitContextUpdates');
     let contextBucktededByHour, globalWeightFactors;
@@ -163,6 +163,7 @@ class contextManager{
 
 
   async getContextNodeIdsBucktedByHour(){
+    let username = this.getUser().username;
     let r = thinky.r;
     let contextBucktededByHour;
     let numberOfHoursToAggregate;
@@ -170,7 +171,10 @@ class contextManager{
       numberOfHoursToAggregate  = await settingsManager.getAggregationHoursValue() || 1;
       contextBucktededByHour =
         await r.table('Event').filter(function(event){
-           return event.hasFields('data') && event('data').hasFields('address')
+           return event.hasFields('data')
+             .and(event('data').hasFields('address'))
+             .and(event('user').eq(username))
+             .and(event('source').ne("context"))
         })
         .map(function (row) {
         	return (
@@ -256,6 +260,9 @@ class contextManager{
       urlNode  = await graphUtil.getAndSaveUrlNode(activeUrlDetails);
       let rel = graphUtil.relateNodes(this.user, urlNode, 'touched');
 
+      let kw = await keywordsManager.fetchKeywordsForUrlFromAlchemy(urlNode);
+
+
     } catch (e) {
       console.log('cant updateUserActivity', e);
     } finally {
@@ -305,7 +312,7 @@ class contextManager{
   async relateUrlsToUrls(urls){
     //This will create a relationship with each URL and evrey url in the same context (including itself, TODO: Fix that)
     // console.log("relateUrlsToUrls");
-    //TODO: otherUrls = > filter url from urls
+
 
     let urlToUrlsRelationships =[];
     try{
@@ -327,13 +334,13 @@ class contextManager{
   }
 
   async relateUrlToOthers(url, urls){
-    let others = urls.filter(node => node.id !== url.id);
+    let others = urls.filter(node => node.address !== url.address);
     let innerUrlToUrlsRelationships = [];
     try{
       innerUrlToUrlsRelationships = await Promise.all(urls.map(url => graphUtil.relateOneToMany(url, others, 'openwith')));
     }
     catch(e){
-      console.log(err);
+      console.log('error relating url to others',e);
     }
     finally{
       return innerUrlToUrlsRelationships
@@ -426,7 +433,6 @@ class contextManager{
         if (urls.length > 0) {
           let urlRelationships = Promise.all(urls.map(url => this.relateUrlToUrls(url,urls)))
 
-          let keywords = await Promise.all(urls.map(url => this.metadata.getSetKeywordsForUrl(url)));
         }
 
         if (files.length > 0){

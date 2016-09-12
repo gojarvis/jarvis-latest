@@ -127,7 +127,7 @@ class GraphUtil{
   }
 
   async relateOneToMany(origin, others, relationship){
-    let relationships = [];let txn; let results = [];
+    let relationships = []; let txn; let results = [];
     try {
       txn = graph.batch();
       let relationshipQueries = others.map(target => this.getRelateNodeQuery(origin, target, relationship));
@@ -138,10 +138,54 @@ class GraphUtil{
           }
         })
       })
+
       results = this.commitBatch(txn);
 
     } catch (e) {
-      console.log('failed', e);
+      console.log('failed relating one to many', e);
+    } finally {
+      return results;
+    }
+  }
+
+  async executeQueries(queries){
+    let txn, results;
+    try {
+      txn = graph.batch();
+      queries.forEach(cypher => {
+        txn.query(cypher, {}, (err, result) =>{
+          if(err){
+            console.log('err adding to txn', err.code, cypher);
+          }
+        })
+      })
+
+      results = await this.commitBatch(txn);
+    } catch (e) {
+      console.log('failed executing queries ', e);
+    } finally {
+      return results;
+    }
+  }
+
+  async relateManyToOne(many, origin, relationship){
+    let relationships = []; let txn; let results = [];
+    try {
+      txn = graph.batch();
+      let relationshipQueries = many.map(target => this.getRelateNodeQuery(target, origin, relationship));
+      relationshipQueries.forEach(cypher => {
+        txn.query(cypher, {}, (err, result) => {
+          if (err){
+            console.log('err adding to txn', err.code, cypher);
+          }
+        })
+      })
+      //
+      console.log('relationshipQueries', relationshipQueries);
+      results = await this.commitBatch(txn);
+
+    } catch (e) {
+      console.log('failed relating many to one', e);
     } finally {
       return results;
     }
@@ -166,6 +210,10 @@ class GraphUtil{
   }
 
   getRelateNodeQuery(origin, target, relationship){
+    if (target.id == origin.id){
+      //TODO: Stop gap to avoid inserting open relationships that are between the item and itself.
+      return `match (n) where ID(n)=${target.id} return n limit 1`
+    }
     let cypher = `START a=node(${origin.id}), b=node(${target.id}) MERGE (a)-[r:${relationship}]->(b) SET r.weight = coalesce(r.weight, 0) + 0.01`;
     return cypher
   }
@@ -439,6 +487,64 @@ class GraphUtil{
 
       });
 
+    });
+  }
+
+
+  async updateNodeAndRelationships(urlNode, keywordNodes, keywords) {
+    let keywordTextToRelevanceHash = {};
+
+    keywords.forEach(keyword => {
+       keywordTextToRelevanceHash[keyword.text] = keyword.relevance;
+    })
+
+    let txn = graph.batch();
+
+    keywordNodes.forEach(kwObj => {
+      let cypher = `
+        START a=node(${kwObj.id}), b=node(${urlNode.id})
+        MERGE (a)-[r:related]->(b)
+        SET r.weight = coalesce(r.weight, 0) + ${keywordTextToRelevanceHash[kwObj.text]}`;
+
+      txn.query(cypher, {}, (err, result) => {
+        if (err) {
+          console.log('failed updateNodeAndRelationships', err);
+        }
+        else{
+          return result;
+        }
+      });
+    });
+
+
+
+    let res = {};
+    try {
+      res = await this.executCommitedQueries(txn);
+      return res;
+    } catch (e) {
+      console.log('CANT CREATE RELS');
+      throw e;
+    } finally {
+      return res;
+    }
+  }
+
+  executCommitedQueries(txn) {
+    return new Promise(function (resolve, reject) {
+      try {
+        txn.commit((err, results) => {
+          if (err) {
+            reject(err);
+          }
+
+          resolve(results);
+        });
+      } catch (e) {
+        reject(e);
+      } finally {
+
+      }
     });
   }
 
