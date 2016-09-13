@@ -1,7 +1,7 @@
-import ContextViewerList from './ContextViewerList';
+import ContextViewer from './ContextViewer';
 import ContextViewerItem from './ContextViewerItem';
 
 export default {
-  ContextViewerList,
+  ContextViewer,
   ContextViewerItem,
 }

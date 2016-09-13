@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 import layout from 'styles/layout';
 let agent = require('superagent-promise')(require('superagent'), Promise);
 import {EventTickerList} from 'components/EventTicker';
+import {ContextViewer} from 'components/ContextViewer'
 import QueriedItemList from 'components/QueriedItemList';
 import ViewWrapper from 'views/view-wrapper';
 import FocusedItem from 'components/FocusedItem';
@@ -85,9 +86,6 @@ class MainView extends Component {
             items={eventTickerItems}
             {...boundActions} />
 
-          <EventTickerList
-            items={temporalContextItems}
-            {...boundActions} />
 
           <Filters selectedFilter={this.props.queriedItems.endNodeType} {...boundActions} />
 
@@ -99,6 +97,10 @@ class MainView extends Component {
             {...boundActions} />
 
           <div style={styles.toggle}>
+            <ContextViewer
+              items={temporalContextItems}
+              {...boundActions} />
+
             <Toggle
               onToggle={() => { this.props.dispatch(ActionCreators.toggleAutoswitch()) }}
               toggle={this.props.queriedItems.autoswitch}

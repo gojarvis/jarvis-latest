@@ -113,7 +113,7 @@ class ChromeController {
             filteredTabs.push(tab);
           }
         })
-
+        console.log('Updating tabs');
         this.context.updateTabs(filteredTabs);
         return true;
     }
@@ -124,6 +124,11 @@ class ChromeController {
         //is blacklist enabled?
         let blacklistEnabled = await settingsManager.getFilterStatus('blacklist');
         let whiteListEnabled = await settingsManager.getFilterStatus('whitelist');
+
+        if (!blacklistEnabled && !whiteListEnabled){
+          return true;
+        }
+
 
         let block = false;
         let pass = false;

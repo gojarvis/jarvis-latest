@@ -13,7 +13,7 @@
     "activityManagerCredentials": {
         "address": "104.131.111.80"
     },
-    "aggregationHoursValue": 3,
+    "aggregationHoursValue": 1,
     "filter_blacklist": false,
     "filter_whitelist": false
 }

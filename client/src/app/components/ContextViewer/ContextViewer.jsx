@@ -1,11 +1,11 @@
 import React, { Component, PropTypes } from 'react';
 import Radium from 'radium';
-import EventTickerItem from './EventTickerItem';
+import ContextViewerItem from './ContextViewerItem';
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
 import FlipMove from 'react-flip-move';
 import FB from 'styles/flexbox';
-require('./EventTicker.css');
+require('./ContextViewer.css');
 
 class EventTickerList extends Component {
   constructor(...args) {
@@ -36,7 +36,7 @@ class EventTickerList extends Component {
         }
 
         return (
-          <EventTickerItem
+          <ContextViewerItem
             key={index}
             item={item}
             index={index}
@@ -73,6 +73,7 @@ const styles = {
     // minHeight: 140,
     overflowY: "hidden",
     overflowX: "scroll",
+    background: "rgb(40, 44, 52)"
   },
 }
 

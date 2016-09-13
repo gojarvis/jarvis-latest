@@ -1,4 +1,6 @@
+let colors = require('colors');
 let _ = require('lodash');
+
 
 let projectSettingsManager = require('./settings-manager');
 
@@ -39,6 +41,7 @@ class GraphUtil{
   }
 
   queryGraph(cypher, params={}){
+    // console.log('Query:    '.green, cypher);
     return new Promise(function(resolve, reject) {
       graph.query(cypher, params, function(err, result){
 
@@ -75,6 +78,21 @@ class GraphUtil{
     });
   }
 
+  getNodeByAddress(address){
+    return new Promise(function(resolve, reject) {
+      graph.find({address: address}, function(err, nodes){
+        console.log('NODES FOUND', address);
+        if (err)  {
+          console.log(err);
+          reject(err);
+        }
+        else {
+          resolve(nodes[0])
+        }
+      })
+    });
+  }
+
   getUserNodeByUsername(username){
     return new Promise(function(resolve, reject) {
       graph.find({username: username}, function(err, userNodes){
@@ -103,10 +121,6 @@ class GraphUtil{
     }
   }
 
-  async getRelevantNodes(){
-    let relevantUrls = await this.getRelevantUrls()
-    return
-  }
 
   //TODO
   async getWhitelistExpressions(username){
@@ -129,18 +143,9 @@ class GraphUtil{
   async relateOneToMany(origin, others, relationship){
     let relationships = []; let txn; let results = [];
     try {
-      txn = graph.batch();
+      // console.log('relateOneToMany', relationship);
       let relationshipQueries = others.map(target => this.getRelateNodeQuery(origin, target, relationship));
-      relationshipQueries.forEach(cypher => {
-        txn.query(cypher, {}, (err, result) => {
-          if (err){
-            console.log('err adding to txn', err.code, cypher);
-          }
-        })
-      })
-
-      results = this.commitBatch(txn);
-
+      let results = await this.executeQueries(relationshipQueries);
     } catch (e) {
       console.log('failed relating one to many', e);
     } finally {
@@ -148,8 +153,28 @@ class GraphUtil{
     }
   }
 
+  async getRelateOneToManyQueries(origin, others, relationship){
+    return  others.map(target => this.getRelateNodeQuery(origin, target, relationship));
+  }
+
+
+  async relateManyToOne(many, origin, relationship){
+    let relationships = []; let txn; let results = [];
+    try {
+      // console.log('relateManyToOne', relationship);
+      let relationshipQueries = many.map(target => this.getRelateNodeQuery(target, origin, relationship));
+      let results = await this.executeQueries(relationshipQueries);
+    } catch (e) {
+      console.log('failed relating many to one', e);
+    } finally {
+      return results;
+    }
+  }
+
   async executeQueries(queries){
     let txn, results;
+    // console.log('Executing batch');
+    console.log(queries);
     try {
       txn = graph.batch();
       queries.forEach(cypher => {
@@ -163,29 +188,6 @@ class GraphUtil{
       results = await this.commitBatch(txn);
     } catch (e) {
       console.log('failed executing queries ', e);
-    } finally {
-      return results;
-    }
-  }
-
-  async relateManyToOne(many, origin, relationship){
-    let relationships = []; let txn; let results = [];
-    try {
-      txn = graph.batch();
-      let relationshipQueries = many.map(target => this.getRelateNodeQuery(target, origin, relationship));
-      relationshipQueries.forEach(cypher => {
-        txn.query(cypher, {}, (err, result) => {
-          if (err){
-            console.log('err adding to txn', err.code, cypher);
-          }
-        })
-      })
-      //
-      console.log('relationshipQueries', relationshipQueries);
-      results = await this.commitBatch(txn);
-
-    } catch (e) {
-      console.log('failed relating many to one', e);
     } finally {
       return results;
     }

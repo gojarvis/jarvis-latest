@@ -27,6 +27,7 @@
     "botkit": "^0.2.2",
     "colors": "^1.1.2",
     "config": "^1.21.0",
+    "console.table": "^0.7.0",
     "cookie-parser": "^1.4.3",
     "cookie-session": "^2.0.0-alpha.1",
     "event-to-promise": "^0.7.0",
