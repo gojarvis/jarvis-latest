@@ -61,8 +61,13 @@ class MainView extends Component {
   async componentDidMount(){
     this.socket.on('context-analysis-update', msg => {
       this.setState({
-        temporalContextItems: imm.fromJS(msg.temporalContext)
+        temporalContextItems: imm.fromJS(msg.temporalContext),
+        modifiers: imm.fromJS(msg.modifiers)
+      }, ()=>{
+        console.log('modifiers', msg.modifiers);
       })
+
+
     })
   }
 

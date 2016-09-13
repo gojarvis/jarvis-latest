@@ -173,8 +173,6 @@ class GraphUtil{
 
   async executeQueries(queries){
     let txn, results;
-    // console.log('Executing batch');
-    console.log(queries);
     try {
       txn = graph.batch();
       queries.forEach(cypher => {
@@ -222,7 +220,7 @@ class GraphUtil{
 
   async deleteRelationship(origin, target, relationship){
     let cypher = `MATCH (a)-[r:${relationship}]->(b) where ID(a)=${origin.id} and ID(b)=${target.id} DELETE r`;
-    console.log(cypher);
+
     let res = {};
 
     try{

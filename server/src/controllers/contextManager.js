@@ -43,7 +43,7 @@ class contextManager{
         this.user = user;
 
 
-        this.heart.createEvent(10, function(heartbeat, last){
+        this.heart.createEvent(30, function(heartbeat, last){
           this.handleHeartbeat(heartbeat);
         }.bind(this));
 
@@ -75,12 +75,11 @@ class contextManager{
 
   handleHeartbeat(heartbeat){
     this.saveContext();
-    // this.getAndEmitContextUpdates();
+    this.getAndEmitContextUpdates();
 
   }
 
   async getAndEmitContextUpdates(){
-    console.log('getAndEmitContextUpdates');
     let contextBucktededByHour, globalWeightFactors;
     try {
       contextBucktededByHour = await this.getContextNodesBucketedByHour();
@@ -229,7 +228,6 @@ class contextManager{
     } catch (e) {
       console.log('cant getContextNodeIdsBucktedByHour', e);
     } finally {
-      console.log('contextBucktededByHour', contextBucktededByHour);
       return contextBucktededByHour
     }
 
@@ -298,7 +296,6 @@ class contextManager{
   }
 
   updateTabs(tabs){
-    console.log('updateTabs', tabs.length);
     let urlsArtifacts = tabs.map(tab => {
       if (!_.isUndefined(tab)){
         return {
@@ -462,8 +459,13 @@ class contextManager{
         }
 
 
-        console.log('Queries', [].concat.apply([], queries));
 
+        let allQueries = [].concat.apply([], queries);
+
+
+        let results = await graphUtil.executeQueries(allQueries);
+        // console.log('Results', results);
+        console.log('Context relation queries', results.length, '/', allQueries.length);
       }
       catch(err){
         console.log('cant relateContextToItself', err);

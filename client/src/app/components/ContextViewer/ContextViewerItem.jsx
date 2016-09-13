@@ -78,7 +78,6 @@ class ContextViewerItem extends React.Component {
     }
 
 
-    console.log(item.count);
     let title = item.data.title ?
         item.data.title.split('/').filter(char => char !== '').slice(-1).pop() :
         item.data.address ?

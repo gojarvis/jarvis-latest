@@ -77,7 +77,7 @@ function ensureAdmin(req, res, next) {
   // res.redirect('/');
 }
 
-
+var allClients = [];
 
 function init(user) {
   return new Promise(function(resolve, reject) {
@@ -88,10 +88,42 @@ function init(user) {
       // console.log(global.rethinkdbConnection);
 
       io.on('connection', function(socket) {
+
+        //TODO: This could probably be removed
         global._socket = socket;
+        allClients.push(socket);
+
+
+        socket.on('flush', function(){
+          console.log('FLUSH');
+        })
+
+        socket.on('drain', function(){
+          console.log('DRAIN');
+        })
+
+        socket.on('reconnection', function(){
+          console.log('RECONNNECTED');
+        })
+
+        socket.on('disconnect', function(){
+          console.log('socket disconnected')
+          var i = allClients.indexOf(socket);
+          allClients.splice(i, 1);
+        })
+
         var socketManager = new SocketManager(socket, io, user);
         console.log('CONNECTED', socket.id);
+
       });
+
+      io.on('flush', function(){
+        console.log('FLUSH IO');
+      });
+
+      io.on('reconnection', function(){
+        console.log('RECONNNECTED IO');
+      })
 
       initialized = true;
     }
