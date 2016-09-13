@@ -15,7 +15,7 @@ fs.readdirSync('node_modules')
 module.exports = {
   entry: ['babel-polyfill', './src/main.js'],
   output: {
-    path: 'tmp',
+    path: 'build',
     filename: 'build.js'
   },
   target: 'node',

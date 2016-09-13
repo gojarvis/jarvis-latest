@@ -2,12 +2,12 @@
   "name": "jarvis-server",
   "version": "0.0.1",
   "main": "http://localhost:3000",
-  "bg-script": "index.js",
+  "node-main": "index.js",
   "author": "Roie Schwaber-Cohen",
   "scripts": {
     "start": "node index.js",
     "nodemon": "nodemon index.js",
-    "build": "cp package.json build/ && webpack -p --progress"
+    "build": "cp {package.json,settings.json} build/ && cp -r config build/config && webpack -p --progress"
   },
   "nexe": {
     "input": "./bin/nexe",

@@ -8,8 +8,13 @@
     "stop": "./stop.sh",
     "restart": "pm2 restart all",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npm build:apps && npm build:join",
+    "build:apps": "npm run build:apps:client && npm run build:apps:server",
+    "build:apps:client": "cd client && npm run build",
+    "build:apps:server": "cd server && npm run build",
+    "build:join": "cp -r server/build ./app/src && cp -r client/build ./app/src/build",
     "build:mac": "nwbuild -p \"osx64\" -o ./build-nwjs ./server",
-    "build:windows": "nwbuild -p \"win64\" -o \".\\build-nwjs\" .\\server\\"
+    "build:windows": "nwbuild -p \"win64\" -o \".\\build-nwjs\" .\\server\\tmp\\"
   },
   "repository": {
     "type": "git",

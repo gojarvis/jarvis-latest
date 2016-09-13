@@ -6,3 +6,4 @@ client/build
 server/tmp
 server/build
 build-nwjs/*
+app
