@@ -113,7 +113,7 @@ class ChromeController {
             filteredTabs.push(tab);
           }
         })
-        console.log('Updating tabs');
+        
         this.context.updateTabs(filteredTabs);
         return true;
     }

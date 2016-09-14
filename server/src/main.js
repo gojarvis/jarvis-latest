@@ -21,7 +21,7 @@ let projectSettingsManager = require('./utils/settings-manager');
 let rethinkConfig = config.get('rethink');
 let GraphUtil = require('./utils/graph');
 let graphUtil = new GraphUtil();
-let staticClientPath = path.join(__dirname, '../../client/build/');
+let staticClientPath = path.join(__dirname, '../client/build/');
 let usersController = require('./controllers/users');
 let teamsController = require('./controllers/teams');
 let settingsController = require('./controllers/settings');
@@ -78,6 +78,7 @@ function ensureAdmin(req, res, next) {
 }
 
 var allClients = [];
+var cachedSocketManager = {};
 
 function init(user) {
   return new Promise(function(resolve, reject) {
@@ -86,46 +87,26 @@ function init(user) {
       console.log('INITIALIZING');
       var SocketManager = require('./utils/socket-manager');
       // console.log(global.rethinkdbConnection);
-
       io.on('connection', function(socket) {
-
         //TODO: This could probably be removed
         global._socket = socket;
-        allClients.push(socket);
-
-
-        socket.on('flush', function(){
-          console.log('FLUSH');
-        })
-
-        socket.on('drain', function(){
-          console.log('DRAIN');
-        })
-
-        socket.on('reconnection', function(){
-          console.log('RECONNNECTED');
-        })
 
         socket.on('disconnect', function(){
           console.log('socket disconnected')
-          var i = allClients.indexOf(socket);
-          allClients.splice(i, 1);
         })
 
-        var socketManager = new SocketManager(socket, io, user);
-        console.log('CONNECTED', socket.id);
+        //Hack to stop socket drain
+        setTimeout(()=>{
+          var socketManager = new SocketManager(socket, io, user);
+          console.log('Connected to: ', socket.id);
+        }, 2000);
 
       });
-
-      io.on('flush', function(){
-        console.log('FLUSH IO');
-      });
-
-      io.on('reconnection', function(){
-        console.log('RECONNNECTED IO');
-      })
 
       initialized = true;
+    }
+    else{
+      console.log('Already initialized');
     }
 
     resolve()

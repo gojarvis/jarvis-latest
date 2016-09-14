@@ -107,6 +107,7 @@ class MainView extends Component {
               {...boundActions} />
 
             <Toggle
+              style={{padding: '10'}}
               onToggle={() => { this.props.dispatch(ActionCreators.toggleAutoswitch()) }}
               toggle={this.props.queriedItems.autoswitch}
               label="Autoswitch"
@@ -130,7 +131,6 @@ const styles = {
   },
   toggle: {
     color: 'white',
-    padding: 10,
     backgroundColor: 'white',
     position: 'fixed',
     bottom: 0,
