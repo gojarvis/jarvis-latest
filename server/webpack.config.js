@@ -13,28 +13,38 @@ fs.readdirSync('node_modules')
   });
 
 module.exports = {
-  entry: './src/main.js',
-  target: 'node',
+  entry: ['babel-polyfill', './src/main.js'],
   output: {
-    path: path.join(__dirname, 'build'),
-    filename: 'index.js'
+    path: 'build',
+    filename: 'build.js'
   },
+  target: 'node',
+  plugins: [
+    new webpack.optimize.DedupePlugin(),
+    new webpack.optimize.OccurenceOrderPlugin(),
+    new webpack.optimize.UglifyJsPlugin()
+  ],
   node: {
-    __dirname: false  
+    __dirname: false
   },
   module: {
     loaders: [{
       //React-hot loader and
       test: /\.js$/,  //All .js and .jsx files
-      loader: 'babel-loader',
+      loader: 'babel',
       query: {
         presets: ['es2015'],
-        plugins: ['transform-runtime']
+        plugins: [
+          'transform-runtime',
+          'transform-class-properties',
+          'transform-async-to-generator',
+          'transform-object-rest-spread'
+        ]
       },
       exclude: /node_modules/
     }, {
       test: /\.json$/,
-      loader: 'json-loader'
+      loader: 'json'
     }]
   },
   externals: nodeModules

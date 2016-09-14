@@ -21,7 +21,8 @@ let projectSettingsManager = require('./utils/settings-manager');
 let rethinkConfig = config.get('rethink');
 let GraphUtil = require('./utils/graph');
 let graphUtil = new GraphUtil();
-let staticClientPath = path.join(__dirname, '../client/build/');
+// let staticClientPath = path.join(__dirname, '../../client/build/');
+let staticClientPath = './build';
 let usersController = require('./controllers/users');
 let teamsController = require('./controllers/teams');
 let settingsController = require('./controllers/settings');
@@ -77,8 +78,7 @@ function ensureAdmin(req, res, next) {
   // res.redirect('/');
 }
 
-var allClients = [];
-var cachedSocketManager = {};
+
 
 function init(user) {
   return new Promise(function(resolve, reject) {
@@ -87,26 +87,14 @@ function init(user) {
       console.log('INITIALIZING');
       var SocketManager = require('./utils/socket-manager');
       // console.log(global.rethinkdbConnection);
+
       io.on('connection', function(socket) {
-        //TODO: This could probably be removed
         global._socket = socket;
-
-        socket.on('disconnect', function(){
-          console.log('socket disconnected')
-        })
-
-        //Hack to stop socket drain
-        setTimeout(()=>{
-          var socketManager = new SocketManager(socket, io, user);
-          console.log('Connected to: ', socket.id);
-        }, 2000);
-
+        var socketManager = new SocketManager(socket, io, user);
+        console.log('CONNECTED', socket.id);
       });
 
       initialized = true;
-    }
-    else{
-      console.log('Already initialized');
     }
 
     resolve()
