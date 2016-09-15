@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "nodemon": "nodemon index.js",
-    "build": "mkdir -p build && cp package.json build/ && webpack -p --progress"
+    "build": "cp package.json build/ && cp settings.json build/ && webpack -p --progress"
   },
   "dependencies": {
     "async": "^2.0.1",

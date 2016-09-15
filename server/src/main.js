@@ -429,7 +429,9 @@ app.post('/logout', function(req, res) {
   res.redirect('/');
 });
 
-if (isDev) {
+// @TODO: change this
+// setting this to false to force it to run in production, temporary
+if (isDev && false) {
   console.log('DEVELOPMENT MODE', !_.isUndefined(process.env.JARVIS_DEV));
   app.use('/', proxy({
     target: 'http://localhost:8888',
