@@ -60,8 +60,7 @@ class MainView extends Component {
     this.props.dispatch(ActionCreators.fetchUserAndTheirTeams());
   }
 
-  async componentWillUnmount(){
-    
+  async componentWillUnmount(){  
     this.socket.off();
   }
 
