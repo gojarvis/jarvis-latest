@@ -45,6 +45,8 @@ class MainView extends Component {
 
   async componentWillMount() {
     let res = await agent.get('http://localhost:3000/init');
+    this.socket.connect();
+
     this.socket.on('system-event', msg => {
       this.props.dispatch(ActionCreators.pushHistoryItem(msg));
 
@@ -56,6 +58,10 @@ class MainView extends Component {
 
 
     this.props.dispatch(ActionCreators.fetchUserAndTheirTeams());
+  }
+
+  async componentWillUnmount(){  
+    this.socket.off();
   }
 
   async componentDidMount(){

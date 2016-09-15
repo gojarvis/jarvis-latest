@@ -61,15 +61,18 @@ class ContextViewerItem extends React.Component {
       item = this.props.item;
     }
 
+    let weight = this.props.weight;
+    let color = `hsla(${weight}, 100%, 50%, ${weight/100})`;
+    console.log(color);
 
     switch(item.data.type) {
       case 'file':
         iconClass = 'file';
-        iconColor = '#FF3F81';
+        iconColor = `rgba(255, 63, 129, ${weight/100})`;
         break;
       case 'url':
         iconClass = 'bookmark';
-        iconColor = '#00BBD5';
+        iconColor = `rgba(0, 187, 213, ${weight/100})`;
         break;
       case 'command':
         iconClass = 'desktop';
@@ -107,7 +110,7 @@ class ContextViewerItem extends React.Component {
       <div
         className='contextViewerItem'
         title={JSON.stringify(item, null, 1)}
-        style={STYLES.container}
+        style={{...STYLES.container, 'borderLeft': "15px solid " + color, backgroundColor: `rgba(255, 255, 255, ${weight/100})`}}
         onClick={() => this.props.onClick(this.props.item.data.nodeId)}>
         <div style={STYLES.row}>
           <IconText icon={iconClass} style={{marginRight: 10}} iconColor={iconColor} />
@@ -119,6 +122,8 @@ class ContextViewerItem extends React.Component {
   }
 }
 
+
+
 const STYLES = {
   container: {
     ...FB.base,
@@ -128,7 +133,6 @@ const STYLES = {
     cursor: 'pointer',
     margin: "10px 0 10px 10px",
     flexShrink: 0,
-    backgroundColor: '#fff',
     padding: 10,
     color: '#000',
     flexDirection: 'column',
@@ -138,7 +142,8 @@ const STYLES = {
     ...FB.base,
     ...FB.justify.center,
     ...FB.align.center,
-    alignSelf: 'flex-start'
+    alignSelf: 'flex-start',
+
   },
   title: {
     fontSize: 18

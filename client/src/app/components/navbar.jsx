@@ -53,7 +53,6 @@ class Navbar extends Component {
     if (this.state && this.state.isAdmin){
       admin = <RaisedButton
         style={{..._styles.button}}
-        icon={<TeamIcon style={iconStyles} />}
         label={"Admin"}
         onClick={this.navigate.bind(this, "admin")}
         primary={true}
@@ -61,21 +60,27 @@ class Navbar extends Component {
     }
     return (
       <div style={{...FB.base, ..._styles.container}}>
-          <div style={{..._styles.logo}}>
+          <div style={{..._styles.logo}} onClick={this.navigate.bind(this, "main")}>
             <span>Jarvis</span>
             <LoadingIndicator />
           </div>
           <div style={{..._styles.navigation, ...FB.justify.end}}>
+            {admin}
             <RaisedButton
-              icon={<HomeIcon style={iconStyles} />}
               style={{..._styles.button}}
               label={"Home"}
               onClick={this.navigate.bind(this, "main")}
               primary={true}
               zIndex={5}  />
-            {admin}
+            {/*<RaisedButton
+              style={{..._styles.button}}
+              label={"Context"}
+              onClick={this.navigate.bind(this, "context")}
+              primary={true}
+              zIndex={5}  />*/}
             <RaisedButton
               style={{..._styles.button}}
+              icon={<TeamIcon style={iconStyles} />}
               label={"Profile"}
               onClick={this.navigate.bind(this, "profile")}
               primary={true}

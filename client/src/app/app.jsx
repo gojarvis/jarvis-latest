@@ -5,7 +5,7 @@
   let injectTapEventPlugin = require('react-tap-event-plugin');
   let { Router, Route, Link, hashHistory } = require('react-router');
   // let Main = require('./components/main.jsx'); // Our custom react component
-  let AtomView = require('./components/atom-view.jsx');
+  // let AtomView = require('./components/atom-view.jsx');
   let MainView = require('views/main-view.jsx');
   let Admin = require('./views/admin-view.jsx');
   let Login = require('./views/login-view.jsx');

@@ -25,21 +25,23 @@ class EventTickerList extends Component {
   _renderItems() {
     let items;
     if (this.props.items.size > 0) {
-      items = this.props.items.take(7).map((item, index) => {
-        let color = "rgba(80, 195, 210, 0.67)" ;
-
-        if (index === 0) {
-          color = "green"
-        } else {
-          let opacity = (100 - index * 9.90) / 100;
-          color = "rgba(80, 195, 210, " + opacity + ")" ;
+      let max = 0;
+      this.props.items.forEach((item) => {
+        let i = item.toJS();
+        if (max < i.count) {
+          max = i.count;
         }
+      });
 
+      items = this.props.items.take(8).map((item, index) => {
+        let i = item.toJS();
+        let weight = (i.count / max) * 100;
         return (
           <ContextViewerItem
             key={index}
             item={item}
             index={index}
+            weight={weight}
             onClick={this._itemOnClick.bind(this)} />
         )
       });
@@ -56,11 +58,15 @@ class EventTickerList extends Component {
 
   render() {
     return (
-      <div style={styles.eventTickerList} className='eventTickerList'>
-        <FlipMove enterAnimation="accordianHorizontal" leaveAnimation="accordianHorizontal" style={{...FB.base, flexDirection: 'row'}}>
-          {this._renderItems()}
-        </FlipMove>
+      <div style={{'background': 'rgb(40, 44, 52)'}}>
+        <div style={{'background': 'rgb(40, 44, 52)', 'color': 'white', 'padding': '10' }}>Activity heatmap</div>
+        <div style={styles.eventTickerList} className='eventTickerList'>
+          <FlipMove enterAnimation="accordianHorizontal" leaveAnimation="accordianHorizontal" style={{...FB.base, flexDirection: 'row'}}>
+            {this._renderItems()}
+          </FlipMove>
+        </div>
       </div>
+
     );
   }
 }
