@@ -90,12 +90,14 @@ class contextManager{
 
 
 
-      globalWeightFactors = await this.getGlobalWeightFactors();
+      globalWeightFactors = await this.getUserGlobalWeightFactors();
 
       this.io.emit('context-analysis-update', {
         temporalContext: contextBucktededByHour,
-        modifiers: globalWeightFactors[0]
+        modifiers: globalWeightFactors
       })
+
+      this.updateModifiers(globalWeightFactors[0]);
     } catch (e) {
       console.log('cant getAndEmitContextUpdates', e);
     } finally {
@@ -104,37 +106,17 @@ class contextManager{
 
   }
 
-  async getGlobalWeightFactors(){
+  async getUserGlobalWeightFactors(){
     let user = this.user;
-    let cypher = `
-        match (startUserNode:User)-[startUserRel_relationship:touched]->(startNode:Url)-[endUserRel_relationship:openwith]->(endNode:Url)
-        match (startNode)-[globalOpen:openwith]->(endNode)
-        where
-        ID(startUserNode)=${user.id}
-        with {
-        	avgTouch: avg(startUserRel_relationship.weight) ,
-        	maxTouch: max(startUserRel_relationship.weight),
-        	stdevTouch: stdev(startUserRel_relationship.weight),
-
-        	avgOpen: avg(endUserRel_relationship.weight),
-        	maxOpen: max(endUserRel_relationship.weight),
-        	stdevOpen: stdev(endUserRel_relationship.weight),
-
-        	avgGlobalOpen: avg(globalOpen.weight),
-        	maxGlobalOpen: max(globalOpen.weight),
-        	stdevGlobalOpen: stdev(globalOpen.weight)
-        } as data
-        return data`;
-    let globalWeightFactors;
-
-    try {
-      globalWeightFactors = await graphUtil.queryGraph(cypher);
-    } catch (e) {
-      console.log('cant getGlobalTouchWeightFactor', e);
-    } finally {
-      return globalWeightFactors
-    }
+    let weights = await graphUtil.getUserGlobalWeightFactors(user);
+    return weights;
   }
+
+  async updateModifiers(modifiers){
+    this.modifiers = modifiers;
+  }
+
+
 
   async getContextNodesBucketedByHour(){
     let nodeIdsByHours = await this.getContextNodeIdsBucktedByHour();
@@ -439,8 +421,11 @@ class contextManager{
         }
 
         if (files.length > 0 && urls.length > 0){
-          let fileRelationshipsQueries = await Promise.all(files.map(file => graphUtil.getRelateOneToManyQueries(file, urls, 'openwith')));
-          queries = queries.concat(fileRelationshipsQueries);
+          let filesToUrlsRelationshipsQueries = await Promise.all(files.map(file => graphUtil.getRelateOneToManyQueries(file, urls, 'openwith')));
+          queries = queries.concat(filesToUrlsRelationshipsQueries);
+
+          let urlsToFilesRelationshipsQueries = await Promise.all(urls.map(url => graphUtil.getRelateOneToManyQueries(url, files, 'openwith')));
+          queries = queries.concat(urlsToFilesRelationshipsQueries);
         }
 
         if (commands.length > 0 && files.length > 0){

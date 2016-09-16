@@ -1,6 +1,9 @@
 import _ from 'lodash'
 let projectSettingsManager = require('../utils/settings-manager');
 let graphCredentials = projectSettingsManager.getRepoCredentials();
+let GraphUtil = require('../utils/graph.js');
+let graphUtil = new GraphUtil();
+
 
 let graph = require("seraph")({
   user: graphCredentials.username,
@@ -46,6 +49,8 @@ let graphController = {
 
   query: async function(req, res){
     let nodeId = req.body.nodeId;
+    let user = req.session.passport.user;
+
     let relationshipType = req.body.relationshipType || false;
     let startNodeType = req.body.startNodeType || false;
     let endNodeType = req.body.endNodeType || false;
@@ -58,6 +63,10 @@ let graphController = {
     let normalizedSumCypher;
     let normalizedWeight;
 
+    let globalModifiers = await graphUtil.getUserGlobalWeightFactors(user);
+
+    console.log('Modifiers', globalModifiers);
+
     let cypher;
 
     if (startUserNodeId && (!endUserNodeIds || endUserNodeIds.length === 0)){
@@ -67,9 +76,10 @@ let graphController = {
       cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`
       normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
       // console.log('normalizedSumCypher---', normalizedSumCypher);
-      normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
-      // console.log('normalizedWeight',normalizedWeight);
-      cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, collect(distinct endNode)[0] as endNode order by relationshipWeight desc limit 15`
+      // normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
+      normalizedWeight = globalModifiers.avgOpen;
+      // normalizedWeight = 1;
+      cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, endNode order by relationshipWeight desc limit 15`
     }
 
     if (startUserNodeId && endUserNodeIds && endUserNodeIds.length > 0){
@@ -82,6 +92,7 @@ let graphController = {
       normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
 
       normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
+      // normalizedWeight = globalModifiers.avgGlobalOpen
 
       cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, collect(distinct endNode)[0] as endNode order by relationshipWeight desc limit 15`
     }
@@ -92,6 +103,7 @@ let graphController = {
       cypher += ` and NOT ID(endNode) = ${nodeId}`
       normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
       normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
+      // normalizedWeight = globalModifiers.avgGlobalOpen
       cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, collect(distinct endNode)[0] as endNode order by relationshipWeight desc limit 15`
     }
 
@@ -105,6 +117,7 @@ let graphController = {
         normalizedSumCypher = cypher + ` return avg(o.weight) as normalizedSumWeight`;
         // console.log('normalizedSumCypher---', normalizedSumCypher);
         normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
+        // normalizedWeight = globalModifiers.avgGlobalOpen
         // console.log('normalizedWeight',normalizedWeight);
         cypher += ` return startNode,type(r) as relationshipType, (o.weight / ${normalizedWeight}) as relationshipWeight, collect(distinct endNode)[0] as endNode, r order by r.weight desc limit 15`
       }
@@ -118,7 +131,8 @@ let graphController = {
       //
       //   normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
       //
-      //   normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
+        // normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
+          normalizedWeight = globalModifiers.avgGlobalOpen
       //
       //   cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, collect(distinct endNode)[0] as endNode order by relationshipWeight desc limit 15`
       // }
@@ -128,7 +142,8 @@ let graphController = {
       //   cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`
       //   cypher += ` and NOT ID(endNode) = ${nodeId}`
       //   normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
-      //   normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
+        // normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
+          normalizedWeight = globalModifiers.avgGlobalOpen
       //   cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, collect(distinct endNode)[0] as endNode order by relationshipWeight desc limit 15`
       // }
 
@@ -141,6 +156,7 @@ let graphController = {
       if (!startUserNodeId && !endUserNodeIds){
         normalizedSumCypher = `start startNode=node(${nodeId}) match (${startNodeString})-[${relationshipCypherVariableString}]->(${endNodeString}) return log(sum(relationship.weight)) as normalizedSumWeight`;
         normalizedWeight = await getNormalizedWeight(normalizedSumCypher);
+        // normalizedWeight = globalModifiers.avgGlobalOpen
 
 
         cypher = `

@@ -27,7 +27,7 @@ let teamsController = require('./controllers/teams');
 let settingsController = require('./controllers/settings');
 let sessionData = {};
 
-let isDev = !_.isUndefined(process.env.JARVIS_DEV);
+let isDev = (process.env.JARVIS_DEV === 'true') || false;
 
 let initialized = false;
 
@@ -201,7 +201,7 @@ app.post('/health', function(req, res) {
   });
 });
 
-app.post('/query', graphController.query);
+app.post('/query', isLoggedIn, graphController.query);
 
 app.post('/blacklist', graphController.blacklistNode);
 
@@ -442,7 +442,7 @@ app.post('/logout', function(req, res) {
 });
 
 if (isDev) {
-  console.log('DEVELOPMENT MODE', !_.isUndefined(process.env.JARVIS_DEV));
+  console.log('DEVELOPMENT MODE', process.env.JARVIS_DEV);
   app.use('/', proxy({
     target: 'http://localhost:8888',
     changeOrigin: true

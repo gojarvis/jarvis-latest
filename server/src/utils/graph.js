@@ -171,6 +171,36 @@ class GraphUtil{
     }
   }
 
+  async getUserGlobalWeightFactors(user){
+    let cypher = `
+        match (startUserNode:User)-[startUserRel_relationship:touched]->(startNode:Url)-[endUserRel_relationship:openwith]->(endNode:Url)
+        match (startUserNode)-[:touched]->(endNode)
+        where
+        ID(startUserNode)=${user.id}
+        and not ID(startNode) = ID(endNode)
+        and endUserRel_relationship.weight > 0
+        with {
+        	avgTouch: avg(startUserRel_relationship.weight) ,
+        	maxTouch: max(startUserRel_relationship.weight),
+        	stdevTouch: stdev(startUserRel_relationship.weight),
+
+        	avgOpen: avg(endUserRel_relationship.weight),
+        	maxOpen: max(endUserRel_relationship.weight),
+        	stdevOpen: stdev(endUserRel_relationship.weight)
+
+        } as data
+        return data`;
+    let globalWeightFactors;
+
+    try {
+      globalWeightFactors = await this.queryGraph(cypher);
+    } catch (e) {
+      console.log('cant getGlobalTouchWeightFactor', e);
+    } finally {
+      return globalWeightFactors[0]
+    }
+  }
+
   async executeQueries(queries){
     let txn, results;
     try {
