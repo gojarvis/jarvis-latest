@@ -32,7 +32,7 @@ class QueriedItem extends React.Component {
   render() {
     let {item} = this.props;
     let weight = item.relationshipWeight > 1 ? 100 : parseInt(item.relationshipWeight * 100);
-    let color = "hsla(" + weight +", 100%, 50%, 1)";
+
 
     let title;
     let {endNode} = item;
@@ -41,7 +41,7 @@ class QueriedItem extends React.Component {
         let addr = endNode.address.split('/');
         title = '../' + addr.slice(Math.max(addr.length - 3, 1)).join('/');
         break;
-      case 'url':        
+      case 'url':
         title = endNode.title;
         if (title.length === 0){
           title = endNode.address.split('/').filter((item) => item !== "").slice(-1).pop().slice(0, 20);
@@ -110,6 +110,31 @@ class QueriedItem extends React.Component {
     }
     let weightBar = item.relationshipWeight * 10 * 20;
     let weightBarString = weightBar + "vw"
+    let weightValue, maxValue, engagementLabel, opacity, raw;
+
+    if (item.relationshipWeight / item.avgOpen > 1){
+      raw = item.relationshipWeight.toFixed(3);
+      maxValue = item.maxOpen.toFixed(3);
+      weightValue = (item.relationshipWeight / maxValue * 100).toFixed(3);
+      engagementLabel = 'high';
+    }
+    else{
+      if (item.relationshipWeight > 0){
+        maxValue = item.avgOpen.toFixed(3);
+        raw = item.relationshipWeight.toFixed(3);
+        weightValue = (Math.log10(item.relationshipWeight / maxValue * 100) * 10).toFixed(3);
+        engagementLabel = 'low';
+      }
+      else{
+        weightValue = 0;
+        maxValue = item.avgOpen.toFixed(3);
+        engagementLabel = 'none';
+      }
+    }
+
+
+
+    let color = "hsla(" + weightValue +", 70%, 60%, 0.8)";
 
     return (
       <div
@@ -121,7 +146,11 @@ class QueriedItem extends React.Component {
             <div style={{...FB.base, flexWrap: "nowrap", ...FB.align.center}}>
               <div style={{flexGrow: "4", marginRight: "40px", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", width: "10px" }}>{title}</div>
               <div style={{width: '10vw', marginRight: "2vw"}}>
-                <LinearProgress mode="determinate" value={item.relationshipWeight  * 10} />
+                <LinearProgress mode="determinate" value={weightValue}/>
+
+                <div style={{'fontSize': 10, 'marginTop': 7}}>
+                  {engagementLabel} {weightValue} {maxValue} {raw}
+                </div>
               </div>
               <IconText icon='trash' onClick={(e) => this._blacklistNode(nodeId, e)} />
             </div>

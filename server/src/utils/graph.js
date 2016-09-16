@@ -173,7 +173,7 @@ class GraphUtil{
 
   async getUserGlobalWeightFactors(user){
     let cypher = `
-        match (startUserNode:User)-[startUserRel_relationship:touched]->(startNode:Url)-[endUserRel_relationship:openwith]->(endNode:Url)
+        match (startUserNode:User)-[startUserRel_relationship:touched]->(startNode)-[endUserRel_relationship:openwith]->(endNode)
         match (startUserNode)-[:touched]->(endNode)
         where
         ID(startUserNode)=${user.id}

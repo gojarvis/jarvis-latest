@@ -64,6 +64,7 @@ let graphController = {
     let normalizedWeight;
 
     let globalModifiers = await graphUtil.getUserGlobalWeightFactors(user);
+    console.log('Modifiers', globalModifiers);
     if (endUserNodeIds.length > 0 ){
       endUserNodeIds = endUserNodeIds.filter(userId => user.id != userId);
     }
@@ -81,26 +82,37 @@ let graphController = {
       normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
       // console.log('normalizedSumCypher---', normalizedSumCypher);
       // normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
-      normalizedWeight = globalModifiers.avgOpen;
-      // normalizedWeight = 1;
-      cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, endNode order by relationshipWeight desc limit 15`
+      // normalizedWeight = globalModifiers.avgOpen;
+      normalizedWeight = 1;
+      cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight) as relationshipWeight, endNode, `
+      cypher += ` sum(${globalModifiers.avgOpen}) as avgOpen, `
+      cypher += ` sum(${globalModifiers.avgTouch}) as avgTouch, `
+      cypher += ` sum(${globalModifiers.maxOpen}) as maxOpen, `
+      cypher += ` sum(${globalModifiers.maxTouch}) as maxTouch `
+      cypher += ` order by relationshipWeight desc limit 15`
     }
 
     if (startUserNodeId && endUserNodeIds && endUserNodeIds.length > 0){
-      cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]->(${startNodeString})-[${'startUserRel_' + relationshipCypherVariableString}]->(${endNodeString})<-[${'endUserRel_' + relationshipCypherVariableString}]-(endUserNode:User) `
-      // cypher += ` match (startUserNode)-[:touched]-(endNode)`
+      cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]->(${startNodeString}) `
+      cypher += ` match (endUserNode:User)-[:touched]->(startNode)-[${'endUserRel_' + relationshipCypherVariableString}]->(${endNodeString})`
+      cypher += ` match (endUserNode)-[:touched]-(endNode)`
       cypher += ` where ID(startNode) = ${nodeId}`
-      // cypher += ` and ID(startUserNode) = ${startUserNodeId}`
-      cypher += ` and ID(startUserNode) in [${endUserNodeIds.join(',')}]`
+      cypher += ` and ID(startUserNode) = ${startUserNodeId}`
+      cypher += ` and ID(endUserNode) in [${endUserNodeIds.join(',')}]`
       cypher += ` and NOT ID(endNode) = ${nodeId}`
       cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`
 
-      normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
+      normalizedWeight = 1;
 
-      normalizedWeight = globalModifiers.avgOpen;
-      // normalizedWeight = globalModifiers.avgGlobalOpen
-
-      cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, endNode order by relationshipWeight desc limit 15`
+      cypher += ` return startNode,`
+      cypher += ` type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType,`
+      cypher += ` (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight,`
+      cypher += ` endNode,`
+      cypher += ` sum(${globalModifiers.avgOpen}) as avgOpen, `
+      cypher += ` sum(${globalModifiers.avgTouch}) as avgTouch, `
+      cypher += ` sum(${globalModifiers.maxOpen}) as maxOpen, `
+      cypher += ` sum(${globalModifiers.maxTouch}) as maxTouch `
+      cypher += ` order by relationshipWeight desc limit 15`
     }
     if (!startUserNodeId && endUserNodeIds && endUserNodeIds.length > 0){
       cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]->(${startNodeString})-[${'startUserRel_' + relationshipCypherVariableString}]->(${endNodeString})->[${'endUserRel_' + relationshipCypherVariableString}]-(endUserNode:User)`
@@ -112,7 +124,12 @@ let graphController = {
       normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
       normalizedWeight = globalModifiers.avgOpen;
       // normalizedWeight = globalModifiers.avgGlobalOpen
-      cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, endNode order by relationshipWeight desc limit 15`
+      cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, endNode,`
+      cypher += ` sum(${globalModifiers.avgOpen}) as avgOpen, `
+      cypher += ` sum(${globalModifiers.avgTouch}) as avgTouch, `
+      cypher += ` sum(${globalModifiers.maxOpen}) as maxOpen, `
+      cypher += ` sum(${globalModifiers.maxTouch}) as maxTouch `
+      cypher += ` order by relationshipWeight desc limit 15`
     }
 
     if (endNodeType === "Keyword"){
@@ -128,7 +145,12 @@ let graphController = {
         normalizedWeight = globalModifiers.avgOpen;
         // normalizedWeight = globalModifiers.avgGlobalOpen
         // console.log('normalizedWeight',normalizedWeight);
-        cypher += ` return startNode,type(r) as relationshipType, (o.weight / ${normalizedWeight}) as relationshipWeight, endNode, r order by r.weight desc limit 15`
+        cypher += ` return startNode,type(r) as relationshipType, (o.weight / ${normalizedWeight}) as relationshipWeight, endNode,`
+        cypher += ` sum(${globalModifiers.avgOpen}) as avgOpen, `
+        cypher += ` sum(${globalModifiers.avgTouch}) as avgTouch, `
+        cypher += ` sum(${globalModifiers.maxOpen}) as maxOpen, `
+        cypher += ` sum(${globalModifiers.maxTouch}) as maxTouch `
+        cypher += ` order by relationshipWeight desc limit 15`
       }
 
     }
@@ -156,6 +178,9 @@ let graphController = {
         console.log(`  `);
         console.log(`====== END QUERY =====`);
         console.log(`Found ${result.length} results for the query`);
+        result.globalModifiers = globalModifiers;
+
+
         res.json(result);
       }
       catch(error){
