@@ -21,13 +21,18 @@ let projectSettingsManager = require('./utils/settings-manager');
 let rethinkConfig = config.get('rethink');
 let GraphUtil = require('./utils/graph');
 let graphUtil = new GraphUtil();
-let staticClientPath = path.join(__dirname, '../client/build/');
 let usersController = require('./controllers/users');
 let teamsController = require('./controllers/teams');
 let settingsController = require('./controllers/settings');
 let sessionData = {};
 
 let isDev = (process.env.JARVIS_DEV === 'true') || false;
+let staticClientPath;
+if (isDev) {
+  staticClientPath = path.join(__dirname, '../client/build/');
+} else {
+  staticClientPath = 'client';
+}
 
 let initialized = false;
 
@@ -153,11 +158,6 @@ app.get('/auth/github/callback',
 app.post('/api/user/userjson', isLoggedIn, function(req, res) {
   res.send(req.user);
 });
-
-app.use('/teams', proxy({
-  target: 'http://localhost:8888/teams',
-  changeOrigin: true
-}));
 
 app.get('/user', function(req, res) {
   if (req.user === undefined) {
@@ -442,7 +442,7 @@ app.post('/logout', function(req, res) {
 });
 
 if (isDev) {
-  console.log('DEVELOPMENT MODE', process.env.JARVIS_DEV);
+  console.log('DEVELOPMENT MODE', isDev);
   app.use('/', proxy({
     target: 'http://localhost:8888',
     changeOrigin: true

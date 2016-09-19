@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Installing Jarvis...</title>
+    <style media="screen">
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Installing...</h1>
+        <div id="message"></div>
+    </div>
+</body>
+
+<script>
+    var countdown = 30;
+    function pollServer() {
+        console.log('POLLING');
+        setTimeout(() => {
+            document.getElementById("message").innerHTML = "Starting... " + countdown + " seconds remaining";
+
+            fetch('http://localhost:3000/health', {
+                method: 'POST'
+            }).then(function(response) {
+                return response.json()
+            }).then(function(body) {
+                console.log('result', body);
+                window.location.href = 'http://localhost:3000'
+            }).catch(function(err) {
+                countdown--;
+                document.getElementById("message").innerHTML = "Starting... " + countdown + " seconds remaining";
+                pollServer();
+            });
+        }, 1000)
+    }
+
+    pollServer();
+</script>
+
+</html>

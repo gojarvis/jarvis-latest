@@ -13,10 +13,10 @@ fs.readdirSync('node_modules')
   });
 
 module.exports = {
-  entry: ['babel-polyfill', './src/main.js'],
+  entry: ['./index.js'],
   output: {
     path: 'build',
-    filename: 'build.js'
+    filename: 'index.js'
   },
   target: 'node',
   plugins: [

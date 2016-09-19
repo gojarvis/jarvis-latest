@@ -12,9 +12,11 @@
     "build:apps": "npm run build:apps:client && npm run build:apps:server",
     "build:apps:client": "cd client && npm run build",
     "build:apps:server": "cd server && npm run build",
-    "build:join": "cp -r server/build ./app/src && cp -r client/build ./app/src/build",
+    "build:clean": "rm -rf app/src",
+    "build:join": "cp resources/* ./app/src/ && cp server/build/* ./app/src/ && cp -r server/config ./app/src/config && cp -r client/build/* ./app/src/client",
     "build:mac": "nwbuild -p \"osx64\" -o ./build-nwjs ./server",
-    "build:windows": "nwbuild -p \"win64\" -o \".\\build-nwjs\" .\\server\\tmp\\"
+    "build:windows": "nwbuild -p \"win64\" -o \".\\build-nwjs\" .\\app\\src",
+    "build:move": "cp -r ./app/src/* E:/code/build"
   },
   "repository": {
     "type": "git",
