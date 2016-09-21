@@ -1,14 +1,17 @@
 {
   "name": "atom-jarvis",
   "main": "./lib/atom-jarvis",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Jarvis Atom Plugin",
   "keywords": [],
   "activationCommands": {
     "atom-workspace": "atom-sherpa:toggle"
   },
-  "activationHooks": ["language-javascript:grammar-used", "language-coffee-script:grammar-used"],
-  "repository": "https://github.com/atom/atom-jarvis",
+  "activationHooks": [
+    "language-javascript:grammar-used",
+    "language-coffee-script:grammar-used"
+  ],
+  "repository": "https://github.com/gojarvis/atom-jarvis.git",
   "license": "MIT",
   "engines": {
     "atom": ">=1.0.0 <2.0.0"
