@@ -1,11 +1,11 @@
 {
   "name": "atom-jarvis",
   "main": "./lib/atom-jarvis",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Jarvis Atom Plugin",
   "keywords": [],
   "activationCommands": {
-    "atom-workspace": "atom-sherpa:toggle"
+    "atom-workspace": "atom-jarvis:toggle"
   },
   "activationHooks": [
     "language-javascript:grammar-used",

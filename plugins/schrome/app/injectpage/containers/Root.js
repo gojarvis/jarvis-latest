@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { Provider } from 'react-redux';
-import InjectApp from './InjectApp';
+
 
 export default class Root extends Component {
 
@@ -13,7 +13,7 @@ export default class Root extends Component {
     return (
       <Provider store={store}>
         <div>
-          <InjectApp />
+          
           {
             (() => {
               if (process.env.DEVTOOLS) {
