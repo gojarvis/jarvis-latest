@@ -1,9 +1,6 @@
-//TODO: All graph methods should live in one place. Currently unused.
-let Redis = require('ioredis');
-let config = require('config');
-let redis = new Redis();
-let pipeline = redis.pipeline();
+let colors = require('colors');
 let _ = require('lodash');
+
 
 let projectSettingsManager = require('./settings-manager');
 
@@ -44,6 +41,7 @@ class GraphUtil{
   }
 
   queryGraph(cypher, params={}){
+    // console.log('Query:    '.green, cypher);
     return new Promise(function(resolve, reject) {
       graph.query(cypher, params, function(err, result){
 
@@ -80,6 +78,21 @@ class GraphUtil{
     });
   }
 
+  getNodeByAddress(address){
+    return new Promise(function(resolve, reject) {
+      graph.find({address: address}, function(err, nodes){
+        console.log('NODES FOUND', address);
+        if (err)  {
+          console.log(err);
+          reject(err);
+        }
+        else {
+          resolve(nodes[0])
+        }
+      })
+    });
+  }
+
   getUserNodeByUsername(username){
     return new Promise(function(resolve, reject) {
       graph.find({username: username}, function(err, userNodes){
@@ -108,10 +121,6 @@ class GraphUtil{
     }
   }
 
-  async getRelevantNodes(){
-    let relevantUrls = await this.getRelevantUrls()
-    return
-  }
 
   //TODO
   async getWhitelistExpressions(username){
@@ -132,21 +141,81 @@ class GraphUtil{
   }
 
   async relateOneToMany(origin, others, relationship){
-    let relationships = [];let txn; let results = [];
+    let relationships = []; let txn; let results = [];
+    try {
+      // console.log('relateOneToMany', relationship);
+      let relationshipQueries = others.map(target => this.getRelateNodeQuery(origin, target, relationship));
+      let results = await this.executeQueries(relationshipQueries);
+    } catch (e) {
+      console.log('failed relating one to many', e);
+    } finally {
+      return results;
+    }
+  }
+
+  async getRelateOneToManyQueries(origin, others, relationship){
+    return  others.map(target => this.getRelateNodeQuery(origin, target, relationship));
+  }
+
+
+  async relateManyToOne(many, origin, relationship){
+    let relationships = []; let txn; let results = [];
+    try {
+      // console.log('relateManyToOne', relationship);
+      let relationshipQueries = many.map(target => this.getRelateNodeQuery(target, origin, relationship));
+      let results = await this.executeQueries(relationshipQueries);
+    } catch (e) {
+      console.log('failed relating many to one', e);
+    } finally {
+      return results;
+    }
+  }
+
+  async getUserGlobalWeightFactors(user){
+    let cypher = `
+        match (startUserNode:User)-[startUserRel_relationship:touched]->(startNode)-[endUserRel_relationship:openwith]->(endNode)
+        match (startUserNode)-[:touched]->(endNode)
+        where
+        ID(startUserNode)=${user.id}
+        and not ID(startNode) = ID(endNode)
+        and endUserRel_relationship.weight > 0
+        with {
+        	avgTouch: avg(startUserRel_relationship.weight) ,
+        	maxTouch: max(startUserRel_relationship.weight),
+        	stdevTouch: stdev(startUserRel_relationship.weight),
+
+        	avgOpen: avg(endUserRel_relationship.weight),
+        	maxOpen: max(endUserRel_relationship.weight),
+        	stdevOpen: stdev(endUserRel_relationship.weight)
+
+        } as data
+        return data`;
+    let globalWeightFactors;
+
+    try {
+      globalWeightFactors = await this.queryGraph(cypher);
+    } catch (e) {
+      console.log('cant getGlobalTouchWeightFactor', e);
+    } finally {
+      return globalWeightFactors[0]
+    }
+  }
+
+  async executeQueries(queries){
+    let txn, results;
     try {
       txn = graph.batch();
-      let relationshipQueries = others.map(target => this.getRelateNodeQuery(origin, target, relationship));
-      relationshipQueries.forEach(cypher => {
-        txn.query(cypher, {}, (err, result) => {
-          if (err){
-            console.log('err adding to txn', err);
+      queries.forEach(cypher => {
+        txn.query(cypher, {}, (err, result) =>{
+          if(err){
+            console.log('err adding to txn', err.code, cypher);
           }
         })
       })
-      results = this.commitBatch(txn);
 
+      results = await this.commitBatch(txn);
     } catch (e) {
-      console.log('failed', e);
+      console.log('failed executing queries ', e);
     } finally {
       return results;
     }
@@ -171,13 +240,17 @@ class GraphUtil{
   }
 
   getRelateNodeQuery(origin, target, relationship){
-    let cypher = `START a=node(${origin.id}), b=node(${target.id}) MERGE (a)-[r:${relationship}]->(b) SET r.weight = coalesce(r.weight, 0) + 1`;
+    if (target.id == origin.id){
+      //TODO: Stop gap to avoid inserting open relationships that are between the item and itself.
+      return `match (n) where ID(n)=${target.id} return n limit 1`
+    }
+    let cypher = `START a=node(${origin.id}), b=node(${target.id}) MERGE (a)-[r:${relationship}]->(b) SET r.weight = coalesce(r.weight, 0) + 0.01`;
     return cypher
   }
 
   async deleteRelationship(origin, target, relationship){
     let cypher = `MATCH (a)-[r:${relationship}]->(b) where ID(a)=${origin.id} and ID(b)=${target.id} DELETE r`;
-    console.log(cypher);
+
     let res = {};
 
     try{
@@ -196,7 +269,7 @@ class GraphUtil{
     // console.log('TARGET', target, target.id);
     let cypher = 'START a=node({origin}), b=node({target}) '
                 +'MERGE (a)-[r:'+relationship+']->(b) '
-                +'SET r.weight = coalesce(r.weight, 0) + 1';
+                +'SET r.weight = coalesce(r.weight, 0) + 0.01';
     let params = {origin: origin.id, target: target.id, relationship: relationship};
 
     let res = {};
@@ -444,6 +517,64 @@ class GraphUtil{
 
       });
 
+    });
+  }
+
+
+  async updateNodeAndRelationships(urlNode, keywordNodes, keywords) {
+    let keywordTextToRelevanceHash = {};
+
+    keywords.forEach(keyword => {
+       keywordTextToRelevanceHash[keyword.text] = keyword.relevance;
+    })
+
+    let txn = graph.batch();
+
+    keywordNodes.forEach(kwObj => {
+      let cypher = `
+        START a=node(${kwObj.id}), b=node(${urlNode.id})
+        MERGE (a)-[r:related]->(b)
+        SET r.weight = coalesce(r.weight, 0) + ${keywordTextToRelevanceHash[kwObj.text]}`;
+
+      txn.query(cypher, {}, (err, result) => {
+        if (err) {
+          console.log('failed updateNodeAndRelationships', err);
+        }
+        else{
+          return result;
+        }
+      });
+    });
+
+
+
+    let res = {};
+    try {
+      res = await this.executCommitedQueries(txn);
+      return res;
+    } catch (e) {
+      console.log('CANT CREATE RELS');
+      throw e;
+    } finally {
+      return res;
+    }
+  }
+
+  executCommitedQueries(txn) {
+    return new Promise(function (resolve, reject) {
+      try {
+        txn.commit((err, results) => {
+          if (err) {
+            reject(err);
+          }
+
+          resolve(results);
+        });
+      } catch (e) {
+        reject(e);
+      } finally {
+
+      }
     });
   }
 

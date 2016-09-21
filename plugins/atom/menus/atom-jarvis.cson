@@ -2,19 +2,19 @@
 'context-menu':
   'atom-text-editor': [
     {
-      'label': 'Toggle atom-sherpa'
-      'command': 'atom-sherpa:toggle'
+      'label': 'Toggle atom-jarvis'
+      'command': 'atom-jarvis:toggle'
     }
   ]
 'menu': [
   {
     'label': 'Packages'
     'submenu': [
-      'label': 'atom-sherpa'
+      'label': 'Jarvis'
       'submenu': [
         {
           'label': 'Toggle'
-          'command': 'atom-sherpa:toggle'
+          'command': 'atom-jarvis:toggle'
         }
       ]
     ]

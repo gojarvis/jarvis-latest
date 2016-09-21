@@ -12,7 +12,7 @@ const store = createStore(
 );
 
 let unsubLog = store.subscribe(() => {
-  console.info('Store: ', store.getState());
+  // console.info('Store: ', store.getState());
 });
 
 export default store;

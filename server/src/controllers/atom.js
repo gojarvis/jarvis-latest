@@ -1,15 +1,11 @@
 let _ = require('lodash');
-let config = require('config');
+
 
 // let ProjectSettingsManager = require('../utils/settings-manager');
 let projectSettingsManager = require('../utils/settings-manager');
 
 let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
-
-//TODO: Projects path
-let userConfig = config.get('user');
-let projectsPath = userConfig.projectsPath;
 
 class AtomController {
     constructor(socket, io, context, history) {
@@ -80,7 +76,8 @@ class AtomController {
     async handleFileHighlighted(address) {
         let fileNode = await this.insertUniqueFile(address)
         let otherNodes = this.tabs.filter(tab => tab.id !== fileNode.id);
-        let rel = await this.relateOneToMany(fileNode, otherNodes, 'openwith');
+        //Killed this because things are being realted in the context controller
+        // let rel = await this.relateOneToMany(fileNode, otherNodes, 'openwith');
 
         this.context.addFileNode(fileNode);
         this.history.saveEvent({

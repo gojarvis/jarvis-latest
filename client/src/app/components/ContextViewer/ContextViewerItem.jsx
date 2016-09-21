@@ -10,7 +10,7 @@ import FlatButton from 'material-ui/FlatButton';
 import Toggle from 'material-ui/Toggle';
 import moment from 'moment';
 
-class EventTickerItem extends React.Component {
+class ContextViewerItem extends React.Component {
   constructor(...args) {
     super(...args);
     this.state = {
@@ -52,20 +52,6 @@ class EventTickerItem extends React.Component {
 
     let item = this.props.item;
     let iconClass, iconColor;
-    switch(item.source) {
-      case 'atom':
-        iconClass = 'file';
-        iconColor = '#FF3F81';
-        break;
-      case 'chrome':
-        iconClass = 'bookmark';
-        iconColor = '#00BBD5';
-        break;
-      case 'terminal':
-        iconClass = 'desktop';
-        iconColor = '#2dd500';
-        break;
-    }
 
 
     if (imm.Map.isMap(this.props.item)){
@@ -74,31 +60,69 @@ class EventTickerItem extends React.Component {
     else{
       item = this.props.item;
     }
-    let title =   item.data.title ?
+
+    let weight = this.props.weight;
+    let color = `hsla(${weight}, 100%, 50%, ${weight/100})`;
+    console.log(color);
+
+    switch(item.data.type) {
+      case 'file':
+        iconClass = 'file';
+        iconColor = `rgba(255, 63, 129, ${weight/100})`;
+        break;
+      case 'url':
+        iconClass = 'bookmark';
+        iconColor = `rgba(0, 187, 213, ${weight/100})`;
+        break;
+      case 'command':
+        iconClass = 'desktop';
+        iconColor = '#2dd500';
+        break;
+    }
+
+
+    let title = item.data.title ?
         item.data.title.split('/').filter(char => char !== '').slice(-1).pop() :
         item.data.address ?
           item.data.address.split('/').filter(char => char !== '').slice(-1).pop() :
           item.source;
 
+    let descriptionText;
+    switch(item.count){
+      case 0:
+        descriptionText = ``;
+      break;
+      case 1:
+        descriptionText = `Item accessed once`;
+      break;
+      case 2:
+        descriptionText = `Item accessed twice`;
+      break;
+      default:
+      descriptionText = `Item accessed ${item.count} times`;
+      break;
+    }
 
 
     let momentText = moment(item.timestamp).fromNow();
 
     return (
       <div
-        className='eventTickerItem'
+        className='contextViewerItem'
         title={JSON.stringify(item, null, 1)}
-        style={STYLES.container}
+        style={{...STYLES.container, 'borderLeft': "15px solid " + color, backgroundColor: `rgba(255, 255, 255, ${weight/100})`}}
         onClick={() => this.props.onClick(this.props.item.data.nodeId)}>
         <div style={STYLES.row}>
           <IconText icon={iconClass} style={{marginRight: 10}} iconColor={iconColor} />
           <span style={STYLES.title}>{title.slice(0,35)}{title.length > 35 ? '...' : ''}</span>
         </div>
-        <div style={STYLES.subtitle}>{momentText}</div>
+        <div style={STYLES.subtitle}>{descriptionText}</div>
       </div>
     );
   }
 }
+
+
 
 const STYLES = {
   container: {
@@ -109,7 +133,6 @@ const STYLES = {
     cursor: 'pointer',
     margin: "10px 0 10px 10px",
     flexShrink: 0,
-    backgroundColor: '#fff',
     padding: 10,
     color: '#000',
     flexDirection: 'column',
@@ -119,7 +142,8 @@ const STYLES = {
     ...FB.base,
     ...FB.justify.center,
     ...FB.align.center,
-    alignSelf: 'flex-start'
+    alignSelf: 'flex-start',
+
   },
   title: {
     fontSize: 18
@@ -129,4 +153,4 @@ const STYLES = {
   },
 }
 
-export default EventTickerItem;
+export default ContextViewerItem;

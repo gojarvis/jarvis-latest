@@ -11,23 +11,25 @@ let rethink = require('rethinkdb');
 
 let graphController = require('./controllers/graph')
 let childProc = require('child_process');
-let config = require('config');
 let passport = require('passport');
 let _ = require('lodash');
 
 let path = require("path");
 
 let projectSettingsManager = require('./utils/settings-manager');
-let rethinkConfig = config.get('rethink');
 let GraphUtil = require('./utils/graph');
 let graphUtil = new GraphUtil();
-let staticClientPath = path.join(__dirname, '../../client/build/');
+let staticClientPath = path.join(__dirname, '../client/build/');
 let usersController = require('./controllers/users');
 let teamsController = require('./controllers/teams');
 let settingsController = require('./controllers/settings');
 let sessionData = {};
+let fs = require('fs');
 
-let isDev = !_.isUndefined(process.env.JARVIS_DEV);
+let Log = require('log')
+  , syslog = new Log('debug', fs.createWriteStream('/var/log/Jarvis/electron.log'));
+
+let isDev = (process.env.JARVIS_DEV === 'true') || false;
 
 let initialized = false;
 
@@ -77,7 +79,8 @@ function ensureAdmin(req, res, next) {
   // res.redirect('/');
 }
 
-
+var allClients = [];
+var cachedSocketManager = {};
 
 function init(user) {
   return new Promise(function(resolve, reject) {
@@ -86,14 +89,26 @@ function init(user) {
       console.log('INITIALIZING');
       var SocketManager = require('./utils/socket-manager');
       // console.log(global.rethinkdbConnection);
-
       io.on('connection', function(socket) {
+        //TODO: This could probably be removed
         global._socket = socket;
-        var socketManager = new SocketManager(socket, io, user);
-        console.log('CONNECTED', socket.id);
+
+        socket.on('disconnect', function(){
+          console.log('socket disconnected')
+        })
+
+        //Hack to stop socket drain
+        setTimeout(()=>{
+          var socketManager = new SocketManager(socket, io, user);
+          console.log('Connected to: ', socket.id);
+        }, 2000);
+
       });
 
       initialized = true;
+    }
+    else{
+      console.log('Already initialized');
     }
 
     resolve()
@@ -188,7 +203,7 @@ app.post('/health', function(req, res) {
   });
 });
 
-app.post('/query', graphController.query);
+app.post('/query', isLoggedIn, graphController.query);
 
 app.post('/blacklist', graphController.blacklistNode);
 
@@ -429,7 +444,8 @@ app.post('/logout', function(req, res) {
 });
 
 if (isDev) {
-  console.log('DEVELOPMENT MODE', !_.isUndefined(process.env.JARVIS_DEV));
+  console.log('DEVELOPMENT MODE', process.env.JARVIS_DEV);
+  syslog.info(' >*> Started server in DEVELOPMENT mode from: ' + __dirname);
   app.use('/', proxy({
     target: 'http://localhost:8888',
     changeOrigin: true
@@ -437,9 +453,11 @@ if (isDev) {
 } else {
   console.log('PRODUCTION MODE');
   console.log('staticClientPath', staticClientPath);
+  syslog.info(' >*> Started server in PRODUCTION mode from: ' + __dirname);
   app.use(express.static(staticClientPath));
 }
 
 http.listen(3000, function() {
   console.log('listening on *:3000');
+  syslog.info(' >*> Server listening on *.3000');
 });

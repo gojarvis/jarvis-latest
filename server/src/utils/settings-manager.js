@@ -9,12 +9,12 @@ let settingsPath = 'settings.json';
 class SettingsManager {
     constructor(){
         let settings = this.readSettingsFile()
-        console.log('READING SETTINGS', settings);
         this.rootPath = settings.rootPath;
         this.repoCredentials = settings.repoCredentials;
         this.activityManagerCredentials = settings.activityManagerCredentials;
         this.filter_blacklist = settings['filter_blacklist'];
         this.filter_whitelist = settings['filter_whitelist'];
+        this.aggregationHoursValue = settings.aggregationHoursValue;
     }
 
     async setRootPath(path){
@@ -32,6 +32,12 @@ class SettingsManager {
       let saved = await this.saveSettingsByKey('repoCredentials', credentials);
       this.repoCredentials = credentials;
       return this.repoCredentials;
+    }
+
+    async setAggregationHoursValue(value){
+      let saved = await this.saveSettingsByKey('aggregationHoursValue', value);
+      this.aggregationHoursValue = value;
+      return this.aggregationHoursValue;
     }
 
     async setActivityManagerCredentials(credentials){
@@ -67,6 +73,10 @@ class SettingsManager {
       } finally {
         return saved
       }
+    }
+
+    async getAggregationHoursValue(){
+      return this.aggregationHoursValue
     }
 
     getRepoCredentials(){

@@ -2,7 +2,6 @@ let Promise = require('bluebird');
 let _ = require('lodash');
 
 let request = require('request-promise');
-let config = require('config');
 
 let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
@@ -124,6 +123,11 @@ class ChromeController {
         //is blacklist enabled?
         let blacklistEnabled = await settingsManager.getFilterStatus('blacklist');
         let whiteListEnabled = await settingsManager.getFilterStatus('whitelist');
+
+        if (!blacklistEnabled && !whiteListEnabled){
+          return true;
+        }
+
 
         let block = false;
         let pass = false;

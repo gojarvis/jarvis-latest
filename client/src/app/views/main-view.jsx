@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 import layout from 'styles/layout';
 let agent = require('superagent-promise')(require('superagent'), Promise);
 import {EventTickerList} from 'components/EventTicker';
+import {ContextViewer} from 'components/ContextViewer'
 import QueriedItemList from 'components/QueriedItemList';
 import ViewWrapper from 'views/view-wrapper';
 import FocusedItem from 'components/FocusedItem';
@@ -20,6 +21,10 @@ class MainView extends Component {
   constructor(...args) {
     super(...args);
     this.socket = window.socket;
+
+    this.state = {
+      temporalContextItems: []
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -40,6 +45,8 @@ class MainView extends Component {
 
   async componentWillMount() {
     let res = await agent.get('http://localhost:3000/init');
+    this.socket.connect();
+
     this.socket.on('system-event', msg => {
       this.props.dispatch(ActionCreators.pushHistoryItem(msg));
 
@@ -48,12 +55,31 @@ class MainView extends Component {
       }
     });
 
+
+
     this.props.dispatch(ActionCreators.fetchUserAndTheirTeams());
+  }
+
+  async componentWillUnmount(){  
+    this.socket.off();
+  }
+
+  async componentDidMount(){
+    this.socket.on('context-analysis-update', msg => {
+      this.setState({
+        temporalContextItems: imm.fromJS(msg.temporalContext),
+        modifiers: imm.fromJS(msg.modifiers)
+      }, ()=>{
+        console.log('modifiers', msg.modifiers);
+      })
+
+
+    })
   }
 
   render() {
     let { queriedItems, dispatch, eventTickerItems } = this.props;
-
+    let temporalContextItems = this.state.temporalContextItems;
     let boundActions = bindActionCreators(ActionCreators, dispatch);
 
     return (
@@ -71,6 +97,7 @@ class MainView extends Component {
             items={eventTickerItems}
             {...boundActions} />
 
+
           <Filters selectedFilter={this.props.queriedItems.endNodeType} {...boundActions} />
 
           <FocusedItem item={queriedItems.focusedNodeData} />
@@ -81,7 +108,12 @@ class MainView extends Component {
             {...boundActions} />
 
           <div style={styles.toggle}>
+            <ContextViewer
+              items={temporalContextItems}
+              {...boundActions} />
+
             <Toggle
+              style={{padding: '10'}}
               onToggle={() => { this.props.dispatch(ActionCreators.toggleAutoswitch()) }}
               toggle={this.props.queriedItems.autoswitch}
               label="Autoswitch"
@@ -105,7 +137,6 @@ const styles = {
   },
   toggle: {
     color: 'white',
-    padding: 10,
     backgroundColor: 'white',
     position: 'fixed',
     bottom: 0,
@@ -117,6 +148,6 @@ export default connect(
   // mapStateToProps
   state => ({
     eventTickerItems: state.eventTickerItems,
-    queriedItems: state.queriedItems,
+    queriedItems: state.queriedItems
   })
 )(MainView);

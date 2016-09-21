@@ -1,9 +1,8 @@
-const ChromeController = require('../controllers/chrome');
-const AtomController = require('../controllers/atom');
-const TerminalController = require('../controllers/terminal');
-const Context = require('../controllers/contextManager');
-const History = require('../controllers/historyManager');
-// console.log('AAA', TerminalController);
+let ChromeController = require('../controllers/chrome');
+let AtomController = require('../controllers/atom');
+let TerminalController = require('../controllers/terminal');
+let Context = require('../controllers/contextManager');
+let History = require('../controllers/historyManager');
 let _ = require('lodash');
 
 
@@ -15,7 +14,7 @@ class SocketManager {
     let history = new History(socket,io, user.username);
 
     if (_.isUndefined(context.user)){
-        context = new Context(history, { username: user.username});
+        context = new Context(history, { username: user.username}, socket, io);
     }
 
 

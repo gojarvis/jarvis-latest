@@ -1,14 +1,14 @@
 let heartbeats = require('heartbeats');
 let _ = require('lodash');
 let watson = require('watson-developer-cloud');
-let r = require('rethinkdb');
-let config = require('config');
+let thinky = require('../utils/rethink');
 let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
-let Meta = require('./metadataManager')
+let keywordsManager = require('./keywordsManager');
+let settingsManager = require('../utils/settings-manager');
 
 class contextManager{
-  constructor(history, userInfo){
+  constructor(history, userInfo, socket, io){
 
     var db = require('../utils/rethink')
     var type = db.type;
@@ -18,7 +18,7 @@ class contextManager{
       username: type.string(),
     }, { pk: "username"})
 
-
+    this.io = io;
     this.user = {};
     this.urls = [];
     this.urlsArtifacts = [];
@@ -27,9 +27,11 @@ class contextManager{
     this.files = [];
     this.activeUrl = {};
     this.heart = heartbeats.createHeart(1000);
-    this.slowHeart = heartbeats.createHeart(1000);
+    this.slowHeart = heartbeats.createHeart(60000);
     this.history = history;
     this.recommendations = [];
+
+
     this.initContext(userInfo);
   }
 
@@ -39,23 +41,22 @@ class contextManager{
         user = await this.setUser(userInfo);
         this.user = user;
 
-        this.metadata = new Meta(this.user);
 
         this.heart.createEvent(30, function(heartbeat, last){
           this.handleHeartbeat(heartbeat);
         }.bind(this));
 
-        this.slowHeart.createEvent(300, function(heartbeat, last){
-
+        this.slowHeart.createEvent(60, function(heartbeat, last){
+          this.handleSlowHeartbeat(heartbeat)
         }.bind(this));
+
+        this.getAndEmitContextUpdates();
 
         return user;
     }
     catch(err){
       console.error('cannot initialize context',err);
     }
-
-
 
   }
 
@@ -73,10 +74,149 @@ class contextManager{
 
   handleHeartbeat(heartbeat){
     this.saveContext();
+    this.getAndEmitContextUpdates();
+
+  }
+
+  async getAndEmitContextUpdates(){
+    let contextBucktededByHour, globalWeightFactors;
+    try {
+      contextBucktededByHour = await this.getContextNodesBucketedByHour();
+      let nodesArr = contextBucktededByHour.map(item => {
+        // console.log('item', item);
+        return item.data.id;
+      });
+
+      // console.log('Nodes in context', nodesArr);
+
+      globalWeightFactors = await this.getUserGlobalWeightFactors();
+
+      this.io.emit('context-analysis-update', {
+        temporalContext: contextBucktededByHour,
+        modifiers: globalWeightFactors
+      })
+
+      this.updateModifiers(globalWeightFactors[0]);
+    } catch (e) {
+      console.log('cant getAndEmitContextUpdates', e);
+    } finally {
+
+    }
+
+  }
+
+  async getUserGlobalWeightFactors(){
+    let user = this.user;
+    let weights = await graphUtil.getUserGlobalWeightFactors(user);
+    return weights;
+  }
+
+  async updateModifiers(modifiers){
+    this.modifiers = modifiers;
+  }
+
+
+
+  async getContextNodesBucketedByHour(){
+    let nodeIdsByHours = await this.getContextNodeIdsBucktedByHour();
+    let nodes;
+    try {
+      nodes = await Promise.all(nodeIdsByHours.map( item => this.getBucketedNodeById(item)));
+      nodes = nodes.filter(item => !_.isEmpty(item))
+
+      nodes = nodes.filter(item => {
+        if (item.data.type !== 'keyword') return true;
+        else return false;
+      })
+    } catch (e) {
+      // console.log('cant getContextNodeIdsBucktedByHour', e);
+    } finally {
+      // console.log('NODES', nodes);
+      return nodes;
+    }
+  }
+
+  async getBucketedNodeById(item){
+
+    let node = {};
+    try{
+      node.data = await graphUtil.getNodeById(item.nodeId)
+      node.count = item.count;
+
+    }
+    catch(e){
+      // console.log('cant getBucketedNodeById, it probably doesnt exist');
+    }
+    finally{
+      return node
+    }
+  }
+
+  async getContextNodeIdsBucktedByHour(){
+    let username = this.getUser().username;
+    let r = thinky.r;
+    let contextBucktededByHour;
+    let numberOfHoursToAggregate;
+    try {
+      numberOfHoursToAggregate  = await settingsManager.getAggregationHoursValue() || 1;
+      contextBucktededByHour =
+        await r.table('Event').filter(function(event){
+          var eventDayHour = r.add(event('timestamp').dayOfYear().mul(24), event('timestamp').hours());
+          var nowDayHour = r.add(r.now().dayOfYear().mul(24), r.now().hours());
+
+           return event.hasFields('data')
+             .and(event('data').hasFields('address'))
+             .and(event('user').eq(username))
+             .and(event('source').ne("context"))
+             .and(eventDayHour.ge(nowDayHour.sub(numberOfHoursToAggregate)))
+        })
+        .map(function (row) {
+        	return (
+          	{
+              day: row('timestamp').dayOfYear() ,
+              hour: row('timestamp').hours() ,
+              dayHour: r.add(row('timestamp').dayOfYear().mul(24), row('timestamp').hours()),
+              address: row('data')('address'),
+              nodeId:  row('data')('nodeId'),
+              timestamp: row('timestamp'),
+              source: row('source'),
+              eventType: row('eventType'),
+              id: row('id')
+             }
+            )
+          }
+        )
+      .group('dayHour').ungroup().map(function(row){
+          return (
+            {
+              dayHour: row('group'),
+              items: row('reduction')
+            }
+          )
+      })
+      .orderBy(r.desc('dayHour')).concatMap(function(row){
+        return row("items")
+      })
+      .group('nodeId').count().ungroup().orderBy(r.desc("reduction"))
+      .map(function(row){
+        return ({
+          nodeId: row("group"),
+          count: row("reduction")
+        })
+      })
+      .limit(15)
+      .run();
+    } catch (e) {
+      console.log('cant getContextNodeIdsBucktedByHour', e);
+    } finally {
+      return contextBucktededByHour
+    }
+
+
   }
 
   handleSlowHeartbeat(heartbeat){
-    this.history.saveEvent({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls} }).then(function(res){})
+    this.history.saveContext({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls, commands: this.commands}, timestamp: new Date()  }).then(function(res){})
   }
 
   addFileNode(fileNode){
@@ -88,15 +228,26 @@ class contextManager{
 
   removeFileNode(fileNode){
     let filteredFiles = this.files.filter(file => {
-
-      return file.address === fileNode.address
+      return file.address !== fileNode.address
     });
-
     this.files = filteredFiles;
   }
 
-  removeTab(tabs){
+  addUrlNode(urlNode){
+    let url = this.urls.filter(url => url.address === urlNode.address);
+    if (url.length === 0){
+      this.urls.push(urlNode);
+    }
+  }
 
+  removeUrlNode(urlNode){
+    let filteredUrls = this.urls.filter(url => {
+      return url.address !== urlNode.address
+    });
+    this.urls = filteredUrls;
+  }
+
+  removeTab(tabs){
     this.updateTabs(tabs)
   }
 
@@ -109,21 +260,20 @@ class contextManager{
   }
 
   async updateUserActivity(){
-    // console.log('updateUserActivity');
     let activeUrlDetails = this.getActiveUrl();
     let urlNode;
 
     try {
       urlNode  = await graphUtil.getAndSaveUrlNode(activeUrlDetails);
+      this.addUrlNode(urlNode);
       let rel = graphUtil.relateNodes(this.user, urlNode, 'touched');
+      let kw = await keywordsManager.fetchKeywordsForUrlFromAlchemy(urlNode);
 
     } catch (e) {
       console.log('cant updateUserActivity', e);
     } finally {
       return urlNode;
     }
-    //Mark URL as touched
-
   }
 
   updateTabs(tabs){
@@ -163,48 +313,22 @@ class contextManager{
     let filesToUrls = await Promise.all(files.map(file => graphUtil.relateOneToMany(file, urls, 'openwith')));
   }
 
-  async relateUrlsToUrls(urls){
-    //This will create a relationship with each URL and evrey url in the same context (including itself, TODO: Fix that)
-    // console.log("relateUrlsToUrls");
-    //TODO: otherUrls = > filter url from urls
-
-    let urlToUrlsRelationships =[];
-    try{
-      urlToUrlsRelationships = await Promise.all(urls.map(url => this.relateUrlToOthers(url, urls)));
-    }
-    catch(e){
-      console.log('error relating urls to urls', e);
-    }
-    finally{
-      return urlToUrlsRelationships;
-    }
-
-  }
-
   async relateUrlToUrls(url, urls){
     let others = urls.filter(item => item.address !== url.address);
-    let singleRelationships = await graphUtil.relateOneToMany(url, others, 'openwith');
-    return singleRelationships;
-  }
-
-  async relateUrlToOthers(url, urls){
-    let others = urls.filter(node => node.id !== url.id);
-    let innerUrlToUrlsRelationships = [];
-    try{
-      innerUrlToUrlsRelationships = await Promise.all(urls.map(url => graphUtil.relateOneToMany(url, others, 'openwith')));
-    }
-    catch(e){
-      console.log(err);
-    }
-    finally{
-      return innerUrlToUrlsRelationships
-    }
+    let queries = await graphUtil.getRelateOneToManyQueries(url, others, 'openwith');
+    return queries;
   }
 
   async relateFileToFiles(file, files){
     let others = files.filter(filterFile => file.address !== filterFile.address);
-    let singleRelationships = await graphUtil.relateOneToMany(file, others, 'openwith');
-    return singleRelationships;
+    let queries = await graphUtil.getRelateOneToManyQueries(file, others, 'openwith');
+    return queries;
+  }
+
+  async relateCommandToCommands(command, commands){
+    let others = commands.filter(item => item.address !== command.address);
+    let queries = await graphUtil.getRelateOneToManyQueries(command, others, 'openwith');
+    return queries;
   }
 
   async relateUserToContext(){
@@ -252,17 +376,10 @@ class contextManager{
       let urlsArtifacts = this.urlsArtifacts;
       let files = this.files;
       let urls = await Promise.all(urlsArtifacts.map(urlsArtifact => graphUtil.saveUrl(urlsArtifact.url, urlsArtifact.title)))
-
       this.urls = urls;
-
-      if (files.length > 0 ){
-        this.relateUrlsToFiles(urls, files);
-      }
-      let urlsRels = await this.relateUrlsToUrls(urls);
 
       let userContext = await this.relateUserToContext();
 
-      //TODO: Looks like this is partially done on "saveContext. remove duplication"
       let relatedContext = await this.relateContextToItself();
 
       //Empty the commands buffer every heartbeat
@@ -277,45 +394,62 @@ class contextManager{
 
   //TODO: Moved this from "proactive.js", should be unified with saveContext
   async relateContextToItself(){
-    // console.log('Relating context to itself');
+      console.log('Relating context to itself');
       try{
         let urls = this.urls;
         let files = this.files;
 
         let commands = this.commands;
+        let queries = [];
+        // console.log('CONTEXT', urls.map(url => { return url.address}).join(','), '|', files.map(file => { return file.address}).join(','));
         console.log('CONTEXT', urls.length, files.length, commands.length);
 
         if (urls.length > 0) {
-          let urlRelationships = Promise.all(urls.map(url => this.relateUrlToUrls(url,urls)))
-
-          let keywords = await Promise.all(urls.map(url => this.metadata.getSetKeywordsForUrl(url)));
+          let urlRelationshipsQueries = await Promise.all(urls.map(url => this.relateUrlToUrls(url,urls)))
+          queries = queries.concat(urlRelationshipsQueries);
         }
 
         if (files.length > 0){
-          let fileRelationships = Promise.all(files.map(file => this.relateFileToFiles(file, files, 'openwith')));
+          let fileRelationshipsQueries = await Promise.all(files.map(file => this.relateFileToFiles(file, files, 'openwith')));
+          queries = queries.concat(fileRelationshipsQueries);
+        }
+
+        if (commands.length > 0){
+          let commandInternalRelationshipsQueries = await Promise.all(commands.map(command => graphUtil.relateCommandToCommands(command, commands, 'openwith')));
+          queries = queries.concat(commandInternalRelationshipsQueries);
         }
 
         if (files.length > 0 && urls.length > 0){
-          let fileRelationships = Promise.all(files.map(file => graphUtil.relateOneToMany(file, urls, 'openwith')));
+          let filesToUrlsRelationshipsQueries = await Promise.all(files.map(file => graphUtil.getRelateOneToManyQueries(file, urls, 'openwith')));
+          queries = queries.concat(filesToUrlsRelationshipsQueries);
+
+          let urlsToFilesRelationshipsQueries = await Promise.all(urls.map(url => graphUtil.getRelateOneToManyQueries(url, files, 'openwith')));
+          queries = queries.concat(urlsToFilesRelationshipsQueries);
         }
 
         if (commands.length > 0 && files.length > 0){
 
-          let commandToFilesRelationships = Promise.all(commands.map(command => graphUtil.relateOneToMany(command, files, 'openwith')));
-          let filesToCommandsRelationships = Promise.all(files.map(file => graphUtil.relateOneToMany(file, commands, 'openwith')));
+          let commandToFilesRelationshipsQueries = await Promise.all(commands.map(command => graphUtil.getRelateOneToManyQueries(command, files, 'openwith')));
+          let filesToCommandsRelationshipsQueries = await Promise.all(files.map(file => graphUtil.getRelateOneToManyQueries(file, commands, 'openwith')));
+          queries = queries.concat(commandToFilesRelationshipsQueries);
+          queries = queries.concat(filesToCommandsRelationshipsQueries);
         }
 
         if (commands.length > 0 && urls.length > 0){
-          let commandToUrlsRelationships = Promise.all(commands.map(command => graphUtil.relateOneToMany(command, urls, 'openwith')));
-          let urlsToCommandsRelationships = Promise.all(urls.map(url => graphUtil.relateOneToMany(url, commands, 'openwith')));
-
-        }
-
-        if (commands.length > 0){
-          let commandInternalRelationships = Promise.all(commands.map(command => graphUtil.relateOneToMany(command, commands, 'openwith')));
+          let commandToUrlsRelationshipsQueries = await Promise.all(commands.map(command => graphUtil.getRelateOneToManyQueries(command, urls, 'openwith')));
+          let urlsToCommandsRelationshipsQueries = await Promise.all(urls.map(url => graphUtil.getRelateOneToManyQueries(url, commands, 'openwith')));
+          queries = queries.concat(commandToUrlsRelationshipsQueries);
+          queries = queries.concat(urlsToCommandsRelationshipsQueries);
         }
 
 
+
+        let allQueries = [].concat.apply([], queries);
+
+
+        let results = await graphUtil.executeQueries(allQueries);
+        // console.log('Results', results);
+        console.log('Context relation queries', results.length, '/', allQueries.length);
       }
       catch(err){
         console.log('cant relateContextToItself', err);
