@@ -1,4 +1,4 @@
-AtomSherpa = require '../lib/atom-sherpa'
+AtomSherpa = require '../lib/atom-jarvis'
 
 # Use the command `window:run-package-specs` (cmd-alt-ctrl-p) to run specs.
 #
@@ -10,30 +10,30 @@ describe "AtomSherpa", ->
 
   beforeEach ->
     workspaceElement = atom.views.getView(atom.workspace)
-    activationPromise = atom.packages.activatePackage('atom-sherpa')
+    activationPromise = atom.packages.activatePackage('atom-jarvis')
 
-  describe "when the atom-sherpa:toggle event is triggered", ->
+  describe "when the atom-jarvis:toggle event is triggered", ->
     it "hides and shows the modal panel", ->
       # Before the activation event the view is not on the DOM, and no panel
       # has been created
-      expect(workspaceElement.querySelector('.atom-sherpa')).not.toExist()
+      expect(workspaceElement.querySelector('.atom-jarvis')).not.toExist()
 
       # This is an activation event, triggering it will cause the package to be
       # activated.
-      atom.commands.dispatch workspaceElement, 'atom-sherpa:toggle'
+      atom.commands.dispatch workspaceElement, 'atom-jarvis:toggle'
 
       waitsForPromise ->
         activationPromise
 
       runs ->
-        expect(workspaceElement.querySelector('.atom-sherpa')).toExist()
+        expect(workspaceElement.querySelector('.atom-jarvis')).toExist()
 
-        atomSherpaElement = workspaceElement.querySelector('.atom-sherpa')
+        atomSherpaElement = workspaceElement.querySelector('.atom-jarvis')
         expect(atomSherpaElement).toExist()
 
         atomSherpaPanel = atom.workspace.panelForItem(atomSherpaElement)
         expect(atomSherpaPanel.isVisible()).toBe true
-        atom.commands.dispatch workspaceElement, 'atom-sherpa:toggle'
+        atom.commands.dispatch workspaceElement, 'atom-jarvis:toggle'
         expect(atomSherpaPanel.isVisible()).toBe false
 
     it "hides and shows the view", ->
@@ -45,18 +45,18 @@ describe "AtomSherpa", ->
       # workspaceElement to the DOM are generally slower than those off DOM.
       jasmine.attachToDOM(workspaceElement)
 
-      expect(workspaceElement.querySelector('.atom-sherpa')).not.toExist()
+      expect(workspaceElement.querySelector('.atom-jarvis')).not.toExist()
 
       # This is an activation event, triggering it causes the package to be
       # activated.
-      atom.commands.dispatch workspaceElement, 'atom-sherpa:toggle'
+      atom.commands.dispatch workspaceElement, 'atom-jarvis:toggle'
 
       waitsForPromise ->
         activationPromise
 
       runs ->
         # Now we can test for view visibility
-        atomSherpaElement = workspaceElement.querySelector('.atom-sherpa')
+        atomSherpaElement = workspaceElement.querySelector('.atom-jarvis')
         expect(atomSherpaElement).toBeVisible()
-        atom.commands.dispatch workspaceElement, 'atom-sherpa:toggle'
+        atom.commands.dispatch workspaceElement, 'atom-jarvis:toggle'
         expect(atomSherpaElement).not.toBeVisible()
