@@ -3,7 +3,6 @@ let watson = require('watson-developer-cloud');
 let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
 let _ = require('lodash');
-let wdk = require('wikidata-sdk');
 let imm = require('immutable');
 let colors = require('colors');
 let fs = require('fs');

@@ -1,1 +1,0 @@
-query mappings go here
