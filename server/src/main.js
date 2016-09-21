@@ -11,14 +11,12 @@ let rethink = require('rethinkdb');
 
 let graphController = require('./controllers/graph')
 let childProc = require('child_process');
-let config = require('config');
 let passport = require('passport');
 let _ = require('lodash');
 
 let path = require("path");
 
 let projectSettingsManager = require('./utils/settings-manager');
-let rethinkConfig = config.get('rethink');
 let GraphUtil = require('./utils/graph');
 let graphUtil = new GraphUtil();
 let staticClientPath = path.join(__dirname, '../client/build/');
@@ -26,6 +24,10 @@ let usersController = require('./controllers/users');
 let teamsController = require('./controllers/teams');
 let settingsController = require('./controllers/settings');
 let sessionData = {};
+let fs = require('fs');
+
+let Log = require('log')
+  , syslog = new Log('debug', fs.createWriteStream('/var/log/Jarvis/electron.log'));
 
 let isDev = (process.env.JARVIS_DEV === 'true') || false;
 
@@ -443,6 +445,7 @@ app.post('/logout', function(req, res) {
 
 if (isDev) {
   console.log('DEVELOPMENT MODE', process.env.JARVIS_DEV);
+  syslog.info(' >*> Started server in DEVELOPMENT mode from: ' + __dirname);
   app.use('/', proxy({
     target: 'http://localhost:8888',
     changeOrigin: true
@@ -450,9 +453,11 @@ if (isDev) {
 } else {
   console.log('PRODUCTION MODE');
   console.log('staticClientPath', staticClientPath);
+  syslog.info(' >*> Started server in PRODUCTION mode from: ' + __dirname);
   app.use(express.static(staticClientPath));
 }
 
 http.listen(3000, function() {
   console.log('listening on *:3000');
+  syslog.info(' >*> Server listening on *.3000');
 });

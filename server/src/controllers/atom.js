@@ -1,15 +1,11 @@
 let _ = require('lodash');
-let config = require('config');
+
 
 // let ProjectSettingsManager = require('../utils/settings-manager');
 let projectSettingsManager = require('../utils/settings-manager');
 
 let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
-
-//TODO: Projects path
-let userConfig = config.get('user');
-let projectsPath = userConfig.projectsPath;
 
 class AtomController {
     constructor(socket, io, context, history) {

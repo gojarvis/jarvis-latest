@@ -1,4 +1,3 @@
-let config = require('config');
 let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
 let _ = require('lodash');

@@ -110,25 +110,27 @@ class QueriedItem extends React.Component {
     }
     let weightBar = item.relationshipWeight * 10 * 20;
     let weightBarString = weightBar + "vw"
-    let weightValue, maxValue, engagementLabel, opacity, raw;
-
+    let weightValue, maxValue, engagement, opacity, raw, engagementIconColor;
+    console.log('item.relationshipWeight', item.relationshipWeight);
     if (item.relationshipWeight / item.avgOpen > 1){
       raw = item.relationshipWeight.toFixed(3);
       maxValue = item.maxOpen.toFixed(3);
       weightValue = (item.relationshipWeight / maxValue * 100).toFixed(3);
-      engagementLabel = 'high';
+      engagement = 'wifi';
+      engagementIconColor = 'green';
     }
     else{
       if (item.relationshipWeight > 0){
         maxValue = item.avgOpen.toFixed(3);
         raw = item.relationshipWeight.toFixed(3);
         weightValue = (Math.log10(item.relationshipWeight / maxValue * 100) * 10).toFixed(3);
-        engagementLabel = 'low';
+        engagement = 'arrow-down';
+        engagementIconColor = '#f19393';
       }
       else{
         weightValue = 0;
         maxValue = item.avgOpen.toFixed(3);
-        engagementLabel = 'none';
+
       }
     }
 
@@ -145,13 +147,15 @@ class QueriedItem extends React.Component {
           <IconText icon={openWithClass} iconColor={iconColor}>
             <div style={{...FB.base, flexWrap: "nowrap", ...FB.align.center}}>
               <div style={{flexGrow: "4", marginRight: "40px", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", width: "10px" }}>{title}</div>
-              <div style={{width: '10vw', marginRight: "2vw"}}>
-                <LinearProgress mode="determinate" value={weightValue}/>
-
-                <div style={{'fontSize': 10, 'marginTop': 7}}>
-                  {engagementLabel} {weightValue} {maxValue} {raw}
+                <div style={{'fontSize': 8, 'marginRight': 4}}>
+                  <IconText icon={engagement} iconColor={engagementIconColor} />
                 </div>
-              </div>
+                <div style={{width: '10vw', marginRight: "2vw"}}>
+
+                  <LinearProgress mode="determinate" value={weightValue}/>
+
+
+                </div>
               <IconText icon='trash' onClick={(e) => this._blacklistNode(nodeId, e)} />
             </div>
           </IconText>

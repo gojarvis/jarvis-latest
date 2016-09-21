@@ -2,7 +2,6 @@ let Promise = require('bluebird');
 let _ = require('lodash');
 
 let request = require('request-promise');
-let config = require('config');
 
 let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
@@ -113,7 +112,7 @@ class ChromeController {
             filteredTabs.push(tab);
           }
         })
-        
+
         this.context.updateTabs(filteredTabs);
         return true;
     }

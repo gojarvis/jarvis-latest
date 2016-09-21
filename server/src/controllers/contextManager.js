@@ -2,7 +2,6 @@ let heartbeats = require('heartbeats');
 let _ = require('lodash');
 let watson = require('watson-developer-cloud');
 let thinky = require('../utils/rethink');
-let config = require('config');
 let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
 let keywordsManager = require('./keywordsManager');
@@ -88,7 +87,7 @@ class contextManager{
         return item.data.id;
       });
 
-
+      // console.log('Nodes in context', nodesArr);
 
       globalWeightFactors = await this.getUserGlobalWeightFactors();
 

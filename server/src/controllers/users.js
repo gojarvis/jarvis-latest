@@ -1,10 +1,7 @@
-let config = require('config');
 let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
 let _ = require('lodash');
 let Moniker = require('moniker');
-
-
 
 let projectSettingsManager = require('../utils/settings-manager');
 let graphCredentials = projectSettingsManager.getRepoCredentials();
