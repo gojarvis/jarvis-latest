@@ -1,12 +1,12 @@
-AtomSherpaView = require './atom-sherpa-view'
+AtomJarvisView = require './atom-jarvis-view'
 {Workspace, CompositeDisposable, TextEditor} = require 'atom'
 io = require('socket.io-client')('http://localhost:3000')
 vm = require('vm')
 
 
 io.emit('atom-connected');
-module.exports = AtomSherpa =
-  atomSherpaView: null
+module.exports = AtomJarvis =
+  atomJarvisView: null
   modalPanel: null
   subscriptions: null
   socket: io
@@ -18,7 +18,7 @@ module.exports = AtomSherpa =
     @subscriptions = new CompositeDisposable
 
     # Register command that toggles this view
-    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-sherpa:toggle': => @toggle()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-jarvis:toggle': => @toggle()
     @subscriptions.add atom.workspace.onDidOpen (file) => @handleOpen 'open', {uri: file.uri, index: file.index, file:file}, { }
     @subscriptions.add atom.workspace.onDidDestroyPaneItem (context) => @handleClose context.item.getURI(), { }
     @subscriptions.add atom.workspace.observeTextEditors (editor) => @handleEditor editor
@@ -30,9 +30,9 @@ module.exports = AtomSherpa =
 
     atom.packages.onDidActivateInitialPackages =>
       createStatusEntry = =>
-        @atomSherpaView = new AtomSherpaView(state.atomSherpaViewState)
+        @atomJarvisView = new AtomJarvisView(state.atomJarvisViewState)
       createStatusEntry()
-    # @modalPanel = atom.workspace.addModalPanel(item: @atomSherpaView.getElement(), visible: false)
+    # @modalPanel = atom.workspace.addModalPanel(item: @atomJarvisView.getElement(), visible: false)
     # leaving this out for now, as it triggers for both file open and tab creation, tripping up the events (for some reason)
     # @subscriptions.add atom.workspace.onDidAddPaneItem (context) => @emitEvent('tab open', {uri: context.item.getURI()})
 
@@ -42,10 +42,10 @@ module.exports = AtomSherpa =
   deactivate: ->
     @modalPanel.destroy()
     @subscriptions.dispose()
-    @atomSherpaView.destroy()
+    @atomJarvisView.destroy()
 
   serialize: ->
-    # atomSherpaViewState: @atomSherpaView.serialize()
+    # atomJarvisViewState: @atomJarvisView.serialize()
 
   handleContext: (context) ->
     console.log('P.handleContext: ', context)
