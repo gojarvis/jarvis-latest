@@ -20,8 +20,15 @@ class ChromeController {
         this.context = context;
         this.history = history;
 
+        this.urlFilterCache = {
+          whitelistExpressions: [],
+          blacklistExpressions: []
+        }
+
         this.io.emit('load-tabs');
         this.registerEvents();
+        this.prefillUrlFilterCache()
+
 
     }
 
@@ -97,7 +104,24 @@ class ChromeController {
             self.saveSession();
         });
 
+
     }
+
+    async prefillUrlFilterCache(){
+      let user = this.context.user;
+      if (_.isEmpty(user)){
+        return false;
+      }
+
+      let userNode = await graphUtil.getUserNodeByUsername(user.username);
+      let whitelistExpressions = await graphUtil.getRelatedNodes(userNode, 'whitelist')
+
+      this.urlFilterCache.whitelistExpressions = await graphUtil.getRelatedNodes(userNode, 'whitelist')
+      this.urlFilterCache.blacklistExpressions = await graphUtil.getRelatedNodes(userNode, 'blacklist')
+
+    }
+
+
 
     async saveSession() {
         let self = this;
@@ -157,13 +181,9 @@ class ChromeController {
     }
 
     async isInWhiteList(address) {
-        let user = this.context.user;
-        if (_.isEmpty(user)){
-          // console.log('No user when searching the white list');
-          return false;
-        }
-        let userNode = await graphUtil.getUserNodeByUsername(user.username);
-        let whitelistExpressions = await graphUtil.getRelatedNodes(userNode, 'whitelist')
+
+        // let userNode = await graphUtil.getUserNodeByUsername(user.username);
+        let whitelistExpressions = this.urlFilterCache.whitelistExpressions;
         let isWhitelisted = false;
         whitelistExpressions.forEach(expression => {
           if (this.testExpression(expression.address, address)){
@@ -174,12 +194,8 @@ class ChromeController {
     }
 
     async isInBlackList(address) {
-        let user = this.context.user;
-        if (_.isEmpty(user)){
-          return false;
-        }
-        let userNode = await graphUtil.getUserNodeByUsername(user.username);
-        let blacklistExpressions = await graphUtil.getRelatedNodes(userNode, 'blacklist')
+        // let userNode = await graphUtil.getUserNodeByUsername(user.username);
+        let blacklistExpressions = this.urlFilterCache.blacklistExpressions;
         let isBlacklisted = false;
         blacklistExpressions.forEach(expression => {
           if (this.testExpression(expression.address, address)){
