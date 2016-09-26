@@ -10,8 +10,7 @@ class Filters extends Component {
       filters: [
         { key: "", selected: true, label: "All", type: '' },
         { key: "files", selected: false, label: "Files", type: 'File' },
-        { key: "urls", selected: false, label: "URLs", type: 'Url' },
-        { key: "keywords", selected: false, label: "Keywords", type: 'Keyword' },
+        { key: "urls", selected: false, label: "URLs", type: 'Url' }
       ]
     }
   }
