@@ -28,6 +28,7 @@ class contextManager{
     this.tabs = [];
     this.commands = [];
     this.files = [];
+    this.temporalContext = [];
     this.activeUrl = {};
     this.heart = heartbeats.createHeart(1000);
     this.slowHeart = heartbeats.createHeart(1000);
@@ -49,7 +50,7 @@ class contextManager{
           this.handleHeartbeat(heartbeat);
         }.bind(this));
 
-        this.slowHeart.createEvent(10, function(heartbeat, last){
+        this.slowHeart.createEvent(60, function(heartbeat, last){
           this.handleSlowHeartbeat(heartbeat)
         }.bind(this));
 
@@ -85,14 +86,12 @@ class contextManager{
   async handleSlowHeartbeat(heartbeat){
     // this.history.saveContext({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls, commands: this.commands}, timestamp: new Date()  }).then(function(res){})
     // console.log('slow');
-    let context = {
-      files: this.files,
-      urls: this.urls
-    };
+    let context = this.temporalContext;
+    let modifiers = this.modifiers;
 
     let user = this.user;
 
-    let allReports = await ReportsController.getAllReports(context, user);
+    let allReports = await ReportsController.getAllReports(context, user, modifiers);
     console.log('All reports', allReports);
     this.io.emit('reports', {
       'reports': allReports
@@ -118,6 +117,8 @@ class contextManager{
       })
 
       this.updateModifiers(globalWeightFactors[0]);
+      this.updateTemporalContext(contextBucktededByHour);
+
     } catch (e) {
       console.log('cant getAndEmitContextUpdates', e);
     } finally {
@@ -134,6 +135,10 @@ class contextManager{
 
   async updateModifiers(modifiers){
     this.modifiers = modifiers;
+  }
+
+  async updateTemporalContext(temporalContext){
+    this.temporalContext = temporalContext;
   }
 
   async getContextNodesBucketedByHour(){
