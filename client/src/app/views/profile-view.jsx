@@ -99,8 +99,9 @@ class ProfileView extends Component {
     if (invitesButtons.length > 0) {
       joinSegment =
       (<div style={{margin: '10px'}}>
-        <div>Join Team</div>
-        <div style={{margin: '10px'}}>
+        <div style={LOCAL_STYLES.block}>
+          <div>Join Team</div>
+
           <div>
             {invitesButtons}
           </div>
@@ -115,6 +116,7 @@ class ProfileView extends Component {
           <div style={{background: '#efefef', color: '#333'}}>
             <div> {joinSegment} </div>
 
+
             <div style={LOCAL_STYLES.block}>
               <Title>Teams</Title>
               <div>
@@ -124,10 +126,11 @@ class ProfileView extends Component {
 
             <div style={LOCAL_STYLES.block}>
               <Title>Root Path</Title>
+              <Subtitle>Jarvis will track projects in this folder</Subtitle>
               <SetUserRootPathForm user={this.state.user}/>
             </div>
 
-            <div style={LOCAL_STYLES.block}>
+            {/*<div style={LOCAL_STYLES.block}>
               <Title>Repo Credentials</Title>
               <SetUserRepoCredentialsForm user={this.state.user} />
             </div>
@@ -135,13 +138,17 @@ class ProfileView extends Component {
             <div style={LOCAL_STYLES.block}>
               <Title>Activity Manager Credentials</Title>
               <SetUserActivityManagerForm />
-            </div>
+            </div>*/}
 
             <div style={LOCAL_STYLES.block}>
+              <Title>White List</Title>
+              <Subtitle>If enabled, only URLs matching the white list regular expression will be tracked (the rest will not) </Subtitle>
               <WhiteListForm />
             </div>
 
             <div style={LOCAL_STYLES.block}>
+              <Title>Black List</Title>
+              <Subtitle>If enabled, URLs matching the black list regular expression will not be tracked </Subtitle>
               <BlackListForm />
             </div>
           </div>
@@ -154,6 +161,12 @@ class ProfileView extends Component {
 const Title = (props) => {
   return (
     <div style={{fontSize: 18, fontWeight: '700'}}>{props.children}</div>
+  )
+}
+
+const Subtitle = (props) => {
+  return (
+    <div style={{fontSize: 12, fontWeight: '500', color: 'grey'}}>{props.children}</div>
   )
 }
 

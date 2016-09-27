@@ -103,11 +103,12 @@ class AtomController {
     async insertUniqueFile(address) {
 
         let projectPath = projectSettingsManager.getRootPath();
+
+        //TODO: Filter files that are not in the project path
         let trimmedAddress = address.replace(projectPath, '');
         let fileNode = await this.getAndSave(trimmedAddress);
         let tab = this.tabs.filter(tab => tab.address === fileNode.address);
         if (tab.length == 0) {
-
             this.tabs.push(fileNode);
         }
         return fileNode;
