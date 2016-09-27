@@ -56,12 +56,6 @@ class contextManager{
 
         this.getAndEmitContextUpdates();
 
-
-        this.io.emit('reports', {
-          'foo': 'bar'
-        })
-
-
         return user;
     }
     catch(err){
@@ -88,13 +82,21 @@ class contextManager{
 
   }
 
-  handleSlowHeartbeat(heartbeat){
+  async handleSlowHeartbeat(heartbeat){
     // this.history.saveContext({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls, commands: this.commands}, timestamp: new Date()  }).then(function(res){})
-    console.log('slow');
-    this.io.emit('reports', {
-      'foo': 'bar'
-    })
+    // console.log('slow');
+    let context = {
+      files: this.files,
+      urls: this.urls
+    };
 
+    let user = this.user;
+
+    let allReports = await ReportsController.getAllReports(context, user);
+    console.log('All reports', allReports);
+    this.io.emit('reports', {
+      'reports': allReports
+    })
   }
 
   async getAndEmitContextUpdates(){

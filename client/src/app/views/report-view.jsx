@@ -60,7 +60,22 @@ class ReportView extends Component {
     })
 
     this.socket.on('reports', msg => {
-      console.log('Reports');
+      let reports = this.state.reports;
+      // console.log('MSG', msg.reports);
+      // reports.unshift(msg.reports);
+      // console.log('report', reports);
+
+      let newReports = msg.reports;
+      newReports.forEach(report => {
+        reports.unshift(report)
+      })
+
+      reports.splice(10,reports.length - 10);
+
+
+      this.setState({
+        reports: reports
+      })
     });
 
   }

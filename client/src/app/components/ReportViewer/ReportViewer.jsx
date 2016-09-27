@@ -6,6 +6,7 @@ import FlipMove from 'react-flip-move';
 import FB from 'styles/flexbox';
 let agent = require('superagent-promise')(require('superagent'), Promise);
 
+import moment from 'moment';
 
 // import FileItem from './ReportItems/FileItem';
 // import KeywordItem from './ReportItems/KeywordItem';
@@ -32,6 +33,8 @@ class ReportViewer extends Component {
 
     let data = report.data;
     let ItemComponent;
+
+    let momentText = moment(report.timestamp).fromNow();
 
     // switch(report.itemType){
     //   case 'File':
@@ -75,7 +78,7 @@ class ReportViewer extends Component {
 
 
         <div style={{"padding" : 10, "fontSize": 10, "color": "grey"}}>
-          Three minutes ago
+          {momentText} { report.timestamp }
         </div>
       </Card>
 
