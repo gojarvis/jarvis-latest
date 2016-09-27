@@ -6,6 +6,8 @@ let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
 let keywordsManager = require('./keywordsManager');
 let settingsManager = require('../utils/settings-manager');
+let ReportsController = require('./reports');
+
 
 class contextManager{
   constructor(history, userInfo, socket, io){
@@ -18,6 +20,7 @@ class contextManager{
       username: type.string(),
     }, { pk: "username"})
 
+    this.socket = socket;
     this.io = io;
     this.user = {};
     this.urls = [];
@@ -27,7 +30,7 @@ class contextManager{
     this.files = [];
     this.activeUrl = {};
     this.heart = heartbeats.createHeart(1000);
-    this.slowHeart = heartbeats.createHeart(60000);
+    this.slowHeart = heartbeats.createHeart(1000);
     this.history = history;
     this.recommendations = [];
 
@@ -46,11 +49,18 @@ class contextManager{
           this.handleHeartbeat(heartbeat);
         }.bind(this));
 
-        this.slowHeart.createEvent(60, function(heartbeat, last){
+        this.slowHeart.createEvent(10, function(heartbeat, last){
           this.handleSlowHeartbeat(heartbeat)
         }.bind(this));
 
+
         this.getAndEmitContextUpdates();
+
+
+        this.io.emit('reports', {
+          'foo': 'bar'
+        })
+
 
         return user;
     }
@@ -75,6 +85,15 @@ class contextManager{
   handleHeartbeat(heartbeat){
     this.saveContext();
     this.getAndEmitContextUpdates();
+
+  }
+
+  handleSlowHeartbeat(heartbeat){
+    // this.history.saveContext({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls, commands: this.commands}, timestamp: new Date()  }).then(function(res){})
+    console.log('slow');
+    this.io.emit('reports', {
+      'foo': 'bar'
+    })
 
   }
 
@@ -114,8 +133,6 @@ class contextManager{
   async updateModifiers(modifiers){
     this.modifiers = modifiers;
   }
-
-
 
   async getContextNodesBucketedByHour(){
     let nodeIdsByHours = await this.getContextNodeIdsBucktedByHour();
@@ -215,9 +232,7 @@ class contextManager{
 
   }
 
-  handleSlowHeartbeat(heartbeat){
-    this.history.saveContext({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls, commands: this.commands}, timestamp: new Date()  }).then(function(res){})
-  }
+
 
   addFileNode(fileNode){
     let file = this.files.filter(file => file.address === fileNode.address);

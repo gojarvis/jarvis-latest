@@ -7,7 +7,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
 let agent = require('superagent-promise')(require('superagent'), Promise);
 import Avatar from 'material-ui/Avatar';
-
+import ReportViewer from 'components/ReportViewer/ReportViewer'
 
 import {
 blue300,
@@ -26,9 +26,23 @@ class ReportView extends Component {
     super(...args);
     this.socket = window.socket;
     this.init();
-    this.state ={
+    this.state = {
       users: [],
-      user: {}
+      user: {},
+      reports: [
+        {
+          title: `Hot files in your repo`,
+          subtitle: `See what files are getting noticed`,
+          itemType: 'File',
+          data: []
+        },
+        {
+         title: `Team members working on the same resources`,
+         subtitle: `We found 3 who might be helpful`,
+         itemType: 'User',
+         data: []
+        }
+      ]
     }
   }
 
@@ -38,15 +52,28 @@ class ReportView extends Component {
 
 
   async componentWillMount(){
+    let res = await agent.get('http://localhost:3000/init');
     this.socket.connect();
 
-    this.socket.on('report-query', msg => {
+    this.socket.on('connection', () => {
+      console.log('SOCKET CONNECTED');
+    })
 
+    this.socket.on('reports', msg => {
+      console.log('Reports');
     });
 
   }
 
   render() {
+
+    let reports = this.state.reports.map((report, key) => {
+      return (
+        <ReportViewer key={key} report={report} />
+      )
+    })
+
+
     return (
       <ViewWrapper>
         <div style={{...LOCAL_STYLES.container}}>
@@ -55,12 +82,15 @@ class ReportView extends Component {
           <div>
             <div style={{"padding": 10}}><h3>Report</h3></div>
 
-            <Item  style={{"margin": 20}} title="@binkbeats is working with you" subtitle="You share 13 files"/>
+            {reports}
+
+
+            {/*<Item  style={{"margin": 20}} title="@binkbeats is working with you" subtitle="You share 13 files"/>
             <Item  style={{"margin": 20}} title="Hot file in your repo" subtitle="42 users interacted with this file"/>
             <Item  style={{"margin": 20}} title="Team members you should talk to" subtitle="They probably know what you're working on"/>
             <Item  style={{"margin": 20}} title="Found by other users" subtitle="Popular files you havent seen yet "/>
             <Item  style={{"margin": 20}} title="Most popular keywords in your repo" subtitle="What are people working on?"/>
-            <Item  style={{"margin": 20}} title="Last week's focus" subtitle="This is what you've been working on"/>
+            <Item  style={{"margin": 20}} title="Last week's focus" subtitle="This is what you've been working on"/>*/}
           </div>
 
 
