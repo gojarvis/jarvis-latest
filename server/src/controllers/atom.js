@@ -67,6 +67,7 @@ class AtomController {
     async handleFileClose(address){
 
       let projectPath = projectSettingsManager.getRootPath();
+
       let trimmedAddress = address.replace(projectPath, '');
       let fileNode = await graphUtil.getFile(trimmedAddress);
       this.context.removeFileNode(fileNode)

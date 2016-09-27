@@ -192,11 +192,13 @@ class GraphUtil{
         return data`;
     let globalWeightFactors;
 
+
     try {
       globalWeightFactors = await this.queryGraph(cypher);
     } catch (e) {
       console.log('cant getGlobalTouchWeightFactor', e);
     } finally {
+      console.log('getUserGlobalWeightFactors', cypher, globalWeightFactors);
       return globalWeightFactors[0]
     }
   }

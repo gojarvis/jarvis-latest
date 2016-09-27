@@ -64,7 +64,7 @@ let graphController = {
     let normalizedWeight;
 
     let globalModifiers = await graphUtil.getUserGlobalWeightFactors(user);
-    console.log('Modifiers', globalModifiers);
+    
     if (endUserNodeIds.length > 0 ){
       endUserNodeIds = endUserNodeIds.filter(userId => user.id != userId);
     }

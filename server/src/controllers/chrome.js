@@ -123,7 +123,7 @@ class ChromeController {
       self.urlFilterCache.whitelistExpressions = await graphUtil.getRelatedNodes(userNode, 'whitelist')
       self.urlFilterCache.blacklistExpressions = await graphUtil.getRelatedNodes(userNode, 'blacklist')
 
-      console.log(this.urlFilterCache);
+      // console.log(this.urlFilterCache);
 
     }
 
@@ -132,7 +132,11 @@ class ChromeController {
     async saveSession() {
         let self = this;
 
-        if (self.urlFilterCache.whitelistExpressions.length === 0 || self.urlFilterCache.blacklistExpressions.length === 0 ){
+        let blacklistEnabled = await settingsManager.getFilterStatus('blacklist');
+        let whiteListEnabled = await settingsManager.getFilterStatus('whitelist');
+
+
+        if ((self.urlFilterCache.whitelistExpressions.length === 0 || self.urlFilterCache.blacklistExpressions.length === 0) && (blacklistEnabled || whiteListEnabled) ){
           self.prefillUrlFilterCache()
         }
 
@@ -220,11 +224,10 @@ class ChromeController {
     async isInBlackList(address) {
         // let userNode = await graphUtil.getUserNodeByUsername(user.username);
         let self = this;
-        console.log('is black', self.urlFilterCache);
+
         let isBlacklisted = false;
 
         if (this.urlFilterCache.blacklistedUrls.indexOf(address) !== -1){
-            console.log('FROM CACHE BL', address);
             return true
         }
         else{
