@@ -326,7 +326,8 @@ class GraphUtil{
       let blacklistExpressions = [
         '.*facebook\.com.*',
         '.*gmail\.com.*',
-        '.*inbox\.google\.com.*'
+        '.*inbox\.google\.com.*',
+        'chrome://newtab/'
       ];
 
       let whitelistExpressions = [
