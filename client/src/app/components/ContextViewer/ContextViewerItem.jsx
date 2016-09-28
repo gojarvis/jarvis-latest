@@ -62,8 +62,7 @@ class ContextViewerItem extends React.Component {
     }
 
     let weight = this.props.weight;
-    let color = `hsla(${weight}, 100%, 50%, ${weight/100})`;
-    console.log(color);
+    let color = `hsla(${weight}, 100%, 50%, ${weight/100})`;    
 
     switch(item.data.type) {
       case 'file':

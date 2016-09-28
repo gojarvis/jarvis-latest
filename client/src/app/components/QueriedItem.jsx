@@ -111,7 +111,6 @@ class QueriedItem extends React.Component {
     let weightBar = item.relationshipWeight * 10 * 20;
     let weightBarString = weightBar + "vw"
     let weightValue, maxValue, engagement, opacity, raw, engagementIconColor;
-    console.log('item.relationshipWeight', item.relationshipWeight);
     if (item.relationshipWeight / item.avgOpen > 1){
       raw = item.relationshipWeight.toFixed(3);
       maxValue = item.maxOpen.toFixed(3);

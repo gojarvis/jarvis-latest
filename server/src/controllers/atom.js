@@ -76,6 +76,12 @@ class AtomController {
 
     async handleFileHighlighted(address) {
         let fileNode = await this.insertUniqueFile(address)
+
+        if (!fileNode){
+          console.log('Ignoring', address);
+          return;
+        }
+
         let otherNodes = this.tabs.filter(tab => tab.id !== fileNode.id);
         //Killed this because things are being realted in the context controller
         // let rel = await this.relateOneToMany(fileNode, otherNodes, 'openwith');
@@ -104,7 +110,12 @@ class AtomController {
 
         let projectPath = projectSettingsManager.getRootPath();
 
-        //TODO: Filter files that are not in the project path
+        if (!_.isEmpty(projectPath) && address.indexOf(projectPath) === -1){
+          console.log('Ignoring file that is outside of root');
+          return false;
+        }
+
+
         let trimmedAddress = address.replace(projectPath, '');
         let fileNode = await this.getAndSave(trimmedAddress);
         let tab = this.tabs.filter(tab => tab.address === fileNode.address);

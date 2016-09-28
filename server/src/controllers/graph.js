@@ -64,7 +64,7 @@ let graphController = {
     let normalizedWeight;
 
     let globalModifiers = await graphUtil.getUserGlobalWeightFactors(user);
-    
+
     if (endUserNodeIds.length > 0 ){
       endUserNodeIds = endUserNodeIds.filter(userId => user.id != userId);
     }
@@ -102,6 +102,8 @@ let graphController = {
       cypher += ` and NOT ID(endNode) = ${nodeId}`
       cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`
 
+      //Filter for excluding things user touched
+      // cypher += ` and NOT (startUserNode)-[:touched]-(endNode)`
       normalizedWeight = 1;
 
       cypher += ` return startNode,`
@@ -140,6 +142,7 @@ let graphController = {
         cypher += ` and ID(startUserNode) = ${startUserNodeId}`
         cypher += ` and NOT ID(endNode) = ${nodeId}`
         cypher += ` and NOT ID(url) = ${nodeId}`
+
         normalizedSumCypher = cypher + ` return avg(o.weight) as normalizedSumWeight`;
         // console.log('normalizedSumCypher---', normalizedSumCypher);
         normalizedWeight = globalModifiers.avgOpen;
@@ -178,6 +181,7 @@ let graphController = {
         console.log(`  `);
         console.log(`====== END QUERY =====`);
         console.log(`Found ${result.length} results for the query`);
+
         result.globalModifiers = globalModifiers;
 
 
