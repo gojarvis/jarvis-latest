@@ -82,8 +82,7 @@ class GraphUtil{
 
   getNodeByAddress(address){
     return new Promise(function(resolve, reject) {
-      graph.find({address: address}, function(err, nodes){
-        console.log('NODES FOUND', address);
+      graph.find({address: address}, function(err, nodes){        
         if (err)  {
           console.log(err);
           reject(err);

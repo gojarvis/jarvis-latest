@@ -188,6 +188,7 @@ app.post('/open', isLoggedIn, function(req, res) {
   let end = moment(now);
   let requestTime = moment(timestamp);
   let duration = moment.duration(end.diff(requestTime));
+  let user = req.session.user;
 
   if(duration.asMinutes() > 0.3){
     console.log('ignoring old request');
@@ -209,7 +210,9 @@ app.post('/open', isLoggedIn, function(req, res) {
 
 
   let proc = childProc.exec(cmd, function(error, stdout, stderr) {
-    console.log('Executed', cmd);
+    // console.log('Executed', cmd);
+    // console.log('going to mark', user.username, address);
+    usersController.markUserActivity(user.username, address);
   });
 
   proc.stdout.on('data', function(data){
@@ -292,7 +295,7 @@ app.post('/api/user/create', [isLoggedIn, ensureAdmin], function(req, res) {
 
 });
 
-app.post('/api/user/all', ensureAdmin, function(req, res) {
+app.post('/api/user/all', [isLoggedIn, ensureAdmin], function(req, res) {
   // let username = req.session.passport.user.username;
   usersController.getAllUsers().then(function(users) {
     res.json(users);

@@ -46,6 +46,12 @@ class UsersController{
     return userNode;
   }
 
+  async markUserActivity(username, nodeAddress){
+    let userNode = await graphUtil.getUserNodeByUsername(username);
+    let node = await graphUtil.getNodeByAddress(nodeAddress);
+    let rel = await graphUtil.relateNodes(userNode, node, 'clicked')
+  }
+
   getAllUsers() {
     return new Promise(async function(resolve, reject) {
         let cypher = 'match (u:User) return u';
