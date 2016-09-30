@@ -6,6 +6,17 @@ import LinearProgress from 'material-ui/LinearProgress';
 import FB from 'styles/flexbox';
 let agent = require('superagent-promise')(require('superagent'), Promise);
 
+
+
+async function externalLinkClick(address, type){
+  let params = {
+    address : address,
+    type: type,
+    timestamp: new Date()
+  };
+  let result = await agent.post('http://localhost:3000/open', params);
+}
+
 class QueriedItem extends React.Component {
   constructor(...args) {
     super(...args);
@@ -111,7 +122,6 @@ class QueriedItem extends React.Component {
     let weightBar = item.relationshipWeight * 10 * 20;
     let weightBarString = weightBar + "vw"
     let weightValue, maxValue, engagement, opacity, raw, engagementIconColor;
-    console.log('item.relationshipWeight', item.relationshipWeight);
     if (item.relationshipWeight / item.avgOpen > 1){
       raw = item.relationshipWeight.toFixed(3);
       maxValue = item.maxOpen.toFixed(3);
@@ -142,11 +152,17 @@ class QueriedItem extends React.Component {
       <div
         title={JSON.stringify(item, null, 2)}
         style={{..._styles.container, backgroundColor: "white", borderColor: color, borderRight: "15px solid " + color, borderLeft: "15px solid " + color}}
-        onClick={() => this.props.onClick(nodeId)}>
+        >
         <IconText icon={iconClass} iconColor={typeIconColor}>
           <IconText icon={openWithClass} iconColor={iconColor}>
+
+
+
             <div style={{...FB.base, flexWrap: "nowrap", ...FB.align.center}}>
-              <div style={{flexGrow: "4", marginRight: "40px", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", width: "10px" }}>{title}</div>
+              <IconText icon='external-link'
+                onClick={() => externalLinkClick(item.endNode.address, item.endNode.type)}
+                ></IconText>
+              <div onClick={() => this.props.onClick(nodeId)} style={{flexGrow: "4", marginRight: "40px", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", width: "10px" }}>{title}</div>
                 <div style={{'fontSize': 8, 'marginRight': 4}}>
                   <IconText icon={engagement} iconColor={engagementIconColor} />
                 </div>
@@ -157,6 +173,7 @@ class QueriedItem extends React.Component {
 
                 </div>
               <IconText icon='trash' onClick={(e) => this._blacklistNode(nodeId, e)} />
+
             </div>
           </IconText>
         </IconText>

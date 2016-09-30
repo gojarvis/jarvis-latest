@@ -8,7 +8,8 @@ let agent = require('superagent-promise')(require('superagent'), Promise);
 async function externalLinkClick(address, type){
   let params = {
     address : address,
-    type: type
+    type: type,
+    timestamp: new Date()
   };
   let result = await agent.post('http://localhost:3000/open', params);
 }
@@ -52,10 +53,8 @@ class FocusedItem extends Component {
             .filter(part => part !== '')
             .slice(-1).pop()}
         </IconText>
-        <IconText icon='external-link' margin={10}>
-          <span
-            style={{cursor: 'pointer'}}
-            onClick={() => externalLinkClick(item.get('address'), item.get('type'))}>
+        <IconText style={{cursor: 'pointer'}} icon='external-link' margin={10} onClick={() => externalLinkClick(item.get('address'), item.get('type'))}>
+          <span>
             {item.get('address')}
           </span>
         </IconText>

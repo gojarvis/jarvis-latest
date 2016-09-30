@@ -8,7 +8,7 @@ let http = require('http').Server(app);
 let bodyParser = require('body-parser');
 
 let rethink = require('rethinkdb');
-
+let moment = require('moment');
 let graphController = require('./controllers/graph')
 let childProc = require('child_process');
 let passport = require('passport');
@@ -178,10 +178,24 @@ app.get('/init', isLoggedIn, function(req, res) {
 
 app.get('/users', graphController.getUsers);
 
-app.post('/open', function(req, res) {
+app.post('/open', isLoggedIn, function(req, res) {
   let rootPath = projectSettingsManager.getRootPath();
   let address = req.body.address;
+  let timestamp = req.body.timestamp;
+  let now = new Date();
   let type = req.body.type;
+  let end = moment(now);
+  let requestTime = moment(timestamp);
+  let duration = moment.duration(end.diff(requestTime));
+  let user = req.session.user;
+
+  if(duration.asMinutes() > 0.3){
+    console.log('ignoring old request');
+    console.log('Fired', duration.asMinutes(),  ' minutes ago');
+    return false;
+  }
+
+
   let cmd;
   switch (type) {
     case 'url':
@@ -191,7 +205,22 @@ app.post('/open', function(req, res) {
       cmd = 'open -a "Atom" ' + rootPath + address;
       break;
   }
-  childProc.exec(cmd, function() {});
+
+
+
+  let proc = childProc.exec(cmd, function(error, stdout, stderr) {
+    // console.log('Executed', cmd);
+    // console.log('going to mark', user.username, address);
+    usersController.markUserActivity(user.username, address);
+  });
+
+  proc.stdout.on('data', function(data){
+    console.log('stdout : ', data);
+  })
+
+  proc.on('close', function(){
+    console.log('proc close');
+  })
 
 
 });
@@ -265,7 +294,7 @@ app.post('/api/user/create', [isLoggedIn, ensureAdmin], function(req, res) {
 
 });
 
-app.post('/api/user/all', ensureAdmin, function(req, res) {
+app.post('/api/user/all', [isLoggedIn, ensureAdmin], function(req, res) {
   // let username = req.session.passport.user.username;
   usersController.getAllUsers().then(function(users) {
     res.json(users);
