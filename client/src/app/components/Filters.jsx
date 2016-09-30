@@ -34,14 +34,16 @@ class Filters extends Component {
           let zIndex = selected ? 0 : 5;
 
           return (
-            <RaisedButton
+            <div
               key={index}
               label={filter.label}
               primary={selected}
               secondary={!selected}
               zIndex={zIndex}
               onClick={()=>this._handleFilter(filter)}
-              style={{flex: '1 1 auto', margin: 10}} />
+              style={styles.filterButton} >
+              {filter.label}
+            </div>
           )
         })
       }</div>
@@ -50,7 +52,12 @@ class Filters extends Component {
 }
 
 const styles = {
+
   filterButton: {
+    flex: '1 1 auto',
+    margin: 10,
+    fontFamily: '"Lucida Grande", "Segoe UI", Ubuntu, Cantarell, sans-serif',
+    fontSize: 10,
     ...FB.base,
     ...FB.justify.center,
     ...FB.flex.equal,

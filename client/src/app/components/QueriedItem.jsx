@@ -72,7 +72,7 @@ class QueriedItem extends React.Component {
     switch(item.endNode.type) {
       case 'file':
         iconClass = 'file';
-        typeIconColor = '#FF3F81';
+        typeIconColor = '#1e8935';
         break;
       case 'url':
         iconClass = 'bookmark';
@@ -151,44 +151,50 @@ class QueriedItem extends React.Component {
     return (
       <div
         title={JSON.stringify(item, null, 2)}
-        style={{..._styles.container, backgroundColor: "white", borderColor: color, borderRight: "15px solid " + color, borderLeft: "15px solid " + color}}
+        style={{..._styles.card, borderLeft: "5px solid " + color }}
         >
         <IconText icon={iconClass} iconColor={typeIconColor}>
-          <IconText icon={openWithClass} iconColor={iconColor}>
-
-
 
             <div style={{...FB.base, flexWrap: "nowrap", ...FB.align.center}}>
               <IconText icon='external-link'
+                style={{ fontSize: 12 }}
                 onClick={() => externalLinkClick(item.endNode.address, item.endNode.type)}
                 ></IconText>
-              <div onClick={() => this.props.onClick(nodeId)} style={{flexGrow: "4", marginRight: "40px", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", width: "10px" }}>{title}</div>
+              <div onClick={() => this.props.onClick(nodeId)}
+                style={{
+                  flexGrow: "4",
+                  fontSize: "12",
+                  fontFamily: "'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif",
+                  marginRight: "40px",
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
+                  textOverflow: "ellipsis",
+                  marginLeft: "10",
+                  width: "10px" }}>
+                    {title}
+                </div>
+
                 <div style={{'fontSize': 8, 'marginRight': 4}}>
                   <IconText icon={engagement} iconColor={engagementIconColor} />
-                </div>
-                <div style={{width: '10vw', marginRight: "2vw"}}>
-
-                  <LinearProgress mode="determinate" value={weightValue}/>
-
-
                 </div>
               <IconText icon='trash' onClick={(e) => this._blacklistNode(nodeId, e)} />
 
             </div>
           </IconText>
-        </IconText>
+
       </div>
     )
   }
 }
 
 const _styles = {
-  container: {
-    color: 'rgba(0, 0, 0, 1)',
+  card: {
+    color: "#949daf",
+    backgroundColor: "rgb(62, 66, 75)",
     padding: 5,
     margin: 10,
     cursor: "pointer",
-    borderRadius: 4,
+    borderRadius: 0
   }
 }
 

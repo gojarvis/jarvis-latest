@@ -31,7 +31,7 @@ class FocusedItem extends Component {
     switch(item.get('type')) {
       case 'file':
         iconClass = 'file';
-        iconColor = '#FF3F81';
+        iconColor = '#1e8935';
         break;
       case 'url':
         iconClass = 'bookmark';
@@ -46,28 +46,36 @@ class FocusedItem extends Component {
     let isVisible = item.size === 0 ? { display: 'none' } : {};
 
     return (
-      <Card style={{...isVisible, ...styles.focusedItem}} className='focusedItem' title={JSON.stringify(this.props, null, 2)}>
+      <div style={{...isVisible, ...styles.focusedItem}} className='focusedItem'>
         <IconText icon={iconClass} iconColor={iconColor} margin={10}>
-          {(item.get('title', '') || item.get('address', '') || '')
-            .split('/')
-            .filter(part => part !== '')
-            .slice(-1).pop()}
+          <span>
+            {(item.get('title', '') || item.get('address', '') || '')
+              .split('/')
+              .filter(part => part !== '')
+              .slice(-1).pop()}
+          </span>
+
         </IconText>
         <IconText style={{cursor: 'pointer'}} icon='external-link' margin={10} onClick={() => externalLinkClick(item.get('address'), item.get('type'))}>
           <span>
             {item.get('address')}
           </span>
         </IconText>
-      </Card>
+
+      </div>
     );
   }
 }
 
 const styles = {
   focusedItem: {
+    fontFamily: "'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif",
+    fontWeight: '700',
+    backgroundColor: 'rgb(62, 66, 75)',
+    fontSize: '12px',
     margin: "10px",
     padding: "10px",
-    color: "black",
+    color: "rgb(148, 157, 175)",
   },
 }
 

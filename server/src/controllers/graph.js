@@ -157,9 +157,7 @@ let graphController = {
       }
 
     }
-    // doesn't get here for some reason
-    console.log('query: ', cypher);
-
+    
     try{
 
       if (!startUserNodeId && !endUserNodeIds){
@@ -175,12 +173,12 @@ let graphController = {
 
       try {
         let result = await queryGraph(cypher);
-        console.log(`======  QUERY   =====`);
-        console.log(`  `);
-        console.log(cypher);
-        console.log(`  `);
-        console.log(`====== END QUERY =====`);
-        console.log(`Found ${result.length} results for the query`);
+        // console.log(`======  QUERY   =====`);
+        // console.log(`  `);
+        // console.log(cypher);
+        // console.log(`  `);
+        // console.log(`====== END QUERY =====`);
+        // console.log(`Found ${result.length} results for the query`);
 
         result.globalModifiers = globalModifiers;
 

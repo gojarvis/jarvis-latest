@@ -55,7 +55,7 @@ class EventTickerItem extends React.Component {
     switch(item.source) {
       case 'atom':
         iconClass = 'file';
-        iconColor = '#FF3F81';
+        iconColor = '#1e8935';
         break;
       case 'chrome':
         iconClass = 'bookmark';
@@ -91,7 +91,7 @@ class EventTickerItem extends React.Component {
         style={STYLES.container}
         onClick={() => this.props.onClick(this.props.item.data.nodeId)}>
         <div style={STYLES.row}>
-          <IconText icon={iconClass} style={{marginRight: 10}} iconColor={iconColor} />
+          <IconText icon={iconClass} style={{marginRight: 10, fontSize: 10}} iconColor={iconColor} />
           <span style={STYLES.title}>{title.slice(0,35)}{title.length > 35 ? '...' : ''}</span>
         </div>
         <div style={STYLES.subtitle}>{momentText}</div>
@@ -109,9 +109,10 @@ const STYLES = {
     cursor: 'pointer',
     margin: "10px 0 10px 10px",
     flexShrink: 0,
-    backgroundColor: '#fff',
+    fontFamily: '"Lucida Grande", "Segoe UI", Ubuntu, Cantarell, sans-serif',
+    backgroundColor: 'rgb(62, 66, 75)',
     padding: 10,
-    color: '#000',
+    color: 'rgb(148, 157, 175)',
     flexDirection: 'column',
     minWidth: 100
   },
@@ -122,10 +123,10 @@ const STYLES = {
     alignSelf: 'flex-start'
   },
   title: {
-    fontSize: 18
+    fontSize: 12
   },
   subtitle: {
-    fontSize: 11
+    fontSize: 10
   },
 }
 
