@@ -17,14 +17,10 @@ import Toggle from 'material-ui/Toggle';
 import * as ActionCreators from 'store/actionCreators';
 import Filters from 'components/Filters';
 
-import IconText from 'components/IconText'
+
+import Sidebar from 'components/Sidebar/Sidebar'
 
 
-
-
-let DashboardIcon = require('react-icons/lib/fa/dashboard');
-let ConnectionExplorerIcon = require('react-icons/lib/fa/sitemap');
-let SettingsIcon = require('react-icons/lib/md/settings-applications')
 
 class MainView extends Component {
   constructor(...args) {
@@ -94,18 +90,8 @@ class MainView extends Component {
     return (
       <ViewWrapper>
         <div>
-          <div style={styles.sidebar}>
-            <div style={styles.navbar.logo}>
 
-            </div>
-            <div style={styles.navbar.item.wrapper}>
-                <DashboardIcon style={styles.navbar.item.content}/>
-            </div>
-            <div style={styles.navbar.item.wrapper}>
-                <ConnectionExplorerIcon style={styles.navbar.item.content}/>
-            </div>
-
-          </div>
+          <Sidebar />
           <div style={styles.viewWrapper}>
             <div style={layout.container}>
 
@@ -147,14 +133,7 @@ const styles = {
   block: {
     maxWidth: 250,
   },
-  sidebar: {
-    position: 'absolute',
-    top:0,
-    left:0,
-    width: 80,
-    bottom: 0,
-    backgroundColor: 'rgb(31, 37, 48)'
-  },
+
   viewWrapper: {
     position: 'absolute',
     right: 0,
@@ -162,31 +141,6 @@ const styles = {
     bottom: 0,
     left: 80,
     zIndex: 10
-  },
-  navbar: {
-    logo:{
-      width: '70%',
-      margin: '10px auto',
-      backgroundColor: 'red',
-      height: '55px'
-    },
-    item: {
-      wrapper: {
-        width: '80%',
-        margin: '0 auto',
-        height: '60px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        cursor: 'pointer'
-      },
-      content: {
-        fontSize: '30px',
-        color: '#e1e1e1',
-        backgroundColor: 'rgb(62, 66, 75)',
-        padding: '13px'
-      }
-    }
   },
   toggle: {
     color: 'white',
