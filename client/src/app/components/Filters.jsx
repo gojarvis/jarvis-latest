@@ -16,11 +16,11 @@ class Filters extends Component {
     }
   }
 
-  static get defaultProps() {
-    return {
-      selectedFilter: PropTypes.string.isRequired
-    }
-  }
+  static displayName = 'Filters';
+
+  static defaultProps = {
+    selectedFilter: PropTypes.string.isRequired
+  };
 
   _handleFilter(filter) {
     this.props.setEndNodeType(filter.type);

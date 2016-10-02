@@ -19,6 +19,8 @@ class WhiteListForm extends Component {
     }
   }
 
+  static displayName = 'WhiteListForm';
+
   componentWillMount() {
     this.getWhitelistExpressions();
     this.getWhiteListStatus();

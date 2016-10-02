@@ -7,7 +7,9 @@ import FlipMove from 'react-flip-move';
 import FB from 'styles/flexbox';
 require('./ContextViewer.css');
 
-class EventTickerList extends Component {
+class ContextViewer extends Component {
+  static displayName = 'ContextViewer';
+
   constructor(...args) {
     super(...args);
   }
@@ -16,11 +18,9 @@ class EventTickerList extends Component {
     this.props.fetchQueryItemsIfNeeded(nodeId);
   }
 
-  static get propTypes() {
-    return {
-      items: PropTypes.object.isRequired
-    }
-  }
+  static propTypes = {
+    items: PropTypes.object.isRequired
+  };
 
   _renderItems() {
     let items;
@@ -83,4 +83,4 @@ const styles = {
   },
 }
 
-export default EventTickerList;
+export default ContextViewer;

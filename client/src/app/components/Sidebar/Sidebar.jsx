@@ -9,6 +9,8 @@ let SettingsIcon = require('react-icons/lib/md/settings-applications')
 
 
 class Sidebar extends Component {
+  static displayName = 'Sidebar';
+  
   handleSidebarButtonClick() {
 
   }

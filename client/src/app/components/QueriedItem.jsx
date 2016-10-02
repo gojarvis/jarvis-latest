@@ -24,11 +24,11 @@ class QueriedItem extends React.Component {
     this._blacklistNode = this._blacklistNode.bind(this);
   }
 
-  static get propTypes() {
-    return {
-      item: PropTypes.object.isRequired,
-      onClick: PropTypes.func.isRequired,
-    }
+  static displayName = 'QueriedItem';
+
+  static propTypes = {
+    item: PropTypes.object.isRequired,
+    onClick: PropTypes.func.isRequired,
   }
 
   async _blacklistNode(targetId, e) {
@@ -189,7 +189,8 @@ class QueriedItem extends React.Component {
 
 const _styles = {
   card: {
-    color: "#949daf",
+    // color: "#949daf",
+    color: '#fff',
     backgroundColor: "rgb(62, 66, 75)",
     padding: 5,
     margin: 10,

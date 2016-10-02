@@ -7,11 +7,11 @@ class UserList extends Component {
     super(...args);
   }
 
-  static get propTypes() {
-    return {
-      users: PropTypes.object.isRequired,
-      selectedUsers: PropTypes.object.isRequired
-    }
+  static displayName = 'UserList';
+
+  static propTypes = {
+    users: PropTypes.object.isRequired,
+    selectedUsers: PropTypes.object.isRequired,
   }
 
   render() {

@@ -21,6 +21,8 @@ class SetUserRepoCredentials extends Component {
      this.init()
   }
 
+  static displayName = 'SetUserRepoCredentials';
+
   async init(){
       // let res = await agent.post('/api/user/getRootPath', {rootPath});
       // let rootPath = res.body;

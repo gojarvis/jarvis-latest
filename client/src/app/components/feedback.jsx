@@ -91,6 +91,8 @@ class Feedback extends React.Component {
     };
   }
 
+  static displayName = 'Feedback';
+
   componentDidMount() {
     // window.addEventListener('touchmove', this.handleTouchMove);
     // window.addEventListener('touchend', this.handleMouseUp);

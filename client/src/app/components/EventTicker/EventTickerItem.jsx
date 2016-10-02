@@ -16,27 +16,27 @@ class EventTickerItem extends React.Component {
     this.state = {
       expanded: false,
     };
-  }
+  };
 
-  static get propTypes() {
-    return {
-      item: PropTypes.object.isRequired
-    }
-  }
+  static propTypes = {
+    item: PropTypes.object.isRequired
+  };
 
-  handleExpandChange = (expanded) => {
+  static displayName = 'EventTickerItem';
+
+  handleExpandChange(expanded) {
     this.setState({expanded: expanded});
   };
 
-  handleToggle = (event, toggle) => {
+  handleToggle(event, toggle) {
     this.setState({expanded: toggle});
   };
 
-  handleExpand = () => {
+  handleExpand() {
     this.setState({expanded: true});
   };
 
-  handleReduce = () => {
+  handleReduce() {
     this.setState({expanded: false});
   };
 
@@ -112,7 +112,8 @@ const STYLES = {
     fontFamily: '"Lucida Grande", "Segoe UI", Ubuntu, Cantarell, sans-serif',
     backgroundColor: 'rgb(62, 66, 75)',
     padding: 10,
-    color: 'rgb(148, 157, 175)',
+    // color: 'rgb(148, 157, 175)',
+    color: '#fff',
     flexDirection: 'column',
     minWidth: 100
   },

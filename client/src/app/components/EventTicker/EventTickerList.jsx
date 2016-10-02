@@ -16,11 +16,11 @@ class EventTickerList extends Component {
     this.props.fetchQueryItemsIfNeeded(nodeId);
   }
 
-  static get propTypes() {
-    return {
-      items: PropTypes.object.isRequired
-    }
-  }
+  static propTypes = {
+    items: PropTypes.object.isRequired
+  };
+
+  static displayName = 'EventTickerList';
 
   _renderItems() {
     let items;

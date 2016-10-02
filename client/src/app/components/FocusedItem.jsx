@@ -19,6 +19,8 @@ class FocusedItem extends Component {
     super(...args);
   }
 
+  static displayName = 'FocusedItem';
+
   render() {
     let {item} = this.props;
     if (_.isUndefined(item) || item === null){
@@ -75,7 +77,8 @@ const styles = {
     fontSize: '12px',
     margin: "10px",
     padding: "10px",
-    color: "rgb(148, 157, 175)",
+    color: "#fff",
+    // color: "rgb(148, 157, 175)",
   },
 }
 

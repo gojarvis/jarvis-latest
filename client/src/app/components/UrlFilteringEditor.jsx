@@ -16,6 +16,8 @@ class UrlFilteringEditor extends Component {
     }
   }
 
+  static displayName = 'UrlFilteringEditor';
+
   componentDidMount() {
 
   }

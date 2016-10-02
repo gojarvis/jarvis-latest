@@ -7,6 +7,8 @@ class QueriedItemList extends Component {
     super(...args);
   }
 
+  static displayName = 'QueriedItemList';
+
   _itemOnClick(nodeId) {
     this.props.fetchQueryItemsIfNeeded(nodeId);
   }

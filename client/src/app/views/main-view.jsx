@@ -16,11 +16,7 @@ import UserList from 'components/UserList';
 import Toggle from 'material-ui/Toggle';
 import * as ActionCreators from 'store/actionCreators';
 import Filters from 'components/Filters';
-
-
 import Sidebar from 'components/Sidebar/Sidebar'
-
-
 
 class MainView extends Component {
   constructor(...args) {
@@ -31,6 +27,8 @@ class MainView extends Component {
       temporalContextItems: []
     }
   }
+
+  static displayName = 'MainView';
 
   componentWillReceiveProps(nextProps) {
     let checkProps = ['focusedNodeId', 'endNodeType', 'endUserNodeIds'];

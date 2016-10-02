@@ -9,6 +9,8 @@ class LoadingIcon extends Component {
     super(...args);
   }
 
+  static displayName = 'LoadingIcon';
+
   componentWillEnter(callback) {
     const el = findDOMNode(this);
     tmax.fromTo(el, 0.35, {opacity: 0}, {opacity: 1, onComplete: callback});

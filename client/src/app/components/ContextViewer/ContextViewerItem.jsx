@@ -132,12 +132,13 @@ const styles = {
     margin: "10px 0 10px 10px",
     flexShrink: 0,
     padding: 10,
-    color: '#000',
+    color: '#fff',
+    // color: '#000',
     flexDirection: 'column',
     minWidth: 100,
     fontFamily: '"Lucida Grande", "Segoe UI", Ubuntu, Cantarell, sans-serif',
     backgroundColor: 'rgb(62, 66, 75)',
-    color: 'rgb(148, 157, 175)'
+    // color: 'rgb(148, 157, 175)'
   },
   row: {
     ...FB.base,

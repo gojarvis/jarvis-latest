@@ -9,27 +9,30 @@ import mui, { RaisedButton } from 'material-ui';
 import LoadingIndicator from 'components/LoadingIndicator';
 
 class Navbar extends Component {
-  super(){
+  constructor() {
+    super();
     this.state = {
       isAdmin: false
     }
-  }
+  };
 
-  logout(){
+  static displayName = 'Navbar';
+
+  logout() {
     agent.post('http://localhost:3000/logout').then((res)=> {
       this.context.router.push('/');
     });
   }
-  getChildContext()
-   {
 
+  getChildContext() {
       //  return { muiTheme: ThemeManager.getCurrentTheme() };
    }
 
-  navigate(target){
-      this.context.router.push('/' + target);
+  navigate(target) {
+    this.context.router.push('/' + target);
   }
-  componentWillMount(){
+
+  componentWillMount() {
 
     agent.post('http://localhost:3000/api/team/all').then((res)=> {
       // console.info('res', res);
@@ -44,9 +47,7 @@ class Navbar extends Component {
     });
   }
 
-  componentDidMount() {
-
-  }
+  componentDidMount() {}
 
   render() {
     let admin;

@@ -7,6 +7,9 @@ class Login extends Component {
   constructor() {
     super();
   }
+
+  static displayName = 'Login';
+
   render() {
     return (
       <div style={{...FB.base, ...FB.justify.center, ...FB.align.center, height: '100vh', width: '100vw'}}>

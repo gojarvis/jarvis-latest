@@ -4,7 +4,8 @@ import brain from 'brain'
 
 
 class Rnn extends React.Component {
-
+  static displayName = 'Rnn';
+  
   render () {
     let net = new brain.NeuralNetwork();
 

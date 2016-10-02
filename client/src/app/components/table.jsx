@@ -8,6 +8,8 @@ const TableRow = require('material-ui/lib/table/table-row');
 const TableRowColumn = require('material-ui/lib/table/table-row-column');
 
 const ComposedTable = React.createClass({
+  static displayName = 'ComposedTable';
+  
   render(){
     this.state = {
       fixedHeader: true,

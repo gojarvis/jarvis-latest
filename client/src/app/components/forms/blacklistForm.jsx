@@ -21,6 +21,8 @@ class BlackListForm extends Component {
     }
   }
 
+  static displayName = 'BlackListForm';
+
   componentWillMount() {
     this.getBlacklistExpressions();
     this.getBlackListStatus();
