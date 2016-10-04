@@ -2,9 +2,12 @@ import React, { Component, PropTypes } from 'react'
 import FB from 'styles/flexbox';
 import LoadingIndicator from 'components/LoadingIndicator';
 
+let ReportsIcon = require('react-icons/lib/md/assistant')
 let DashboardIcon = require('react-icons/lib/fa/dashboard');
 let ConnectionExplorerIcon = require('react-icons/lib/fa/sitemap');
 let SettingsIcon = require('react-icons/lib/md/settings-applications')
+let UserIcon = require('react-icons/lib/fa/user')
+
 
 let logoImageSrc = require('./logo.png');
 
@@ -31,15 +34,22 @@ class Sidebar extends Component {
         <div style={styles.navbar.logo}>
           <img src={logoImageSrc} height='56' width='56' />
         </div>
-        <div style={styles.navbar.item.wrapper}>
-            <DashboardIcon style={styles.navbar.item.content}/>
+        <div style={styles.navbar.item.wrapper} title="Reports">
+            <ReportsIcon style={styles.navbar.item.content} />
         </div>
-        <div style={styles.navbar.item.wrapper}>
+        <div style={styles.navbar.item.wrapper} title="Activity">
+            <DashboardIcon style={styles.navbar.item.content} />
+        </div>
+        <div style={styles.navbar.item.wrapper}  title="Connection Explorer">
             <ConnectionExplorerIcon style={styles.navbar.item.content}/>
         </div>
 
-        <div style={styles.navbar.item.wrapper}>
-            <SettingsIcon style={styles.navbar.item.content} onClick={() => this._handleNavigation()}/>
+        <div style={styles.navbar.item.wrapper}  title="Team Activity">
+            <UserIcon style={styles.navbar.item.content}/>
+        </div>
+
+        <div style={styles.navbar.item.wrapper} title="Settings">
+            <SettingsIcon style={styles.navbar.item.content} onClick={() => this._handleNavigation()} />
         </div>
       </div>
     )
@@ -77,7 +87,8 @@ const styles = {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        cursor: 'pointer'
+        cursor: 'pointer',
+        marginBottom: '10'
       },
       content: {
         fontSize: '30px',

@@ -54,9 +54,12 @@ class MainView extends Component {
     this.socket.on('system-event', msg => {
       this.props.dispatch(ActionCreators.pushHistoryItem(msg));
 
-      if (this.props.queriedItems.autoswitch){
-        this.props.dispatch(ActionCreators.fetchQueryItemsIfNeeded(msg.data.nodeId));
-      }
+      // Autoswitch on by default
+      this.props.dispatch(ActionCreators.fetchQueryItemsIfNeeded(msg.data.nodeId));
+
+      // if (this.props.queriedItems.autoswitch){
+      //   this.props.dispatch(ActionCreators.fetchQueryItemsIfNeeded(msg.data.nodeId));
+      // }
     });
 
 
@@ -108,12 +111,12 @@ class MainView extends Component {
                 items={temporalContextItems}
                 {...boundActions} />
 
-              <Toggle
+              {/*<Toggle
                 style={{padding: '10'}}
                 onToggle={() => { this.props.dispatch(ActionCreators.toggleAutoswitch()) }}
                 toggle={this.props.queriedItems.autoswitch}
                 label="Autoswitch"
-                labelPosition="right" />
+                labelPosition="right" />*/}
             </div>
 
           </div>
