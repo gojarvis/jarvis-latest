@@ -16,7 +16,10 @@ import UserList from 'components/UserList';
 import Toggle from 'material-ui/Toggle';
 import * as ActionCreators from 'store/actionCreators';
 import Filters from 'components/Filters';
-import Sidebar from 'components/Sidebar/Sidebar'
+
+
+
+
 
 class MainView extends Component {
   constructor(...args) {
@@ -27,8 +30,6 @@ class MainView extends Component {
       temporalContextItems: []
     }
   }
-
-  static displayName = 'MainView';
 
   componentWillReceiveProps(nextProps) {
     let checkProps = ['focusedNodeId', 'endNodeType', 'endUserNodeIds'];
@@ -87,41 +88,35 @@ class MainView extends Component {
 
     return (
       <ViewWrapper>
-        <div>
+          <div style={layout.container}>
 
-          <Sidebar />
-          <div style={styles.viewWrapper}>
-            <div style={layout.container}>
+            <EventTickerList
+              items={eventTickerItems}
+              {...boundActions} />
 
-              <EventTickerList
-                items={eventTickerItems}
+            <Filters selectedFilter={this.props.queriedItems.endNodeType} {...boundActions} />
+
+            <FocusedItem item={queriedItems.focusedNodeData} />
+
+            <QueriedItemList
+              items={queriedItems.items.toJS()}
+              isFetching={this.props.queriedItems.isFetching}
+              {...boundActions} />
+
+            <div style={styles.toggle}>
+              <ContextViewer
+                items={temporalContextItems}
                 {...boundActions} />
 
-              <Filters selectedFilter={this.props.queriedItems.endNodeType} {...boundActions} />
-
-              <FocusedItem item={queriedItems.focusedNodeData} />
-
-              <QueriedItemList
-                items={queriedItems.items.toJS()}
-                isFetching={this.props.queriedItems.isFetching}
-                {...boundActions} />
-
-              <div style={styles.toggle}>
-                <ContextViewer
-                  items={temporalContextItems}
-                  {...boundActions} />
-
-                <Toggle
-                  style={{padding: '10'}}
-                  onToggle={() => { this.props.dispatch(ActionCreators.toggleAutoswitch()) }}
-                  toggle={this.props.queriedItems.autoswitch}
-                  label="Autoswitch"
-                  labelPosition="right" />
-              </div>
-
+              <Toggle
+                style={{padding: '10'}}
+                onToggle={() => { this.props.dispatch(ActionCreators.toggleAutoswitch()) }}
+                toggle={this.props.queriedItems.autoswitch}
+                label="Autoswitch"
+                labelPosition="right" />
             </div>
+
           </div>
-        </div>
       </ViewWrapper>
     );
   }
@@ -130,15 +125,6 @@ class MainView extends Component {
 const styles = {
   block: {
     maxWidth: 250,
-  },
-
-  viewWrapper: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    bottom: 0,
-    left: 80,
-    zIndex: 10
   },
   toggle: {
     color: 'white',

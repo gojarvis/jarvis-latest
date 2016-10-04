@@ -57,7 +57,6 @@ class contextManager{
     catch(err){
       console.error('cannot initialize context',err);
     }
-
   }
 
   async setUser(user){
