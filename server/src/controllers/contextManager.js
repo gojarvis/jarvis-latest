@@ -27,7 +27,7 @@ class contextManager{
     this.files = [];
     this.activeUrl = {};
     this.heart = heartbeats.createHeart(1000);
-    this.slowHeart = heartbeats.createHeart(60000);
+    this.slowHeart = heartbeats.createHeart(1000);
     this.history = history;
     this.recommendations = [];
 
@@ -46,7 +46,7 @@ class contextManager{
           this.handleHeartbeat(heartbeat);
         }.bind(this));
 
-        this.slowHeart.createEvent(60, function(heartbeat, last){
+        this.slowHeart.createEvent(30, function(heartbeat, last){
           this.handleSlowHeartbeat(heartbeat)
         }.bind(this));
 
@@ -444,7 +444,6 @@ class contextManager{
 
 
         let allQueries = [].concat.apply([], queries);
-
 
         let results = await graphUtil.executeQueries(allQueries);
         // console.log('Results', results);
