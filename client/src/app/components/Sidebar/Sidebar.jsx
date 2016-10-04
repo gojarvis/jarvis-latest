@@ -6,11 +6,11 @@ let DashboardIcon = require('react-icons/lib/fa/dashboard');
 let ConnectionExplorerIcon = require('react-icons/lib/fa/sitemap');
 let SettingsIcon = require('react-icons/lib/md/settings-applications')
 
-
+let logoImageSrc = require('./logo.png');
 
 class Sidebar extends Component {
   static displayName = 'Sidebar';
-  
+
   handleSidebarButtonClick() {
 
   }
@@ -29,7 +29,7 @@ class Sidebar extends Component {
     return (
       <div style={styles.sidebar}>
         <div style={styles.navbar.logo}>
-
+          <img src={logoImageSrc} height='56' width='56' />
         </div>
         <div style={styles.navbar.item.wrapper}>
             <DashboardIcon style={styles.navbar.item.content}/>
@@ -66,7 +66,7 @@ const styles = {
     logo:{
       width: '70%',
       margin: '10px auto',
-      backgroundColor: 'red',
+      backgroundColor: 'white',
       height: '55px'
     },
     item: {
