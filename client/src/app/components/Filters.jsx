@@ -11,7 +11,7 @@ class Filters extends Component {
         { key: "", selected: true, label: "All", type: '' },
         { key: "files", selected: false, label: "Files", type: 'File' },
         { key: "urls", selected: false, label: "URLs", type: 'Url' },
-        { key: "keywords", selected: false, label: "Keywords", type: 'Keyword' },
+        // { key: "keywords", selected: false, label: "Keywords", type: 'Keyword' },
       ]
     }
   }
@@ -28,25 +28,29 @@ class Filters extends Component {
 
   render() {
     return (
-      <div className="Filters" style={{...FB.base}}>{
-        this.state.filters.map((filter, index) => {
-          let selected = filter.type === this.props.selectedFilter;
-          let zIndex = selected ? 0 : 5;
+      <div className="Filters" style={{...FB.base}}>
 
-          return (
-            <div
-              key={index}
-              label={filter.label}
-              primary={selected}
-              secondary={!selected}
-              zIndex={zIndex}
-              onClick={()=>this._handleFilter(filter)}
-              style={styles.filterButton} >
-              {filter.label}
-            </div>
-          )
-        })
-      }</div>
+        {
+          this.state.filters.map((filter, index) => {
+
+            let selected = filter.type === this.props.selectedFilter;
+            let zIndex = selected ? 0 : 5;
+
+            return (
+              <div
+                key={index}
+                label={filter.label}
+                primary={selected}
+                secondary={!selected}
+                zIndex={zIndex}
+                onClick={()=>this._handleFilter(filter)}
+                style={styles.filterButton} >
+                {filter.label}
+              </div>
+            )
+          })
+        }
+      </div>
     );
   }
 }

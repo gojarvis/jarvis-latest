@@ -225,7 +225,6 @@ class contextManager{
   }
 
   updateActiveTimestamp(){
-    console.log('Updated last active');
     this.lastActiveTimestamp = new Date();
   }
 
@@ -402,8 +401,6 @@ class contextManager{
       return;
     }
 
-
-
     try {
       let urlsArtifacts = this.urlsArtifacts;
       let files = this.files;
@@ -411,8 +408,6 @@ class contextManager{
       this.urls = urls;
       let userContext = await this.relateUserToContext();
       let relatedContext = await this.relateContextToItself();
-
-
 
 
       //Empty the commands buffer every heartbeat
