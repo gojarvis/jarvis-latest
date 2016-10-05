@@ -1,12 +1,13 @@
 import React, { Component, PropTypes } from 'react'
 import FB from 'styles/flexbox';
 import LoadingIndicator from 'components/LoadingIndicator';
+let agent = require('superagent-promise')(require('superagent'), Promise);
 
 let ReportsIcon = require('react-icons/lib/md/assistant')
 let ConnectionExplorerIcon = require('react-icons/lib/fa/sitemap');
 let SettingsIcon = require('react-icons/lib/md/settings-applications')
 let UserIcon = require('react-icons/lib/fa/user')
-
+let LogoutIcon = require('react-icons/lib/fa/power-off')
 
 let logoImageSrc = require('./logo.png');
 
@@ -17,12 +18,14 @@ class Sidebar extends Component {
 
   }
 
-  _handleNavigation(target){
+  handleNavigation(target){
     this.context.router.push(target);
   }
 
-  _handleFilter(filter) {
-    this.props.setEndNodeType(filter.type);
+  logout() {
+    agent.post('http://localhost:3000/logout').then((res)=> {
+      this.context.router.push('/');
+    });
   }
 
   render () {
@@ -34,11 +37,11 @@ class Sidebar extends Component {
         </div>
 
         <div style={styles.navbar.item.wrapper}  title="Connection Explorer">
-            <ConnectionExplorerIcon style={styles.navbar.item.content} onClick={() => this._handleNavigation('/main')}/>
+            <ConnectionExplorerIcon style={styles.navbar.item.content} onClick={() => this.handleNavigation('/main')}/>
         </div>
 
         <div style={styles.navbar.item.wrapper} title="Reports">
-            <ReportsIcon style={styles.navbar.item.content} onClick={() => this._handleNavigation('report')}/>
+            <ReportsIcon style={styles.navbar.item.content} onClick={() => this.handleNavigation('report')}/>
         </div>
 
 
@@ -47,8 +50,13 @@ class Sidebar extends Component {
         </div>
 
         <div style={styles.navbar.item.wrapper} title="Settings">
-            <SettingsIcon style={styles.navbar.item.content} onClick={() => this._handleNavigation('profile')} />
+            <SettingsIcon style={styles.navbar.item.content} onClick={() => this.handleNavigation('profile')} />
         </div>
+
+        <div style={styles.navbar.logout} title="Logout">
+            <LogoutIcon style={styles.navbar.item.content} onClick={() => this.logout()} />
+        </div>
+
       </div>
     )
   }
@@ -76,6 +84,19 @@ const styles = {
       margin: '10px auto',
       backgroundColor: 'white',
       height: '55px'
+    },
+    logout: {
+      position: 'absolute',
+      width: '80%',
+      margin: '0 auto',
+      height: '60px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      cursor: 'pointer',
+      marginBottom: '10',
+      bottom: '6',
+      left: '10%'
     },
     item: {
       wrapper: {
