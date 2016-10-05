@@ -6,6 +6,7 @@ let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
 let keywordsManager = require('./keywordsManager');
 let settingsManager = require('../utils/settings-manager');
+let moment = require('moment');
 
 class contextManager{
   constructor(history, userInfo, socket, io){
@@ -30,6 +31,7 @@ class contextManager{
     this.slowHeart = heartbeats.createHeart(1000);
     this.history = history;
     this.recommendations = [];
+    this.lastActiveTimestamp = new Date();
 
 
     this.initContext(userInfo);
@@ -113,8 +115,6 @@ class contextManager{
   async updateModifiers(modifiers){
     this.modifiers = modifiers;
   }
-
-
 
   async getContextNodesBucketedByHour(){
     let nodeIdsByHours = await this.getContextNodeIdsBucktedByHour();
@@ -218,11 +218,24 @@ class contextManager{
     this.history.saveContext({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls, commands: this.commands}, timestamp: new Date()  }).then(function(res){})
   }
 
+  clearContext(){
+    this.tabs = [];
+    this.commands = [];
+    this.files = [];
+  }
+
+  updateActiveTimestamp(){
+    console.log('Updated last active');
+    this.lastActiveTimestamp = new Date();
+  }
+
   addFileNode(fileNode){
     let file = this.files.filter(file => file.address === fileNode.address);
     if (file.length === 0){
       this.files.push(fileNode);
     }
+
+    this.updateActiveTimestamp();
   }
 
   removeFileNode(fileNode){
@@ -230,6 +243,8 @@ class contextManager{
       return file.address !== fileNode.address
     });
     this.files = filteredFiles;
+
+    this.updateActiveTimestamp();
   }
 
   addUrlNode(urlNode){
@@ -237,6 +252,8 @@ class contextManager{
     if (url.length === 0){
       this.urls.push(urlNode);
     }
+
+    this.updateActiveTimestamp();
   }
 
   removeUrlNode(urlNode){
@@ -244,6 +261,8 @@ class contextManager{
       return url.address !== urlNode.address
     });
     this.urls = filteredUrls;
+
+    this.updateActiveTimestamp();
   }
 
   removeTab(tabs){
@@ -371,15 +390,30 @@ class contextManager{
   async saveContext(){
     let self = this;
     //Save URL nodes
+
+    let now = new Date();
+    let end = moment(now);
+    let lastActive = moment(this.lastActiveTimestamp);
+    let duration = moment.duration(end.diff(lastActive));
+
+    if (duration.asMinutes() > 2){
+      console.log('Not active, time since last activity:', duration.asMinutes());
+      this.clearContext();
+      return;
+    }
+
+
+
     try {
       let urlsArtifacts = this.urlsArtifacts;
       let files = this.files;
       let urls = await Promise.all(urlsArtifacts.map(urlsArtifact => graphUtil.saveUrl(urlsArtifact.url, urlsArtifact.title)))
       this.urls = urls;
-
       let userContext = await this.relateUserToContext();
-
       let relatedContext = await this.relateContextToItself();
+
+
+
 
       //Empty the commands buffer every heartbeat
       this.clearCommandsContext()
