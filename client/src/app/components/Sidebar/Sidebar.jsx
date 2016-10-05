@@ -3,7 +3,6 @@ import FB from 'styles/flexbox';
 import LoadingIndicator from 'components/LoadingIndicator';
 
 let ReportsIcon = require('react-icons/lib/md/assistant')
-let DashboardIcon = require('react-icons/lib/fa/dashboard');
 let ConnectionExplorerIcon = require('react-icons/lib/fa/sitemap');
 let SettingsIcon = require('react-icons/lib/md/settings-applications')
 let UserIcon = require('react-icons/lib/fa/user')
@@ -18,9 +17,8 @@ class Sidebar extends Component {
 
   }
 
-  _handleNavigation(){
-    console.log('this.context', this.context);
-    this.context.router.push('/profile');
+  _handleNavigation(target){
+    this.context.router.push(target);
   }
 
   _handleFilter(filter) {
@@ -34,22 +32,22 @@ class Sidebar extends Component {
         <div style={styles.navbar.logo}>
           <img src={logoImageSrc} height='56' width='56' />
         </div>
-        <div style={styles.navbar.item.wrapper} title="Reports">
-            <ReportsIcon style={styles.navbar.item.content} />
-        </div>
-        <div style={styles.navbar.item.wrapper} title="Activity">
-            <DashboardIcon style={styles.navbar.item.content} />
-        </div>
+
         <div style={styles.navbar.item.wrapper}  title="Connection Explorer">
-            <ConnectionExplorerIcon style={styles.navbar.item.content}/>
+            <ConnectionExplorerIcon style={styles.navbar.item.content} onClick={() => this._handleNavigation('/main')}/>
         </div>
+
+        <div style={styles.navbar.item.wrapper} title="Reports">
+            <ReportsIcon style={styles.navbar.item.content} onClick={() => this._handleNavigation('report')}/>
+        </div>
+
 
         <div style={styles.navbar.item.wrapper}  title="Team Activity">
             <UserIcon style={styles.navbar.item.content}/>
         </div>
 
         <div style={styles.navbar.item.wrapper} title="Settings">
-            <SettingsIcon style={styles.navbar.item.content} onClick={() => this._handleNavigation()} />
+            <SettingsIcon style={styles.navbar.item.content} onClick={() => this._handleNavigation('profile')} />
         </div>
       </div>
     )

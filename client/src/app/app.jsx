@@ -10,6 +10,7 @@
   let Admin = require('./views/admin-view.jsx');
   let Login = require('./views/login-view.jsx');
   let Profile = require('./views/profile-view.jsx');
+  let Report = require('./views/report-view.jsx');
   let store = require('./store/store');
   // let AuthUser = require('./views/auth-user.jsx');
   // let Face = require('./components/face.jsx'); // Our custom react component
@@ -36,6 +37,7 @@
         <Route path="/main" component={MainView} />
         <Route path="/admin" component={Admin} />
         <Route path="/profile" component={Profile} />
+        <Route path="/report" component={Report} />
       </Router>
     </Provider>
   ), document.getElementById('app'));

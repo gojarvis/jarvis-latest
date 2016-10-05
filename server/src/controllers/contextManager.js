@@ -7,6 +7,8 @@ let graphUtil = new GraphUtil();
 let keywordsManager = require('./keywordsManager');
 let settingsManager = require('../utils/settings-manager');
 let moment = require('moment');
+let ReportsController = require('./reports');
+
 
 class contextManager{
   constructor(history, userInfo, socket, io){
@@ -19,6 +21,7 @@ class contextManager{
       username: type.string(),
     }, { pk: "username"})
 
+    this.socket = socket;
     this.io = io;
     this.user = {};
     this.urls = [];
@@ -26,6 +29,7 @@ class contextManager{
     this.tabs = [];
     this.commands = [];
     this.files = [];
+    this.temporalContext = [];
     this.activeUrl = {};
     this.heart = heartbeats.createHeart(1000);
     this.slowHeart = heartbeats.createHeart(1000);
@@ -48,9 +52,10 @@ class contextManager{
           this.handleHeartbeat(heartbeat);
         }.bind(this));
 
-        this.slowHeart.createEvent(30, function(heartbeat, last){
+        this.slowHeart.createEvent(120, function(heartbeat, last){
           this.handleSlowHeartbeat(heartbeat)
         }.bind(this));
+
 
         this.getAndEmitContextUpdates();
 
@@ -59,6 +64,7 @@ class contextManager{
     catch(err){
       console.error('cannot initialize context',err);
     }
+
   }
 
   async setUser(user){
@@ -77,6 +83,21 @@ class contextManager{
     this.saveContext();
     this.getAndEmitContextUpdates();
 
+  }
+
+  async handleSlowHeartbeat(heartbeat){
+    // this.history.saveContext({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls, commands: this.commands}, timestamp: new Date()  }).then(function(res){})
+    // console.log('slow');
+    let context = this.temporalContext;
+    let modifiers = this.modifiers;
+
+    let user = this.user;
+
+    let allReports = await ReportsController.getAllReports(context, user, modifiers);
+    // console.log('All reports', allReports);
+    this.io.emit('reports', {
+      'reports': allReports
+    })
   }
 
   async getAndEmitContextUpdates(){
@@ -98,6 +119,8 @@ class contextManager{
       })
 
       this.updateModifiers(globalWeightFactors[0]);
+      this.updateTemporalContext(contextBucktededByHour);
+
     } catch (e) {
       console.log('cant getAndEmitContextUpdates', e);
     } finally {
@@ -114,6 +137,10 @@ class contextManager{
 
   async updateModifiers(modifiers){
     this.modifiers = modifiers;
+  }
+
+  async updateTemporalContext(temporalContext){
+    this.temporalContext = temporalContext;
   }
 
   async getContextNodesBucketedByHour(){
@@ -473,6 +500,7 @@ class contextManager{
 
 
         let allQueries = [].concat.apply([], queries);
+
 
         let results = await graphUtil.executeQueries(allQueries);
         // console.log('Results', results);

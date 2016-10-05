@@ -18,9 +18,6 @@ import * as ActionCreators from 'store/actionCreators';
 import Filters from 'components/Filters';
 
 
-
-
-
 class MainView extends Component {
   constructor(...args) {
     super(...args);
@@ -77,7 +74,7 @@ class MainView extends Component {
         temporalContextItems: imm.fromJS(msg.temporalContext),
         modifiers: imm.fromJS(msg.modifiers)
       }, ()=>{
-        console.log('modifiers', msg.modifiers);
+        // console.log('modifiers', msg.modifiers);
       })
 
 

@@ -110,7 +110,7 @@ class ContextViewerItem extends React.Component {
         className='contextViewerItem'
         title={JSON.stringify(item, null, 1)}
         style={{...styles.container, 'borderLeft': "5px solid " + color}}
-        onClick={() => this.props.onClick(this.props.item.data.nodeId)}>
+        onClick={() => this.props.onClick(this.props.item)}>
         <div style={styles.row}>
           <IconText icon={iconClass} style={{marginRight: 10}} iconColor={iconColor} />
           <span style={styles.title}>{title.slice(0,35)}{title.length > 35 ? '...' : ''}</span>

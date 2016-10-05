@@ -44,9 +44,9 @@ class EventTickerList extends Component {
         )
       });
     } else {
-      items = <Card zDepth={4} style={{margin: "10px 0 10px 10px", flexShrink: 0,}}>
+      items = <Card zDepth={4} style={{margin: "10px 0 10px 10px", flexShrink: 0, 'background': 'rgb(62, 66, 75)'}}>
          <CardText style={{...FB.base, flexDirection: 'column', display: "flex", justifyContent: "space-between"}}>
-           <div style={{fontSize: "14px"}}>Waiting...</div>
+           <div style={{fontSize: "14px",  color: 'white'}}>Waiting...</div>
          </CardText>
        </Card>
     }

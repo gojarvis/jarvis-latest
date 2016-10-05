@@ -22,9 +22,10 @@ class TerminalController {
         });
 
         self.socket.on('terminal-command', function(commandResponseTupple) {
-            self.handleCommand(commandResponseTupple).then(function(commandNode) {
+          console.log('COMMAND', commandResponseTupple);
+          self.handleCommand(commandResponseTupple).then(function(commandNode) {
 
-            });
+          });
         });
     }
     //
@@ -42,7 +43,7 @@ class TerminalController {
 
     async handleCommand(commandResponseTupple) {
 
-        let {command, response} = commandResponseTupple;
+        let {command} = commandResponseTupple;
         let commandNode = await this.getAndSave(command)
 
 
@@ -52,8 +53,7 @@ class TerminalController {
             source: 'terminal',
             data: {
                 nodeId: commandNode.id,
-                address: command,
-                response: response
+                address: command
             }
         }).then(function(res) {
             // console.log('command saved');

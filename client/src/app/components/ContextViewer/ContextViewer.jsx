@@ -14,7 +14,8 @@ class ContextViewer extends Component {
     super(...args);
   }
 
-  _itemOnClick(nodeId) {
+  _itemOnClick(item) {    
+    let nodeId = item.toJS().data.id;
     this.props.fetchQueryItemsIfNeeded(nodeId);
   }
 
@@ -42,13 +43,15 @@ class ContextViewer extends Component {
             item={item}
             index={index}
             weight={weight}
-            onClick={this._itemOnClick.bind(this)} />
+            onClick={this._itemOnClick.bind(this)}
+
+            />
         )
       });
     } else {
-      items = <Card zDepth={4} style={{margin: "10px 0 10px 10px", flexShrink: 0,}}>
+      items = <Card zDepth={4} style={{margin: "10px 0 10px 10px", flexShrink: 0, 'background': 'rgb(62, 66, 75)' }}>
          <CardText style={{...FB.base, flexDirection: 'column', display: "flex", justifyContent: "space-between"}}>
-           <div style={{fontSize: "14px"}}>Waiting...</div>
+           <div style={{fontSize: "14px", color: "white"}}>Waiting...</div>
          </CardText>
        </Card>
     }
@@ -59,7 +62,7 @@ class ContextViewer extends Component {
   render() {
     return (
       <div style={{'background': 'rgb(40, 44, 52)'}}>
-        <div style={{'background': 'rgb(40, 44, 52)', 'color': 'white', 'padding': '10' }}>Activity heatmap</div>
+        <div style={{'background': 'rgb(40, 44, 52)', 'color': 'white', 'padding': '18' }}></div>
         <div style={styles.eventTickerList} className='eventTickerList'>
           <FlipMove enterAnimation="accordianHorizontal" leaveAnimation="accordianHorizontal" style={{...FB.base, flexDirection: 'row'}}>
             {this._renderItems()}
