@@ -22,15 +22,13 @@ class TerminalController {
         });
 
         self.socket.on('terminal-command', function(commandResponseTupple) {
-          console.log('COMMAND', commandResponseTupple);
-          self.handleCommand(commandResponseTupple).then(function(commandNode) {
 
+          self.handleCommand(commandResponseTupple).then(function(commandNode) {
+            // console.log('COMMAND', commandNode);
           });
         });
     }
-    //
-    //
-    //
+
     async getAndSave(command) {
         let self = this;
         let commandNode = await graphUtil.getCommand(command);
@@ -38,14 +36,13 @@ class TerminalController {
             commandNode = await graphUtil.saveCommand(command);
         }
         return commandNode
-
     }
 
     async handleCommand(commandResponseTupple) {
 
-        let {command} = commandResponseTupple;
+        let {command, response} = commandResponseTupple;
+        console.log('Command', command, response);
         let commandNode = await this.getAndSave(command)
-
 
         this.context.addCommandNode(commandNode);
         this.history.saveEvent({
@@ -53,7 +50,8 @@ class TerminalController {
             source: 'terminal',
             data: {
                 nodeId: commandNode.id,
-                address: command
+                address: command,
+                response: response
             }
         }).then(function(res) {
             // console.log('command saved');

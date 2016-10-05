@@ -301,6 +301,8 @@ class contextManager{
     if (command.length === 0){
       this.commands.push(commandNode);
     }
+
+    this.updateActiveTimestamp();
   }
 
   async updateUserActivity(){
@@ -470,7 +472,7 @@ class contextManager{
         }
 
         if (commands.length > 0){
-          let commandInternalRelationshipsQueries = await Promise.all(commands.map(command => graphUtil.relateCommandToCommands(command, commands, 'openwith')));
+          let commandInternalRelationshipsQueries = await Promise.all(commands.map(command => this.relateCommandToCommands(command, commands, 'openwith')));
           queries = queries.concat(commandInternalRelationshipsQueries);
         }
 
