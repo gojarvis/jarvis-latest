@@ -99,7 +99,7 @@ class ProfileView extends Component {
     if (invitesButtons.length > 0) {
       joinSegment =
       (<div style={{margin: '10px'}}>
-        <div style={LOCAL_STYLES.block}>
+        <div style={styles.block}>
           <div>Join Team</div>
 
           <div>
@@ -111,42 +111,43 @@ class ProfileView extends Component {
 
     return (
       <ViewWrapper>
-        <h1>Settings</h1>
-        <div style={{...LOCAL_STYLES.container}}>
+
+        <div style={{...styles.container}}>
+          <div style={{...styles.header}}>Settings</div>
           <div style={{background: '#efefef', color: '#333'}}>
             <div> {joinSegment} </div>
 
 
-            <div style={LOCAL_STYLES.block}>
+            <div style={styles.block}>
               <Title>Teams</Title>
               <div>
                 {teamsButtons}
               </div>
             </div>
 
-            <div style={LOCAL_STYLES.block}>
+            <div style={styles.block}>
               <Title>Root Path</Title>
               <Subtitle>Jarvis will track projects in this folder</Subtitle>
               <SetUserRootPathForm user={this.state.user}/>
             </div>
 
-            {/*<div style={LOCAL_STYLES.block}>
+            {/*<div style={styles.block}>
               <Title>Repo Credentials</Title>
               <SetUserRepoCredentialsForm user={this.state.user} />
             </div>
 
-            <div style={LOCAL_STYLES.block}>
+            <div style={styles.block}>
               <Title>Activity Manager Credentials</Title>
               <SetUserActivityManagerForm />
             </div>*/}
 
-            <div style={LOCAL_STYLES.block}>
+            <div style={styles.block}>
               <Title>White List</Title>
               <Subtitle>If enabled, only URLs matching the white list regular expression will be tracked (the rest will not) </Subtitle>
               <WhiteListForm />
             </div>
 
-            <div style={LOCAL_STYLES.block}>
+            <div style={styles.block}>
               <Title>Black List</Title>
               <Subtitle>If enabled, URLs matching the black list regular expression will not be tracked </Subtitle>
               <BlackListForm />
@@ -170,13 +171,18 @@ const Subtitle = (props) => {
   )
 }
 
-const LOCAL_STYLES = {
+const styles = {
   container: {
-    fontFamily: "arial",
+    fontFamily: '"Lucida Grande", "Segoe UI", Ubuntu, Cantarell, sans-serif',
     minHeight: "100vh",
     backgroundColor: "rgb(40, 44, 52)",
     color: '#fff',
     overflow: 'auto',
+  },
+  header: {
+    backgroundColor: "rgb(40, 44, 52)",
+    fontSize: '20px',    
+    padding: '10px'
   },
   subContainer: {marginLeft: '10px', marginTop: '20px', background: "#a19e9e", padding: "20px", color: 'black'},
   item: {

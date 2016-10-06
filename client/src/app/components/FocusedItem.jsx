@@ -73,7 +73,7 @@ const styles = {
   focusedItem: {
     fontFamily: "'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif",
     fontWeight: '700',
-    backgroundColor: 'rgb(62, 66, 75)',
+    backgroundColor: 'rgb(98, 102, 112)',
     fontSize: '12px',
     margin: "10px",
     padding: "10px",

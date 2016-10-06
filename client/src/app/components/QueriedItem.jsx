@@ -6,9 +6,6 @@ import LinearProgress from 'material-ui/LinearProgress';
 import FB from 'styles/flexbox';
 let agent = require('superagent-promise')(require('superagent'), Promise);
 
-let FullStar = require('react-icons/lib/md/star');
-let EmptyStar = require('react-icons/lib/md/star-outline');
-
 let ThumbsUpIcon = require('react-icons/lib/fa/thumbs-o-up');
 let ThumbsDownIcon = require('react-icons/lib/fa/thumbs-o-down');
 
@@ -52,10 +49,9 @@ class QueriedItem extends React.Component {
         endNode: item.endNode,
         relationshipType: item.relationshipType
     })
-
+    
     this.props.onClick(item.startNode.id);
 
-    console.log(result);
   }
 
   render() {

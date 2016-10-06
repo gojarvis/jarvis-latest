@@ -94,7 +94,13 @@ class MainView extends Component {
               items={eventTickerItems}
               {...boundActions} />
 
-            <Filters selectedFilter={this.props.queriedItems.endNodeType} {...boundActions} />
+            <Filters
+              selectedFilter={this.props.queriedItems.endNodeType}
+              users={this.props.queriedItems.teamMembers}
+              selectedUsers={this.props.queriedItems.endUserNodeIds}
+              boundActions={{...boundActions}}
+              {...boundActions}
+            />
 
             <FocusedItem item={queriedItems.focusedNodeData} />
 
@@ -115,6 +121,7 @@ class MainView extends Component {
                 label="Autoswitch"
                 labelPosition="right" />*/}
             </div>
+
 
           </div>
       </ViewWrapper>

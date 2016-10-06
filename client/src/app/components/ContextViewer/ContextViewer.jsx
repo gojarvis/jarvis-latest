@@ -14,7 +14,7 @@ class ContextViewer extends Component {
     super(...args);
   }
 
-  _itemOnClick(item) {    
+  _itemOnClick(item) {
     let nodeId = item.toJS().data.id;
     this.props.fetchQueryItemsIfNeeded(nodeId);
   }
@@ -62,7 +62,9 @@ class ContextViewer extends Component {
   render() {
     return (
       <div style={{'background': 'rgb(40, 44, 52)'}}>
-        <div style={{'background': 'rgb(40, 44, 52)', 'color': 'white', 'padding': '18' }}></div>
+        <div style={{...styles.contextViewerLabel}}>
+            Activity heatmap
+        </div>
         <div style={styles.eventTickerList} className='eventTickerList'>
           <FlipMove enterAnimation="accordianHorizontal" leaveAnimation="accordianHorizontal" style={{...FB.base, flexDirection: 'row'}}>
             {this._renderItems()}
@@ -75,6 +77,15 @@ class ContextViewer extends Component {
 }
 
 const styles = {
+  contextViewerLabel: {
+    background: 'rgb(31, 37, 48)',
+    color: 'rgb(230, 230, 230)',
+    padding: '10px 15px 3px 15px',
+    fontSize: 10,
+    width: '80px',
+    borderRadius: 4,
+    textAlign: 'center'
+  },
   eventTickerList: {
     ...FB.base,
     ...FB.justify.start,
@@ -82,7 +93,7 @@ const styles = {
     // minHeight: 140,
     overflowY: "hidden",
     overflowX: "scroll",
-    background: "rgb(40, 44, 52)"
+    background: "rgb(31, 37, 48)"
   },
 }
 

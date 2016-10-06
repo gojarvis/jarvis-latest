@@ -42,6 +42,8 @@ export default ViewWrapper;
 const styles = {
   viewWrapper: {
     position: 'absolute',
+    overflowY: 'scroll',
+    overflowX: 'hidden',
     right: 0,
     top: 0,
     bottom: 0,

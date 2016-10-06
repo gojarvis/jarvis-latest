@@ -67,11 +67,11 @@ class ContextViewerItem extends React.Component {
     switch(item.data.type) {
       case 'file':
         iconClass = 'file';
-        iconColor = `rgba(255, 63, 129, ${weight/100})`;
+        iconColor = `#1e8935`;
         break;
       case 'url':
         iconClass = 'bookmark';
-        iconColor = `rgba(0, 187, 213, ${weight/100})`;
+        iconColor = `#00BBD5`;
         break;
       case 'command':
         iconClass = 'desktop';
