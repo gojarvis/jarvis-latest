@@ -8,11 +8,29 @@ let ConnectionExplorerIcon = require('react-icons/lib/fa/sitemap');
 let SettingsIcon = require('react-icons/lib/md/settings-applications')
 let UserIcon = require('react-icons/lib/fa/user')
 let LogoutIcon = require('react-icons/lib/fa/power-off')
+let AdminIcon = require('react-icons/lib/md/pan-tool')
 
 let logoImageSrc = require('./logo.png');
 
 class Sidebar extends Component {
   static displayName = 'Sidebar';
+
+  constructor(){
+    super();
+    this.state = {
+      isAdmin: false
+    }
+  }
+
+  componentWillMount(){
+    agent.post('http://localhost:3000/api/user/userjson').then(res => {
+      if (res.body.role === 'admin'){
+        this.setState({
+          isAdmin: true
+        })
+      }
+    });
+  }
 
   handleSidebarButtonClick() {
 
@@ -29,6 +47,16 @@ class Sidebar extends Component {
   }
 
   render () {
+
+    let admin;
+
+    if (this.state.isAdmin){
+      admin = (
+        <div style={styles.navbar.item.wrapper} title="Admin">
+            <AdminIcon style={styles.navbar.item.content} onClick={() => this.handleNavigation('/admin')} />
+        </div>
+      )
+    }
 
     return (
       <div style={styles.sidebar}>
@@ -53,9 +81,13 @@ class Sidebar extends Component {
             <SettingsIcon style={styles.navbar.item.content} onClick={() => this.handleNavigation('profile')} />
         </div>
 
+        {admin}
+
         <div style={styles.navbar.logout} title="Logout">
             <LogoutIcon style={styles.navbar.item.content} onClick={() => this.logout()} />
         </div>
+
+
 
       </div>
     )
@@ -100,19 +132,20 @@ const styles = {
     },
     item: {
       wrapper: {
-        width: '80%',
+        width: '56px',
         margin: '0 auto',
-        height: '60px',
+        height: '56px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         cursor: 'pointer',
-        marginBottom: '10'
+        marginBottom: '10'        
       },
       content: {
-        fontSize: '30px',
+        fontSize: '24px',
         color: '#e1e1e1',
         backgroundColor: 'rgb(62, 66, 75)',
+        borderRadius: '3px',
         padding: '13px'
       }
     }

@@ -53,11 +53,12 @@ class ReportView extends Component {
 
   async componentWillMount(){
     let res = await agent.get('http://localhost:3000/init');
+    console.log(this.socket);
     this.socket.connect();
 
-    this.socket.on('connection', () => {
-      console.log('SOCKET CONNECTED');
-    })
+    // this.socket.on('connection', () => {
+    //   console.log('SOCKET CONNECTED');
+    // })
 
     this.socket.on('reports', msg => {
       let reports = this.state.reports;
@@ -115,7 +116,6 @@ class ReportView extends Component {
 }
 
 const Item = (props) => (
-
   <Card { ...props}>
     <CardHeader
       title={props.title}

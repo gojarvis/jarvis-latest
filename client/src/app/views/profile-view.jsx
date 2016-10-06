@@ -111,8 +111,7 @@ class ProfileView extends Component {
 
     return (
       <ViewWrapper>
-        <div style={{...LOCAL_STYLES.container}}>
-          <Navbar />
+        <div style={{...LOCAL_STYLES.container}}>        
           <div style={{background: '#efefef', color: '#333'}}>
             <div> {joinSegment} </div>
 
