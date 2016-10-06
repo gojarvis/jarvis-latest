@@ -94,7 +94,7 @@ class contextManager{
     let user = this.user;
 
     let allReports = await ReportsController.getAllReports(context, user, modifiers);
-    // console.log('All reports', allReports);
+    console.log('sending reports');
     this.io.emit('reports', {
       'reports': allReports
     })
@@ -241,9 +241,9 @@ class contextManager{
 
   }
 
-  handleSlowHeartbeat(heartbeat){
-    this.history.saveContext({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls, commands: this.commands}, timestamp: new Date()  }).then(function(res){})
-  }
+  // handleSlowHeartbeat(heartbeat){
+  //   this.history.saveContext({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls, commands: this.commands}, timestamp: new Date()  }).then(function(res){})
+  // }
 
   clearContext(){
     this.tabs = [];

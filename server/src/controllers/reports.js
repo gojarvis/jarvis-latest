@@ -190,7 +190,7 @@ class ReportsController{
         return distinct(targetItem), o.weight
         order by o.weight desc limit 20`
 
-        console.log('cypher', cypher);
+        // console.log('cypher', cypher);
         try {
           suggestedItems = await graphUtil.queryGraph(cypher);
         } catch (e) {

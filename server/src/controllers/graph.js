@@ -79,6 +79,7 @@ let graphController = {
       cypher += ` and ID(startUserNode) = ${startUserNodeId}`
       cypher += ` and NOT ID(endNode) = ${nodeId}`
       cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`
+      cypher += ` and ${'endUserRel_' + relationshipCypherVariableString}.weight > 0`
       normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
       // console.log('normalizedSumCypher---', normalizedSumCypher);
       // normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
@@ -101,7 +102,7 @@ let graphController = {
       cypher += ` and ID(endUserNode) in [${endUserNodeIds.join(',')}]`
       cypher += ` and NOT ID(endNode) = ${nodeId}`
       cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`
-
+      cypher += ` and ${'endUserRel_' + relationshipCypherVariableString}.weight > 0`
       //Filter for excluding things user touched
       // cypher += ` and NOT (startUserNode)-[:touched]-(endNode)`
       normalizedWeight = 1;
@@ -123,6 +124,8 @@ let graphController = {
       cypher += ` and ID(endUserNode) in [${endUserNodeIds.join(',')}]`
       cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`
       cypher += ` and NOT ID(endNode) = ${nodeId}`
+      cypher += ` and ${'endUserRel_' + relationshipCypherVariableString}.weight > 0`
+
       normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
       normalizedWeight = globalModifiers.avgOpen;
       // normalizedWeight = globalModifiers.avgGlobalOpen
@@ -142,12 +145,12 @@ let graphController = {
         cypher += ` and ID(startUserNode) = ${startUserNodeId}`
         cypher += ` and NOT ID(endNode) = ${nodeId}`
         cypher += ` and NOT ID(url) = ${nodeId}`
+        cypher += ` and ${'endUserRel_' + relationshipCypherVariableString}.weight > 0`
 
         normalizedSumCypher = cypher + ` return avg(o.weight) as normalizedSumWeight`;
-        // console.log('normalizedSumCypher---', normalizedSumCypher);
+
         normalizedWeight = globalModifiers.avgOpen;
-        // normalizedWeight = globalModifiers.avgGlobalOpen
-        // console.log('normalizedWeight',normalizedWeight);
+
         cypher += ` return startNode,type(r) as relationshipType, (o.weight / ${normalizedWeight}) as relationshipWeight, endNode,`
         cypher += ` sum(${globalModifiers.avgOpen}) as avgOpen, `
         cypher += ` sum(${globalModifiers.avgTouch}) as avgTouch, `
@@ -157,7 +160,7 @@ let graphController = {
       }
 
     }
-    
+
     try{
 
       if (!startUserNodeId && !endUserNodeIds){
@@ -219,6 +222,40 @@ let graphController = {
       console.error(`Blacking node(${req.body.nodeId}) for user(${req.body.userId}) failed`, cypher);
       res.json({'error': error});
     }
+  },
+
+  userFeedback: async function(req, res){
+    let {userId, startNode, endNode, feedbackType, relationshipType} = req.body;
+
+    let relationshipValue;
+    switch(feedbackType){
+      case 'positive':
+        relationshipValue = '+ 10'
+      break;
+      case 'negative':
+        relationshipValue = '- 10'
+      break;
+    }
+
+    let cypher = `match (n)-[r:openwith]-(m)
+    where id(n)=${startNode.id}
+    and id(m)=${endNode.id}
+    set r.weight = coalesce(r.weight,0) ${relationshipValue}
+    return n,r,m`
+
+    let result = {};
+
+    try{
+      result = await graphUtil.queryGraph(cypher);
+
+    }
+    catch(e){
+      console.log('failed to update userFeedback', e);
+    }
+    finally{
+        res.json({result: result});
+    }
+
   }
 }
 

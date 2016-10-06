@@ -235,6 +235,8 @@ app.post('/query', isLoggedIn, graphController.query);
 
 app.post('/blacklist', graphController.blacklistNode);
 
+app.post('/feedback', graphController.userFeedback);
+
 app.get('/api/teams', function(req, res) {
 
   let userId = req.session.user.id;

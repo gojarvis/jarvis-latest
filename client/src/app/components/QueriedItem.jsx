@@ -6,7 +6,11 @@ import LinearProgress from 'material-ui/LinearProgress';
 import FB from 'styles/flexbox';
 let agent = require('superagent-promise')(require('superagent'), Promise);
 
+let FullStar = require('react-icons/lib/md/star');
+let EmptyStar = require('react-icons/lib/md/star-outline');
 
+let ThumbsUpIcon = require('react-icons/lib/fa/thumbs-o-up');
+let ThumbsDownIcon = require('react-icons/lib/fa/thumbs-o-down');
 
 async function externalLinkClick(address, type){
   let params = {
@@ -38,6 +42,20 @@ class QueriedItem extends React.Component {
       targetId
     });
     // console.log('blacklist result: ', result.body);
+  }
+
+  async _sendFeedback(feedbackType, item){
+    let result = await agent.post('/feedback', {
+        userId: window.localStorage.getItem('userId'),
+        feedbackType: feedbackType,
+        startNode: item.startNode,
+        endNode: item.endNode,
+        relationshipType: item.relationshipType
+    })
+
+    this.props.onClick(item.startNode.id);
+
+    console.log(result);
   }
 
   render() {
@@ -145,8 +163,9 @@ class QueriedItem extends React.Component {
     }
 
 
-
     let color = "hsla(" + weightValue +", 70%, 60%, 0.8)";
+
+
 
     return (
       <div
@@ -177,7 +196,13 @@ class QueriedItem extends React.Component {
                 <div style={{'fontSize': 8, 'marginRight': 4}}>
                   <IconText icon={engagement} iconColor={engagementIconColor} />
                 </div>
-              <IconText icon='trash' onClick={(e) => this._blacklistNode(nodeId, e)} />
+
+              <div style={{marginRight: 4, marginLeft: 4}}>
+                <ThumbsDownIcon onClick={ () => this._sendFeedback('negative', item)}/>
+              </div>
+              <div style={{marginRight: 4, marginLeft: 4}}>
+                <ThumbsUpIcon onClick={ () => this._sendFeedback('positive', item)}/>
+              </div>
 
             </div>
           </IconText>
