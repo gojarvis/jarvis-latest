@@ -37,16 +37,16 @@ class ReportViewer extends Component {
 
     switch (report.reportComponent){
       case 'HotFilesInRepo':
-        ReportComponent = <HotFilesInRepo />
+        ReportComponent = <HotFilesInRepo data={report.data}/>
       break;
       case 'HotUrlsInRepo':
         ReportComponent = <HotUrlsInRepo />
       break;
       case 'ResourcesByOtherUsers':
-        ReportComponent = <ResourcesByOtherUsers />
+        ReportComponent = <ResourcesByOtherUsers data={report.data} />
       break;
       case 'SuggestedTeamMembers':
-        ReportComponent = <SuggestedTeamMembers />
+        ReportComponent = <SuggestedTeamMembers data={report.data}/>
       break;
     }
 

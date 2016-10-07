@@ -16,11 +16,32 @@ class ResourcesByOtherUsers extends Component {
 
 
   render() {
+    let data = this.props.data;
+    let items = data.map(item => {
+      let {targetItem} = item;
+      let title;
 
+
+      switch (targetItem.type){
+        case 'url':
+        title = targetItem.title;
+        break;
+        case 'file':
+        title = targetItem.address;
+        break;
+      }
+      return (
+        <div style={{...styles.itemTitle}}>
+          {title}
+        </div>
+      )
+
+
+    })
     return (
 
 
-      <div>ResourcesByOtherUsers</div>
+      <div>{items}</div>
 
 
     );
@@ -28,7 +49,9 @@ class ResourcesByOtherUsers extends Component {
 }
 
 const styles = {
-
+  itemTitle: {
+    fontSize: 12    
+  }
 
 }
 

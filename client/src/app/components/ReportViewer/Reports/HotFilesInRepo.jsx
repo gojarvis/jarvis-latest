@@ -15,16 +15,31 @@ class HotFilesInRepo extends Component {
   }
 
 
-  render() {
 
+
+  render() {
+    let data = this.props.data;
+    let items = data.map(item => {
+      let {address, id} = item.data;
+      // let title = '../' + address.slice(Math.max(address.length - 3, 1)).join('/');
+      return (
+        <div style={{...styles.wrapper}}>
+          <span style={{...styles.content}}>{address}</span>
+        </div>
+      )
+    })
+    
     return (
-      <div>HotFilesInRepo</div>
+      <div>{items}</div>
+
     );
   }
 }
 
 const styles = {
-
+  content: {
+    fontSize: '12'
+  }
 
 }
 
