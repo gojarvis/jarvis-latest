@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react'
+import React, { Component, PropTypes } from 'react';
+import Radium from 'radium';
 import FB from 'styles/flexbox';
 import LoadingIndicator from 'components/LoadingIndicator';
 let agent = require('superagent-promise')(require('superagent'), Promise);
@@ -65,20 +66,20 @@ class Sidebar extends Component {
         </div>
 
         <div style={styles.navbar.item.wrapper}  title="Connection Explorer">
-            <ConnectionExplorerIcon style={styles.navbar.item.content} onClick={() => this.handleNavigation('/main')}/>
+            <ConnectionExplorerIcon style={{...styles.navbar.item.content, ...isSelected(/main/)}} onClick={() => this.handleNavigation('/main')}/>
         </div>
 
         <div style={styles.navbar.item.wrapper} title="Reports">
-            <ReportsIcon style={styles.navbar.item.content} onClick={() => this.handleNavigation('report')}/>
+            <ReportsIcon style={{...styles.navbar.item.content, ...isSelected(/report/)}} onClick={() => this.handleNavigation('report')}/>
         </div>
 
 
         <div style={styles.navbar.item.wrapper}  title="Team Activity">
-            <UserIcon style={styles.navbar.item.content}/>
+            <UserIcon style={{...styles.navbar.item.content, ...isSelected(/team/)}}/>
         </div>
 
         <div style={styles.navbar.item.wrapper} title="Settings">
-            <SettingsIcon style={styles.navbar.item.content} onClick={() => this.handleNavigation('profile')} />
+            <SettingsIcon style={{...styles.navbar.item.content, ...isSelected(/profile/)}} onClick={() => this.handleNavigation('profile')} />
         </div>
 
         {admin}
@@ -98,8 +99,11 @@ Sidebar.contextTypes = {
   router: PropTypes.object.isRequired
 }
 
-export default Sidebar;
+export default Radium(Sidebar);
 
+let isSelected = function(regex) {
+  return !!regex.test(window.location.hash) ? styles.navbar.item.isSelected : null;
+}
 
 const styles = {
   sidebar: {
@@ -139,7 +143,10 @@ const styles = {
         alignItems: 'center',
         justifyContent: 'center',
         cursor: 'pointer',
-        marginBottom: '10'        
+        marginBottom: '10'
+      },
+      isSelected: {
+        backgroundColor: 'rgb(98, 102, 112)'
       },
       content: {
         fontSize: '24px',
