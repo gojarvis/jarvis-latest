@@ -8,11 +8,10 @@ let agent = require('superagent-promise')(require('superagent'), Promise);
 
 import moment from 'moment';
 
-// import FileItem from './ReportItems/FileItem';
-// import KeywordItem from './ReportItems/KeywordItem';
-// import UrlItem from './ReportItems/UrlItem';
-// import UserItem from './ReportItems/UserItem';
-// import GenericItem from './ReportItems/GenericItem';
+import HotFilesInRepo from './Reports/HotFilesInRepo'
+import HotUrlsInRepo from './Reports/HotUrlsInRepo'
+import ResourcesByOtherUsers from './Reports/ResourcesByOtherUsers'
+import SuggestedTeamMembers from './Reports/SuggestedTeamMembers'
 
 
 
@@ -32,37 +31,25 @@ class ReportViewer extends Component {
     let report = this.props.report;
 
     let data = report.data;
-    let ItemComponent;
+    let ReportComponent;
 
     let momentText = moment(report.timestamp).fromNow();
 
-    let reportItems;
-    console.log(report);
-    // switch(report.itemType){
-    //   case 'File':
-    //     ItemComponent = FileComponent;
-    //   break;
-    //   case 'Keyword':
-    //     ItemComponent = KeywordComponent;
-    //   break;
-    //   case 'Url':
-    //     ItemComponent = UrlComponent;
-    //   break;
-    //   case 'User':
-    //     ItemComponent = UserComponent;
-    //   break;
-    //   case 'GenericItem':
-    //     ItemComponent = FileComponent;
-    //   break;
-    //
-    //
-    // }
+    switch (report.reportComponent){
+      case 'HotFilesInRepo':
+        ReportComponent = <HotFilesInRepo />
+      break;
+      case 'HotUrlsInRepo':
+        ReportComponent = <HotUrlsInRepo />
+      break;
+      case 'ResourcesByOtherUsers':
+        ReportComponent = <ResourcesByOtherUsers />
+      break;
+      case 'SuggestedTeamMembers':
+        ReportComponent = <SuggestedTeamMembers />
+      break;
+    }
 
-    // let items = report.data.map(item => {
-    //   return (
-    //     <ItemComponent item={item} />
-    //   )
-    // })
 
     return (
 
@@ -86,7 +73,9 @@ class ReportViewer extends Component {
 
         </div>
 
-        {reportItems}
+        <div style={{...styles.reportContent}}>
+          {ReportComponent}
+        </div>
 
 
         {/*<div style={{"padding" : 10, "fontSize": 10, "color": "grey"}}>
@@ -117,6 +106,9 @@ const styles = {
     fontSize: '10',
     color: '#cacaca'
 
+  },
+  reportContent:{
+    padding: '10'
   }
 
 }

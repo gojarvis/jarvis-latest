@@ -74,9 +74,9 @@ class Sidebar extends Component {
         </div>
 
 
-        <div style={styles.navbar.item.wrapper}  title="Team Activity">
+        {/*<div style={styles.navbar.item.wrapper}  title="Team Activity">
             <UserIcon style={{...styles.navbar.item.content, ...isSelected(/team/)}}/>
-        </div>
+        </div>*/}
 
         <div style={styles.navbar.item.wrapper} title="Settings">
             <SettingsIcon style={{...styles.navbar.item.content, ...isSelected(/profile/)}} onClick={() => this.handleNavigation('profile')} />
@@ -124,26 +124,24 @@ const styles = {
     logout: {
       position: 'absolute',
       width: '80%',
-      margin: '0 auto',
+      margin: '0 auto 10px 0px',
       height: '60px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       cursor: 'pointer',
-      marginBottom: '10',
       bottom: '6',
       left: '10%'
     },
     item: {
       wrapper: {
         width: '56px',
-        margin: '0 auto',
+        margin: '10px auto 10px 10px',
         height: '56px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        cursor: 'pointer',
-        marginBottom: '10'
+        cursor: 'pointer'
       },
       isSelected: {
         backgroundColor: 'rgb(98, 102, 112)'

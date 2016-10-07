@@ -25,7 +25,7 @@ class ReportView extends Component {
   constructor(...args) {
     super(...args);
     this.socket = window.socket;
-    this.init();
+
     this.state = {
       users: [],
       user: {},
@@ -46,25 +46,15 @@ class ReportView extends Component {
     }
   }
 
-  async init(){
-
-  }
-
 
   async componentWillMount(){
     let res = await agent.get('http://localhost:3000/init');
     console.log(this.socket);
     this.socket.connect();
 
-    // this.socket.on('connection', () => {
-    //   console.log('SOCKET CONNECTED');
-    // })
 
     this.socket.on('reports', msg => {
       let reports = this.state.reports;
-      // console.log('MSG', msg.reports);
-      // reports.unshift(msg.reports);
-      // console.log('report', reports);
 
       let newReports = msg.reports;
       newReports.forEach(report => {
@@ -72,7 +62,6 @@ class ReportView extends Component {
       })
 
       reports.splice(10,reports.length - 10);
-
 
       this.setState({
         reports: reports

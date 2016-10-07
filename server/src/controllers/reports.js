@@ -102,7 +102,7 @@ class ReportsController{
         return {
           title: `Hot files in your repo`,
           subtitle: `There are ${hotFilesInRepo.length} files that are getting noticed`,
-          itemType: 'File',
+          reportComponent: 'HotFilesInRepo',
           data: hotFilesInRepo,
           timestamp: new Date()
         }
@@ -122,7 +122,7 @@ class ReportsController{
         return {
           title: `Hot URLs in your repo`,
           subtitle: `There are ${hotUrlsInRepo.length} Urls that are getting noticed`,
-          itemType: 'Url',
+          reportComponent: 'HotURLsInRepo',
           data: hotUrlsInRepo,
           timestamp: new Date()
         }
@@ -160,7 +160,7 @@ class ReportsController{
             return {
               title: `Team members working on the same resources`,
               subtitle: `We found ${numberOfSuggestedUsers} who might be helpful`,
-              itemType: 'User',
+              reportComponent: 'SuggestedTeamMembers',
               data: suggestedUsers,
               timestamp: new Date()
             }
@@ -199,7 +199,7 @@ class ReportsController{
           return {
             title: `Here are ${suggestedItems.length} items found by other users`,
             subtitle: `You might not have seen these items yet`,
-            itemType: 'GenericItem',
+            reportComponent: 'ResourcesByOtherUsers',
             data: suggestedItems,
             timestamp: new Date()
           }
@@ -220,7 +220,7 @@ class ReportsController{
     //   return {
     //     title: `What are people in your team working on?`,
     //     subtitle: `We found ${suggestedKeywords.length} keywords`,
-    //     itemType: 'Keyword',
+    //     reportComponent: 'Keyword',
     //     data: suggestedKeywords,
     //     timestamp: new Date()
     //   }
@@ -236,7 +236,7 @@ class ReportsController{
     //   return {
     //     title: `Focused items from ${start} to ${endDate}, grouped by ${groupByInterval}`,
     //     subtitle: `The items you focused on`,
-    //     itemType: 'GenericItem',
+    //     reportComponent: 'GenericItem',
     //     data: focusedItemsForDateRange,
     //     timestamp: new Date()
     //   }
@@ -252,7 +252,7 @@ class ReportsController{
     //   return {
     //     title: `Focused items for your team from ${start} to ${endDate}, grouped by ${groupByInterval}`,
     //     subtitle: `The items your team was focused on`,
-    //     itemType: 'GenericItem',
+    //     reportComponent: 'GenericItem',
     //     data: focusedItemsForDateRange,
     //     timestamp: new Date()
     //   }
@@ -263,7 +263,7 @@ class ReportsController{
     //   return {
     //     title: `These Google queries might be relevant now`,
     //     subtitle: `It might`,
-    //     itemType: 'Url',
+    //     reportComponent: 'Url',
     //     data: [],
     //     timestamp: new Date()
     //   }
@@ -273,7 +273,7 @@ class ReportsController{
     //   return {
     //     title: `These Google queries are popular in your team right now`,
     //     subtitle: `It might`,
-    //     itemType: 'Url',
+    //     reportComponent: 'Url',
     //     data: [],
     //     timestamp: new Date()
     //   }
@@ -337,7 +337,12 @@ class ReportsController{
         // reports.push(popularGoogleQueries);
 
         // console.log('return reports', reports);
-        return shuffle(reports);
+        let filteredReports = reports.filter(report => {
+          return report.data.length > 0
+        })
+
+        return shuffle(filteredReports);
+
       }
 
 
