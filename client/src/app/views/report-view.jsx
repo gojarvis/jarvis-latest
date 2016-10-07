@@ -95,7 +95,7 @@ class ReportView extends Component {
         <div style={{...LOCAL_STYLES.container}}>
 
           <div>
-            <div style={{"padding": 10}}><h3>Report</h3></div>
+            <div style={{"paddingLeft": 10}}><h3>Report</h3></div>
 
             {reports}
 

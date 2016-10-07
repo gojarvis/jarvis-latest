@@ -90,7 +90,7 @@ let graphController = {
       cypher += ` sum(${globalModifiers.avgTouch}) as avgTouch, `
       cypher += ` sum(${globalModifiers.maxOpen}) as maxOpen, `
       cypher += ` sum(${globalModifiers.maxTouch}) as maxTouch `
-      cypher += ` order by relationshipWeight desc limit 15`
+      cypher += ` order by relationshipWeight desc limit 12`
     }
 
     if (startUserNodeId && endUserNodeIds && endUserNodeIds.length > 0){
@@ -115,7 +115,7 @@ let graphController = {
       cypher += ` sum(${globalModifiers.avgTouch}) as avgTouch, `
       cypher += ` sum(${globalModifiers.maxOpen}) as maxOpen, `
       cypher += ` sum(${globalModifiers.maxTouch}) as maxTouch `
-      cypher += ` order by relationshipWeight desc limit 15`
+      cypher += ` order by relationshipWeight desc limit 12`
     }
     if (!startUserNodeId && endUserNodeIds && endUserNodeIds.length > 0){
       cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]->(${startNodeString})-[${'startUserRel_' + relationshipCypherVariableString}]->(${endNodeString})->[${'endUserRel_' + relationshipCypherVariableString}]-(endUserNode:User)`
@@ -134,7 +134,7 @@ let graphController = {
       cypher += ` sum(${globalModifiers.avgTouch}) as avgTouch, `
       cypher += ` sum(${globalModifiers.maxOpen}) as maxOpen, `
       cypher += ` sum(${globalModifiers.maxTouch}) as maxTouch `
-      cypher += ` order by relationshipWeight desc limit 15`
+      cypher += ` order by relationshipWeight desc limit 12`
     }
 
     if (endNodeType === "Keyword"){
@@ -156,7 +156,7 @@ let graphController = {
         cypher += ` sum(${globalModifiers.avgTouch}) as avgTouch, `
         cypher += ` sum(${globalModifiers.maxOpen}) as maxOpen, `
         cypher += ` sum(${globalModifiers.maxTouch}) as maxTouch `
-        cypher += ` order by relationshipWeight desc limit 15`
+        cypher += ` order by relationshipWeight desc limit 12`
       }
 
     }
@@ -170,7 +170,7 @@ let graphController = {
 
 
         cypher = `
-          start startNode=node(${nodeId}) match (${startNodeString})-[${relationshipCypherVariableString}]-(${endNodeString}) return collect(distinct startNode)[0] as startNode, collect(distinct type(relationship))[0] as relationshipType, log(relationship.weight)/${normalizedWeight} as relationshipWeight, endNode order by relationshipWeight desc limit 15
+          start startNode=node(${nodeId}) match (${startNodeString})-[${relationshipCypherVariableString}]-(${endNodeString}) return collect(distinct startNode)[0] as startNode, collect(distinct type(relationship))[0] as relationshipType, log(relationship.weight)/${normalizedWeight} as relationshipWeight, endNode order by relationshipWeight desc limit 12
         `
       }
 

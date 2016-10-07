@@ -36,6 +36,8 @@ class ReportViewer extends Component {
 
     let momentText = moment(report.timestamp).fromNow();
 
+    let reportItems;
+    console.log(report);
     // switch(report.itemType){
     //   case 'File':
     //     ItemComponent = FileComponent;
@@ -64,22 +66,32 @@ class ReportViewer extends Component {
 
     return (
 
-      <Card style={{'margin': 10}}>
-        <CardHeader
+
+      <Card style={{'margin': 10, ...styles.reportCard}}>
+        {/*<CardHeader
           title={report.title}
           subtitle={report.subtitle}
           actAsExpander={true}
           showExpandableButton={true}
-        />
+          style={{}}
+        />*/}
 
-        <div className="reportItems">
+        <div style={{...styles.reportCardHeader}}>
+          <div style={{...styles.reportCardTitle}}>
+            {report.title}
+          </div>
+          <div style={{...styles.reportCardSubtitle}}>
+            {report.subtitle}
+          </div>
 
         </div>
 
+        {reportItems}
 
-        <div style={{"padding" : 10, "fontSize": 10, "color": "grey"}}>
+
+        {/*<div style={{"padding" : 10, "fontSize": 10, "color": "grey"}}>
           {momentText} { report.timestamp }
-        </div>
+        </div>*/}
       </Card>
 
 
@@ -88,6 +100,24 @@ class ReportViewer extends Component {
 }
 
 const styles = {
+  reportCard: {
+    backgroundColor: 'rgb(98, 102, 112)',
+    color: 'white',
+    fontFamily: '"Lucida Grande", "Segoe UI", Ubuntu, Cantarell, sans-serif',
+  },
+  reportCardHeader: {
+    padding: '10'
+  },
+  reportCardTitle: {
+    fontSize: '14',
+    marginBottom: '5'
+
+  },
+  reportCardSubtitle: {
+    fontSize: '10',
+    color: '#cacaca'
+
+  }
 
 }
 

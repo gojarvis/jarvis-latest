@@ -103,12 +103,13 @@ const styles = {
   },
 
   filterButton: {
-    width: 30,
+    width: 35,
+    height: 35,
     padding: 10,
     textAlign: 'center',
     margin: 10,
     fontFamily: '"Lucida Grande", "Segoe UI", Ubuntu, Cantarell, sans-serif',
-
+    borderRadius: 3,
     cursor: 'pointer'
   },
 
