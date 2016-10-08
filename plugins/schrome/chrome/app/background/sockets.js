@@ -44,10 +44,6 @@ chrome.tabs.onCreated.addListener(function(active){
 
 });
 
-chrome.tabs.onHighlighted.addListener(function(active){
-  if (enabled) socket.emit('chrome-highlighted', {active:active, tabs:tabs})
-});
-
 chrome.tabs.onUpdated.addListener(function(active){
   chrome.tabs.query({}, function(res){
       let tabs = res
@@ -67,7 +63,24 @@ chrome.tabs.onRemoved.addListener(function(closedTabId){
       let tabs = res
       if (enabled) socket.emit('chrome-closed', {closedTabId:closedTabId, tabs:tabs});
   });
-})
+});
+
+// selectInfo {
+//  windowId: Integer -- ID of the window the selected tab changed inside of
+// }
+chrome.tabs.onSelectionChanged.addListener(function(tabId, selectInfo) {
+  chrome.tabs.query({}, function(res) {
+    let tabs = res;
+    if (enabled) socket.emit('chrome-highlighted', { active, tabs, selectInfo });
+  })
+});
+
+chrome.tabs.onHighlighted.addListener(function(active){
+  chrome.tabs.query({}, function(res) {
+    let tabs = res;
+    if (enabled) socket.emit('chrome-highlighted', { active:active, tabs:tabs });
+  })
+});
 
 //https://developer.chrome.com/extensions/omnibox
 // chrome.onInputEntered()
