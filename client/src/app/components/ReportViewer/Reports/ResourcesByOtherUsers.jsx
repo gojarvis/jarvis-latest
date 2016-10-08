@@ -17,7 +17,7 @@ class ResourcesByOtherUsers extends Component {
 
   render() {
     let data = this.props.data;
-    let items = data.map(item => {
+    let items = data.map((item, key) => {
       let {targetItem} = item;
       let title;
 
@@ -31,7 +31,7 @@ class ResourcesByOtherUsers extends Component {
         break;
       }
       return (
-        <div style={{...styles.itemTitle}}>
+        <div style={{...styles.itemTitle}} key={key}>
           {title}
         </div>
       )
@@ -50,7 +50,7 @@ class ResourcesByOtherUsers extends Component {
 
 const styles = {
   itemTitle: {
-    fontSize: 12    
+    fontSize: 12
   }
 
 }

@@ -13,17 +13,29 @@ import HotUrlsInRepo from './Reports/HotUrlsInRepo'
 import ResourcesByOtherUsers from './Reports/ResourcesByOtherUsers'
 import SuggestedTeamMembers from './Reports/SuggestedTeamMembers'
 
-
+let ExpandIcon = require('react-icons/lib/fa/expand')
 
 class ReportViewer extends Component {
-  constructor(...args) {
-    super(...args);
+  constructor() {
+    super()
+    this.state = {
+      expanded : false
+    }
   }
+
+
 
   static get propTypes() {
     return {
 
     }
+  }
+
+  toggleExpand(){
+    let newExpandedState = !this.state.expanded;
+    this.setState({
+      expanded: newExpandedState
+    })
   }
 
 
@@ -51,18 +63,16 @@ class ReportViewer extends Component {
     }
 
 
+
+    let reportVisiblity = this.state.expanded ? styles.reportVisible : styles.reportHidden
+
     return (
 
 
       <Card style={{'margin': 10, ...styles.reportCard}}>
-        {/*<CardHeader
-          title={report.title}
-          subtitle={report.subtitle}
-          actAsExpander={true}
-          showExpandableButton={true}
-          style={{}}
-        />*/}
-
+        <div style={{...styles.expandButton}} onClick={() => this.toggleExpand()}>
+          <ExpandIcon />
+        </div>
         <div style={{...styles.reportCardHeader}}>
           <div style={{...styles.reportCardTitle}}>
             {report.title}
@@ -73,7 +83,7 @@ class ReportViewer extends Component {
 
         </div>
 
-        <div style={{...styles.reportContent}}>
+        <div style={{...styles.reportContent, ...reportVisiblity}}>
           {ReportComponent}
         </div>
 
@@ -109,6 +119,16 @@ const styles = {
   },
   reportContent:{
     padding: '10'
+  },
+  expandButton: {
+    float: 'right',
+    margin: 10
+  },
+  reportVisible: {
+      display: 'block'
+  },
+  reportHidden: {
+      display: 'none'
   }
 
 }

@@ -19,16 +19,16 @@ class HotFilesInRepo extends Component {
 
   render() {
     let data = this.props.data;
-    let items = data.map(item => {
+    let items = data.map((item, key) => {
       let {address, id} = item.data;
       // let title = '../' + address.slice(Math.max(address.length - 3, 1)).join('/');
       return (
-        <div style={{...styles.wrapper}}>
+        <div style={{...styles.wrapper}} key={key}>
           <span style={{...styles.content}}>{address}</span>
         </div>
       )
     })
-    
+
     return (
       <div>{items}</div>
 

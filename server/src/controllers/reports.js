@@ -2,7 +2,7 @@ let _ = require('lodash');
 let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
 let thinky = require('../utils/rethink');
-
+let imm = require('immutable');
 
 
 
@@ -190,7 +190,7 @@ class ReportsController{
         return distinct(targetItem), o.weight
         order by o.weight desc limit 20`
 
-        // console.log('cypher', cypher);
+        console.log('cypher', cypher);
         try {
           suggestedItems = await graphUtil.queryGraph(cypher);
         } catch (e) {
@@ -340,6 +340,8 @@ class ReportsController{
         let filteredReports = reports.filter(report => {
           return report.data.length > 0
         })
+
+
 
         return shuffle(filteredReports);
 
