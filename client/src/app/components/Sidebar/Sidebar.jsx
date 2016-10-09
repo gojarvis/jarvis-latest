@@ -124,7 +124,7 @@ const styles = {
     logout: {
       position: 'absolute',
       width: '80%',
-      margin: '0 auto 10',
+      margin: '0 auto 10px',
       height: '60px',
       display: 'flex',
       alignItems: 'center',
@@ -136,7 +136,7 @@ const styles = {
     item: {
       wrapper: {
         width: '56px',
-        margin: '0 auto 10',
+        margin: '0 auto 10px',
         height: '56px',
         display: 'flex',
         alignItems: 'center',
