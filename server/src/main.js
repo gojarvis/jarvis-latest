@@ -29,6 +29,7 @@ let fs = require('fs');
 let Log = require('log');
 
 let isDev = (process.env.JARVIS_DEV === 'true') || false;
+let mixpanel = require('./utils/mixpanel');
 
 let initialized = false;
 
@@ -148,6 +149,12 @@ app.get('/auth/github/callback',
   function(req, res) {
     req.session.user = req.user;
     // Successful authentication, redirect home.
+    // mixpanel.people.set(req.user.username);
+
+    mixpanel.track('login', {
+      user: req.user.username
+    })
+
     res.redirect(`http://localhost:3000`);
   });
 
@@ -205,6 +212,12 @@ app.post('/open', isLoggedIn, function(req, res) {
       cmd = 'open -a "Atom" ' + rootPath + address;
       break;
   }
+
+  mixpanel.track('opened resource', {
+    user: user.username,
+    type: type,
+    address: address
+  });
 
 
 

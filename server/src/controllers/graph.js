@@ -1,8 +1,10 @@
 import _ from 'lodash'
 let projectSettingsManager = require('../utils/settings-manager');
 let graphCredentials = projectSettingsManager.getRepoCredentials();
-let GraphUtil = require('../utils/graph.js');
+let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
+
+let mixpanel = require('../utils/mixpanel')
 
 
 let graph = require("seraph")({
@@ -176,15 +178,19 @@ let graphController = {
 
       try {
         let result = await queryGraph(cypher);
-        // console.log(`======  QUERY   =====`);
-        // console.log(`  `);
-        // console.log(cypher);
-        // console.log(`  `);
-        // console.log(`====== END QUERY =====`);
-        // console.log(`Found ${result.length} results for the query`);
+        console.log(`======  QUERY   =====`);
+        console.log(`  `);
+        console.log(cypher);
+        console.log(`  `);
+        console.log(`====== END QUERY =====`);
+        console.log(`Found ${result.length} results for the query`);
 
         result.globalModifiers = globalModifiers;
 
+        mixpanel.track('query', {
+          user: user.username,
+          query: cypher
+        })
 
         res.json(result);
       }
