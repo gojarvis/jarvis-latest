@@ -20,8 +20,17 @@ class ChromeController {
         this.context = context;
         this.history = history;
 
+        this.urlFilterCache = {
+          whitelistExpressions: [],
+          blacklistExpressions: [],
+          blacklistedUrls: [],
+          whitelistedUrls: []
+        };
+
         this.io.emit('load-tabs');
         this.registerEvents();
+        this.prefillUrlFilterCache()
+
 
     }
 
@@ -97,11 +106,39 @@ class ChromeController {
             self.saveSession();
         });
 
+
     }
+
+    async prefillUrlFilterCache(){
+      let self = this;
+      console.log('Prefilling url filter cache');
+      let user = this.context.user;
+      if (_.isEmpty(user)){
+        console.log('no user');
+        return false;
+      }
+
+      let userNode = await graphUtil.getUserNodeByUsername(user.username);
+
+      self.urlFilterCache.whitelistExpressions = await graphUtil.getRelatedNodes(userNode, 'whitelist')
+      self.urlFilterCache.blacklistExpressions = await graphUtil.getRelatedNodes(userNode, 'blacklist')
+
+      // console.log(this.urlFilterCache);
+
+    }
+
+
 
     async saveSession() {
         let self = this;
 
+        let blacklistEnabled = await settingsManager.getFilterStatus('blacklist');
+        let whiteListEnabled = await settingsManager.getFilterStatus('whitelist');
+
+
+        if ((self.urlFilterCache.whitelistExpressions.length === 0 || self.urlFilterCache.blacklistExpressions.length === 0) && (blacklistEnabled || whiteListEnabled) ){
+          self.prefillUrlFilterCache()
+        }
 
         let filteredFlags = await Promise.all(self.tabs.map(tab => {
           return self.urlFilter(tab.url)
@@ -112,6 +149,7 @@ class ChromeController {
             filteredTabs.push(tab);
           }
         })
+
 
         this.context.updateTabs(filteredTabs);
         return true;
@@ -157,36 +195,55 @@ class ChromeController {
     }
 
     async isInWhiteList(address) {
-        let user = this.context.user;
-        if (_.isEmpty(user)){
-          // console.log('No user when searching the white list');
-          return false;
-        }
-        let userNode = await graphUtil.getUserNodeByUsername(user.username);
-        let whitelistExpressions = await graphUtil.getRelatedNodes(userNode, 'whitelist')
         let isWhitelisted = false;
-        whitelistExpressions.forEach(expression => {
-          if (this.testExpression(expression.address, address)){
-            isWhitelisted = true;
+        let self = this;
+
+        if (self.urlFilterCache.whitelistedUrls.indexOf(address) !== -1){
+            // console.log('FROM CACHE WL', address);
+            return true
+        }
+        // let userNode = await graphUtil.getUserNodeByUsername(user.username);
+        else{
+          let whitelistExpressions = self.urlFilterCache.whitelistExpressions;
+
+          whitelistExpressions.forEach(expression => {
+            if (this.testExpression(expression.address, address)){
+              isWhitelisted = true;
+            }
+          })
+
+          if (isWhitelisted){
+            console.log('Pushing to cache WL', address);
+            this.urlFilterCache.whitelistedUrls.push(address);
           }
-        })
-        return isWhitelisted;
+
+          return isWhitelisted;
+        }
     }
 
     async isInBlackList(address) {
-        let user = this.context.user;
-        if (_.isEmpty(user)){
-          return false;
-        }
-        let userNode = await graphUtil.getUserNodeByUsername(user.username);
-        let blacklistExpressions = await graphUtil.getRelatedNodes(userNode, 'blacklist')
+        // let userNode = await graphUtil.getUserNodeByUsername(user.username);
+        let self = this;
+
         let isBlacklisted = false;
-        blacklistExpressions.forEach(expression => {
-          if (this.testExpression(expression.address, address)){
-             isBlacklisted = true;
+
+        if (this.urlFilterCache.blacklistedUrls.indexOf(address) !== -1){
+            return true
+        }
+        else{
+          let blacklistExpressions = this.urlFilterCache.blacklistExpressions;
+          blacklistExpressions.forEach(expression => {
+            if (this.testExpression(expression.address, address)){
+               isBlacklisted = true;
+            }
+          })
+
+          if (isBlacklisted){
+            console.log('Pushing to cache BL', address);
+            this.urlFilterCache.blacklistedUrls.push(address);
           }
-        })
-        return isBlacklisted;
+          return isBlacklisted;
+        }
     }
 
     testExpression(expression, str) {

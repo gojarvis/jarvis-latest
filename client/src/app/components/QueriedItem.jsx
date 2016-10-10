@@ -6,6 +6,18 @@ import LinearProgress from 'material-ui/LinearProgress';
 import FB from 'styles/flexbox';
 let agent = require('superagent-promise')(require('superagent'), Promise);
 
+let ThumbsUpIcon = require('react-icons/lib/fa/thumbs-o-up');
+let ThumbsDownIcon = require('react-icons/lib/fa/thumbs-o-down');
+
+async function externalLinkClick(address, type){
+  let params = {
+    address : address,
+    type: type,
+    timestamp: new Date()
+  };
+  let result = await agent.post('http://localhost:3000/open', params);
+}
+
 class QueriedItem extends React.Component {
   constructor(...args) {
     super(...args);
@@ -13,11 +25,11 @@ class QueriedItem extends React.Component {
     this._blacklistNode = this._blacklistNode.bind(this);
   }
 
-  static get propTypes() {
-    return {
-      item: PropTypes.object.isRequired,
-      onClick: PropTypes.func.isRequired,
-    }
+  static displayName = 'QueriedItem';
+
+  static propTypes = {
+    item: PropTypes.object.isRequired,
+    onClick: PropTypes.func.isRequired,
   }
 
   async _blacklistNode(targetId, e) {
@@ -27,6 +39,19 @@ class QueriedItem extends React.Component {
       targetId
     });
     // console.log('blacklist result: ', result.body);
+  }
+
+  async _sendFeedback(feedbackType, item){
+    let result = await agent.post('/feedback', {
+        userId: window.localStorage.getItem('userId'),
+        feedbackType: feedbackType,
+        startNode: item.startNode,
+        endNode: item.endNode,
+        relationshipType: item.relationshipType
+    })
+    
+    this.props.onClick(item.startNode.id);
+
   }
 
   render() {
@@ -61,7 +86,7 @@ class QueriedItem extends React.Component {
     switch(item.endNode.type) {
       case 'file':
         iconClass = 'file';
-        typeIconColor = '#FF3F81';
+        typeIconColor = '#1e8935';
         break;
       case 'url':
         iconClass = 'bookmark';
@@ -111,7 +136,6 @@ class QueriedItem extends React.Component {
     let weightBar = item.relationshipWeight * 10 * 20;
     let weightBarString = weightBar + "vw"
     let weightValue, maxValue, engagement, opacity, raw, engagementIconColor;
-    console.log('item.relationshipWeight', item.relationshipWeight);
     if (item.relationshipWeight / item.avgOpen > 1){
       raw = item.relationshipWeight.toFixed(3);
       maxValue = item.maxOpen.toFixed(3);
@@ -135,43 +159,64 @@ class QueriedItem extends React.Component {
     }
 
 
-
     let color = "hsla(" + weightValue +", 70%, 60%, 0.8)";
+
+
 
     return (
       <div
         title={JSON.stringify(item, null, 2)}
-        style={{..._styles.container, backgroundColor: "white", borderColor: color, borderRight: "15px solid " + color, borderLeft: "15px solid " + color}}
-        onClick={() => this.props.onClick(nodeId)}>
+        style={{..._styles.card, borderLeft: "5px solid " + color }}
+        >
         <IconText icon={iconClass} iconColor={typeIconColor}>
-          <IconText icon={openWithClass} iconColor={iconColor}>
+
             <div style={{...FB.base, flexWrap: "nowrap", ...FB.align.center}}>
-              <div style={{flexGrow: "4", marginRight: "40px", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", width: "10px" }}>{title}</div>
+              <IconText icon='external-link'
+                style={{ fontSize: 12 }}
+                onClick={() => externalLinkClick(item.endNode.address, item.endNode.type)}
+                ></IconText>
+              <div onClick={() => this.props.onClick(nodeId)}
+                style={{
+                  flexGrow: "4",
+                  fontSize: "12",
+                  fontFamily: "'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif",
+                  marginRight: "40px",
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
+                  textOverflow: "ellipsis",
+                  marginLeft: "10",
+                  width: "10px" }}>
+                    {title}
+                </div>
+
                 <div style={{'fontSize': 8, 'marginRight': 4}}>
                   <IconText icon={engagement} iconColor={engagementIconColor} />
                 </div>
-                <div style={{width: '10vw', marginRight: "2vw"}}>
 
-                  <LinearProgress mode="determinate" value={weightValue}/>
+              <div style={{marginRight: 4, marginLeft: 4}}>
+                <ThumbsDownIcon onClick={ () => this._sendFeedback('negative', item)}/>
+              </div>
+              <div style={{marginRight: 4, marginLeft: 4}}>
+                <ThumbsUpIcon onClick={ () => this._sendFeedback('positive', item)}/>
+              </div>
 
-
-                </div>
-              <IconText icon='trash' onClick={(e) => this._blacklistNode(nodeId, e)} />
             </div>
           </IconText>
-        </IconText>
+
       </div>
     )
   }
 }
 
 const _styles = {
-  container: {
-    color: 'rgba(0, 0, 0, 1)',
+  card: {
+    // color: "#949daf",
+    color: '#fff',
+    backgroundColor: "rgb(62, 66, 75)",
     padding: 5,
     margin: 10,
     cursor: "pointer",
-    borderRadius: 4,
+    borderRadius: 0
   }
 }
 

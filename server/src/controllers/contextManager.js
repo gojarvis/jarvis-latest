@@ -6,6 +6,9 @@ let GraphUtil = require('../utils/graph');
 let graphUtil = new GraphUtil();
 let keywordsManager = require('./keywordsManager');
 let settingsManager = require('../utils/settings-manager');
+let moment = require('moment');
+let ReportsController = require('./reports');
+
 
 class contextManager{
   constructor(history, userInfo, socket, io){
@@ -18,6 +21,7 @@ class contextManager{
       username: type.string(),
     }, { pk: "username"})
 
+    this.socket = socket;
     this.io = io;
     this.user = {};
     this.urls = [];
@@ -25,11 +29,13 @@ class contextManager{
     this.tabs = [];
     this.commands = [];
     this.files = [];
+    this.temporalContext = [];
     this.activeUrl = {};
     this.heart = heartbeats.createHeart(1000);
-    this.slowHeart = heartbeats.createHeart(60000);
+    this.slowHeart = heartbeats.createHeart(1000);
     this.history = history;
     this.recommendations = [];
+    this.lastActiveTimestamp = new Date();
 
 
     this.initContext(userInfo);
@@ -46,9 +52,10 @@ class contextManager{
           this.handleHeartbeat(heartbeat);
         }.bind(this));
 
-        this.slowHeart.createEvent(60, function(heartbeat, last){
+        this.slowHeart.createEvent(120, function(heartbeat, last){
           this.handleSlowHeartbeat(heartbeat)
         }.bind(this));
+
 
         this.getAndEmitContextUpdates();
 
@@ -78,6 +85,21 @@ class contextManager{
 
   }
 
+  async handleSlowHeartbeat(heartbeat){
+    // this.history.saveContext({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls, commands: this.commands}, timestamp: new Date()  }).then(function(res){})
+    // console.log('slow');
+    let context = this.temporalContext;
+    let modifiers = this.modifiers;
+
+    let user = this.user;
+
+    let allReports = await ReportsController.getAllReports(context, user, modifiers);
+    console.log('sending reports');
+    this.io.emit('reports', {
+      'reports': allReports
+    })
+  }
+
   async getAndEmitContextUpdates(){
     let contextBucktededByHour, globalWeightFactors;
     try {
@@ -97,6 +119,8 @@ class contextManager{
       })
 
       this.updateModifiers(globalWeightFactors[0]);
+      this.updateTemporalContext(contextBucktededByHour);
+
     } catch (e) {
       console.log('cant getAndEmitContextUpdates', e);
     } finally {
@@ -115,7 +139,9 @@ class contextManager{
     this.modifiers = modifiers;
   }
 
-
+  async updateTemporalContext(temporalContext){
+    this.temporalContext = temporalContext;
+  }
 
   async getContextNodesBucketedByHour(){
     let nodeIdsByHours = await this.getContextNodeIdsBucktedByHour();
@@ -215,8 +241,18 @@ class contextManager{
 
   }
 
-  handleSlowHeartbeat(heartbeat){
-    this.history.saveContext({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls, commands: this.commands}, timestamp: new Date()  }).then(function(res){})
+  // handleSlowHeartbeat(heartbeat){
+  //   this.history.saveContext({type: 'heartbeat', source: 'context', data: { files: this.files, urls: this.urls, commands: this.commands}, timestamp: new Date()  }).then(function(res){})
+  // }
+
+  clearContext(){
+    this.tabs = [];
+    this.commands = [];
+    this.files = [];
+  }
+
+  updateActiveTimestamp(){
+    this.lastActiveTimestamp = new Date();
   }
 
   addFileNode(fileNode){
@@ -224,6 +260,8 @@ class contextManager{
     if (file.length === 0){
       this.files.push(fileNode);
     }
+
+    this.updateActiveTimestamp();
   }
 
   removeFileNode(fileNode){
@@ -231,6 +269,8 @@ class contextManager{
       return file.address !== fileNode.address
     });
     this.files = filteredFiles;
+
+    this.updateActiveTimestamp();
   }
 
   addUrlNode(urlNode){
@@ -238,6 +278,8 @@ class contextManager{
     if (url.length === 0){
       this.urls.push(urlNode);
     }
+
+    this.updateActiveTimestamp();
   }
 
   removeUrlNode(urlNode){
@@ -245,6 +287,8 @@ class contextManager{
       return url.address !== urlNode.address
     });
     this.urls = filteredUrls;
+
+    this.updateActiveTimestamp();
   }
 
   removeTab(tabs){
@@ -257,6 +301,8 @@ class contextManager{
     if (command.length === 0){
       this.commands.push(commandNode);
     }
+
+    this.updateActiveTimestamp();
   }
 
   async updateUserActivity(){
@@ -372,15 +418,26 @@ class contextManager{
   async saveContext(){
     let self = this;
     //Save URL nodes
+
+    let now = new Date();
+    let end = moment(now);
+    let lastActive = moment(this.lastActiveTimestamp);
+    let duration = moment.duration(end.diff(lastActive));
+
+    if (duration.asMinutes() > 2){
+      console.log('Not active, time since last activity:', duration.asMinutes());
+      this.clearContext();
+      return;
+    }
+
     try {
       let urlsArtifacts = this.urlsArtifacts;
       let files = this.files;
       let urls = await Promise.all(urlsArtifacts.map(urlsArtifact => graphUtil.saveUrl(urlsArtifact.url, urlsArtifact.title)))
       this.urls = urls;
-
       let userContext = await this.relateUserToContext();
-
       let relatedContext = await this.relateContextToItself();
+
 
       //Empty the commands buffer every heartbeat
       this.clearCommandsContext()
@@ -415,7 +472,7 @@ class contextManager{
         }
 
         if (commands.length > 0){
-          let commandInternalRelationshipsQueries = await Promise.all(commands.map(command => graphUtil.relateCommandToCommands(command, commands, 'openwith')));
+          let commandInternalRelationshipsQueries = await Promise.all(commands.map(command => this.relateCommandToCommands(command, commands, 'openwith')));
           queries = queries.concat(commandInternalRelationshipsQueries);
         }
 

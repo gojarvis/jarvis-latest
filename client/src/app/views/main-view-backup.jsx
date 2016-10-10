@@ -17,7 +17,6 @@ import Toggle from 'material-ui/Toggle';
 import * as ActionCreators from 'store/actionCreators';
 import Filters from 'components/Filters';
 
-
 class MainView extends Component {
   constructor(...args) {
     super(...args);
@@ -51,12 +50,9 @@ class MainView extends Component {
     this.socket.on('system-event', msg => {
       this.props.dispatch(ActionCreators.pushHistoryItem(msg));
 
-      // Autoswitch on by default
-      this.props.dispatch(ActionCreators.fetchQueryItemsIfNeeded(msg.data.nodeId));
-
-      // if (this.props.queriedItems.autoswitch){
-      //   this.props.dispatch(ActionCreators.fetchQueryItemsIfNeeded(msg.data.nodeId));
-      // }
+      if (this.props.queriedItems.autoswitch){
+        this.props.dispatch(ActionCreators.fetchQueryItemsIfNeeded(msg.data.nodeId));
+      }
     });
 
 
@@ -74,7 +70,7 @@ class MainView extends Component {
         temporalContextItems: imm.fromJS(msg.temporalContext),
         modifiers: imm.fromJS(msg.modifiers)
       }, ()=>{
-        // console.log('modifiers', msg.modifiers);
+        console.log('modifiers', msg.modifiers);
       })
 
 
@@ -88,42 +84,42 @@ class MainView extends Component {
 
     return (
       <ViewWrapper>
-          <div style={layout.container}>
+        <div style={layout.container}>
 
-            <EventTickerList
-              items={eventTickerItems}
+          <Navbar />
+
+          <UserList
+            users={this.props.queriedItems.teamMembers}
+            selectedUsers={this.props.queriedItems.endUserNodeIds}
+            {...boundActions} />
+
+          <EventTickerList
+            items={eventTickerItems}
+            {...boundActions} />
+
+          <Filters selectedFilter={this.props.queriedItems.endNodeType} {...boundActions} />
+
+          <FocusedItem item={queriedItems.focusedNodeData} />
+
+          <QueriedItemList
+            items={queriedItems.items.toJS()}
+            isFetching={this.props.queriedItems.isFetching}
+            {...boundActions} />
+
+          <div style={styles.toggle}>
+            <ContextViewer
+              items={temporalContextItems}
               {...boundActions} />
 
-            <Filters
-              selectedFilter={this.props.queriedItems.endNodeType}
-              users={this.props.queriedItems.teamMembers}
-              selectedUsers={this.props.queriedItems.endUserNodeIds}
-              boundActions={{...boundActions}}
-              {...boundActions}
-            />
-
-            <FocusedItem item={queriedItems.focusedNodeData} />
-
-            <QueriedItemList
-              items={queriedItems.items.toJS()}
-              isFetching={this.props.queriedItems.isFetching}
-              {...boundActions} />
-
-            <div style={styles.toggle}>
-              <ContextViewer
-                items={temporalContextItems}
-                {...boundActions} />
-
-              {/*<Toggle
-                style={{padding: '10'}}
-                onToggle={() => { this.props.dispatch(ActionCreators.toggleAutoswitch()) }}
-                toggle={this.props.queriedItems.autoswitch}
-                label="Autoswitch"
-                labelPosition="right" />*/}
-            </div>
-
-
+            <Toggle
+              style={{padding: '10'}}
+              onToggle={() => { this.props.dispatch(ActionCreators.toggleAutoswitch()) }}
+              toggle={this.props.queriedItems.autoswitch}
+              label="Autoswitch"
+              labelPosition="right" />
           </div>
+
+        </div>
       </ViewWrapper>
     );
   }

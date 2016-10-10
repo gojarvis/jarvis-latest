@@ -7,6 +7,8 @@ class QueriedItemList extends Component {
     super(...args);
   }
 
+  static displayName = 'QueriedItemList';
+
   _itemOnClick(nodeId) {
     this.props.fetchQueryItemsIfNeeded(nodeId);
   }
@@ -27,7 +29,7 @@ class QueriedItemList extends Component {
       })
     }
     else{
-      items = <div style={{padding: '20px', textAlign: 'center'}}>@_________@</div>
+      items = <div style={{padding: '20px', textAlign: 'center'}}></div>
     }
     return (
       <FlipMove enterAnimation='fade' leaveAnimation='fade'>

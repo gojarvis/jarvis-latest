@@ -19,6 +19,8 @@ class SetUserActivityManagerForm extends Component {
      this.init()
   }
 
+  static displayName = 'SetUserActivityManagerForm';
+
   async init(){
       // let res = await agent.post('/api/user/getActivityManagerAddress');
       // let address = res.body;

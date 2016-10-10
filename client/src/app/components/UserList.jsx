@@ -7,31 +7,33 @@ class UserList extends Component {
     super(...args);
   }
 
-  static get propTypes() {
-    return {
-      users: PropTypes.object.isRequired,
-      selectedUsers: PropTypes.object.isRequired
-    }
+  static displayName = 'UserList';
+
+  static propTypes = {
+    users: PropTypes.object.isRequired,
+    selectedUsers: PropTypes.object.isRequired,
   }
 
   render() {
     let {users} = this.props;
     return (
-      <div style={{...FB.base, ...FB.justify.start, ...LOCAL_STYLES.wrapper}}>
-
-        <div>
-          <span style={{ ...LOCAL_STYLES.label}}>Team Members</span>
+      <div style={{...FB.base, ...FB.justify.start, ...styles.wrapper}}>
+        <div style={{...FB.base, ...styles.filterButtons}}>
           {users.map((item, index) => {
             let isSelected = this.props.selectedUsers.includes(item.get('id'));
-            // console.log(item.toJS());
+            let activeStyle = isSelected ? styles.selectedUser : ''
+            let userImagePath = `https://avatars.githubusercontent.com/${item.get('username')}?size=60`;
             return (
-              <RaisedButton
+              <div
                 key={index}
                 label={item.get('username')}
                 primary={isSelected}
                 secondary={!isSelected}
                 onClick={() => { this.props.toggleFilterByUserId(item.get('id')) }}
-                style={{flex: '0 1 auto', margin: '5px 10px'}} />
+                style={{...styles.filterButton, ...activeStyle}} >
+                <img src={userImagePath} height='40' title={item.get('username')}/>
+
+              </div>
             );
           })}
         </div>
@@ -40,16 +42,37 @@ class UserList extends Component {
   }
 }
 
-const LOCAL_STYLES = {
+const styles = {
   label: {
     marginLeft: '15px',
     marginRight: '10px'
   },
   wrapper: {
     minHeight: '60px',
-    backgroundColor: '#414040',
     paddingTop: '10px'
-  }
+  },
+  selectedUser: {
+    borderBottom: '5px solid #1e8935'
+  },
+  activeButton: {
+    backgroundColor: 'grey'
+  },
+  inactiveButton: {
+    backgroundColor: 'rgb(62, 66, 75)'
+  },
+  filterButton: {
+    width: 40,
+    textAlign: 'center',
+    margin: 5,
+    padding: 1,
+    fontFamily: '"Lucida Grande", "Segoe UI", Ubuntu, Cantarell, sans-serif',
+    fontSize: 15,
+    cursor: 'pointer'
+  },
+  filterButtons: {
+    ...FB.base,
+    ...FB.justify.start,
+  },
 }
 
 export default UserList;

@@ -15,6 +15,8 @@ class TeamsAssignmentForm extends Component {
       }
   }
 
+  static displayName = 'TeamsAssignmentForm';
+
   updateUserName(e){
     let username = e.target.value;
     this.setState({

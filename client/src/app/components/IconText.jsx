@@ -2,6 +2,7 @@ import {Component} from 'react';
 import FB from 'styles/flexbox';
 
 class IconText extends Component {
+  static displayName = 'IconText';
   render() {
     return (
       <div style={{...FB.base, ...FB.align.center, ...FB.justify.center}} onClick={this.props.onClick}>

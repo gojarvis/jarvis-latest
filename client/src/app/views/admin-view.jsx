@@ -55,8 +55,7 @@ class AdminView extends Component {
   render() {
     return (
       <ViewWrapper>
-        <div style={{...LOCAL_STYLES.container}}>
-          <Navbar />
+        <div style={{...LOCAL_STYLES.container}}>          
           <div>
             <List>
               {this.state.users.map((item, index) => {

@@ -76,6 +76,8 @@ class Main extends React.Component {
     this.handleKeyDownIn = this.handleKeyDownIn.bind(this);
   }
 
+  static displayName = 'Main';
+
   getChildContext() {
     return {muiTheme: this.state.muiTheme};
   }

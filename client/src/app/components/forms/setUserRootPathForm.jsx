@@ -19,6 +19,8 @@ class SetUserRootPathForm extends Component {
      this.init()
   }
 
+  static displayName = 'SetUserRootPathForm';
+
   async init(){
       let res = await agent.post('/api/user/getRootPath', {rootPath});
       let rootPath = res.body;

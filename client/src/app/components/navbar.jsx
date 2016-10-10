@@ -8,28 +8,32 @@ import SvgIcon from 'material-ui/SvgIcon';
 import mui, { RaisedButton } from 'material-ui';
 import LoadingIndicator from 'components/LoadingIndicator';
 
+
 class Navbar extends Component {
-  super(){
+  constructor() {
+    super();
     this.state = {
       isAdmin: false
     }
-  }
+  };
 
-  logout(){
+  static displayName = 'Navbar';
+
+  logout() {
     agent.post('http://localhost:3000/logout').then((res)=> {
       this.context.router.push('/');
     });
   }
-  getChildContext()
-   {
 
+  getChildContext() {
       //  return { muiTheme: ThemeManager.getCurrentTheme() };
    }
 
-  navigate(target){
-      this.context.router.push('/' + target);
+  navigate(target) {
+    this.context.router.push('/' + target);
   }
-  componentWillMount(){
+
+  componentWillMount() {
 
     agent.post('http://localhost:3000/api/team/all').then((res)=> {
       // console.info('res', res);
@@ -44,9 +48,7 @@ class Navbar extends Component {
     });
   }
 
-  componentDidMount() {
-
-  }
+  componentDidMount() {}
 
   render() {
     let admin;
@@ -83,6 +85,12 @@ class Navbar extends Component {
               icon={<TeamIcon style={iconStyles} />}
               label={"Profile"}
               onClick={this.navigate.bind(this, "profile")}
+              primary={true}
+              zIndex={5}  />
+            <RaisedButton
+              style={{..._styles.button}}
+              icon={<ReportIcon style={iconStyles} />}
+              onClick={this.navigate.bind(this, "report")}
               primary={true}
               zIndex={5}  />
             <RaisedButton
@@ -137,6 +145,12 @@ const TeamIcon = (props) => (
     <path d="M3 5v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H5c-1.11 0-2 .9-2 2zm12 4c0 1.66-1.34 3-3 3s-3-1.34-3-3 1.34-3 3-3 3 1.34 3 3zm-9 8c0-2 4-3.1 6-3.1s6 1.1 6 3.1v1H6v-1z"/>
     <path d="M0 0h24v24H0z" fill="none"/>
 
+  </SvgIcon>
+)
+
+const ReportIcon = (props) =>(
+  <SvgIcon {...props}>
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
   </SvgIcon>
 )
 

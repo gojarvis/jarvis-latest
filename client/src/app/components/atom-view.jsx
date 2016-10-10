@@ -51,9 +51,9 @@ class AtomView extends React.Component {
         endUserNodeIds: false
       }
     }
-
-
   }
+
+  static displayName = 'AtomView';
 
   async componentWillMount() {
     let self = this;
@@ -70,7 +70,7 @@ class AtomView extends React.Component {
     })
 
     try{
-      agent.post('http://localhost:3000/api/user/userjson').then(res => {        
+      agent.post('http://localhost:3000/api/user/userjson').then(res => {
           if (!_.isUndefined(res.body.error)){
             console.log('Not logged in');
             window.location.href = '/';

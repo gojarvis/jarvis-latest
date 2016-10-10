@@ -63,16 +63,15 @@ class ContextViewerItem extends React.Component {
 
     let weight = this.props.weight;
     let color = `hsla(${weight}, 100%, 50%, ${weight/100})`;
-    console.log(color);
 
     switch(item.data.type) {
       case 'file':
         iconClass = 'file';
-        iconColor = `rgba(255, 63, 129, ${weight/100})`;
+        iconColor = `#1e8935`;
         break;
       case 'url':
         iconClass = 'bookmark';
-        iconColor = `rgba(0, 187, 213, ${weight/100})`;
+        iconColor = `#00BBD5`;
         break;
       case 'command':
         iconClass = 'desktop';
@@ -110,13 +109,13 @@ class ContextViewerItem extends React.Component {
       <div
         className='contextViewerItem'
         title={JSON.stringify(item, null, 1)}
-        style={{...STYLES.container, 'borderLeft': "15px solid " + color, backgroundColor: `rgba(255, 255, 255, ${weight/100})`}}
-        onClick={() => this.props.onClick(this.props.item.data.nodeId)}>
-        <div style={STYLES.row}>
+        style={{...styles.container, 'borderLeft': "5px solid " + color}}
+        onClick={() => this.props.onClick(this.props.item)}>
+        <div style={styles.row}>
           <IconText icon={iconClass} style={{marginRight: 10}} iconColor={iconColor} />
-          <span style={STYLES.title}>{title.slice(0,35)}{title.length > 35 ? '...' : ''}</span>
+          <span style={styles.title}>{title.slice(0,35)}{title.length > 35 ? '...' : ''}</span>
         </div>
-        <div style={STYLES.subtitle}>{descriptionText}</div>
+        <div style={styles.subtitle}>{descriptionText}</div>
       </div>
     );
   }
@@ -124,19 +123,22 @@ class ContextViewerItem extends React.Component {
 
 
 
-const STYLES = {
+const styles = {
   container: {
     ...FB.base,
     ...FB.justify.center,
     ...FB.align.end,
-    borderRadius: 4,
     cursor: 'pointer',
     margin: "10px 0 10px 10px",
     flexShrink: 0,
     padding: 10,
-    color: '#000',
+    color: '#fff',
+    // color: '#000',
     flexDirection: 'column',
-    minWidth: 100
+    minWidth: 100,
+    fontFamily: '"Lucida Grande", "Segoe UI", Ubuntu, Cantarell, sans-serif',
+    backgroundColor: 'rgb(62, 66, 75)',
+    // color: 'rgb(148, 157, 175)'
   },
   row: {
     ...FB.base,
@@ -146,10 +148,10 @@ const STYLES = {
 
   },
   title: {
-    fontSize: 18
+    fontSize: 13
   },
   subtitle: {
-    fontSize: 11
+    fontSize: 8
   },
 }
 

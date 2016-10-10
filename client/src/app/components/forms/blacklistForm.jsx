@@ -21,6 +21,8 @@ class BlackListForm extends Component {
     }
   }
 
+  static displayName = 'BlackListForm';
+
   componentWillMount() {
     this.getBlacklistExpressions();
     this.getBlackListStatus();
@@ -69,7 +71,7 @@ class BlackListForm extends Component {
 
 
   render () {
-    let blacklistEnabledLabel = this.state.blacklistEnabled ? 'enabled' : 'disabled';
+    let blacklistEnabledLabel = this.state.blacklistEnabled ? 'Black list enabled' : 'Black list disabled';
     let blacklistToggle = (
       <Toggle
         onToggle={() => { this.toggleBlackList() }}
@@ -79,8 +81,7 @@ class BlackListForm extends Component {
 
     return (
       <div>
-        <h3>Black List</h3>
-        <ListItem primaryText="Filter enabled" rightToggle={blacklistToggle} />
+        <ListItem primaryText={blacklistEnabledLabel} rightToggle={blacklistToggle} />
         <UrlFilteringEditor
           expressions={this.state.expressions}
           saveExpression={this.saveBlacklistExpression.bind(this)}

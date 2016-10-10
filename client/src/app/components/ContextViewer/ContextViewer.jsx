@@ -7,20 +7,21 @@ import FlipMove from 'react-flip-move';
 import FB from 'styles/flexbox';
 require('./ContextViewer.css');
 
-class EventTickerList extends Component {
+class ContextViewer extends Component {
+  static displayName = 'ContextViewer';
+
   constructor(...args) {
     super(...args);
   }
 
-  _itemOnClick(nodeId) {
+  _itemOnClick(item) {
+    let nodeId = item.toJS().data.id;
     this.props.fetchQueryItemsIfNeeded(nodeId);
   }
 
-  static get propTypes() {
-    return {
-      items: PropTypes.object.isRequired
-    }
-  }
+  static propTypes = {
+    items: PropTypes.object.isRequired
+  };
 
   _renderItems() {
     let items;
@@ -42,13 +43,15 @@ class EventTickerList extends Component {
             item={item}
             index={index}
             weight={weight}
-            onClick={this._itemOnClick.bind(this)} />
+            onClick={this._itemOnClick.bind(this)}
+
+            />
         )
       });
     } else {
-      items = <Card zDepth={4} style={{margin: "10px 0 10px 10px", flexShrink: 0,}}>
+      items = <Card zDepth={4} style={{margin: "10px 0 10px 10px", flexShrink: 0, 'background': 'rgb(62, 66, 75)' }}>
          <CardText style={{...FB.base, flexDirection: 'column', display: "flex", justifyContent: "space-between"}}>
-           <div style={{fontSize: "14px"}}>Waiting...</div>
+           <div style={{fontSize: "14px", color: "white"}}>Waiting...</div>
          </CardText>
        </Card>
     }
@@ -59,7 +62,9 @@ class EventTickerList extends Component {
   render() {
     return (
       <div style={{'background': 'rgb(40, 44, 52)'}}>
-        <div style={{'background': 'rgb(40, 44, 52)', 'color': 'white', 'padding': '10' }}>Activity heatmap</div>
+        <div style={{...styles.contextViewerLabel}}>
+            Activity heatmap
+        </div>
         <div style={styles.eventTickerList} className='eventTickerList'>
           <FlipMove enterAnimation="accordianHorizontal" leaveAnimation="accordianHorizontal" style={{...FB.base, flexDirection: 'row'}}>
             {this._renderItems()}
@@ -72,6 +77,15 @@ class EventTickerList extends Component {
 }
 
 const styles = {
+  contextViewerLabel: {
+    background: 'rgb(31, 37, 48)',
+    color: 'rgb(230, 230, 230)',
+    padding: '10px 15px 3px 15px',
+    fontSize: 10,
+    width: '80px',
+    borderRadius: 4,
+    textAlign: 'center'
+  },
   eventTickerList: {
     ...FB.base,
     ...FB.justify.start,
@@ -79,8 +93,8 @@ const styles = {
     // minHeight: 140,
     overflowY: "hidden",
     overflowX: "scroll",
-    background: "rgb(40, 44, 52)"
+    background: "rgb(31, 37, 48)"
   },
 }
 
-export default EventTickerList;
+export default ContextViewer;

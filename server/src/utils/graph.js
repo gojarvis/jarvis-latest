@@ -4,6 +4,8 @@ let _ = require('lodash');
 
 let projectSettingsManager = require('./settings-manager');
 
+
+
 let graphCredentials = projectSettingsManager.getRepoCredentials();
 
 let graph = require("seraph")({
@@ -16,7 +18,7 @@ graph.constraints.uniqueness.create('User', 'username', function(err, constraint
 graph.constraints.uniqueness.create('Url', 'address', function(err, constraint) {});
 graph.constraints.uniqueness.create('File', 'address', function(err, constraint) {});
 graph.constraints.uniqueness.create('Command', 'address', function(err, constraint) {});
-graph.constraints.uniqueness.create('Regex', 'expression', function(err, constraint) {});
+graph.constraints.uniqueness.create('Regex', 'address', function(err, constraint) {});
 
 class GraphUtil{
   constructor(){
@@ -80,8 +82,7 @@ class GraphUtil{
 
   getNodeByAddress(address){
     return new Promise(function(resolve, reject) {
-      graph.find({address: address}, function(err, nodes){
-        console.log('NODES FOUND', address);
+      graph.find({address: address}, function(err, nodes){        
         if (err)  {
           console.log(err);
           reject(err);
@@ -192,11 +193,13 @@ class GraphUtil{
         return data`;
     let globalWeightFactors;
 
+
     try {
       globalWeightFactors = await this.queryGraph(cypher);
     } catch (e) {
       console.log('cant getGlobalTouchWeightFactor', e);
     } finally {
+      // console.log('getUserGlobalWeightFactors', cypher, globalWeightFactors);
       return globalWeightFactors[0]
     }
   }
@@ -301,24 +304,81 @@ class GraphUtil{
     }
   }
 
-  getSaveUserInGraph(user){
+  async getSaveUserInGraph(user){
+      let userNode, userDefaultFilters;
+      try {
+         userNode = await this.getUserNodeByUsername(user.username);
+         if (_.isEmpty(userNode)){
+           console.log('no user found, saving you!!!!');
+           userNode = await this.saveUser(user)
+           userDefaultFilters = await this.saveUserDefaultFilters(userNode);
+         }
+      } catch (e) {
+        console.log('cant getSave user',e);
+      } finally {
+        return userNode
+      }
+  }
+
+  async saveUserDefaultFilters(userNode){
+      console.log('saveUserDefaultFilters', userNode);
+      let blacklistExpressions = [
+        '.*facebook\.com.*',
+        '.*gmail\.com.*',
+        '.*inbox\.google\.com.*',
+        'chrome://newtab/'
+      ];
+
+      let whitelistExpressions = [
+        '.*google\.com.*',
+        '.*github\.com.*',
+        '.*stackoverflow\.com.*'
+      ];
+
+      let blacklistExpressionsNodes = await Promise.all(blacklistExpressions.map(expression => this.saveRegex(expression)));
+      let whitelistExpressionsNodes = await Promise.all(whitelistExpressions.map(expression => this.saveRegex(expression)));
+
+
+      let blacklistRelationships = await Promise.all(blacklistExpressionsNodes.map(expressionNode => this.relateNodes(userNode, expressionNode, 'blacklist')))
+      let whitelistRelationships = await Promise.all(whitelistExpressionsNodes.map(expressionNode => this.relateNodes(userNode, expressionNode, 'whitelist')))
+      console.log('done saving default filters');
+  }
+
+
+  // getSaveUserInGraph(user){
+  //   return new Promise(function(resolve, reject) {
+  //     graph.find(user, function(err, node){
+  //       if (err || !node.length){
+  //         console.log('user doesnt exist, saving', user);
+  //         graph.save(user, "User", function(err, node){
+  //           if (err){
+  //             console.log('CANT SAVE USER', user, err);
+  //             reject(err);
+  //           }
+  //           else{
+  //             console.log('USER SAVED', node);
+  //
+  //             resolve(node);
+  //           }
+  //         })
+  //       }
+  //       else{
+  //         resolve(node[0])
+  //       }
+  //     })
+  //   });
+  // }
+
+  saveUser(user){
     return new Promise(function(resolve, reject) {
-      graph.find(user, function(err, node){
-        if (err || !node.length){
-          console.log('user doesnt exist, saving', user);
-          graph.save(user, "User", function(err, node){
-            if (err){
-              console.log('CANT SAVE USER', user, err);
-              reject(err);
-            }
-            else{
-              console.log('USER SAVED', node);
-              resolve(node);
-            }
-          })
+      graph.save(user, "User", function(err, node){
+        if (err){
+          console.log('CANT SAVE USER', user, err);
+          reject(err);
         }
         else{
-          resolve(node[0])
+          console.log('USER SAVED', node);
+          resolve(node);
         }
       })
     });

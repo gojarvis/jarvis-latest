@@ -14,6 +14,8 @@ class NewTeamForm extends Component {
      }
   }
 
+  static displayName = 'NewTeamForm';
+
   updateTeamName(e){
     let teamname = e.target.value;
     console.log(teamname);

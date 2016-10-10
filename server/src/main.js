@@ -8,7 +8,7 @@ let http = require('http').Server(app);
 let bodyParser = require('body-parser');
 
 let rethink = require('rethinkdb');
-
+let moment = require('moment');
 let graphController = require('./controllers/graph')
 let childProc = require('child_process');
 let passport = require('passport');
@@ -26,8 +26,7 @@ let settingsController = require('./controllers/settings');
 let sessionData = {};
 let fs = require('fs');
 
-let Log = require('log')
-  , syslog = new Log('debug', fs.createWriteStream('/var/log/Jarvis/electron.log'));
+let Log = require('log');
 
 let isDev = (process.env.JARVIS_DEV === 'true') || false;
 
@@ -179,10 +178,24 @@ app.get('/init', isLoggedIn, function(req, res) {
 
 app.get('/users', graphController.getUsers);
 
-app.post('/open', function(req, res) {
+app.post('/open', isLoggedIn, function(req, res) {
   let rootPath = projectSettingsManager.getRootPath();
   let address = req.body.address;
+  let timestamp = req.body.timestamp;
+  let now = new Date();
   let type = req.body.type;
+  let end = moment(now);
+  let requestTime = moment(timestamp);
+  let duration = moment.duration(end.diff(requestTime));
+  let user = req.session.user;
+
+  if(duration.asMinutes() > 0.3){
+    console.log('ignoring old request');
+    console.log('Fired', duration.asMinutes(),  ' minutes ago');
+    return false;
+  }
+
+
   let cmd;
   switch (type) {
     case 'url':
@@ -192,7 +205,22 @@ app.post('/open', function(req, res) {
       cmd = 'open -a "Atom" ' + rootPath + address;
       break;
   }
-  childProc.exec(cmd, function() {});
+
+
+
+  let proc = childProc.exec(cmd, function(error, stdout, stderr) {
+    // console.log('Executed', cmd);
+    // console.log('going to mark', user.username, address);
+    usersController.markUserActivity(user.username, address);
+  });
+
+  proc.stdout.on('data', function(data){
+    console.log('stdout : ', data);
+  })
+
+  proc.on('close', function(){
+    console.log('proc close');
+  })
 
 
 });
@@ -206,6 +234,8 @@ app.post('/health', function(req, res) {
 app.post('/query', isLoggedIn, graphController.query);
 
 app.post('/blacklist', graphController.blacklistNode);
+
+app.post('/feedback', graphController.userFeedback);
 
 app.get('/api/teams', function(req, res) {
 
@@ -266,7 +296,7 @@ app.post('/api/user/create', [isLoggedIn, ensureAdmin], function(req, res) {
 
 });
 
-app.post('/api/user/all', ensureAdmin, function(req, res) {
+app.post('/api/user/all', [isLoggedIn, ensureAdmin], function(req, res) {
   // let username = req.session.passport.user.username;
   usersController.getAllUsers().then(function(users) {
     res.json(users);
@@ -445,7 +475,6 @@ app.post('/logout', function(req, res) {
 
 if (isDev) {
   console.log('DEVELOPMENT MODE', process.env.JARVIS_DEV);
-  syslog.info(' >*> Started server in DEVELOPMENT mode from: ' + __dirname);
   app.use('/', proxy({
     target: 'http://localhost:8888',
     changeOrigin: true
@@ -453,11 +482,9 @@ if (isDev) {
 } else {
   console.log('PRODUCTION MODE');
   console.log('staticClientPath', staticClientPath);
-  syslog.info(' >*> Started server in PRODUCTION mode from: ' + __dirname);
   app.use(express.static(staticClientPath));
 }
 
 http.listen(3000, function() {
   console.log('listening on *:3000');
-  syslog.info(' >*> Server listening on *.3000');
 });

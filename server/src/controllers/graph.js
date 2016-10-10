@@ -64,7 +64,7 @@ let graphController = {
     let normalizedWeight;
 
     let globalModifiers = await graphUtil.getUserGlobalWeightFactors(user);
-    console.log('Modifiers', globalModifiers);
+
     if (endUserNodeIds.length > 0 ){
       endUserNodeIds = endUserNodeIds.filter(userId => user.id != userId);
     }
@@ -79,6 +79,7 @@ let graphController = {
       cypher += ` and ID(startUserNode) = ${startUserNodeId}`
       cypher += ` and NOT ID(endNode) = ${nodeId}`
       cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`
+      cypher += ` and ${'endUserRel_' + relationshipCypherVariableString}.weight > 0`
       normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
       // console.log('normalizedSumCypher---', normalizedSumCypher);
       // normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
@@ -89,7 +90,7 @@ let graphController = {
       cypher += ` sum(${globalModifiers.avgTouch}) as avgTouch, `
       cypher += ` sum(${globalModifiers.maxOpen}) as maxOpen, `
       cypher += ` sum(${globalModifiers.maxTouch}) as maxTouch `
-      cypher += ` order by relationshipWeight desc limit 15`
+      cypher += ` order by relationshipWeight desc limit 12`
     }
 
     if (startUserNodeId && endUserNodeIds && endUserNodeIds.length > 0){
@@ -101,7 +102,9 @@ let graphController = {
       cypher += ` and ID(endUserNode) in [${endUserNodeIds.join(',')}]`
       cypher += ` and NOT ID(endNode) = ${nodeId}`
       cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`
-
+      cypher += ` and ${'endUserRel_' + relationshipCypherVariableString}.weight > 0`
+      //Filter for excluding things user touched
+      // cypher += ` and NOT (startUserNode)-[:touched]-(endNode)`
       normalizedWeight = 1;
 
       cypher += ` return startNode,`
@@ -112,7 +115,7 @@ let graphController = {
       cypher += ` sum(${globalModifiers.avgTouch}) as avgTouch, `
       cypher += ` sum(${globalModifiers.maxOpen}) as maxOpen, `
       cypher += ` sum(${globalModifiers.maxTouch}) as maxTouch `
-      cypher += ` order by relationshipWeight desc limit 15`
+      cypher += ` order by relationshipWeight desc limit 12`
     }
     if (!startUserNodeId && endUserNodeIds && endUserNodeIds.length > 0){
       cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]->(${startNodeString})-[${'startUserRel_' + relationshipCypherVariableString}]->(${endNodeString})->[${'endUserRel_' + relationshipCypherVariableString}]-(endUserNode:User)`
@@ -121,6 +124,8 @@ let graphController = {
       cypher += ` and ID(endUserNode) in [${endUserNodeIds.join(',')}]`
       cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`
       cypher += ` and NOT ID(endNode) = ${nodeId}`
+      cypher += ` and ${'endUserRel_' + relationshipCypherVariableString}.weight > 0`
+
       normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
       normalizedWeight = globalModifiers.avgOpen;
       // normalizedWeight = globalModifiers.avgGlobalOpen
@@ -129,7 +134,7 @@ let graphController = {
       cypher += ` sum(${globalModifiers.avgTouch}) as avgTouch, `
       cypher += ` sum(${globalModifiers.maxOpen}) as maxOpen, `
       cypher += ` sum(${globalModifiers.maxTouch}) as maxTouch `
-      cypher += ` order by relationshipWeight desc limit 15`
+      cypher += ` order by relationshipWeight desc limit 12`
     }
 
     if (endNodeType === "Keyword"){
@@ -140,22 +145,21 @@ let graphController = {
         cypher += ` and ID(startUserNode) = ${startUserNodeId}`
         cypher += ` and NOT ID(endNode) = ${nodeId}`
         cypher += ` and NOT ID(url) = ${nodeId}`
+        cypher += ` and ${'endUserRel_' + relationshipCypherVariableString}.weight > 0`
+
         normalizedSumCypher = cypher + ` return avg(o.weight) as normalizedSumWeight`;
-        // console.log('normalizedSumCypher---', normalizedSumCypher);
+
         normalizedWeight = globalModifiers.avgOpen;
-        // normalizedWeight = globalModifiers.avgGlobalOpen
-        // console.log('normalizedWeight',normalizedWeight);
+
         cypher += ` return startNode,type(r) as relationshipType, (o.weight / ${normalizedWeight}) as relationshipWeight, endNode,`
         cypher += ` sum(${globalModifiers.avgOpen}) as avgOpen, `
         cypher += ` sum(${globalModifiers.avgTouch}) as avgTouch, `
         cypher += ` sum(${globalModifiers.maxOpen}) as maxOpen, `
         cypher += ` sum(${globalModifiers.maxTouch}) as maxTouch `
-        cypher += ` order by relationshipWeight desc limit 15`
+        cypher += ` order by relationshipWeight desc limit 12`
       }
 
     }
-    // doesn't get here for some reason
-    console.log('query: ', cypher);
 
     try{
 
@@ -166,18 +170,19 @@ let graphController = {
 
 
         cypher = `
-          start startNode=node(${nodeId}) match (${startNodeString})-[${relationshipCypherVariableString}]-(${endNodeString}) return collect(distinct startNode)[0] as startNode, collect(distinct type(relationship))[0] as relationshipType, log(relationship.weight)/${normalizedWeight} as relationshipWeight, endNode order by relationshipWeight desc limit 15
+          start startNode=node(${nodeId}) match (${startNodeString})-[${relationshipCypherVariableString}]-(${endNodeString}) return collect(distinct startNode)[0] as startNode, collect(distinct type(relationship))[0] as relationshipType, log(relationship.weight)/${normalizedWeight} as relationshipWeight, endNode order by relationshipWeight desc limit 12
         `
       }
 
       try {
         let result = await queryGraph(cypher);
-        console.log(`======  QUERY   =====`);
-        console.log(`  `);
-        console.log(cypher);
-        console.log(`  `);
-        console.log(`====== END QUERY =====`);
-        console.log(`Found ${result.length} results for the query`);
+        // console.log(`======  QUERY   =====`);
+        // console.log(`  `);
+        // console.log(cypher);
+        // console.log(`  `);
+        // console.log(`====== END QUERY =====`);
+        // console.log(`Found ${result.length} results for the query`);
+
         result.globalModifiers = globalModifiers;
 
 
@@ -217,6 +222,40 @@ let graphController = {
       console.error(`Blacking node(${req.body.nodeId}) for user(${req.body.userId}) failed`, cypher);
       res.json({'error': error});
     }
+  },
+
+  userFeedback: async function(req, res){
+    let {userId, startNode, endNode, feedbackType, relationshipType} = req.body;
+
+    let relationshipValue;
+    switch(feedbackType){
+      case 'positive':
+        relationshipValue = '+ 10'
+      break;
+      case 'negative':
+        relationshipValue = '- 10'
+      break;
+    }
+
+    let cypher = `match (n)-[r:openwith]-(m)
+    where id(n)=${startNode.id}
+    and id(m)=${endNode.id}
+    set r.weight = coalesce(r.weight,0) ${relationshipValue}
+    return n,r,m`
+
+    let result = {};
+
+    try{
+      result = await graphUtil.queryGraph(cypher);
+
+    }
+    catch(e){
+      console.log('failed to update userFeedback', e);
+    }
+    finally{
+        res.json({result: result});
+    }
+
   }
 }
 

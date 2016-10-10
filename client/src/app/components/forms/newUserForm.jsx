@@ -15,6 +15,8 @@ class NewUserForm extends Component {
      }
   }
 
+  static displayName = 'NewUserForm';
+
   updateUserName(e){
     let username = e.target.value;
     this.setState({
