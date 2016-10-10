@@ -34,7 +34,6 @@ class BlackListForm extends Component {
     let newStatus = !this.state.blacklistEnabled;
     let res = await agent.post('/api/user/setFilterStatus', { filterType: 'blacklist', filterStatus: newStatus });
     let updatedStatus = res.body;
-    console.log('NEW STATUS', newStatus);
     this.setState({
       blacklistEnabled: newStatus
     })

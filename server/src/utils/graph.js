@@ -82,7 +82,7 @@ class GraphUtil{
 
   getNodeByAddress(address){
     return new Promise(function(resolve, reject) {
-      graph.find({address: address}, function(err, nodes){        
+      graph.find({address: address}, function(err, nodes){
         if (err)  {
           console.log(err);
           reject(err);
@@ -418,18 +418,22 @@ class GraphUtil{
     });
   }
 
+
   saveRegex(regex){
 
     let self = this;
 
     // console.log('TRIMMED ADDRESS', trimmedAddress);
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject)  =>{
       console.log('SAVING Regex');
-      graph.save({type: 'regex', address: regex}, 'Regex', function(err, node){
-        // node = node ? node : {type: 'regex', address: address};
+      graph.save({type: 'regex', address: regex}, 'Regex', (err, node) =>{
+
         if (err) {
-          console.log('err', err);
-          reject(err)
+          console.log('node probably exists');
+          this.getRegex(regex).then((node) =>{
+            console.log('Found regex', node);
+            resolve(node);
+          })          
         }
         else {
           console.log('node',node);
