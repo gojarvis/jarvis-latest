@@ -47,6 +47,7 @@
     "kue": "^0.11.1",
     "leapjs": "^0.6.4",
     "lodash": "^4.15.0",
+    "mixpanel": "^0.5.0",
     "moment": "^2.11.1",
     "moniker": "^0.1.2",
     "node-record-lpcm16": "^0.1.4",
