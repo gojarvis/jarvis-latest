@@ -23,13 +23,9 @@ class ReportViewer extends Component {
     }
   }
 
+  static displayName = 'ReportViewer';
 
-
-  static get propTypes() {
-    return {
-
-    }
-  }
+  static propTypes = {};
 
   toggleExpand(){
     let newExpandedState = !this.state.expanded;
@@ -37,7 +33,6 @@ class ReportViewer extends Component {
       expanded: newExpandedState
     })
   }
-
 
   render() {
     let report = this.props.report;
@@ -62,14 +57,12 @@ class ReportViewer extends Component {
       break;
     }
 
-
-
     let reportVisiblity = this.state.expanded ? styles.reportVisible : styles.reportHidden
 
     return (
 
 
-      <Card style={{'margin': 10, ...styles.reportCard}}>
+      <Card style={{'margin': 10, ...styles.reportCard}} className="ReportViewer">
         <div style={{...styles.expandButton}} onClick={() => this.toggleExpand()}>
           <ExpandIcon />
         </div>
@@ -80,20 +73,16 @@ class ReportViewer extends Component {
           <div style={{...styles.reportCardSubtitle}}>
             {report.subtitle}
           </div>
-
         </div>
 
         <div style={{...styles.reportContent, ...reportVisiblity}}>
           {ReportComponent}
         </div>
 
-
         {/*<div style={{"padding" : 10, "fontSize": 10, "color": "grey"}}>
           {momentText} { report.timestamp }
         </div>*/}
       </Card>
-
-
     );
   }
 }
@@ -115,7 +104,6 @@ const styles = {
   reportCardSubtitle: {
     fontSize: '10',
     color: '#cacaca'
-
   },
   reportContent:{
     padding: '10'
@@ -130,10 +118,6 @@ const styles = {
   reportHidden: {
       display: 'none'
   }
-
 }
-
-
-
 
 export default ReportViewer;
