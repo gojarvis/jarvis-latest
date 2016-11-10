@@ -1,10 +1,11 @@
 {
-  "name": "jarvis-server",
+  "name": "jarvis",
   "version": "0.0.1",
-  "main": "index.js",
+  "main": "index.html",
   "author": "Roie Schwaber-Cohen",
   "scripts": {
     "start": "node index.js",
+    "tray": "/Applications/Dev/nwjs/nwjs.app/Contents/MacOS/nwjs .",
     "nodemon": "nodemon index.js",
     "build": "mkdir -p build && cp package.json build/ && webpack -p --progress"
   },
@@ -73,5 +74,8 @@
   "devDependencies": {
     "babel-plugin-transform-runtime": "^6.15.0"
   },
-  "jshintConfig": {}
+  "jshintConfig": {},
+  "window": {
+    "toolbar": true
+  }
 }

@@ -1,0 +1,27 @@
+<html>
+<body>
+  <button onclick="minimize()">Minimize to Tray</button>
+  <script>
+    // Load library
+    var gui = require('nw.gui');
+
+    // Reference to window and tray
+    var win = gui.Window.get();
+    var tray = new gui.Tray({ icon: 'icons/icon16.png' });
+
+    win.showDevTools();
+
+    tray.on('click', function() {
+      win.show();
+    });
+
+    win.on('minimize', function() {
+      win.hide(); // does not work for some reason
+    });
+
+    var minimize = function() {
+      win.hide();
+    };
+  </script>
+</body>
+</html>
