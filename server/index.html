@@ -1,9 +1,11 @@
 <html>
 <body>
   <button onclick="minimize()">Minimize to Tray</button>
+  <button onclick="start()">Start Server</button>
   <script>
     // Load library
     var gui = require('nw.gui');
+    var spawn = require('child_process').spawn;
 
     // Reference to window and tray
     var win = gui.Window.get();
@@ -21,6 +23,25 @@
 
     var minimize = function() {
       win.hide();
+    };
+
+    var serverProcess;
+    var start = function() {
+      serverProcess = spawn('node', ['index.js']);
+
+      serverProcess.stdout.on('data', (data) => {
+        console.log(`stdout: ${data}`);
+      });
+
+      serverProcess.stderr.on('data', (data) => {
+        console.log(`stderr: ${data}`);
+      });
+
+      serverProcess.on('close', (code) => {
+        console.log(`child process exited with code ${code}`);
+      });
+
+      console.log('server started');
     };
   </script>
 </body>
