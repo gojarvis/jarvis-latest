@@ -1,5 +1,5 @@
-import ReportViewer from './ReportViewer';
+import ReportViewer from "./ReportViewer";
 
 export default {
-  ReportViewer
-}
+    ReportViewer
+};

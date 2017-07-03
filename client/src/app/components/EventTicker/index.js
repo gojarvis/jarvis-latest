@@ -1,7 +1,7 @@
-import EventTickerList from './EventTickerList';
-import EventTickerItem from './EventTickerItem';
+import EventTickerList from "./EventTickerList";
+import EventTickerItem from "./EventTickerItem";
 
 export default {
-  EventTickerList,
-  EventTickerItem,
-}
+    EventTickerList,
+    EventTickerItem
+};

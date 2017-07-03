@@ -1,6 +1,6 @@
 {
-  "atom-workspace": {
-    "ctrl-alt-o": "sherpa-view:toggle",
-    "shift-alt-k": "sherpa-view:showPanel"
-  }
+    "atom-workspace": {
+        "ctrl-alt-o": "sherpa-view:toggle",
+        "shift-alt-k": "sherpa-view:showPanel"
+    }
 }

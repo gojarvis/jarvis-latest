@@ -1,34 +1,34 @@
 {
-  "context-menu": {
-    "atom-text-editor": [
-      {
-        "label": "Toggle sherpa-view",
-        "command": "sherpa-view:toggle"
-      },
-      {
-        "label": "Show Sherpa Panel",
-        "command": "sherpa-view:showPanel"
-      }
-    ]
-  },
-  "menu": [
-    {
-      "label": "Packages",
-      "submenu": [
-        {
-          "label": "sherpa-view",
-          "submenu": [
+    "context-menu": {
+        "atom-text-editor": [
             {
-              "label": "Toggle",
-              "command": "sherpa-view:toggle"
+                "label": "Toggle sherpa-view",
+                "command": "sherpa-view:toggle"
             },
             {
-              "label": "showPanel",
-              "command": "sherpa-view:showPanel"
+                "label": "Show Sherpa Panel",
+                "command": "sherpa-view:showPanel"
             }
-          ]
+        ]
+    },
+    "menu": [
+        {
+            "label": "Packages",
+            "submenu": [
+                {
+                    "label": "sherpa-view",
+                    "submenu": [
+                        {
+                            "label": "Toggle",
+                            "command": "sherpa-view:toggle"
+                        },
+                        {
+                            "label": "showPanel",
+                            "command": "sherpa-view:showPanel"
+                        }
+                    ]
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }

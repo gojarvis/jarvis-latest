@@ -1,5 +1,5 @@
-import SidebarList from './SidebarList';
+import SidebarList from "./SidebarList";
 
 export default {
-  Sidebar: SidebarList
-}
+    Sidebar: SidebarList
+};

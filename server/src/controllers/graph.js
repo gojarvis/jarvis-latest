@@ -1,269 +1,300 @@
-import _ from 'lodash'
-let projectSettingsManager = require('../utils/settings-manager');
+import _ from "lodash";
+let projectSettingsManager = require("../utils/settings-manager");
 let graphCredentials = projectSettingsManager.getRepoCredentials();
-let GraphUtil = require('../utils/graph');
+let GraphUtil = require("../utils/graph");
 let graphUtil = new GraphUtil();
 
-let mixpanel = require('../utils/mixpanel')
-
+let mixpanel = require("../utils/mixpanel");
 
 let graph = require("seraph")({
-  user: graphCredentials.username,
-  pass: graphCredentials.password,
-  server: graphCredentials.address
+    user: graphCredentials.username,
+    pass: graphCredentials.password,
+    server: graphCredentials.address
 });
 
-function queryGraph(cypher, params={}){
-  return new Promise(function(resolve, reject) {
-
-    graph.query(cypher, params, function(err, result){
-      if (err) reject(err)
-      else resolve(result)
+function queryGraph(cypher, params = {}) {
+    return new Promise(function(resolve, reject) {
+        graph.query(cypher, params, function(err, result) {
+            if (err) reject(err);
+            else resolve(result);
+        });
     });
-  });
 }
 
-async function getNormalizedWeight(query){
-  let normalizedSumCypherResult = await queryGraph(query);
-  let normalizedWeight ;
-  if (!_.isNull(normalizedSumCypherResult[0]) &&  normalizedSumCypherResult.length > 0){
-    normalizedWeight = parseFloat(normalizedSumCypherResult[0].normalizedSumWeight);
-    normalizedWeight = (normalizedWeight > 0) ? normalizedWeight : 1;
-  }
-  else{
-    normalizedWeight = 1;
-  }
-  return normalizedWeight;
-
+async function getNormalizedWeight(query) {
+    let normalizedSumCypherResult = await queryGraph(query);
+    let normalizedWeight;
+    if (
+        !_.isNull(normalizedSumCypherResult[0]) &&
+        normalizedSumCypherResult.length > 0
+    ) {
+        normalizedWeight = parseFloat(
+            normalizedSumCypherResult[0].normalizedSumWeight
+        );
+        normalizedWeight = normalizedWeight > 0 ? normalizedWeight : 1;
+    } else {
+        normalizedWeight = 1;
+    }
+    return normalizedWeight;
 }
 
 let graphController = {
-  getUsers: async function(req, res) {
-    let cypher = `match (n:User) return n`;
-    try {
-      let result = await queryGraph(cypher);
-      res.json(result);
-    } catch (e) {
-      console.error('Query to graph for users failed', cypher);
-      res.json({'error': e});
-    }
-  },
+    getUsers: async function(req, res) {
+        let cypher = `match (n:User) return n`;
+        try {
+            let result = await queryGraph(cypher);
+            res.json(result);
+        } catch (e) {
+            console.error("Query to graph for users failed", cypher);
+            res.json({ error: e });
+        }
+    },
 
-  query: async function(req, res){
-    let nodeId = req.body.nodeId;
-    let user = req.session.passport.user;
+    query: async function(req, res) {
+        let nodeId = req.body.nodeId;
+        let user = req.session.passport.user;
 
-    let relationshipType = req.body.relationshipType || false;
-    let startNodeType = req.body.startNodeType || false;
-    let endNodeType = req.body.endNodeType || false;
-    let relationshipCypherVariableString = relationshipType ? 'relationship:' + relationshipType : 'relationship'
-    let startNodeString = startNodeType ? 'startNode:' + startNodeType : 'startNode'
-    let endNodeString = endNodeType ? 'endNode:' + endNodeType : 'endNode'
+        let relationshipType = req.body.relationshipType || false;
+        let startNodeType = req.body.startNodeType || false;
+        let endNodeType = req.body.endNodeType || false;
+        let relationshipCypherVariableString = relationshipType
+            ? "relationship:" + relationshipType
+            : "relationship";
+        let startNodeString = startNodeType
+            ? "startNode:" + startNodeType
+            : "startNode";
+        let endNodeString = endNodeType ? "endNode:" + endNodeType : "endNode";
 
-    let startUserNodeId = req.body.startUserNodeId || false;
-    let endUserNodeIds = req.body.endUserNodeIds || false;
-    let normalizedSumCypher;
-    let normalizedWeight;
+        let startUserNodeId = req.body.startUserNodeId || false;
+        let endUserNodeIds = req.body.endUserNodeIds || false;
+        let normalizedSumCypher;
+        let normalizedWeight;
 
-    let globalModifiers = await graphUtil.getUserGlobalWeightFactors(user);
+        let globalModifiers = await graphUtil.getUserGlobalWeightFactors(user);
 
-    if (endUserNodeIds.length > 0 ){
-      endUserNodeIds = endUserNodeIds.filter(userId => user.id != userId);
-    }
+        if (endUserNodeIds.length > 0) {
+            endUserNodeIds = endUserNodeIds.filter(userId => user.id != userId);
+        }
 
+        let cypher;
 
-    let cypher;
+        if (
+            startUserNodeId &&
+            (!endUserNodeIds || endUserNodeIds.length === 0)
+        ) {
+            cypher = `match (startUserNode:User)-[${"startUserRel_" +
+                relationshipCypherVariableString}]->(${startNodeString})-[${"endUserRel_" +
+                relationshipCypherVariableString}]->(${endNodeString})`;
+            cypher += ` match (startUserNode)-[:touched]-(endNode)`;
+            cypher += ` where ID(startNode) = ${nodeId}`;
+            cypher += ` and ID(startUserNode) = ${startUserNodeId}`;
+            cypher += ` and NOT ID(endNode) = ${nodeId}`;
+            cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`;
+            cypher += ` and ${"endUserRel_" +
+                relationshipCypherVariableString}.weight > 0`;
+            normalizedSumCypher =
+                cypher +
+                ` return avg(${"endUserRel_" +
+                    relationshipCypherVariableString}.weight) as normalizedSumWeight`;
+            // console.log('normalizedSumCypher---', normalizedSumCypher);
+            // normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
+            // normalizedWeight = globalModifiers.avgOpen;
+            normalizedWeight = 1;
+            cypher += ` return startNode,type(${"endUserRel_" +
+                relationshipCypherVariableString}) as relationshipType, (${"endUserRel_" +
+                relationshipCypherVariableString}.weight) as relationshipWeight, endNode, `;
+            cypher += ` sum(${globalModifiers.avgOpen}) as avgOpen, `;
+            cypher += ` sum(${globalModifiers.avgTouch}) as avgTouch, `;
+            cypher += ` sum(${globalModifiers.maxOpen}) as maxOpen, `;
+            cypher += ` sum(${globalModifiers.maxTouch}) as maxTouch `;
+            cypher += ` order by relationshipWeight desc limit 12`;
+        }
 
-    if (startUserNodeId && (!endUserNodeIds || endUserNodeIds.length === 0)){
-      cypher = `match (startUserNode:User)-[${'startUserRel_' + relationshipCypherVariableString}]->(${startNodeString})-[${'endUserRel_' + relationshipCypherVariableString}]->(${endNodeString})`
-      cypher += ` match (startUserNode)-[:touched]-(endNode)`
-      cypher += ` where ID(startNode) = ${nodeId}`
-      cypher += ` and ID(startUserNode) = ${startUserNodeId}`
-      cypher += ` and NOT ID(endNode) = ${nodeId}`
-      cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`
-      cypher += ` and ${'endUserRel_' + relationshipCypherVariableString}.weight > 0`
-      normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
-      // console.log('normalizedSumCypher---', normalizedSumCypher);
-      // normalizedWeight = await getNormalizedWeight(normalizedSumCypher)
-      // normalizedWeight = globalModifiers.avgOpen;
-      normalizedWeight = 1;
-      cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight) as relationshipWeight, endNode, `
-      cypher += ` sum(${globalModifiers.avgOpen}) as avgOpen, `
-      cypher += ` sum(${globalModifiers.avgTouch}) as avgTouch, `
-      cypher += ` sum(${globalModifiers.maxOpen}) as maxOpen, `
-      cypher += ` sum(${globalModifiers.maxTouch}) as maxTouch `
-      cypher += ` order by relationshipWeight desc limit 12`
-    }
+        if (startUserNodeId && endUserNodeIds && endUserNodeIds.length > 0) {
+            cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]->(${startNodeString}) `;
+            cypher += ` match (endUserNode:User)-[:touched]->(startNode)-[${"endUserRel_" +
+                relationshipCypherVariableString}]->(${endNodeString})`;
+            cypher += ` match (endUserNode)-[:touched]-(endNode)`;
+            cypher += ` where ID(startNode) = ${nodeId}`;
+            cypher += ` and ID(startUserNode) = ${startUserNodeId}`;
+            cypher += ` and ID(endUserNode) in [${endUserNodeIds.join(",")}]`;
+            cypher += ` and NOT ID(endNode) = ${nodeId}`;
+            cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`;
+            cypher += ` and ${"endUserRel_" +
+                relationshipCypherVariableString}.weight > 0`;
+            //Filter for excluding things user touched
+            // cypher += ` and NOT (startUserNode)-[:touched]-(endNode)`
+            normalizedWeight = 1;
 
-    if (startUserNodeId && endUserNodeIds && endUserNodeIds.length > 0){
-      cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]->(${startNodeString}) `
-      cypher += ` match (endUserNode:User)-[:touched]->(startNode)-[${'endUserRel_' + relationshipCypherVariableString}]->(${endNodeString})`
-      cypher += ` match (endUserNode)-[:touched]-(endNode)`
-      cypher += ` where ID(startNode) = ${nodeId}`
-      cypher += ` and ID(startUserNode) = ${startUserNodeId}`
-      cypher += ` and ID(endUserNode) in [${endUserNodeIds.join(',')}]`
-      cypher += ` and NOT ID(endNode) = ${nodeId}`
-      cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`
-      cypher += ` and ${'endUserRel_' + relationshipCypherVariableString}.weight > 0`
-      //Filter for excluding things user touched
-      // cypher += ` and NOT (startUserNode)-[:touched]-(endNode)`
-      normalizedWeight = 1;
+            cypher += ` return startNode,`;
+            cypher += ` type(${"endUserRel_" +
+                relationshipCypherVariableString}) as relationshipType,`;
+            cypher += ` (${"endUserRel_" +
+                relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight,`;
+            cypher += ` endNode,`;
+            cypher += ` sum(${globalModifiers.avgOpen}) as avgOpen, `;
+            cypher += ` sum(${globalModifiers.avgTouch}) as avgTouch, `;
+            cypher += ` sum(${globalModifiers.maxOpen}) as maxOpen, `;
+            cypher += ` sum(${globalModifiers.maxTouch}) as maxTouch `;
+            cypher += ` order by relationshipWeight desc limit 12`;
+        }
+        if (!startUserNodeId && endUserNodeIds && endUserNodeIds.length > 0) {
+            cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]->(${startNodeString})-[${"startUserRel_" +
+                relationshipCypherVariableString}]->(${endNodeString})->[${"endUserRel_" +
+                relationshipCypherVariableString}]-(endUserNode:User)`;
+            cypher += ` match (startUserNode)-[:touched]-(endNode)`;
+            cypher += ` where ID(startNode) = ${nodeId}`;
+            cypher += ` and ID(endUserNode) in [${endUserNodeIds.join(",")}]`;
+            cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`;
+            cypher += ` and NOT ID(endNode) = ${nodeId}`;
+            cypher += ` and ${"endUserRel_" +
+                relationshipCypherVariableString}.weight > 0`;
 
-      cypher += ` return startNode,`
-      cypher += ` type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType,`
-      cypher += ` (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight,`
-      cypher += ` endNode,`
-      cypher += ` sum(${globalModifiers.avgOpen}) as avgOpen, `
-      cypher += ` sum(${globalModifiers.avgTouch}) as avgTouch, `
-      cypher += ` sum(${globalModifiers.maxOpen}) as maxOpen, `
-      cypher += ` sum(${globalModifiers.maxTouch}) as maxTouch `
-      cypher += ` order by relationshipWeight desc limit 12`
-    }
-    if (!startUserNodeId && endUserNodeIds && endUserNodeIds.length > 0){
-      cypher = `match (startUserNode:User)-[${relationshipCypherVariableString}]->(${startNodeString})-[${'startUserRel_' + relationshipCypherVariableString}]->(${endNodeString})->[${'endUserRel_' + relationshipCypherVariableString}]-(endUserNode:User)`
-      cypher += ` match (startUserNode)-[:touched]-(endNode)`
-      cypher += ` where ID(startNode) = ${nodeId}`
-      cypher += ` and ID(endUserNode) in [${endUserNodeIds.join(',')}]`
-      cypher += ` and NOT (startUserNode)-[:blacklisted]-(${endNodeString})`
-      cypher += ` and NOT ID(endNode) = ${nodeId}`
-      cypher += ` and ${'endUserRel_' + relationshipCypherVariableString}.weight > 0`
+            normalizedSumCypher =
+                cypher +
+                ` return avg(${"endUserRel_" +
+                    relationshipCypherVariableString}.weight) as normalizedSumWeight`;
+            normalizedWeight = globalModifiers.avgOpen;
+            // normalizedWeight = globalModifiers.avgGlobalOpen
+            cypher += ` return startNode,type(${"endUserRel_" +
+                relationshipCypherVariableString}) as relationshipType, (${"endUserRel_" +
+                relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, endNode,`;
+            cypher += ` sum(${globalModifiers.avgOpen}) as avgOpen, `;
+            cypher += ` sum(${globalModifiers.avgTouch}) as avgTouch, `;
+            cypher += ` sum(${globalModifiers.maxOpen}) as maxOpen, `;
+            cypher += ` sum(${globalModifiers.maxTouch}) as maxTouch `;
+            cypher += ` order by relationshipWeight desc limit 12`;
+        }
 
-      normalizedSumCypher = cypher + ` return avg(${'endUserRel_' + relationshipCypherVariableString}.weight) as normalizedSumWeight`;
-      normalizedWeight = globalModifiers.avgOpen;
-      // normalizedWeight = globalModifiers.avgGlobalOpen
-      cypher += ` return startNode,type(${'endUserRel_' + relationshipCypherVariableString}) as relationshipType, (${'endUserRel_' + relationshipCypherVariableString}.weight / ${normalizedWeight}) as relationshipWeight, endNode,`
-      cypher += ` sum(${globalModifiers.avgOpen}) as avgOpen, `
-      cypher += ` sum(${globalModifiers.avgTouch}) as avgTouch, `
-      cypher += ` sum(${globalModifiers.maxOpen}) as maxOpen, `
-      cypher += ` sum(${globalModifiers.maxTouch}) as maxTouch `
-      cypher += ` order by relationshipWeight desc limit 12`
-    }
+        if (endNodeType === "Keyword") {
+            if (
+                startUserNodeId &&
+                (!endUserNodeIds || endUserNodeIds.length === 0)
+            ) {
+                cypher = `match (startUserNode:User)-[${"startUserRel_" +
+                    relationshipCypherVariableString}]->(${startNodeString})<-[o:openwith]-(url:Url)<-[r:related]-(endNode)`;
+                cypher += ` match (startUserNode)-[:touched]-(endNode)`;
+                cypher += ` where ID(startNode) = ${nodeId}`;
+                cypher += ` and ID(startUserNode) = ${startUserNodeId}`;
+                cypher += ` and NOT ID(endNode) = ${nodeId}`;
+                cypher += ` and NOT ID(url) = ${nodeId}`;
+                cypher += ` and ${"endUserRel_" +
+                    relationshipCypherVariableString}.weight > 0`;
 
-    if (endNodeType === "Keyword"){
-      if (startUserNodeId && (!endUserNodeIds || endUserNodeIds.length === 0)){
-        cypher = `match (startUserNode:User)-[${'startUserRel_' + relationshipCypherVariableString}]->(${startNodeString})<-[o:openwith]-(url:Url)<-[r:related]-(endNode)`
-        cypher += ` match (startUserNode)-[:touched]-(endNode)`
-        cypher += ` where ID(startNode) = ${nodeId}`
-        cypher += ` and ID(startUserNode) = ${startUserNodeId}`
-        cypher += ` and NOT ID(endNode) = ${nodeId}`
-        cypher += ` and NOT ID(url) = ${nodeId}`
-        cypher += ` and ${'endUserRel_' + relationshipCypherVariableString}.weight > 0`
+                normalizedSumCypher =
+                    cypher + ` return avg(o.weight) as normalizedSumWeight`;
 
-        normalizedSumCypher = cypher + ` return avg(o.weight) as normalizedSumWeight`;
+                normalizedWeight = globalModifiers.avgOpen;
 
-        normalizedWeight = globalModifiers.avgOpen;
+                cypher += ` return startNode,type(r) as relationshipType, (o.weight / ${normalizedWeight}) as relationshipWeight, endNode,`;
+                cypher += ` sum(${globalModifiers.avgOpen}) as avgOpen, `;
+                cypher += ` sum(${globalModifiers.avgTouch}) as avgTouch, `;
+                cypher += ` sum(${globalModifiers.maxOpen}) as maxOpen, `;
+                cypher += ` sum(${globalModifiers.maxTouch}) as maxTouch `;
+                cypher += ` order by relationshipWeight desc limit 12`;
+            }
+        }
 
-        cypher += ` return startNode,type(r) as relationshipType, (o.weight / ${normalizedWeight}) as relationshipWeight, endNode,`
-        cypher += ` sum(${globalModifiers.avgOpen}) as avgOpen, `
-        cypher += ` sum(${globalModifiers.avgTouch}) as avgTouch, `
-        cypher += ` sum(${globalModifiers.maxOpen}) as maxOpen, `
-        cypher += ` sum(${globalModifiers.maxTouch}) as maxTouch `
-        cypher += ` order by relationshipWeight desc limit 12`
-      }
+        try {
+            if (!startUserNodeId && !endUserNodeIds) {
+                normalizedSumCypher = `start startNode=node(${nodeId}) match (${startNodeString})-[${relationshipCypherVariableString}]->(${endNodeString}) return log(sum(relationship.weight)) as normalizedSumWeight`;
+                normalizedWeight = await getNormalizedWeight(
+                    normalizedSumCypher
+                );
+                // normalizedWeight = globalModifiers.avgGlobalOpen
 
-    }
-
-    try{
-
-      if (!startUserNodeId && !endUserNodeIds){
-        normalizedSumCypher = `start startNode=node(${nodeId}) match (${startNodeString})-[${relationshipCypherVariableString}]->(${endNodeString}) return log(sum(relationship.weight)) as normalizedSumWeight`;
-        normalizedWeight = await getNormalizedWeight(normalizedSumCypher);
-        // normalizedWeight = globalModifiers.avgGlobalOpen
-
-
-        cypher = `
+                cypher = `
           start startNode=node(${nodeId}) match (${startNodeString})-[${relationshipCypherVariableString}]-(${endNodeString}) return collect(distinct startNode)[0] as startNode, collect(distinct type(relationship))[0] as relationshipType, log(relationship.weight)/${normalizedWeight} as relationshipWeight, endNode order by relationshipWeight desc limit 12
-        `
-      }
+        `;
+            }
 
-      try {
-        let result = await queryGraph(cypher);
-        console.log(`======  QUERY   =====`);
-        console.log(`  `);
-        console.log(cypher);
-        console.log(`  `);
-        console.log(`====== END QUERY =====`);
-        console.log(`Found ${result.length} results for the query`);
+            try {
+                let result = await queryGraph(cypher);
+                console.log(`======  QUERY   =====`);
+                console.log(`  `);
+                console.log(cypher);
+                console.log(`  `);
+                console.log(`====== END QUERY =====`);
+                console.log(`Found ${result.length} results for the query`);
 
-        result.globalModifiers = globalModifiers;
+                result.globalModifiers = globalModifiers;
 
-        mixpanel.track('query', {
-          user: user.username,
-          query: cypher
-        })
+                mixpanel.track("query", {
+                    user: user.username,
+                    query: cypher
+                });
 
-        res.json(result);
-      }
-      catch(error){
-        console.error('Query to graph failed', cypher, error);
-        res.json({'error': error});
+                res.json(result);
+            } catch (error) {
+                console.error("Query to graph failed", cypher, error);
+                res.json({ error: error });
+            }
+        } catch (error) {
+            console.error("Query to graph failed :-()", cypher, error);
+            res.json({ error: error });
+        }
+    },
 
-      }
-    }
-    catch(error){
-      console.error('Query to graph failed :-()', cypher, error);
-      res.json({'error': error});
+    blacklistNode: async function(req, res) {
+        let nodeId = req.body.nodeId;
 
-    }
-
-
-
-  },
-
-  blacklistNode: async function(req, res) {
-    let nodeId = req.body.nodeId;
-
-    let cypher = `
-      START userNode=node(${req.body.userId}), targetNode=node(${req.body.targetId})
+        let cypher = `
+      START userNode=node(${req.body.userId}), targetNode=node(${req.body
+            .targetId})
       MERGE (userNode)-[rel:blacklisted]->(targetNode)
       return userNode, targetNode, rel
     `;
 
-    // console.log('cypher: ', cypher);
+        // console.log('cypher: ', cypher);
 
-    try {
-      let result = await queryGraph(cypher);
-      res.json(result);
-    } catch(error) {
-      console.error(`Blacking node(${req.body.nodeId}) for user(${req.body.userId}) failed`, cypher);
-      res.json({'error': error});
-    }
-  },
+        try {
+            let result = await queryGraph(cypher);
+            res.json(result);
+        } catch (error) {
+            console.error(
+                `Blacking node(${req.body.nodeId}) for user(${req.body
+                    .userId}) failed`,
+                cypher
+            );
+            res.json({ error: error });
+        }
+    },
 
-  userFeedback: async function(req, res){
-    let {userId, startNode, endNode, feedbackType, relationshipType} = req.body;
+    userFeedback: async function(req, res) {
+        let {
+            userId,
+            startNode,
+            endNode,
+            feedbackType,
+            relationshipType
+        } = req.body;
 
-    let relationshipValue;
-    switch(feedbackType){
-      case 'positive':
-        relationshipValue = '+ 10'
-      break;
-      case 'negative':
-        relationshipValue = '- 10'
-      break;
-    }
+        let relationshipValue;
+        switch (feedbackType) {
+            case "positive":
+                relationshipValue = "+ 10";
+                break;
+            case "negative":
+                relationshipValue = "- 10";
+                break;
+        }
 
-    let cypher = `match (n)-[r:openwith]-(m)
+        let cypher = `match (n)-[r:openwith]-(m)
     where id(n)=${startNode.id}
     and id(m)=${endNode.id}
     set r.weight = coalesce(r.weight,0) ${relationshipValue}
-    return n,r,m`
+    return n,r,m`;
 
-    let result = {};
+        let result = {};
 
-    try{
-      result = await graphUtil.queryGraph(cypher);
-
+        try {
+            result = await graphUtil.queryGraph(cypher);
+        } catch (e) {
+            console.log("failed to update userFeedback", e);
+        } finally {
+            res.json({ result: result });
+        }
     }
-    catch(e){
-      console.log('failed to update userFeedback', e);
-    }
-    finally{
-        res.json({result: result});
-    }
+};
 
-  }
-}
-
-
-module.exports =  graphController
+module.exports = graphController;
