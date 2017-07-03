@@ -1,0 +1,69 @@
+server
+├── bin
+│   └── cloud
+│       ├── create-droplet.js
+│       ├── index.js
+│       └── package.json
+├── config
+│   ├── 0.json
+│   ├── default-0.json
+│   ├── default.json
+│   └── production.json
+├── rethinkdb_data
+│   ├── efc0be8b-dcd4-42ee-9f69-a8e71280858c
+│   ├── log_file
+│   └── metadata
+├── sherpa
+│   └── LOCK
+├── src
+│   ├── controllers
+│   │   ├── atom.js
+│   │   ├── chrome.js
+│   │   ├── contextManager.js
+│   │   ├── graph.js
+│   │   ├── historyManager.js
+│   │   ├── keywordsManager.js
+│   │   ├── metadataManager.js
+│   │   ├── nodeExec.js
+│   │   ├── proactive.js
+│   │   ├── proactiveManager.js
+│   │   ├── reports.js
+│   │   ├── settings.js
+│   │   ├── teams.js
+│   │   ├── terminal.js
+│   │   └── users.js
+│   ├── strategies
+│   │   └── github.js
+│   ├── utils
+│   │   ├── graph.js
+|   |   |   └── connect to graph, create nodes + constraints, all api calls related to saving node/graph information
+│   │   ├── mixpanel.js
+|   |   |   └── inits mixpanel
+│   │   ├── rethink.js
+|   |   |   └──
+│   │   ├── settings-manager.js
+|   |   |   └──
+│   │   ├── socket-manager.js
+|   |   |   └──
+│   │   └── user.js
+|   |   |   └──
+│   ├── main.js
+|   |   └── express, passport, socket manager ('./utils/socket-manager'), file opener, routes, etc.
+│   ├── record.js
+|   |   └── require('node-record-lpcm16', 'request') - records audio, sends to Wit.ai
+│   └── test.js
+├── dev-server.sh
+├── gulpfile.js
+├── index.js
+|   └── require('babel-core/register', 'babel-polyfill', './src/main.js');
+├── nodemon.conf - configuration for nodemon watcher
+├── package.json
+├── prod-server.sh
+├── settings.json
+├── settings.prod.backup
+├── start-server.bat
+├── start-server.sh
+├── watson
+└── webpack.config.js
+
+9 directories, 48 files

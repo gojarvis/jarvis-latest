@@ -1,38 +1,21 @@
-import React, { Component, PropTypes } from 'react';
-import Radium from 'radium';
-import FB from 'styles/flexbox';
-
+import React, { Component, PropTypes } from "react";
+import Radium from "radium";
+import FB from "styles/flexbox";
 
 class HotUrlsInRepo extends Component {
-  constructor(...args) {
-    super(...args);
-  }
-
-  static get propTypes() {
-    return {
-
+    constructor(...args) {
+        super(...args);
     }
-  }
 
+    static get propTypes() {
+        return {};
+    }
 
-  render() {
-
-    return (
-
-
-      <div>HotUrlsInRepo</div>
-
-
-    );
-  }
+    render() {
+        return <div>HotUrlsInRepo</div>;
+    }
 }
 
-const styles = {
-
-
-}
-
-
-
+const styles = {};
 
 export default HotUrlsInRepo;

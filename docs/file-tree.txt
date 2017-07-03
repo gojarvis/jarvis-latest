@@ -1,0 +1,84 @@
+server
+├── bin
+│   └── cloud
+│       ├── create-droplet.js
+│       ├── index.js
+│       └── package.json
+├── config
+│   ├── 0.json
+│   ├── default-0.json
+│   ├── default.json
+│   └── production.json
+├── rethinkdb_data
+│   ├── efc0be8b-dcd4-42ee-9f69-a8e71280858c
+│   ├── log_file
+│   └── metadata
+├── sherpa
+│   └── LOCK
+├── src
+│   ├── controllers
+│   │   ├── atom.js
+|   |   |   └── connects to socket + socket events, saves private members for atom context information, contains functions for relating files to each other, dealing with atom events, uses utils/graph.js
+│   │   ├── chrome.js
+|   |   |   └── connects to socket + socket events, calls functions in graph.js on events
+│   │   ├── contextManager.js
+|   |   |   └── handles heartbeat,
+│   │   ├── graph.js
+|   |   |   └── queries the graph for the UI, handles blacklisting nodes, getting user feedback, and returning a list of users
+│   │   ├── historyManager.js
+|   |   |   └──
+│   │   ├── keywordsManager.js
+|   |   |   └──
+│   │   ├── metadataManager.js
+|   |   |   └──
+│   │   ├── nodeExec.js
+|   |   |   └──
+│   │   ├── proactive.js
+|   |   |   └──
+│   │   ├── proactiveManager.js
+|   |   |   └──
+│   │   ├── reports.js
+|   |   |   └──
+│   │   ├── settings.js
+|   |   |   └──
+│   │   ├── teams.js
+|   |   |   └──
+│   │   ├── terminal.js
+|   |   |   └──
+│   │   └── users.js
+|   |   |   └──
+│   ├── strategies
+│   │   └── github.js
+│   ├── utils
+│   │   ├── graph.js
+|   |   |   └── connect to graph, create nodes + constraints, all api calls related to saving node/graph information
+│   │   ├── mixpanel.js
+|   |   |   └── init mixpanel
+│   │   ├── rethink.js
+|   |   |   └── connects to rethink db
+│   │   ├── settings-manager.js
+|   |   |   └── creates defaults for root path of project, credentials, exports settings
+│   │   ├── socket-manager.js
+|   |   |   └── creates socket server bound to user, saves references to Chrome/Atom/Terminal controllers
+│   │   └── user.js
+|   |   |   └── empty and blank af
+│   ├── main.js
+|   |   └── express, passport, socket manager ('./utils/socket-manager'), file opener, routes, etc.
+│   ├── record.js
+|   |   └── require('node-record-lpcm16', 'request') - records audio, sends to Wit.ai
+│   └── test.js
+├── dev-server.sh
+├── gulpfile.js
+├── index.js
+|   └── require('babel-core/register', 'babel-polyfill', './src/main.js');
+├── nodemon.conf - configuration for nodemon watcher
+├── package.json
+├── prod-server.sh
+├── settings.json
+├── settings.prod.backup
+├── start-server.bat
+├── start-server.sh
+├── watson
+└── webpack.config.js
+
+9 directories, 48 files

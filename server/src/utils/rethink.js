@@ -1,7 +1,7 @@
-import projectSettingsManager from './settings-manager';
+import projectSettingsManager from "./settings-manager";
 let activityManagerCredentials = projectSettingsManager.getActivityManagerCredentials();
 
-let db = require('thinky')({
+let db = require("thinky")({
     host: activityManagerCredentials.address
 });
 

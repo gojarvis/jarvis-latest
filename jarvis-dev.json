@@ -1,71 +1,71 @@
 {
-  "apps" : [
-    {
-      "name"        : "jarvis-server-dev",
-      "script"      : "start-server.sh",
-      "args"        : [],
-      "watch"       : false,
-      "merge_logs"  : true,
-      "cwd"         : "server",
-      "exec_mode"   : "fork_mode",
-      "exec_interperter": "bash",
-      "instances": 1,
-      "env": {
-        "NODE_ENV": "development",
-        "JARVIS_DEV": "true",
-        "AWESOME_SERVICE_API_TOKEN": "xxx"
-      },
-      "env_production" : {
-         "NODE_ENV": "production"
-      },
-      "env_staging" : {
-         "NODE_ENV" : "staging",
-         "TEST"     : true
-      }
-    },
-    {
-      "name"        : "jarvis-client-dev",
-      "script"      : "start-client.sh",
-      "watch"       : false,
-      "merge_logs"  : true,
-      "cwd"         : "client",
-      "instances": 1,
-      "exec_mode": "fork_mode",
-      "max_memory_restart": "2G",
-      "env": {
-        "NODE_ENV": "development",
-        "JARVIS_DEV": "true",
-        "AWESOME_SERVICE_API_TOKEN": "xxx"
-      },
-      "env_production" : {
-         "NODE_ENV": "production"
-      },
-      "env_staging" : {
-         "NODE_ENV" : "staging",
-         "TEST"     : true
-      }
-    },
-    {
-      "name"        : "jarvis-plugin-chrome-dev",
-      "script"      : "start-plugin-chrome.sh",
-      "watch"       : false,
-      "merge_logs"  : true,
-      "cwd"         : "plugins/schrome",
-      "instances": 1,
-      "exec_mode": "fork_mode",
-      "max_memory_restart": "2G",
-      "env": {
-        "NODE_ENV": "development",
-        "JARVIS_DEV": "true",
-        "AWESOME_SERVICE_API_TOKEN": "xxx"
-      },
-      "env_production" : {
-         "NODE_ENV": "production"
-      },
-      "env_staging" : {
-         "NODE_ENV" : "staging",
-         "TEST"     : true
-      }
-    }
-  ]
+    "apps": [
+        {
+            "name": "jarvis-server-dev",
+            "script": "start-server.sh",
+            "args": [],
+            "watch": false,
+            "merge_logs": true,
+            "cwd": "server",
+            "exec_mode": "fork_mode",
+            "exec_interperter": "bash",
+            "instances": 1,
+            "env": {
+                "NODE_ENV": "development",
+                "JARVIS_DEV": "true",
+                "AWESOME_SERVICE_API_TOKEN": "xxx"
+            },
+            "env_production": {
+                "NODE_ENV": "production"
+            },
+            "env_staging": {
+                "NODE_ENV": "staging",
+                "TEST": true
+            }
+        },
+        {
+            "name": "jarvis-client-dev",
+            "script": "start-client.sh",
+            "watch": false,
+            "merge_logs": true,
+            "cwd": "client",
+            "instances": 1,
+            "exec_mode": "fork_mode",
+            "max_memory_restart": "2G",
+            "env": {
+                "NODE_ENV": "development",
+                "JARVIS_DEV": "true",
+                "AWESOME_SERVICE_API_TOKEN": "xxx"
+            },
+            "env_production": {
+                "NODE_ENV": "production"
+            },
+            "env_staging": {
+                "NODE_ENV": "staging",
+                "TEST": true
+            }
+        },
+        {
+            "name": "jarvis-plugin-chrome-dev",
+            "script": "start-plugin-chrome.sh",
+            "watch": false,
+            "merge_logs": true,
+            "cwd": "plugins/schrome",
+            "instances": 1,
+            "exec_mode": "fork_mode",
+            "max_memory_restart": "2G",
+            "env": {
+                "NODE_ENV": "development",
+                "JARVIS_DEV": "true",
+                "AWESOME_SERVICE_API_TOKEN": "xxx"
+            },
+            "env_production": {
+                "NODE_ENV": "production"
+            },
+            "env_staging": {
+                "NODE_ENV": "staging",
+                "TEST": true
+            }
+        }
+    ]
 }

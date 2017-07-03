@@ -1,1 +1,1 @@
-export * as exec from './execScript';
+export * as exec from "./execScript";

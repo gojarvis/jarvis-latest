@@ -1,4 +1,4 @@
 export default {
-  common: require('./common'),
-  flexbox: require('./flexbox'),
-}
+    common: require("./common"),
+    flexbox: require("./flexbox")
+};

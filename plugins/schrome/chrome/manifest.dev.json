@@ -1,33 +1,31 @@
 {
-  "version": "0.0.0",
-  "name": "JarvisWatcher",
-  "manifest_version": 2,
-  "description": "Jarvis Chrome Extension",
-  "content_scripts": {
-    "matches": ["http://*/*", "https://*/*"],
-    "js": "onfocus_listener.js"
-  },
-  "browser_action": {
-    "default_title": "Jarvis Chrome Extension",
-    "default_popup": "popup.html"
-  },
-  "icons": {
-    "16": "img/icon-16.png",
-    "48": "img/icon-48.png",
-    "128": "img/icon-128.png"
-  },
-  "background": {
-    "page": "background.html"
-  },
-  "web_accessible_resources": [
-    "script/*"
-  ],
-  "permissions": [
-    "contextMenus",
-    "tabs",
-    "storage",
-    "http://*/*",
-    "https://*/*"
-  ],
-  "content_security_policy": "default-src 'self'; script-src 'self' https://localhost:3333 'unsafe-eval'; connect-src https://localhost:3333 wss://localhost:3333 ws://localhost:3000 'self' http://localhost:3000 http://chrome-extension; style-src * 'unsafe-inline'; img-src 'self' data:;"
+    "version": "0.0.0",
+    "name": "JarvisWatcher",
+    "manifest_version": 2,
+    "description": "Jarvis Chrome Extension",
+    "content_scripts": {
+        "matches": ["http://*/*", "https://*/*"],
+        "js": "onfocus_listener.js"
+    },
+    "browser_action": {
+        "default_title": "Jarvis Chrome Extension",
+        "default_popup": "popup.html"
+    },
+    "icons": {
+        "16": "img/icon-16.png",
+        "48": "img/icon-48.png",
+        "128": "img/icon-128.png"
+    },
+    "background": {
+        "page": "background.html"
+    },
+    "web_accessible_resources": ["script/*"],
+    "permissions": [
+        "contextMenus",
+        "tabs",
+        "storage",
+        "http://*/*",
+        "https://*/*"
+    ],
+    "content_security_policy": "default-src 'self'; script-src 'self' https://localhost:3333 'unsafe-eval'; connect-src https://localhost:3333 wss://localhost:3333 ws://localhost:3000 'self' http://localhost:3000 http://chrome-extension; style-src * 'unsafe-inline'; img-src 'self' data:;"
 }

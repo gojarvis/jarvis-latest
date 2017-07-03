@@ -1,11 +1,9 @@
-let _ = require('lodash');
-let GraphUtil = require('../utils/graph');
+let _ = require("lodash");
+let GraphUtil = require("../utils/graph");
 let graphUtil = new GraphUtil();
-
 
 class TerminalController {
     constructor(socket, io, context, history) {
-
         this.socket = socket;
         this.registerEvents();
         this.tabs = [];
@@ -17,15 +15,16 @@ class TerminalController {
 
     registerEvents() {
         var self = this;
-        self.socket.on('terminal-connected', function() {
-            console.log('terminal-connected', self.socket.id);
+        self.socket.on("terminal-connected", function() {
+            console.log("terminal-connected", self.socket.id);
         });
 
-        self.socket.on('terminal-command', function(commandResponseTupple) {
-
-          self.handleCommand(commandResponseTupple).then(function(commandNode) {
-            // console.log('COMMAND', commandNode);
-          });
+        self.socket.on("terminal-command", function(commandResponseTupple) {
+            self
+                .handleCommand(commandResponseTupple)
+                .then(function(commandNode) {
+                    // console.log('COMMAND', commandNode);
+                });
         });
     }
 
@@ -35,36 +34,31 @@ class TerminalController {
         if (!commandNode) {
             commandNode = await graphUtil.saveCommand(command);
         }
-        return commandNode
+        return commandNode;
     }
 
     async handleCommand(commandResponseTupple) {
-
-        let {command, response} = commandResponseTupple;
-        console.log('Command', command, response);
-        let commandNode = await this.getAndSave(command)
+        let { command, response } = commandResponseTupple;
+        console.log("Command", command, response);
+        let commandNode = await this.getAndSave(command);
 
         this.context.addCommandNode(commandNode);
-        this.history.saveEvent({
-            type: 'command',
-            source: 'terminal',
-            data: {
-                nodeId: commandNode.id,
-                address: command,
-                response: response
-            }
-        }).then(function(res) {
-            // console.log('command saved');
-        });
+        this.history
+            .saveEvent({
+                type: "command",
+                source: "terminal",
+                data: {
+                    nodeId: commandNode.id,
+                    address: command,
+                    response: response
+                }
+            })
+            .then(function(res) {
+                // console.log('command saved');
+            });
 
-        return commandNode
-
-
+        return commandNode;
     }
-
 }
 
-
-
-
-module.exports = TerminalController
+module.exports = TerminalController;

@@ -1,10 +1,9 @@
-let _ = require('lodash');
-
+let _ = require("lodash");
 
 // let ProjectSettingsManager = require('../utils/settings-manager');
-let projectSettingsManager = require('../utils/settings-manager');
+let projectSettingsManager = require("../utils/settings-manager");
 
-let GraphUtil = require('../utils/graph');
+let GraphUtil = require("../utils/graph");
 let graphUtil = new GraphUtil();
 
 class AtomController {
@@ -21,33 +20,33 @@ class AtomController {
     registerEvents() {
         var self = this;
 
-        self.socket.on('atom-connected', function() {
-            console.log('atom-connected', self.socket.id);
+        self.socket.on("atom-connected", function() {
+            console.log("atom-connected", self.socket.id);
         });
 
-        self.socket.on('atom-highlighted', function(msg) {
+        self.socket.on("atom-highlighted", function(msg) {
             let address = msg.uri;
-            self.handleFileHighlighted(address).then(function(related) {
-
-            });
+            self.handleFileHighlighted(address).then(function(related) {});
         });
 
-        self.socket.on('atom-file-close', function(msg){
+        self.socket.on("atom-file-close", function(msg) {
             let address = msg.uri;
 
-            self.handleFileClose(address).then(function(){
-            })
-        })
+            self.handleFileClose(address).then(function() {});
+        });
     }
-
 
     async relateOneToMany(origin, others, relationship) {
         // console.log(origin, others, relationship);
         let relationships = [];
         try {
-            relationships = await Promise.all(others.map(target => graphUtil.relateNodes(origin, target, relationship)));
+            relationships = await Promise.all(
+                others.map(target =>
+                    graphUtil.relateNodes(origin, target, relationship)
+                )
+            );
         } catch (err) {
-            console.log('failed to relate one to many', err);
+            console.log("failed to relate one to many", err);
         }
 
         return relationships;
@@ -57,29 +56,27 @@ class AtomController {
         let self = this;
         let fileNode = await graphUtil.getFile(address);
         if (!fileNode) {
-            console.log('saving');
+            console.log("saving");
             fileNode = await graphUtil.saveFile(address);
         }
-        return fileNode
-
+        return fileNode;
     }
 
-    async handleFileClose(address){
+    async handleFileClose(address) {
+        let projectPath = projectSettingsManager.getRootPath();
 
-      let projectPath = projectSettingsManager.getRootPath();
-
-      let trimmedAddress = address.replace(projectPath, '');
-      let fileNode = await graphUtil.getFile(trimmedAddress);
-      this.context.removeFileNode(fileNode)
-      return fileNode
+        let trimmedAddress = address.replace(projectPath, "");
+        let fileNode = await graphUtil.getFile(trimmedAddress);
+        this.context.removeFileNode(fileNode);
+        return fileNode;
     }
 
     async handleFileHighlighted(address) {
-        let fileNode = await this.insertUniqueFile(address)
+        let fileNode = await this.insertUniqueFile(address);
 
-        if (!fileNode){
-          console.log('Ignoring', address);
-          return;
+        if (!fileNode) {
+            console.log("Ignoring", address);
+            return;
         }
 
         let otherNodes = this.tabs.filter(tab => tab.id !== fileNode.id);
@@ -87,19 +84,20 @@ class AtomController {
         // let rel = await this.relateOneToMany(fileNode, otherNodes, 'openwith');
 
         this.context.addFileNode(fileNode);
-        this.history.saveEvent({
-            type: 'highlighted',
-            source: 'atom',
-            data: {
-                nodeId: fileNode.id,
-                address: address
-            }
-        }).then(function(res) {
-            // console.log('highlighted atom saved');
-        });
+        this.history
+            .saveEvent({
+                type: "highlighted",
+                source: "atom",
+                data: {
+                    nodeId: fileNode.id,
+                    address: address
+                }
+            })
+            .then(function(res) {
+                // console.log('highlighted atom saved');
+            });
 
-        return rel
-
+        return rel;
     }
 
     // async handleFileClose(address) {
@@ -107,16 +105,14 @@ class AtomController {
     // }
 
     async insertUniqueFile(address) {
-
         let projectPath = projectSettingsManager.getRootPath();
 
-        if (!_.isEmpty(projectPath) && address.indexOf(projectPath) === -1){
-          console.log('Ignoring file that is outside of root');
-          return false;
+        if (!_.isEmpty(projectPath) && address.indexOf(projectPath) === -1) {
+            console.log("Ignoring file that is outside of root");
+            return false;
         }
 
-
-        let trimmedAddress = address.replace(projectPath, '');
+        let trimmedAddress = address.replace(projectPath, "");
         let fileNode = await this.getAndSave(trimmedAddress);
         let tab = this.tabs.filter(tab => tab.address === fileNode.address);
         if (tab.length == 0) {
@@ -134,7 +130,4 @@ class AtomController {
     }
 }
 
-
-
-
-module.exports = AtomController
+module.exports = AtomController;

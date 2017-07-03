@@ -1,4 +1,4 @@
-// 
+//
 //
 // chrome.storage.local.get('todos', (obj) => {
 //   let todos = obj.todos;
